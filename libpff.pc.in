@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libpff
+Description: Library to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format. PFF is used in PAB (Personal Address Book), PST (Personal Storage Table) and OST (Offline Storage Table) files.
+Version: @VERSION@
+Libs: -L${libdir} -lpff
+Libs.private: @ax_libbfio_pc_libs_private@ @ax_libcdata_pc_libs_private@ @ax_libcerror_pc_libs_private@ @ax_libcfile_pc_libs_private@ @ax_libclocale_pc_libs_private@ @ax_libcnotify_pc_libs_private@ @ax_libcpath_pc_libs_private@ @ax_libcsplit_pc_libs_private@ @ax_libcstring_pc_libs_private@ @ax_libcthreads_pc_libs_private@ @ax_libfdata_pc_libs_private@ @ax_libfdatetime_pc_libs_private@ @ax_libfguid_pc_libs_private@ @ax_libfmapi_pc_libs_private@ @ax_libfvalue_pc_libs_private@ @ax_libfwnt_pc_libs_private@ @ax_libuna_pc_libs_private@ @ax_pthread_pc_libs_private@ @ax_zlib_pc_libs_private@
+Cflags: -I${includedir}
+

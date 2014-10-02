@@ -1,0 +1,24 @@
+Acknowledgements: libpff
+
+Copyright (c) 2008-2014, Joachim Metz <joachim.metz@gmail.com>
+
+This code is derived from information and software contributed by:
+* Earlier work on the PST file format in libpst by
+  Dave Smith <dave.s@earthcorp.com>,
+  Joe Nahmias <joe@nahmias.net>,
+  Brad Hards <bradh@frogmouth.net>
+  and Carl Byington <carl@five-ten-sg.com>
+  (http://www.five-ten-sg.com/libpst/)
+* Carl Byington <carl@five-ten-sg.com> for continued work on analyzing
+  the Personal Folder Format in libpst
+* Igor Rogov <blizzz.prg@gmail.com> for alpha testing and bug hunting
+* Krzysztof Mazur <krzysztofmazur@users.sourceforge.net> for the
+  recipient list patch and bug hunting
+* Warren Brown <warrenthebrown@users.sourceforge.net> for the multi
+  value support, the 16-bit value patch, alpha testing, bug hunting
+  and the several Visual Studio related improvements like the WIN64
+  project/solution files
+* Björn Ganster, X-Ways Software Technology,
+  for providing the Windows extended filename patches, file exists
+  speed improvement, alpha testing and bug hunting
+

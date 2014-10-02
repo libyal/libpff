@@ -1,0 +1,2545 @@
+TODO
+* API add
+  - libpff_multi_value_get_value_16bit
+  - libpff_multi_value_get_value_floating_point
+* change item API into table API
+  - record entry add means to get identifier
+* Man page
+  - update record entry functions
+* pypff
+  - make sure record set index and record entry index are uint32
+  - add definitions
+  - add record entry value functions
+    pypff_record_entry_get_value_data_size
+    get_value_data_as_boolean
+    get_value_data_as_datetime
+  - add multi value functions
+  - add iterator objects (+/-)
+  - add time as integer functions
+  - add function to return offset of item
+  - add more functions
+  - add name to id map support
+
+* look at recover of 75285f43a02b6cb973db5d2953f0cce9.pst
+* local descriptor node caching
+  - local descriptor node cache on top of data block cache ?
+  - add cache timestamp
+* refactor
+  - create generic solution for data block handling for: individual blocks,
+    array blocks, local descriptor blocks, table blocks
+  - refactor libpff_local_descriptor_node_read to deal with compressed data
+  blocks. read from data block?
+    - fix libpff_local_descriptors_read_node_entry
+  - item tree: wrap direct access to descriptors_index
+  - recover: wrap direct access to descriptors and offsets_index
+  - implement libfdata_list_set_element_by_index_with_mapped_size
+  - 4k the back pointer of the array data block is the data identifier
+    not the identifier?
+    check for: "libpff_data_block_read: mismatch in data identifier:"
+  - add a generic method to read data blocks from the file
+  - local descriptors: cache local descriptor nodes ?
+* add IPM.Post support (more1/Me.pst)
+* corrupted
+  - mark file with incorrect encryption as corrupted
+* recovery
+  - read data block size while scanning, ignore mismatches
+  - check if local descriptors are read as block
+* debug print
+  - free map
+  - densitiy list
+* 64-bit 4k pages support
+  - libpff_free_map.c
+  - did the table value reference change?
+* fix/check
+  - check creation of .export when -t is a directory
+  - remove copy file descriptors
+  - Change most proxy pointers to const ?
+  - check if libpff_item_get_entry_value_by_utf8_name works
+  - Add function to easily map a named entry type to it's numeric value
+  - add libpff_message_get_number_of_recipients() convenience function?
+* refactor: 
+  - remove libpff_item_values_read_local_descriptor_data
+  - fix libfdata_list_set_element_data
+  - table refactor entries into stand-alone multi set array ?
+  - table read should empty the record_sets_array on read ?
+  - record entry handle different data types on demand ?
+  - what about table block?
+  - use fvalue to store record entry data ?
+  - libpff_item_values_get_record_entry_by_type add generic STRING TYPE ?
+* code clean up
+  - refactor table index into fdata list? with table blocks
+  - does table index contain full copy of table data ? if so refactor
+* add get entry id by name function
+* add by_name functions (check corresponding TODO)
+* fdata stream rewrite
+  - array uses it as list
+* clean up error path of libpff_item_tree_create_node
+
+* libfdata update
+  - improve stream, how deal with compressed data
+  - fix libfdata_tree_initialize
+* libpff IO handle
+  - move index_nodes_vector and index_nodes_cache to file
+* libfmapi
+  - add debug output for PidTagFlagStatus
+  - add debug output for PidLidSideEffects
+- add debug output for PidLidTaskMode
+- add debug output for PidLidAddressBookProviderArrayType
+* implement libcdata support
+  - refactor list
+  - move tree node get value into libpff_item_initialize
+* pffexport/export handle:
+  - handle MIME attachments
+  - protect against duplicate name clashes
+  - dump attachment item values
+  - add support for LIBPFF_ITEM_TYPE_COMMON (IPM)
+  - separate item file into separate structure
+  - move message specific funtionality into message file ?
+  - allow to set output formatting utf8 or utf16
+* item file:
+  - create function to write enum values to the item file
+  - create function to write flag values to the item file
+* code clean up
+  - what's the status of table block ?
+  - unused and goto
+* libpff: UTF8/UTF16
+  - libpff_message_get_plain_text_body_size
+  - libpff_message_get_rtf_body
+
+* what about debug export and error notifications
+
+Change item API into table API
+* deprecrate and replace by copy data functions:
+  - libpff_item_get_entry_value
+  - libpff_item_get_entry_value_by_utf8_name
+  - libpff_item_get_entry_value_by_utf16_name
+* add table API ?
+  - read data on demand like libesedb
+  - move low-level item functions to table API
+  - should table manage local descriptors and cache ?
+  - separate item values code from table ?
+  - expose record (entry) to API ?
+
+* remove ascii codepage param from libpff_item_values_get_entry_value ?
+
+* add const to export path in export handle
+* replace internal_file by io_handle in item
+
+* add item (descriptor identifier) type support
+  - e.g. do not read a table if item does not contain a table
+
+* cache local descriptor node (list element) in local descriptor value ?
+  - reduces search for list element
+
+libpff
+* rename value (type) to table entry value (type)
+* check node values ranges in index tree
+* add abort support in long running function
+  - make sure to return library to safe state
+  - make sure to reset library abort value
+* reduce impact of duplicate MAPI entry types
+* validate table entry identifiers of level >= 1 with those of lower levels?
+* codepage support
+  - implement libuna-libpff codepage mapping function
+
+libpff - check/test
+* check support for multiple level 8c tables
+
+libpff - API
+* message store
+  - add functions to retrieve special folder entry items
+* add function to retrieve:
+  - the file offset ranges used by an item ?
+* name to id map
+  - API access to entire name to id map ?
+  - add libpff_file_get_name_to_id_map to include file?
+* add a function to retrieve the total number of items?
+  - maintain the total number of items?
+  - maintain the total number of folder items?
+* item
+  - add read in buffers functions for entry values like message body?
+
+libpff - error tollerance and recovery
+* handle multiple descriptors in libpff_io_handle_get_descriptor_index_value_by_identifier
+  and libpff_io_handle_get_offset_index_value_by_identifier
+* analyze remaining/deleted content
+* fragment recovery
+  - add fragment support
+  - allow fragments/partial items (add upper level reporting)
+  - allow items without/with invalid local descriptors?
+* item recovery
+  - improve local descriptors read test - to read and check entire tree
+  - improve performance of deleted offset index value duplicate check
+  - handle duplicate offset index value identifiers
+  - check fragment scan for correct looping of buffer
+  - group recovered items with the same parent (do not link with allocated parent)
+  - add support for recovered embedded items
+* CRC error recovery
+  - detect CRC32 corruption
+  - detect data corruption
+* automatically detect if allocation tables are useable ?
+
+libpff - performance
+* allocation tables
+  - read allocation tables on demand ?
+  - for large list support replace allocation offset list by tree variant
+* optimized version of libpff_encryption_decrypt ?
+* item hierarchy (tree)
+  - build on demand ?
+  - flag if sub nodes have been created ?
+* item values
+  - read directly into external buffer?
+* attachment data
+  - read directly into external buffer?
+* does pre-reading item values of attachment improve performance ?
+
+libpff - file format support
+* add free maps support
+* add support for cell existence
+* add support for cc table type
+* add support for the density list
+
+libpff - clean up and refactoring
+* libpff_table
+  - cleaner reusable data structure? (libfdata)
+  - create 7c table read entry definitions function
+  - create ac table read entry definitions function
+* have multi type work with data reference (in libpff_item) ?
+* tree type implement use of initialize function (grep sizeof( libpff_tree_node_t ) )
+* refactor direct use of array, list, and tree value attributes
+* improve force decryption check
+
+pfftools
+* pffinfo
+  - add byte size string
+* pffexport
+  - add flag to overwrite export directory?
+  - export the data in the pff file (embedded objects)
+  - use identifier numbering for traceability?
+  - add support for export to mbox, eml (ole2)
+  - support control code in subject
+  - provide export summary
+  - allow to set date format
+  - remove ftk output
+  - create outlook html output
+  - add support for setting recovery method
+* export handle
+  - try to export items without item type ?
+  - handle duplicate attachment names (add suffix number)
+  - export attachment to separate subdirectory
+  - improve filename sanitation - do a sanity test
+  - use close related character replacements to improve readability
+  - check into unable to export attachment not being notified in export log
+  - correctly handle skipping an item without class name
+  - check if 0x0e1f (PidTagRtfInSync) is set and export alternating RTF body
+  - move target path to common functions as much as possible
+  - handle multi message body formats for non email items
+    add function to handle prefered and available message body
+    change text message body export of item types into prefered/available message body
+  - item support
+    - IPM.FAX
+    - IPM.Post
+    - IPM.StickyNote
+    - IPM.Configuration.RssRule
+    - IPM.Configuration.HomeTimeZone
+    - IPM.Configuration.AvailabilityOptions
+    - IPM.Configuration.Calendar
+    - IPM.Configuration.CategoryList
+    - IPM.Configuration.WorkHours
+    - IPM.Configuration.RssRule
+    - IPM.Sharing
+    - IPM.Sharing.Binding.In
+  - item support (also check library)
+    - IPM.Recall.Report.Success
+    - IPM.Microsoft.ScheduleData.FreeBusy
+    - IPM.Microsoft.SniffData
+    - IPM.Microsoft.FolderDesign.NamedView
+    - IPM.MessageManager
+* create pffcrack
+  - implement password cracking
+  - implement password reset (requires write)
+* create pffconvert
+  - convert pst into ost and vice versa (requires write functionality)
+* create pffsearch/pfffind
+
+* handle url as filename
+  - improve sanitize filename function
+* export attachment in small sized buffers
+  - do not read entire item before its needed?
+  - move item value debug to higher levels than table?
+* contact
+  - export rtf body
+
+Multi language/locale support
+* library data returns UTF-8 (done)
+* input filenames remain system string (done)
+* move character_t functionality to system_character_t (done)
+* remove string conversion code (done)
+* print output convert to system string
+* to reduce conversions use as much as possible the system string type in
+  the tools (have error use system string? or convert before print?)
+
+Check/Validate
+* parse code with slint
+
+Debug
+* check windows debug output
+* do not error return on debug error?
+  - do not fail item if debug print was unsuccessful
+  - only fail on serious errors
+* formatting problems in XP with "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " is recoverable.\n","
+  - identifier is off
+
+Documentation:
+* add 'getting started with programming libpff' document
+* add C and Python, Java examples
+
+Deployment:
+* have configure set the default codepage ? also for debug
+* create debian package files
+
+Beta release
+* remove deprecated functions in include/libpff.h
+* remove deprecated definition in include/libpff/definitions.h
+* remove deprecated definition in include/libpff/mapi.h
+* remove deprecated functions in libpff_legacy.[ch]
+* check if libpff.3 manual file is up to date
+
+Test:
+* add autoconf/make test suite
+
+File Format:
+* handle missing message store (check)
+* handle missing name to id map attributes (check)
+* handle encryption type none, but data is still encrypted (check)
+* what is the reason for empty (NULL) attachment data, however attachment has a size value !?
+* Unknown reason for additional padding in external values array entries data
+* What do some binary data item values contain?
+* value '/' in (64-bit pst) UTF-16 eml filename is replaced by 0xff 0xf8 but not in subject
+* PR_HTML seems to contain 7-bit ASCII with HTML encoding of extended characters
+* Is there multiple level table entries support for bc, a5 and 9c tables?
+* What is the relation between the 6c and 8c table and the secure id4
+
+Notes:
+* in the descriptor index a parent can have a child with a lower identifier value
+* cannot create libpff_item_get_sub_item_by_utf8_name, only folders and messages have names
+
+20141002
+* removed README.macosx
+
+20140801
+* bug fix in Python-bindings
+
+20140624
+* updated dependencies
+* worked on record set/entry API
+* worked on pypff
+
+20140623
+* updated dependencies
+* worked on pypff
+
+20140119
+* 2014 update
+* updated dependencies
+* worked on pypff
+* fixed bug in libpff_file_get_number_of_unallocated_blocks for compressed OST support
+
+20131028
+* worked on compressed OST support
+  - local descriptors 
+* worked on pypff
+
+20131014
+* worked on compressed OST support
+  - local descriptors 
+
+20131013
+* worked on python bindings
+* worked on compressed OST support
+  - local descriptors 
+* updated dependencies
+
+20130929
+* worked on setup.py, largely for MSI builds
+* worked on compressed OST support
+  - local descriptors 
+* code clean up
+* update msvscpp files
+
+20130922
+* code clean up
+* worked on compressed OST support
+  - local descriptors 
+
+20130915
+* worked on compressed OST support
+  - local descriptors 
+
+20130902
+* worked on compressed OST support
+  - local descriptors 
+
+20130901
+* added libcthreads build support
+
+20130831
+* worked tests
+
+20130817
+* refactored local descriptors
+* worked on compressed OST support
+  - local descriptors 
+
+20130812
+* worked on compressed OST support
+  - local descriptors 
+
+20130807
+* worked on compressed OST support
+  - table reference
+
+20130806
+* worked on compressed OST support
+  - data array
+  - table reference
+
+20130805
+* worked on recovery in compressed OST files
+
+20130804
+* updated dependencies
+* worked on record entry values array number out of bounds issue
+* refactored table index values to use libcdata array
+* fixed invalid return code in error path
+* worked on recovery in compressed OST files
+
+20130731
+* worked on fixing out of bounds read of name to id map string in an error
+  toloreant way
+* Added is corrupted function
+
+20130730
+* worked on name to id map string out of bounds issue
+* worked on record entry values array number out of bounds issue
+
+20130728
+* Worked on 64-bit 4k pages support
+* Worked on item recovery
+
+20130722
+* Worked on compressed OST support
+
+20130721
+* worked on major refactor
+* updated msvscpp files
+* worked on pypff
+
+20130720
+* worked on major refactor
+* worked on pypff
+
+20130719
+* worked on major refactor
+
+20130718
+* worked on major refactor
+
+20130713
+* worked on major refactor
+* worked on tests
+* fix for handling floating point values in item file
+
+20130718
+* worked on major refactor
+
+20130716
+* worked on major refactor
+
+20130714
+* worked on major refactor
+
+20130712
+* worked on major refactor
+
+20130704
+* worked on major refactor
+
+20130625
+* worked on major refactor
+
+20130620
+* worked on major refactor
+
+20130619
+* worked on major refactor
+
+20130618
+* worked on major refactor
+
+20130617
+* worked on major refactor
+
+20130616
+* worked on major refactor
+
+20130609
+* updated dependencies
+
+20130514
+* updated dependencies
+
+20130413
+* updated dependencies
+
+20130326
+* worked on API by_utf8_name and by_utf16_name functions
+* worked on libcdata rewrite
+
+20130325
+* worked on API by_utf8_name and by_utf16_name functions
+
+20130224
+* worked on compresses OST support
+* worked on libfdata update
+
+20130223
+* worked on 64-bit 4k page file format support
+* worked on compresses OST support
+* code clean up
+* bug fixes in error path
+* improved debug output
+
+20130220
+* pffexport:
+  - worked on IPM.DistList support
+* changes to spec file
+
+20130203
+* libpff
+  - fixes in error code paths
+* libfmapi
+  - improved debug output
+  - fixes in error code paths
+
+20130202
+* pffexport:
+  - added message flags
+  - improved output of flag types
+  - worked on IPM.DistList support
+* tests:
+  - added pffinfo test
+* libfmapi
+  - improved debug output
+* updated macosx files
+
+20130114
+* 2013 update
+* updated dependencies
+
+20120113
+* removed contrib in favor of sed conversion scripts
+
+20121123
+* pypff: code clean
+
+20121108
+* worked on libcdata integration
+* code clean up
+
+20121107
+* worked on libcdata integration
+* code clean up
+
+20121105
+* worked on libcdata integration
+
+20121104
+* updated dependencies
+* pypff: bug fixes
+* worked on libcdata integration
+
+20120808
+* renamed crc32 to checksum in libfmapi
+* code clean up
+
+20120802
+* bug fix in pffexport
+
+20120729
+* applied updates
+* changes for project move
+* bug fix in export handle, address type and email address were swapped in the
+  previous update
+* Changed how duplicate attachments are named, attachment are now prefixed
+  with their index number
+* updated msvscpp files
+
+20120611
+* bug fix in item file hexdump function
+
+20120610
+* applied updates
+* bug fixes in macros in include header
+* worked on WINAPI UTF-16 output support
+
+20120513
+* applied updates
+* worked on pypff
+* disabled codegear files
+* API
+  - removed deprecated functions
+  - added support for contact email adress 1, 2 and 3
+* pffexport:
+  - added support for contact email adress 1, 2 and 3
+  - removed export_handle_make_directory
+* updated msvscpp files
+
+20120424
+* applied updates
+
+20120304
+* moved LCID from libfmapi to libfwnt
+
+20120213
+* added dpkg files
+* pypff: added -avoid-version to Makefile.am
+* updated libnotify, libsystem, libbfio, libfvalue
+
+20120127
+* code clean up
+* pffinfo: implemented info handle
+
+20120103
+* code clean up
+
+20120102
+* 2012 update
+* code clean up
+
+20111025
+* updated m4 files
+* code clean up
+
+20111018
+* updated configure.ac and m4 files
+* updated README files
+* updated spec and pc files
+* updated common, libsystem, libuna, libbfio, libfdatetime, libfvalue
+* pypff: code clean up
+
+20110927
+* updated libfmapi
+
+20110904
+* pypff: code clean up
+* updated configure, common, array type, libcstring, log handle, libuna,
+  libbfio, libfdata, libfdatetime, libfvalue
+
+20110705
+* updated libfmapi
+
+20110523
+* code clean up
+
+20110508
+* updated libfmapi
+
+20110425
+* updated libuna with codepage 932 and 936 support
+* updated msvscpp and codegear files
+
+20110413
+* bug fix in libfdata regarding recovery
+
+20110412
+* bug fix in libfdata regarding attachment data read without initial seek
+offset
+
+20110320
+* update libcstring, libsystem
+* fix for INTLLIBS
+
+20110317
+* updated configure.ac, libcstring, libsystem, libuna, libbfio, libfdata,
+  libfguid, libfwnt, 
+* worked on restriction for sanitized filename and path
+
+20110209
+* updated libfmapi
+
+20110201
+* update libsystem, bug fix for split of empty string
+
+20110120
+* pfftools: code clean
+
+20110119
+* pfftools: code clean
+
+20110118
+* updated libcstring, libsystem, libuna, libbfio, libfdata
+* API: worked on UTF-8 and UTF-16 macros
+* pfftools: code clean
+* updated libpff.3 man page
+
+20110116
+* updated libfmapi
+
+20110114
+* updated libcstring
+
+20110113
+* updated common, libsystem, libuna, libbfio, libfdata, libfvalue
+* pfftools: code clean
+* API: worked on UTF-8 and UTF-16 macros
+* updated libpff.3 man page
+
+20110107
+* updated configure.ac
+* updated libsystem, libuna, libbfio, libfdata, libfdatetime, libfguid,
+  libfvalue, libfwnt, 
+* 2011 update
+* code clean up
+* fixed typo changed unsuported => unsupported
+* API: add conveniance macros for:
+  - sent representing name
+  - sent representing email address
+  - postal address
+  - primary phone number
+  - home phone number
+  - primary and secondary business phone number
+  - mobile phone number
+* pffexport: added value to (outlook) message header output
+  - sent representing name
+  - sent representing email address
+* pffexport: fixed missing note and rss feed body text
+* pffexport: added some values to contact output
+* libfmapi: updated some property types
+
+20101224
+* code clean up
+* updated libcstring
+
+20101219
+* updated array type
+* updated libsystem, libbfio, libfvalue
+* updated log_handle.[ch]
+* code clean up libpff, pfftools
+
+20101218
+* code clean up pfftools
+
+20101216
+* updated configure, added gettext
+* updated array type, list type, offset list
+* updated libsystem, libbfio, libfvalue
+
+20101203
+* updated common, array type, list type, tree type, offset list, liberror,
+  libnotify, libsystem, libuna, libbfio, libfdata, libfdatetime
+* changes for libfdata update
+* updated contrib
+* code clean up
+* fix for clone data array
+* optimized libfdatetime filetime to date time values conversion
+
+20101120
+* updated configure, libcstring, liberror, libbfio, libfvalue
+* updated offset list
+* updated libpff.pc.in libpff.spec.in
+
+20101113
+* updated libfmapi
+* updated pffinput.c
+
+20101111
+* updated libfvalue
+
+20101110
+* worked on fix for force decryption being set by recovered items
+* updated libfvalue
+
+20101106
+* updated include/error.h, liberror, libbfio, libsystem
+* fixed some 64-bit WINAPI compilation warnings
+
+20101105
+* added libpff.rc for DLL build, currently only supported in msvscpp build
+
+20101028
+* pffexport:
+  - worked on code clean up
+  - added dump item values (-d) option
+    export mode debug no longer dumps item values and exports orphan/recovered
+    items
+  - added dump item values of recipients and attachments items
+  - added quiet (-q) option
+* fixed invalid cache issue for cloned items
+* added support for: IPM.Conflict.Message
+* fixes for pypff
+* added contrib directory for msvscpp win64 build files
+
+20101027
+* updated configure.ac
+* updated include/error.h
+* updated include/types.h
+* updated array type, offset list
+* updated common, liberror, libsystem, libbfio, libfvalue
+* worked on pypff error handling
+* libfmapi added support for unknown one-off entryid flag
+* libfmapi debug output fix
+* default version info of pfftools is now short
+* fix in Windows debug output
+* pffexport: added export of recipients and attachments for activities
+* fixed invalid cache issue for embedded attachments
+* fixed rougue detach signal handler pffinfo
+
+20101014
+* corrections in examples
+
+20101012
+* added missing jpff files
+
+20101008
+* fixed bug in debug output
+* fixed issue in libfdata reference
+
+20101007
+* fix for binary mode issue in export_handle
+* fix for premature end of string issue in libpff_message_get_html_body
+* pffexport: check for existing directories now based on export type
+* pffexport: replaced sprintf due to cross platform inconsistencies
+* updated liberror, libnotify, libsystem, libbfio, libfvalue
+
+20100915
+* changes for make dist
+
+20100911
+* updated array type
+* updated libfdata, libfdatetime, libfwnt
+* worked on Java binding (jpff)
+* worked on examples
+
+20100903
+* code clean up of table and item values
+* added support for recurring appointment: IPM.OLE.CLASS.{00061055-0000-0000-C000-000000000046}
+* updated libfguid
+
+20100902
+* code clean up of table and item values
+
+20100901
+* code clean up of table and item values
+* added cache timestamp to libfdata
+
+20100831
+* code clean up of table and item values
+* worked on moving data reference to libfdata
+
+20100830
+* worked on moving data reference to libfdata
+
+20100828
+* worked on moving data reference to libfdata
+
+20100825
+* libfdata: protect against small tree node cache sizes < 4 entries
+
+20100824
+* small correction in debug output
+* libfdata: fixed cache entry duplicate on insert
+
+20100818
+* updated libcstring, libsystem, libuna, libbfio, libfdatetime
+* worked on Java binding (jpff)
+
+20100725
+* worked on pypff
+* the folder functions now try to determine the item type if type is undefined
+* added mingw compilation document
+* updated libbfio
+* changed add into append
+* message body codepage is ignored, seems to be incorrect
+
+20100724
+* updated include/error.h and liberror
+* updated array type
+* update libuna, libbfio
+* worked on pypff
+* deprecated LIBPFF_FLAG_READ/WRITE in favor of LIBPFF_ACCESS_FLAG_READ/WRITE
+
+20100722
+* changes to libfdata
+* updated libfvalue
+
+20100717
+* initial work on pypff
+* pffexport added error tollerability for failed recipient export
+
+20100716
+* updated libuna, libbfio, libfdata, libfdatetime, libfguid, libfmapi, libfwnt, libsystem
+* updatad include/codepage.h
+* updated include/error.h and liberror
+* updated array, list and tree types
+* code clean up and refactoring
+* added support for handling attachments with duplicate filenames
+
+20100712
+* changes to libpff_item_clone behaviour, a clone of NULL is now valid
+* textual changes
+
+20100711
+* textual changes
+
+20100710
+* code clean up and refactoring
+* bug fix in debug output of libfmapi
+* worked on improving recovery
+* worked on item type support
+* add missing libfguid and libfwnt directories to configure.ac
+
+20100709
+* code clean up and refactoring
+* worked on libfdata cache lookup performance
+* removed libpff_item_values_get_sub_node_by_identifier
+
+20100708
+* code clean up and refactoring
+* worked on libfdata version of local descriptors tree for faster cloning
+* worked on libfdata cache lookup performance
+
+20100707
+* code clean up and refactoring
+* worked on libfdata version of local descriptors tree for faster cloning
+
+20100706
+* worked on libfdata block full cache handling
+* code clean up and refactoring
+* updated libuna, libbfio, libfdatetime
+* small fixes
+* updated array, list and tree type
+* worked on clone functions
+
+20100705
+* reverted to 20100704-6
+* worked on recovery performance
+* updated libbfio
+
+20100704
+* worked on tree recovered node support
+* worked on improving recovery
+* worked on recovery performance
+
+20100703
+* worked on improving recovery
+* code clean up and refactoring
+* worked on recovery performance
+
+20100702
+* worked on libfmapi
+* code clean up and refactoring
+
+20100701
+* worked on file exists speed improvement based on idea by Björn Ganster
+* worked on on-demand read of index nodes
+* updated common, libbfio
+* updated msvscpp files
+* updated codegear files
+* worked on libfmapi
+
+20100629
+* updated common, libcstring, liberror, libnotify, libsystem
+* updated libuna, libbfio, libfdata, libfdatetime, libfmapi
+* added libfguid, libfwnt
+* clean up
+* worked on on-demand read of index nodes
+
+20100624
+* updated libfmapi
+
+20100619
+* updated libbfio and libfdata
+* updated array type
+
+20100611
+* worked on libfdata
+* updated libbfio
+* refactored index item to index entry
+
+20100610
+* worked on libfdata
+* fixed memory leak in pffinfo
+
+20100608
+* updated msvscpp files
+* updated libbfio
+* worked on libfdata
+
+20100607
+* worked on libfdata
+* moved buffer data reference into separate file
+
+20100606
+* worked on libfdata
+
+20100604
+* worked on libpff_data_block
+
+20100603
+* worked on libpff_data_block
+* worked on libfdata_block
+  - worked on cache hit handling
+  - worked on set segment data
+
+20100601
+* added cache release to libfdata_block
+* worked on libpff_data_block
+
+20100531
+* worked on integrating libfdata into data_reference
+* worked on refactoring data_array
+
+20100530
+* worked on integrating libfdata into data_reference
+
+20100529
+* added initial version of libfdata
+* removed attach/detach
+* worked on integrating libfdata into data_reference
+
+20100524
+* some code refactoring
+
+20100522
+* some code refactoring
+
+20100514
+* added WINAPI heap allocation function support to common/memory.h
+* small adjustment libpff_file.c
+
+20100512
+* small adjustment in liberror_error.c
+
+20100510
+* export handle: additional characters for sanitation
+* bug report email change in manuals
+
+20100506
+* worked on configure.ac clean up
+
+20100505
+* updated configure.ac and added MAINTAINERCLEANFILES to Makefile.am files
+* updated common, libcstring, liberror, libnotify, libsystem, libuna, libbfio,
+  libfdatetime
+* changed amount of in number of
+
+20100504
+* updated msvscpp and codegear files
+* fix in debug output of local descriptors
+* export handle added notification of unable to export sub folders and messages
+* added error tollerance for table entry value reference outside of range of table index
+
+20100503
+* worked on improving libfmapi debug string codepage support
+* refactored value type string handling code
+
+20100501
+* added mingw support to include type header
+* updated common, libcstring, libbfio, libsystem
+* worked on acinclude.m4 clean up
+
+20100429
+* libfmapi: added support for codepage 1200
+* improved support for narrow string name-to-id map string (RIM)
+  - support to handle trailing zero
+  - removed trailing s in debug output
+* added codepage 1200 support like in libesedb
+* file content version check more tollernant <= 0x000f ANSI, >= 0x0015 Unicode
+  other versions unknown
+* updated libcstring
+* fixed small leak cleaning up orphan items due to tree node change
+
+20100427
+* worked on data array caching
+
+20100424
+* worked on Windows extended filename support
+
+20100419
+* adjusted export handle error output
+* fixed error in ignore data array cache flag
+
+20100416
+* updated libbfio, libuna, libfdatetime
+* fixed bug in liberror
+* removed restriction for recovering items with existing and duplicate identifiers
+
+20100415
+* worked on support for 'unencrypted' encrypted pst files
+  added support for unencrypted values array entry
+* worked on refactoring export handle to support writing
+  prefered message body to stream
+
+20100414
+* worked on Windows extended filename support
+
+20100412
+* fixed 7c table 8 byte value issue
+* worked on Windows extended filename support
+
+20100411
+* worked on Windows extended filename support
+
+20100403
+* worked on Windows extended filename support
+
+20100330
+* applied fix for non-linear values array
+
+20100329
+* fixed error in debug output
+* added pffexport -m noatt option for testing export without attachments
+
+20100328
+* updated libstring, liberror, libuna, libbfio, libsystem, libfdatetime, libnotify
+* updated pfftools for libcstring and libsystem update
+* Email change
+* updated msvscpp and codegear files
+* updated macosx package files
+* removed common/narrow_string.h common/wide_string.h
+* updated common
+
+20100327
+* worked on libstring
+
+20100324
+* worked on libstring
+* removed libpff_guid.[ch]
+* updated libbfio
+
+20100322
+* improved debug/verbose output in data array
+
+20100321
+* fix in export handle for handling empty conversation indexes
+* improved reading ac table
+* added support for 64-bit local descriptor branch nodes
+* updated libfdatetime
+
+20100320
+* fixed small memory leak in recovery functions, introduced by update
+* fixed clean up issues in recovery functions, introduced by update
+* refactored several memory allocate to initialize functions
+* missing local descriptor values in recovered items are considered empty
+* fixed recovery with no unallocated ranges
+* added recovery sanity check: check if the local descriptors of a recoverable item are readable
+
+20100319
+* fix for stand-alone libfdatetime inclusion in pfftools
+* fixed typo in acinclude.m4
+* fixed error in handling LIBPFF_RECOVERY_FLAG_IGNORE_INDEX_DATA
+* fixed error in handling table index introduced by MS-PST update for a5 table
+* updated libuna, libbfio, libfdatetime
+
+20100315
+* updated libbfio
+* small fixes in attached file io handle
+
+20100304
+* worked on support of unused table index values
+* worked on support for 'unencrypted' encrypted pst files
+
+20100221
+* small changes
+
+20100220
+* worked on support for 'unencrypted' encrypted pst files
+
+20100202
+* worked on support for data blocks
+
+20100130
+* worked on support for data blocks
+
+20100129
+* worked on new file format findings from [MS-PST]
+* API: changed index node blocks into page blocks
+* removed deprecated libpff_email_get_internet_headers_size and libpff_email_get_internet_headers
+* debug: added name-to-id-map identifiers
+* libpfmapi: changed value type identifiers to newer definitions
+* libpff not uses the sentinal to determine the file type of unknown PFF versions
+
+20100128
+* worked on error tollerabilty and recovery
+  for PST file with invalid index and invalid allocation tables
+
+20100127
+* worked on error tollerabilty and recovery
+  for PST file with invalid index and invalid allocation tables
+
+20100126
+* updated common, liberror, libbfio, libsystem
+* worked on error tollerabilty and recovery
+  for PST file with invalid index and invalid allocation tables
+
+20100114
+* small fixes
+* updated common, libfmapi
+
+20100111
+* fixed typo
+
+20100107
+* added export of conversation index to separate file
+* updated common, liberror, libsystem, libuna, libbfio, libfdatetime
+
+20100106
+* minor changes in libfmapi
+
+20100105
+* updated common, libbfio
+
+20100103
+* small changes
+* updated common, liberror, libnotify, libuna, libbfio, libfdatetime
+* 2010 update
+* updated tree type
+* updated include/types.h
+
+20091225
+* small changes
+* removed unnecessary calls to libpff_item_detach
+
+20091223
+* worked on MAPI definitions
+
+20091222
+* worked on MAPI definitions
+* renamed internet headers to message transport headers
+
+20091220
+* updated libuna
+
+20091219
+* changed default codepage
+* updated manuals
+* removed filetime from export handle using libfdatetime instead
+* updated libuna
+* worked on UTF-7 support
+
+20091217
+* updated libfdatetime
+
+20091214
+* updated libbfio, libfdatetime, libuna
+
+20091211
+* worked on accessing items by name
+* updated libuna
+
+20091210
+* added local descriptors support for libpff_item_get_sub_item_by_identifier
+
+20091209
+* worked on libpff_file_get_item_by_identifier
+
+20091208
+* worked on libpff_file_get_item_by_identifier
+
+20091207
+* worked on libpff_name_to_id_map_entry_get_utf16_string
+
+20091204
+* updated libfdatetime
+* worked on exporting IPM.Document
+* added check for zero byte in HTML binary data
+* worked on accessing items by name
+* fix for 0 return in libpff_item_get_sub_item_by_identifier
+* updated libuna, for compare functions
+
+20091128
+* fixed export of incorrect date and time values in OutlookHeaders.txt
+  - bug in byte stream macros
+
+20091122
+* small changes
+
+20091117
+* worked on get value type function
+
+20091115
+* updated common
+* removed item list element
+
+20091114
+* updated libbfio - open on demand
+* added open on demand for cloned file io handles
+
+20091113
+* removed item_reference_list
+* fix for cloning of file io handle for items
+* removed handling of HTML body codepage because of possible conflict with html parser
+* removed libpff_item_free_no_detach
+* improved tree node clone function
+* worked on moving data array file io handle to item layer
+* updated libbfio, fix for file clone
+
+20091112
+* worked on moving io handle file io handle to item layer
+* updated libbfio (fix for handle_clone)
+* add cloning of file io handle for items
+* fixed error in libpff_attached_file_io_handle_clone
+* removed All rights reserved
+* updated libsystem, liberror, libnotify
+
+20091111
+* worked on item clone function
+* worked on improving asynchronous usage of sub items (attachment)
+* moved stdout to notify_stream in export handle
+* added definition for default export handle notify stream
+* added support for LIBPFF_ITEM_TYPE_EMAIL_SMIME to export handle
+* fixes for msvscpp and codegear compilation
+* worked on moving file io handle to item layer
+
+20091110
+* worked on item clone function
+* worked on local libpff and libfmapi
+
+20091109
+* worked on improving asynchronous usage of sub items (recipients, attachments)
+
+20091029
+* updated libbfio
+* changed behavior of non-managed BFIO handle
+
+20091028
+* worked on attachment data libbfio object
+
+20091026
+* worked on refactoring endian.h into byte_stream.h
+* updated libuna, libbfio, libfdatetime
+
+20091024
+* removed backwards compatibility macros from API
+* added flags to get entry functions to ignore name to id map
+
+20091023
+* added multi value test code in export handle
+
+20091022
+* fixed typo in multiple error output string
+
+20091019
+* worked on API support for conversation index
+
+20091016
+* added missing set ascii codepage to pffexport
+* refactored libpff handle out of extraction handle
+* fixed error in set codepage function
+* fixed 0 return in message string functions
+
+20091014
+* worked on ftk 'compatible' output of pffexport
+
+20091013
+* worked on ftk 'compatible' output of pffexport
+
+20091008
+* added failsave in libfmapi debug
+
+20091003
+* corrected license in list and array type and several of the pfftool handles
+* updated libbfio
+* updated acinclude
+
+20091001
+* updated array and list type
+* code clean up for use of array and list type
+* change function to libpff_list_get_value where better suited than libpff_list_get_element
+
+20090930
+* worked on generic b5 header indirection level support
+* worked on code clean up
+* added support for attachments with attachment method by reference
+* fixed multiple memory leaks
+* added a5 table array support, for this the a5 table gets a set per table array entry
+  this is necessary because of table value references to the values in the a5 table
+
+20090929
+* Worked on CodeGear project files
+  - disabled creation of precompiled headers
+* Worked on MSVSCPP solution files
+  - enabled DEP
+  - enbled random base
+* worked on UTF-7 support (libuna)
+* worked on b5 header indirection level support for bc table
+* worked on generic b5 header indirection level support
+* worked on code clean up
+
+20090928
+* code clean up
+* worked on reading attachment data buffer wise
+* added support for incorrect message body codepage with missing message codepage
+* updated libuna
+
+20090927
+* updated libbfio, libsystem
+* worked on data array cache
+* worked on reading attachment data buffer wise
+* libpff_attachment_get_data is currently left in the code for backwards compatibility
+
+20090921
+* added LCID debug code
+* moved codepage debug code to separate file
+
+20090919
+* worked on list and tree types
+
+20090918
+* added initial support for sticky notes
+* remaining IPM.Note item classes are considered an e-mail e.g. IPM.Note.StorageQuotaWarning
+* changed behavior of libpff_table_get_entry_value_by_entry_type to allow
+  unmapped matching
+
+20090917
+* refactored creation of array out of libpff_table_read_index
+* fixed name to id map boundary problem, also solves unnecessary rereads of
+  name to identifier data from file
+* worked on UTF-16 string support
+* added support for handling invalid message body codepages
+* fixed error in detection of encrypted data
+* worked on multiple level array support
+
+20090916
+* worked on variating named properties
+  - implemented support for IPM.Schedule.Meeting.Request
+* pffexport now exports meetings, tasks and contacts to seperate directories
+
+20090914
+* added seek offset 0 when reading file header
+* worked on functions to retreieve
+  - the number of sub folders in a folder
+  - a sub folder in a folder
+  - the number of messages in a folder
+  - a message in a folder
+  - the number of associated items in a folder
+  - an associated item in a folder
+* fixed error in libpff_item_tree_get_child_node_by_identifier
+* worked on exporting item values in debug mode
+* pffexport now export the item values of unknown items in debug mode
+* worked on export summary
+
+20090911
+* Added missing C++ closing statement in libsystem_support.h
+* Fixed passing of incorrect size to data reference buffer initialize
+* Worked on handling corrupt Exmerge pst files
+
+20090910
+* worked on implementation on reading data on demand
+* pffexport no longer generates an error when e-mail does not contain a body text
+* updated msvscpp solution
+* worked on refactoring 7c table function
+* worked on refactoring ac table function
+* worked on handling attachment without attachment data
+
+20090909
+* worked on implementation on reading data on demand
+* worked on refactoring 7c table function
+
+20090907
+* made corrections to configure.ac
+* worked on libfdatetime integration
+* changed libfmapi integration preperation for stand-alone version
+* updated behavior of pffexport export mode to handle recover, debug and all
+  export
+
+20090905
+* updated libpff Makefile.am
+* updated pffinput codepage detection
+
+20090904
+* worked on orphan item support
+* worked on integrating pffexport and pffrecover
+* worked on exporting orphan items
+* moved functionality of pffrecover into pffexport
+* removed pffrecover
+* updated common, libuna
+* updated codpage definitions
+* worked on removing notify stream, use functions instead
+  necessary for integration of notify without stream (e.g. for glib)
+
+20090903
+* small fixes for BFIO API support
+* small fixes in output of pfftools
+* fixed error reading bc table due to behavior change of reading data on demand
+* added support for ignoring item tree nodes with an invalid parent node
+
+20090830
+* small adjustment to configure.ac
+* worked on data array read on demand
+* worked on refactoring out some of the item_values functions
+* worked on refactoring direct access to array type to use functions
+
+20090829
+* updated common, libnotify, libbfio, libuna
+* update msvscpp and codegear files
+* removed pffsignal deprecated by libsystem_signal
+* worked in libbfio support
+* added signature functions
+* worked on detecting 'invalid' encrypted PFF's with encryption type none
+* removed encryption key from library and API
+* fixed incorrect addition to item hierarchy of related items for unknowns
+  related items are now cached locally in item no longer globally in item hierarchy
+* worked on local use of libpff
+* fixed libbfio detection
+* worked on generic support for 6c, 8c and 9c tables
+* fixed leak in libfmapi_debug
+* fixed error reading a5 table introduced by handling empty a5 table
+* worked on data array read on demand
+
+20090816
+* implemented libsystem for pfftools
+
+20090811
+* fix in date and time
+
+20090810
+* fixed initial notify output to be verbose in pfftools
+* fixed missing fclose in error handling in export handle 
+
+20090808
+* worked on handling empty a5 tables
+* worked on multi values debug output
+* multi value elements are now set to NULL if element has size of 0
+* updated libbfio
+* worked on Borland C++ compiler support
+* removed deprecated API functions
+* implemented libpff_message_get_string(_size) functions that handle
+  message specific codepage handling
+* refactored codepage handling code from libpff_message to libpff_value_type
+* added debug support for 0x1013 (PidTagHtml)
+
+20090807
+* fixed error in debug of conversation index (error in MSDN documentation)
+* fixed error in libpff_message_get_modification_time macro
+* moved MAPI debug code to libfmapi
+* added support for handling codepage 65001 (UTF-8) and 65000 (UTF-7)
+* fixed several memory leaks in pfftools export handle
+* fixed several memory leaks in libpff ac and 9c tables
+
+20090803
+* updated libbfio
+* updated include/libpff/types.h.in
+* small changes for MSVSCPP build
+
+20090802
+* updated libuna
+* updated libbfio
+* updated common code for Borland C++ compiler support
+* added debug support for several definitions
+* updated liberror
+* updated libpff_error
+* updated libbfio
+* updated serveral of the code files in pfftools for Borland C++ compiler support
+* added m4 directory support to autoconf/make files for libtool
+* refactored plain text body macros to function to support message codepage
+* fixed error in data array initialize, not resetting pointer to NULL on error
+  (pointed out by B. Ganster)
+
+20090801
+* fixed missing error return in libpff_table
+  (pointed out by Jim)
+* small updates to configure.ac
+
+20090724
+* worked on runtime 6c, 8c and 9c table support
+
+20090722
+* worked on read data array entry on demand
+* fixed incorrect addition to item hierarchy of related items
+* fixed several memory leaks in pff tools export handle
+  (in sub_folders, recipients and unknowns export functions)
+
+20090721
+* worked on read data array entry on demand
+
+20090720
+* worked on read data array entry on demand
+  - added descriptor data layer
+* fixed error regarding return value of message rtf and html body functions
+* several small adjustments in libfmapi
+
+20090719
+* several small adjustments in libfmapi
+
+20090718
+* worked on read data array entry on demand
+
+20090717
+* worked on get sub item by identifier API function
+* worked on read data array entry on demand
+
+20090716
+* several small adjustments in libfmapi
+* added debug support for several definitions
+* fixed error in debug output - the description of mapped numeric entries was
+  not resolved correctly
+
+20090715
+* fixed in error in error output of export handle
+* fixed error in retrieving mapped numeric entry types
+* several small adjustments in libfmapi
+
+20090711
+* several small adjustments in libfmapi
+
+20090710
+* several small adjustments
+* refactored class_identifier out of name to id map entry using GUID instead
+* worked on sub messages support
+* worked on sub associated contents support
+* fixed missing mapping of named attributes in debug output
+
+20090708
+* applied table array aligment fix from earlier fixes on other platform
+
+20090629
+* small fixes to libpff_multi_value.h
+
+20090628
+* worked on sub folders support
+* clone allows empty table
+* implement fail safe for usupported table entries level
+* export handle now handles duplicate folder names
+* refactored attachments and recipients to libpff_message and unknowns to
+  libpff_folder
+
+20090627
+* fixed Windows 64-bit ssize_t definition issue (pointerd out by Xavier Roche)
+* fixed incorrect name of 32 and 64-bit in libpff_multi_value.h (pointed out
+  by Warren Brown )
+* fixed incorrect libpff_name_to_id_map_entry_get_name in
+  libpff_name_to_id_map.h (pointed out by Warren Brown)
+* worked on implementation of multi values
+* fixed handling of multiple levels of local descriptors
+* updated libbfio
+* worked on 8c table support
+
+20090625
+* implemented multiple level table entries support for 7c and ac table
+* fixed error table values array realignment
+  no longer skips 0 value part of realignment value
+* fixed typo in export handle
+* fixed print of verbose data without verbose flag in libfmapi
+
+20090624
+* updated libbfio
+* worked on multiple level table entries support
+
+20090623
+* worked on failure of handling embedded OLE attachment
+* add missing C++ wrapped to libnotify
+* worked on name to id map rewrite
+
+20090622
+* worked on libnotify
+* small updated for liberror
+* replaced libpff_notify by libnotify
+
+20090621
+* worked on libnotify it is the starting point of improved verbose and debug
+  notification support
+* added libfdatetime
+
+20090620
+* implemented the notification stream file (based on patch by wbrown)
+* moved attachment and recipient functions from email to item
+* added support exporting attachment and recipient in appointments
+
+20090618
+* added behavior to libpff_table_get_entry_value_by_entry_type to allow
+  access to named properties using the entry_type value
+
+20090617
+* added support for ASCII Name-to-ID strings
+* add named_property argument to libpff_item_get_entry_type
+* removed libpff_item_get_item_type macro from include file
+
+20090616
+* fixed pffinfo not handling missing message store values
+* fixed handling corrupted table index
+  and correcting corrupted first table index
+* the table definitions name to id map entry is now passed
+  to prevent a second lookup
+
+20090615
+* worked on libfmapi and MAPI value debug output
+* add GUID and multi value GUID support API functions
+
+20090614
+* worked on libfmapi and MAPI value debug output
+
+20090613
+* worked on libfmapi and MAPI value debug output
+
+20090611
+* worked on multi value support
+
+20090528
+* updated libbfio
+
+20090527
+* fixed 16-bit value reference to a 32-bit value in libpff_table_read
+  this caused problems with table headers in table arrays entries other than
+  the first
+* fixed OLE attachment method in libpff_attachment_get_data_size
+  - item now caches attachment embedded object data
+* added embedded object debugging
+
+20090526
+* worked on multi value support
+* refactored value type conversion to separate functions
+* export handle now handles recipient type orginator and BCC
+* fixed wide string issue regarding log handle output "Processing folder X in path Y"
+
+20090525
+* added libpff_item_get_entry_value_16bit to API based on patch of Warren Brown
+* added libpff_item_get_entry_value_binary_data_size and
+  libpff_item_get_entry_value_binary_data to API
+* worked on multi value support
+
+20090524
+* fixed last offset inclusion in libpff_offset_list_range_is_present
+* updated libbfio
+* updated API for notify and error functions
+* updated common/types.h to be generated by autoconf
+* implemented libpff_table_initialize
+
+20090522
+* some minor changes
+* worked on implementing support for local use of library
+* updated libbfio
+* updated array and list type with newer versions
+* updated tree type
+  - created initialize function
+  - changed free node function
+* updated item values
+  - created initialize function
+  - changed free function
+
+20090521
+* fixed typo in libpff.spec.in
+* refactored libpff error functions into libpff_error.c
+
+20090520
+* worked on conversation index child blocks
+
+20090519
+* worked on conversation index child blocks
+
+20090518
+* worked on conversation index child blocks
+
+20090517
+* worked on debug output for X.400 object identifiers
+* updated tree node value functions to have an error parameter
+* implemented tree node clone function
+* worked on local descriptor hierarchy support
+* fixed issue in error handling in libpff_index_node_initialize
+* removed remove list hierarchy quick hack (libpff_descriptor_read_local_descriptors_append)
+* changed local descriptors node level into node type
+* removed LIBPFF_CODEPAGE_WINDOWS_1250 in item values, codepage is now passed from handle
+
+20090516
+* worked on integrating the recipients patch by Krzysztof Mazur
+* worked on clone functions
+* updated list value functions to have an error parameter
+* updated libbfio
+* fixed error in libpff_list_insert_value and libpff_offset_list_add_offset
+* the internet headers are now always exported to a separate file
+* attachments are now stored in the subdirectory Attachments
+
+20090514
+* made libfmapi less dependent on libpff for libnk2
+* worked on integrating the recipients patch by Krzysztof Mazur
+* updated common/endian.h with libewf version
+
+20090513
+* worked on integrating the recipients patch by Krzysztof Mazur
+* corrected fopen in export handle, on consideration only the attachment and
+  e-mail files need to be opened in binary mode, not the contact and other
+  output files
+
+20090512
+* updated liberror and libuna
+
+20090509
+* fixed missing C++ definition in log handle
+* fixed fopen binary mode for WINAPI pointed out by krzysztofmazur (Krzysztof Mazur)
+* fixed incorrect sizeof type in export handle pointed out by warrenthebrown (w brown)
+* fixed missing default of system string ASCII codepage
+
+20090427
+* updated libuna for bug regarding UTF-16 <= 2
+
+20090424
+* several small updates
+
+20090408
+* updated libbfio
+* added API functions to retrieve number of item values sets and entries (per set)
+* added API function to retrieve the entry and value type of an item set/entry index
+* changed API function libpff_item_get_entry_value to use value_type as input
+  now matches the behavior of the MAPI properties, but still allows for any
+  value type lookup
+* fixed TODO in libpff_folder_get_content_type
+* several MAPI definition changes
+* libpff now remaps numbered entry types, this allows access to some of the
+  mapi properties in the name to id map
+* added float and double value type API functions
+* renamed multiple API function to match MAPI
+  - libpff_folder_get_content_type to libpff_folder_get_type
+  - message_get_type_x to message_get_class_x
+  - libpff_contact_get_file_as to libpff_address_get_file_under macro
+  - email_get_x_body to message_get_x_body
+
+20090404
+* added static executable build
+
+20090331
+* Worked on initial version
+* Updated WINAPI wide character support
+* added wide character mkdir support
+* moved class identifier debug code in name_to_id_map to libpff_debug
+* added debug print of name to id map validation entries
+* removed report item type, updated item type detection
+
+20090330
+* Worked on initial version
+* Worked on support for UNICODE directive
+* Updated libbfio with libewf 20090329 version
+* Updated caseless compare functions with WINAPI support
+
+20090328
+* Worked on initial version
+* Worked on security descriptor structure in libfmapi
+* Worked on entry identifier structure in libfmapi
+* Made libpff_debug_property_type_value_print item type aware
+
+20090327
+* Worked on initial version
+* worked on libfmapi property type support
+* added caseless compare functions to common string functions
+
+20090326
+* Worked on initial version
+* Corrected Windows printf integer specifications
+* implemented guid to class identifier conversion and class identifier compare functions in libfmapi
+* Corrected some errors in debug output
+* changed several unknowns to possible knowns
+
+20090325
+* Worked on initial version
+* Fixed error in libpff_attachment_get_short_filename_size and libpff_attachment_get_short_filename
+  pointed out by Igor Rogov
+* Fixed strange issue in libfmapi_filetime_to_string
+  sprintf_s crashes when string is too small - which is unexpected behavior
+* implement class identifier aware property debug
+
+20090322
+* Worked on initial version
+* working on MAPI type debugging
+* worked on unknowns
+
+20090321
+* Worked on initial version
+* Implemented libpff_attachment_get_data_size as a function due to attachment
+  size mismatch with size of data and size in the attachment item table
+* Changed comment in .pc .spec and library manual page
+* update glob.[ch] with version of libewf - glob is currently not used, but
+  will remain in the code for now
+* refactored _allocate( to _initialize( - except for table entries allocation function
+* added support for the 0x0f pst version type
+* worked on renaming list to local_descriptors and change it into a tree
+* working on MAPI type debugging
+
+20090313
+* Worked on initial version
+* updates msvscpp files
+
+20090312
+* Worked on initial version
+* added support for separate libbfio
+* updated libbfio to 20090312 version
+
+20090307
+* Worked on initial version
+* Updated libbfio - removed libbfio_interface
+
+20090302
+* Worked on initial version
+* Fixed error creating recovery directory
+
+20090224
+* Worked on initial version
+* Fixed error regarding export of small attachment names (introduced by export handle)
+
+20090223
+* Worked on initial version
+* Fixed errors in path creation (introduced by export handle)
+* Fixed error in log handle
+
+20090222
+* Worked on initial version
+* Updated msvscpp files
+* Worked on full locale support
+  - removed character_t
+  - updated charset detection
+
+20090221
+* Worked on initial version
+* Worked on full locale support
+* moved file_io_handle creation to libpff_file
+
+20090220
+* Worked on initial version
+* Small fixes
+* ascii codepage now passed to debug function
+* fixed month 13 in filetime string
+* worked on export handle
+
+20090219
+* Worked on initial version
+* Update of error output
+
+20090204
+* Worked on initial version
+* Updated msvcpp files
+
+20090202
+* Worked on initial version
+* Worked on libfmapi (synced with msdn)
+
+20090201
+* Worked on initial version
+* Worked on libfmapi (synced with libmapi 0.8 mapi-properties)
+
+20090131
+* Worked on initial version
+* fixed codepage 1258 restriction in libpff_file_set_ascii_codepage
+* moved MAPI and codepage definitions to separate header file
+* moved MAPI code to libfmapi (file MAPI library) intended for local use only
+
+20090128
+* Worked on initial version
+* fixed small bugs in distribution files
+
+20090125
+* Worked on initial version
+* Worked on RTF uncompress buffer too small
+* Worked on false HTML body export
+* Worked on name to id map
+
+20090124
+* Worked on initial version
+* Updated libuna and liberror
+* Added support for libbfio
+* Implemented crc check on 64 bit file header data
+* Worked on named properties
+* Implemented big endian GUID support
+* Worked on RTF uncompress buffer 2 bytes off
+  the uncompressed size does not equal the actual number of resulting rtf bytes
+  the uncompressed size does not entail the 2 trailing zero bytes
+* Worked on name to id map
+
+20090118
+* Worked on initial version
+* Worked on HTML body functions
+* Updated configure to conform to cache value naming schema
+* Output format now allows txt and htm also as type definitions
+* Worked on all output format type definition
+* Moved html, rtf and plain text body export to separate functions
+
+20090116
+* Worked on initial version
+* Fixed debug output of file header values to match other
+* Created an unambiguous filetime string
+* Added debug values for password and attachment descriptor item
+* Worked on changing output format into preferred output format
+* An non empty body is preferred above an empty
+
+20090115
+* Worked on initial version
+* Updates headers
+* Fixed missing debug definition for non debug compilation
+* limited debug output to verbose output mode
+
+20081221
+* Worked on initial version
+* Worked on filetime string error
+* Worked on integrating basic file IO library (libbfio)
+
+20081218
+* Worked on initial version
+
+20081217
+* Worked on initial version
+* Changed pst_file_signature to pff_file_signature
+* Fixed potential segfault in array type
+
+20081216
+* Worked on initial version
+* Fixed buffer size for file header data debug
+
+20081213
+* Worked on initial version
+* Worked on property types
+* Renamed extended attributes to name to id map
+* Worked on name to id map
+* Separated name to id map table debug function from (default) item debug function
+
+20081212
+* Worked on initial version
+* Worked on property types
+
+20081209
+* Worked on initial version
+* Worked on extended attributes
+* Worked on file header
+* Added support for data version (NDB version) 0x15
+
+20081208
+* Worked on initial version
+* Worked on extended attributes
+* Worked on file header
+
+20081207
+* Worked on initial version
+* Worked on extended attributes
+* Worked on file header
+* Fix for GUID representation
+* Updated item value types (property types) debug strings
+
+20081206
+* Worked on initial version
+* Worked on extended attributes
+* Worked on file header
+
+20081202
+* Worked on initial version
+* Fixed error in usage output of pffexport
+
+20081201
+* Worked on initial version
+* Fixed error in debug output of 64-bit list unknown1 value
+* Changed 64-bit index unknown2 to hexadecimal output
+* Fixed bug in recovery not cleaning items on missing data identifiers
+
+20081128
+* Worked on initial version
+* Worked on recovery failure on ost file
+
+20081127
+* Worked on initial version
+* Worked on extended attributes
+* Changed list type into type and level
+
+20081031
+* Worked on initial version
+* added print for item type
+
+20081030
+* Worked on initial version
+* Fixed error in debug print of list type
+
+20081029
+* Worked on initial version
+* worked on support on content type
+* Fixed leak in pffcommon
+* Fixed list element size calculation for 64bit list
+
+20081028
+* Worked on initial version
+* added support for list type 0x0102
+* added support for file content type
+
+20081026
+* Worked on initial version
+* Worked on rtf export mode
+* Fixed correct handling of string_snprintf return value
+* Fixed error in pffexport_determine_export_mode
+* Updated libpff header file
+* Worked on extended attributes
+
+20081024
+* Worked on initial version
+* Added more detailed error output for unsupported pff data
+* Fixed error in sanitize filename
+* Fixed 1 off in filetime_to_string
+* Updated README
+* Fixed leak on error in libpff_index_read_node
+* Looked into index node type 0x85 0x85
+
+20081023
+* Worked on initial version
+* added attachment method to libpff_attachment_get_type to detect embedded OLE2 attachments
+
+20081022
+* Worked on initial version
+* pffcommon_export_attachment no longer export attachment for unknown type
+
+20081021
+* Worked on initial version
+* Added basic support for value type 0x1048
+* pfftools now sanitize \ and /
+* fixed error in pffcommon_export_attachment
+
+20081020
+* Worked on initial version
+* made pffexport more tollerant for missing transport headers and plain text body
+
+20081019
+* Worked on initial version
+* Worked on embedded object in attachments
+* Fixed missing list type in libpff_file_io_handle.h
+* Multiple fixes regarding user output in pffcommon
+* Made export tollerant of attachment without name
+* Removed newline in error strings
+* Fixed offset read list for debug
+
+20081018
+* Worked on initial version
+* worked on adding error handling
+* Worked on man pages
+* Added description of functionality of tools in usage information
+* Added flag to show allocation information to pffinfo
+* Added target directory option to pffrecover
+* Added logfile option to pffrecover
+* Updated rpm spec file
+* Updated AUTHORS
+* Fixed leaks in libpff item recovery
+* Added MSVS CPP solution files
+* Changes for MSVS CPP compilation
+* pffexport now tests if file exists before creating target directory
+
+20081017
+* Worked on initial version
+* Fixed leaks in pffcommon
+* Fixed missing liberror makefile for deployment
+* worked on adding error handling
+
+20081015
+* Worked on initial version
+* Worked on signal handling
+
+20081014
+* Worked on initial version
+* worked on adding error handling
+
+20081013
+* Worked on initial version
+* worked on adding error handling
+
+20081011
+* Worked on initial version
+* worked on adding error handling
+* Worked on refactoring common
+
+20081009
+* Worked on initial version
+* worked on adding error handling
+
+20081007
+* Worked on initial version
+* worked on adding error handling
+
+20081005
+* Worked on initial version
+* worked on adding error handling
+* worked on refactoring common
+
+20080923
+* Worked on initial version
+* worked on adding error handling
+
+20080922
+* Worked on initial version
+* replaced libuca by libuna
+* added liberror
+* worked on adding error handling
+* separated Makefiles
+* moved base64 to tools
+* renamed HAVE_WINDOWS_API to WINAPI (in libpff)
+
+20080905
+* Worked on initial version
+* added list type prepend
+
+20080904
+* Worked on initial version
+* Updated libuca
+
+20080831
+* Worked on initial version
+* Replaced unistring with libuca
+
+20080830
+* Worked on initial version
+* Improved common and configure.ac
+
+20080829
+* Worked on initial version
+* Now supports dynamic folder length in pffcommon_export_folder
+
+20080828
+* Worked on initial version
+* Worked on improving Unicode conversion routines
+
+20080827
+* Worked on initial version
+* Worked on improving Unicode conversion routines
+* Moved unicode conversion routines into libunistring
+
+20080826
+* Worked on initial version
+* Worked on improving Unicode conversion routines
+
+20080825
+* Worked on initial version
+* Worked on improving Unicode conversion routines
+* Added maximum allowed UTF 0x110000 in strict mode
+* Worked on support for converting extended ASCII stream into UTF
+
+20080824
+* Worked on initial version
+* Worked on improving Unicode conversion routines
+
+20080823
+* Worked on initial version
+* Worked on improving Unicode conversion routines
+
+20080821
+* Worked on initial version
+* Worked on export of appointment
+
+20080819
+* Worked on initial version
+* Rewrote item specific function to be macros that use the generic item functions
+
+20080818
+* Worked on initial version
+* Implemented 9c table entries (guid, item descriptor)
+
+20080817
+* Worked on initial version
+* worked on ac and a5 table type support
+* Added item entry values table instance to the table entry definition
+* Handle empty table number of index items
+* Added fix for non 4 bytes aligned padding in external values array entries data
+* Changed libpff_notify_dump_data format
+
+20080816
+* Worked on initial version
+* Removed libpff_item_tree_allocate
+* Refactor item tree to use item descriptor instead of item tree values
+* Made remaining descriptor list part of the item tree
+* Added support for external values array entries data
+* Added fix for additional padding in external values array entries data
+* Worked on ac table type support, found additional a5 table type
+
+20080815
+* Worked on initial version
+* removed item values from item tree
+* Worked on libpff_file_get_message_store
+* refactored item tree values to item descriptor
+* Adjusted libpff_list_insert to return 0 if value exists
+
+20080814
+* Worked on initial version
+* Fixed error in retrieve unallocated block function
+* refactored item values to separate structure
+
+20080813
+* Worked on initial version
+* Item functions can now handle recovered items
+* Implemented print value on "last table index values end offset"
+* Rewritten libpff_folder_get_content_type to use string compare for Unicode string support
+* refactored common code in item and item tree
+* fixed issue exporting recovered attachments
+  recovery now only analyzes leaf index nodes
+
+20080812
+* Worked on initial version
+* Worked on recovering deleted content and pffrecover
+* Made parent identifier 32 bit
+* Made item tree descriptor identifier 32 bit
+
+20080811
+* Worked on initial version
+* Moved item export code from pffexport to pffcommon
+* Worked on recovering deleted content and pffrecover
+
+20080810
+* Worked on initial version
+* Worked on recovering deleted content
+* Created pffrecover
+
+20080809
+* Worked on initial version
+* Worked on high encryption
+
+20080807
+* Worked on initial version
+* Worked on reducing memory usage
+* Fixed strange output directory name
+* refactored most table usage to item to reduce memory usage for large files
+
+20080806
+* Worked on initial version
+* Fixed 0-byte set memory corruption in libpff_item_tree_get_entry_value_string
+
+20080805
+* Worked on initial version
+* Worked on item API
+
+20080804
+* Worked on initial version
+* Worked on item API
+
+20080725
+* Worked on initial version
+* Worked on item API
+
+20080724
+* Worked on initial version
+* refactored item and item reference
+
+20080720
+* Worked on initial version
+* Worked on 64-bit pff and ost
+* Worked on basic unicode conversion
+* Fixed make dist
+
+20080719
+* Worked on initial version
+* allow reading ahead index nodes before the a reading ahead index node
+* Worked on 64-bit pff and ost
+* Worked on basic unicode conversion
+
+20080718
+* Worked on initial version
+* Found pst without message store and extended attributes
+  The actual file could not be opened in Outlook, made libpff not dependent on both
+* Worked on 64-bit pff and ost
+
+20080717
+* Worked on initial version
+* Worked on recovering deleted content
+* Worked on 64-bit pff and ost
+
+20080716
+* Worked on initial version
+* Worked on recovering deleted content
+
+20080715
+* Worked on initial version
+* Worked on recovering deleted content
+
+20080714
+* Worked on initial version
+* Worked on recovering deleted content
+
+20080713
+* Worked on initial version
+* Worked on recovering deleted content
+
+20080711
+* Worked on initial version
+* Worked on recovering deleted content
+
+20080710
+* Worked on initial version
+* Worked on recovering deleted content
+
+20080709
+* Worked on initial version
+* Worked on recovering deleted content
+
+20080708
+* Worked on initial version
+* Fixed error in encrypted flag for offset identifier
+* Worked on stricter item entry value check and reduced memory finger print
+  for values < 32-bit
+
+20080707
+* Worked on initial version
+
+20080706
+* Worked on initial version
+
+20080705
+* Worked on initial version
+* Worked on pffexport
+* fixed small memory leak
+* removed dependency on zlib
+
+20080704
+* Worked on initial version
+* Worked on attachments
+* Worked on pffexport
+
+20080703
+* Worked on initial version
+* Worked on attachments
+
+20080702
+* Worked on initial version
+* Worked on attachments
+
+20080701
+* Worked on initial version
+* Worked on attachments
+
+20080630
+* Worked on initial version
+* Worked on attachments
+
+20080628
+* Worked on initial version
+* Worked on attachments
+
+20080627
+* Worked on initial version
+* Refactoring of io
+* Worked on attachments
+
+20080626
+* Worked on initial version
+* Moved libpff_io_handle_read_table_descriptor to libpff_item_values_read
+* Refactoring of io_handle/table/item
+* Removed libpff_array
+
+20080625
+* Worked on initial version
+* Worked on attachments
+* Fixed multiple memory leaks
+* Refactoring of io_handle/table/item
+
+20080624
+* Worked on initial version
+* Worked on email
+
+20080623
+* Worked on initial version
+* Worked on item reference
+
+20080619
+* Worked on initial version
+
+20080615
+* Worked on initial version
+* Worked on high encryption support
+* Fixed index value offset for array tables
+
+20080614
+* Worked on initial version
+* Worked on handling table in array
+
+20080613
+* Worked on initial version
+
+20080612
+* Worked on initial version
+* Worked on io handle, fixed memory issue
+* Worked on folder, fixed folder reference list issue
+
+20080611
+* Worked on initial version
+* Worked on item values
+* Worked on io handle
+
+20080610
+* Worked on initial version
+* Worked on folder API
+
+20080608
+* Worked on initial version
+* Worked on array handling
+* Fixed 0 byte wrap around issue in LZFu
+* renamed handle to file
+* Worked on file API
+
+20080607
+* Worked on initial version
+* Implemented LZFu uncompress function
+* Implemented weak crc calculation for LZFu
+* Implemented (file) offset no compression flag handling
+* Worked on array handling
+
+20080606
+* Worked on initial version
+
+20080605
+* Worked on initial version
+
+20080603
+* Worked on initial version
+* Worked on 7c table header and different b5 table headers
+
+20080602
+* Worked on initial version
+* Worked on 7c table header and different b5 table headers
+
+20080601
+* Worked on initial version
+* Worked on 7c table header and different b5 table headers
+
+20080531
+* Worked on initial version
+* Worked on filetime conversion functions
+
+20080529
+* Worked on initial version
+* Fixed 1-off error in ASCII values of hexdump
+
+20080528
+* Worked on initial version
+
+20080527
+* Worked on initial version
+
+20080526
+* Worked on initial version
+
+20080522
+* Worked on initial version
+
+20080521
+* Worked on initial version
+* Worked on readable encode base64 function
+
+20080520
+* Worked on initial version
+* rename descriptor to table
+
+20080516
+* Worked on initial version
+
+20080515
+* Worked on initial version
+
+20080514
+* Worked on initial version
+
+20080513
+* Worked on initial version
+* implemented offset list
+
+20080512
+* Worked on initial version
+
+20080511
+* Created initial version based on libpst-0.6.8 to analyze the pst file format
+  and libtableau for the library structure
+

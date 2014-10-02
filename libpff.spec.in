@@ -1,0 +1,91 @@
+Name: libpff
+Version: @VERSION@
+Release: 1
+Summary: Library to to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format. PFF is used in PAB (Personal Address Book), PST (Personal Storage Table) and OST (Offline Storage Table) files.
+Group: System Environment/Libraries
+License: LGPL
+Source: %{name}-%{version}.tar.gz
+URL: http://code.google.com/p/libpff/
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+@libpff_spec_requires@ @ax_libbfio_spec_requires@ @ax_libcdata_spec_requires@ @ax_libcerror_spec_requires@ @ax_libcfile_spec_requires@ @ax_libclocale_spec_requires@ @ax_libcnotify_spec_requires@ @ax_libcpath_spec_requires@ @ax_libcsplit_spec_requires@ @ax_libcstring_spec_requires@ @ax_libcthreads_spec_requires@ @ax_libfdata_spec_requires@ @ax_libfdatetime_spec_requires@ @ax_libfguid_spec_requires@ @ax_libfmapi_spec_requires@ @ax_libfvalue_spec_requires@ @ax_libfwnt_spec_requires@ @ax_libuna_spec_requires@ @ax_zlib_spec_requires@
+@libpff_spec_build_requires@ @ax_libbfio_spec_build_requires@ @ax_libcdata_spec_build_requires@ @ax_libcerror_spec_build_requires@ @ax_libcfile_spec_build_requires@ @ax_libclocale_spec_build_requires@ @ax_libcnotify_spec_build_requires@ @ax_libcpath_spec_build_requires@ @ax_libcsplit_spec_build_requires@ @ax_libcstring_spec_build_requires@ @ax_libcthreads_spec_build_requires@ @ax_libfdata_spec_build_requires@ @ax_libfdatetime_spec_build_requires@ @ax_libfguid_spec_build_requires@ @ax_libfmapi_spec_build_requires@ @ax_libfvalue_spec_build_requires@ @ax_libfwnt_spec_build_requires@ @ax_libuna_spec_build_requires@ @ax_zlib_spec_build_requires@
+
+%description
+libpff is a library to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format. PFF is used in PAB (Personal Address Book), PST (Personal Storage Table) and OST (Offline Storage Table) files.
+
+%package devel
+Summary: Header files and libraries for developing applications for libpff
+Group: Development/Libraries
+Requires: libpff = %{version}-%{release}
+
+%description devel
+Header files and libraries for developing applications for libpff.
+
+%package tools
+Summary: Several tools for reading Personal Folder Files (OST, PAB and PST)
+Group: Applications/System
+Requires: libpff = %{version}-%{release} @ax_libcsystem_spec_requires@
+@libpff_tools_spec_build_requires@ @ax_libcsystem_spec_build_requires@
+
+%description tools
+Several tools for reading Personal Folder Files (OST, PAB and PST)
+
+%package python
+Summary: Python bindings for libpff
+Group: System Environment/Libraries
+Requires: libpff = %{version}-%{release} python
+BuildRequires: python-devel
+
+%description python
+Python bindings for libpff
+
+%prep
+%setup -q
+
+%build
+%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python
+make %{?_smp_mflags}
+
+%install
+rm -rf ${RPM_BUILD_ROOT}
+make DESTDIR=${RPM_BUILD_ROOT} install
+
+%clean
+rm -rf ${RPM_BUILD_ROOT}
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%files
+%defattr(644,root,root,755)
+%doc AUTHORS COPYING NEWS README
+%attr(755,root,root) %{_libdir}/*.so.*
+
+%files devel
+%defattr(644,root,root,755)
+%doc AUTHORS COPYING NEWS README ChangeLog
+%{_libdir}/*.a
+%{_libdir}/*.la
+%{_libdir}/*.so
+%{_libdir}/pkgconfig/libpff.pc
+%{_includedir}/*
+%{_mandir}/man3/*
+
+%files tools
+%defattr(644,root,root,755)
+%doc AUTHORS COPYING NEWS README
+%attr(755,root,root) %{_bindir}/pffexport
+%attr(755,root,root) %{_bindir}/pffinfo
+%{_mandir}/man1/*
+
+%files python
+%defattr(644,root,root,755)
+%{_libdir}/python*/site-packages/*.a
+%{_libdir}/python*/site-packages/*.la
+%{_libdir}/python*/site-packages/*.so
+
+%changelog
+* @SPEC_DATE@ Joachim Metz <joachim.metz@gmail.com> @VERSION@-1
+- Auto-generated
+

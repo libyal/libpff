@@ -1,0 +1,88 @@
+.Dd January 19, 2014
+.Dt pffexport
+.Os libpff
+.Sh NAME
+.Nm pffexport
+.Nd exports items stored in a Personal Folder File (OST, PAB and PST)
+.Sh SYNOPSIS
+.Nm pffexport
+.Op Fl c Ar codepage
+.Op Fl f Ar format
+.Op Fl l Ar logfile
+.Op Fl m Ar mode
+.Op Fl t Ar target
+.Op Fl dhqvV
+.Va Ar source
+.Sh DESCRIPTION
+.Nm pffexport
+is a utility to export items stored in a Personal Folder File (OST, PAB and PST)
+.Pp
+.Nm pffexport
+is part of the
+.Nm libpff
+package.
+.Nm libpff
+is a library to access the Personal Folder File (OST, PAB and PST) format
+.Pp
+.Ar source
+is the source file.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl c Ar codepage
+specify the codepage of ASCII strings, options: ascii, windows-874, windows-932, windows-936, windows-949, windows-950, windows-1250, windows-1251, windows-1252 (default), windows-1253, windows-1254, windows-1255, windows-1256, windows-1257 or windows-1258
+.It Fl d
+dumps the item values in a separate file: ItemValues.txt
+.It Fl f Ar format
+specify the preferred output format, options: all, html, rtf, text (default)
+.It Fl h
+shows this help
+.It Fl l Ar logfile
+specify the file in which to log information about the exported items
+.It Fl m Ar mode
+export mode, option: all, debug, items (default), recovered. 'all' exports the (allocated) items, orphan and recovered items. 'debug' exports all the (allocated) items, also those outside the the root folder. 'items' exports the (allocated) items. 'recovered' exports the orphan and recovered items.
+.It Fl q
+quiet shows minimal status information
+.It Fl t Ar target
+specify the basename of the target directory to export to (default is the source filename) pffexport will add the following suffixes to the basename: .export, .orphans, .recovered
+.It Fl v
+verbose output to stderr
+.It Fl V
+print version
+.El
+.Sh ENVIRONMENT
+None
+.Sh FILES
+None
+.Sh EXAMPLES
+.Bd -literal
+# pffexport file.pst
+pffexport 20110107
+
+Opening file.
+Exporting items.
+Exporting folder item 1 out of 4.
+.Dl ...
+Exporting e-mail item 17 out of 115.
+Exporting attachment 1 out of 3.
+Exporting attachment 2 out of 3.
+Exporting attachment 3 out of 3.
+Exporting e-mail item 18 out of 115.
+.Dl ...
+Exporting folder item 4 out of 4.
+Export completed.
+
+.Ed
+.Sh DIAGNOSTICS
+Errors, verbose and debug output are printed to stderr when verbose output \-v is enabled.
+Verbose and debug output are only printed when enabled at compilation.
+.Sh BUGS
+Please report bugs of any kind to <joachim.metz@gmail.com> or on the project website:
+http://code.google.com/p/libpff/
+.Sh AUTHOR
+These man pages were written by Joachim Metz.
+.Sh COPYRIGHT
+Copyright 2008-2014, Joachim Metz <joachim.metz@gmail.com>.
+This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.Sh SEE ALSO
+.Xr pffinfo 1
