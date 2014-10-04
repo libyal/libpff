@@ -72,7 +72,7 @@ endif
 	d
 }";
 			echo "${SED_SCRIPT}" >> ${LOCAL_LIB}-$$.sed;
-			sed -i'' -f ${LOCAL_LIB}-$$.sed ${LOCAL_LIB}/Makefile.am;
+			sed -i'~' -f ${LOCAL_LIB}-$$.sed ${LOCAL_LIB}/Makefile.am;
 			rm -f ${LOCAL_LIB}-$$.sed;
 
 SED_SCRIPT="/^$/ {
@@ -85,13 +85,13 @@ SED_SCRIPT="/^$/ {
 	}
 }";
 			echo "${SED_SCRIPT}" >> ${LOCAL_LIB}-$$.sed;
-			sed -i'' -f ${LOCAL_LIB}-$$.sed ${LOCAL_LIB}/Makefile.am;
+			sed -i'~' -f ${LOCAL_LIB}-$$.sed ${LOCAL_LIB}/Makefile.am;
 			rm -f ${LOCAL_LIB}-$$.sed;
 
 			rm -f ${LOCAL_LIB}/${LOCAL_LIB}.c;
 
 			cp ${LOCAL_LIB}-$$/${LOCAL_LIB}/${LOCAL_LIB}_definitions.h.in ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
-			sed -i'' 's/@VERSION@/${LOCAL_LIB_VERSION}/' ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
+			sed -i'~' 's/@VERSION@/${LOCAL_LIB_VERSION}/' ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
 		fi
 		rm -rf ${LOCAL_LIB}-$$;
 	fi

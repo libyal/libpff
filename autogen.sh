@@ -6,7 +6,13 @@
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 
-BINDIR="/usr/bin";
+# Default location of MacPorts installed binaries.
+BINDIR="/opt/local/bin/pkg-config";
+
+if ! test -d "${BINDIR}";
+then
+	BINDIR="/usr/bin";
+fi
 
 ACLOCAL="${BINDIR}/aclocal";
 AUTOCONF="${BINDIR}/autoconf";
