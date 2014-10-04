@@ -21,7 +21,7 @@ if ! test -x "${PKGCONFIG}";
 then
 	echo "Unable to find: pkg-config";
 
-	echo ${PKGCONFIG};
+	exit ${EXIT_FAILURE};
 fi
 
 if test -x "${AUTORECONF}";
@@ -32,42 +32,42 @@ else
 	then
 		echo "Unable to find: aclocal";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
 	if ! test -x "${AUTOCONF}";
 		then
 		echo "Unable to find: autoconf";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
 	if ! test -x "${AUTOHEADER}";
 	then
 		echo "Unable to find: autoheader";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
 	if ! test -x "${AUTOMAKE}";
 	then
 		echo "Unable to find: automake";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
 	if ! test -x "${AUTOPOINT}";
 	then
 		echo "Unable to find: autopoint";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
 	if ! test -x "${LIBTOOLIZE}";
 	then
 		echo "Unable to find: libtoolize";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
 	${AUTOPOINT} --force
