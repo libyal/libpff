@@ -328,6 +328,7 @@ Notes:
 * updated dependencies and corresponding changes
 * worked on autogen.sh script
 * worked on pypff
+* update Python-bindings tests
 
 20141002
 * removed README.macosx

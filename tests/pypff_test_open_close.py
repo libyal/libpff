@@ -2,7 +2,7 @@
 #
 # Python-bindings open close testing program
 #
-# Copyright (c) 2008-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (C) 2008-2014, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -20,149 +20,189 @@
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import argparse
 import sys
 
 import pypff
 
-def pypff_test_single_open_close_file( filename, mode ):
-	pff_file = pypff.file()
-	pff_file.open( filename, mode )
-	pff_file.close()
 
-def pypff_test_multi_open_close_file( filename, mode ):
-	pff_file = pypff.file()
-	pff_file.open( filename, mode )
-	pff_file.close()
-	pff_file.open( filename, mode )
-	pff_file.close()
+def get_mode_string(mode):
+  """Retrieves a human readable string representation of the access mode."""
+  if mode == "r":
+    mode_string = "read"
+  elif mode == "w":
+    mode_string = "write"
+  else:
+    mode_string = "unknown ({0:s})".format(mode)
+  return mode_string
 
-def pypff_test_single_open_close_file_object( filename, mode ):
-	file_object = open( filename, mode )
-	pff_file = pypff.file()
-	pff_file.open_file_object( file_object, mode )
-	pff_file.close()
 
-def pypff_test_single_open_close_file_object_with_dereference( filename, mode ):
-	file_object = open( filename, mode )
-	pff_file = pypff.file()
-	pff_file.open_file_object( file_object, mode )
-	del file_object
-	pff_file.close()
+def pypff_test_single_open_close_file(filename, mode):
+  if not filename:
+    filename_string = "None"
+  else:
+    filename_string = filename
 
-def pypff_test_multi_open_close_file_object( filename, mode ):
-	file_object = open( filename, mode )
-	pff_file = pypff.file()
-	pff_file.open_file_object( file_object, mode )
-	pff_file.close()
-	pff_file.open_file_object( file_object, mode )
-	pff_file.close()
+  print "Testing single open close of: {0:s} with access: {1:s}\t".format(
+      filename_string, get_mode_string(mode))
 
-def main( argc, argv ):
-	result = 0
+  try:
+    pff_file = pypff.file()
 
-	if argc < 2:
-		print "Usage: pypff_test_open_close.py filename\n"
-		return 1
+    pff_file.open(filename, mode)
+    pff_file.close()
 
-	print "Testing single open close of: %s with access: read\t" %( sys.argv[ 1 ] ),
+  except TypeError, exception:
+    if (not filename and
+        exception.message == "pypff_file_open: unsupported string object type."):
+      pass
 
-	try:
-		pypff_test_single_open_close_file( argv[ 1 ], "r" )
-		result = 0
-	except:
-		result = 1
+    else:
+      print "(FAIL)"
+      return False
 
-	if result != 0:
-		print "(FAIL)"
-		return 1
-	print "(PASS)"
+  except ValueError, exception:
+    if (mode == "w" and
+        exception.message == "pypff_file_open: unsupported mode: w."):
+      pass
 
-	print "Testing single open close of: None with access: read\t"
+    else:
+      print "(FAIL)"
+      return False
 
-	result = 1
-	try:
-		pypff_test_single_open_close_file( None, "r" )
-	except TypeError, exception:
-		if exception.message == "argument 1 must be string, not None":
-			result = 0
-	except:
-		pass
+  except:
+    print "(FAIL)"
+    return False
 
-	if result != 0:
-		print "(FAIL)"
-		return 1
-	print "(PASS)"
+  print "(PASS)"
+  return True
 
-	print "Testing single open close of: %s with access: write\t" %( sys.argv[ 1 ] ),
 
-	result = 1
-	try:
-		pypff_test_single_open_close_file( argv[ 1 ], "w" )
-	except ValueError, exception:
-		if exception.message == "pypff_file_open: unsupported mode: w.":
-			result = 0
-	except:
-		pass
+def pypff_test_multi_open_close_file(filename, mode):
+  print "Testing multi open close of: {0:s} with access: {1:s}\t".format(
+      filename, get_mode_string(mode))
 
-	if result != 0:
-		print "(FAIL)"
-		return 1
-	print "(PASS)"
+  try:
+    pff_file = pypff.file()
 
-	print "Testing multi open close of: %s with access: read\t" %( sys.argv[ 1 ] ),
+    pff_file.open(filename, mode)
+    pff_file.close()
+    pff_file.open(filename, mode)
+    pff_file.close()
 
-	try:
-		pypff_test_multi_open_close_file( argv[ 1 ], "r" )
-		result = 0
-	except:
-		result = 1
+  except:
+    print "(FAIL)"
+    return False
 
-	if result != 0:
-		print "(FAIL)"
-		return 1
-	print "(PASS)"
+  print "(PASS)"
+  return True
 
-	print "Testing single open close of file-like object of: %s with access: read\t" %( sys.argv[ 1 ] ),
 
-	try:
-		pypff_test_single_open_close_file_object( argv[ 1 ], "r" )
-		result = 0
-	except:
-		result = 1
+def pypff_test_single_open_close_file_object(filename, mode):
+  print ("Testing single open close of file-like object of: {0:s} with access: "
+         "{1:s}\t").format(filename, get_mode_string(mode))
 
-	if result != 0:
-		print "(FAIL)"
-		return 1
-	print "(PASS)"
+  try:
+    file_object = open(filename, mode)
+    pff_file = pypff.file()
 
-	print "Testing single open close of file-like object with dereference of: %s with access: read\t" %( sys.argv[ 1 ] ),
+    pff_file.open_file_object(file_object, mode)
+    pff_file.close()
 
-	try:
-		pypff_test_single_open_close_file_object_with_dereference( argv[ 1 ], "r" )
-		result = 0
-	except:
-		result = 1
+  except:
+    print "(FAIL)"
+    return False
 
-	if result != 0:
-		print "(FAIL)"
-		return 1
-	print "(PASS)"
+  print "(PASS)"
+  return True
 
-	print "Testing multi open close of file-like object of: %s with access: read\t" %( sys.argv[ 1 ] ),
 
-	try:
-		pypff_test_multi_open_close_file_object( argv[ 1 ], "r" )
-		result = 0
-	except:
-		result = 1
+def pypff_test_single_open_close_file_object_with_dereference(
+    filename, mode):
+  print ("Testing single open close of file-like object with dereference of: "
+         "{0:s} with access: {1:s}\t").format(filename, get_mode_string(mode))
 
-	if result != 0:
-		print "(FAIL)"
-		return 1
-	print "(PASS)"
+  try:
+    file_object = open(filename, mode)
+    pff_file = pypff.file()
 
-	return 0
+    pff_file.open_file_object(file_object, mode)
+    del file_object
+    pff_file.close()
+
+  except:
+    print "(FAIL)"
+    return False
+
+  print "(PASS)"
+  return True
+
+
+def pypff_test_multi_open_close_file_object(filename, mode):
+  print ("Testing multi open close of file-like object of: {0:s} with access: "
+         "{1:s}\t").format(filename, get_mode_string(mode))
+
+  try:
+    file_object = open(filename, mode)
+    pff_file = pypff.file()
+
+    pff_file.open_file_object(file_object, mode)
+    pff_file.close()
+    pff_file.open_file_object(file_object, mode)
+    pff_file.close()
+  except:
+    print "(FAIL)"
+    return False
+
+  print "(PASS)"
+  return True
+
+
+def main():
+  args_parser = argparse.ArgumentParser(description=(
+      "Tests open and close."))
+
+  args_parser.add_argument(
+      "source", nargs="?", action="store", metavar="FILENAME",
+      default=None, help="The source filename.")
+
+  options = args_parser.parse_args()
+
+  if not options.source:
+    print u"Source value is missing."
+    print u""
+    args_parser.print_help()
+    print u""
+    return False
+
+  if not pypff_test_single_open_close_file(options.source, "r"):
+    return False
+
+  if not pypff_test_single_open_close_file(None, "r"):
+    return False
+
+  if not pypff_test_single_open_close_file(options.source, "w"):
+    return False
+
+  if not pypff_test_multi_open_close_file(options.source, "r"):
+    return False
+
+  if not pypff_test_single_open_close_file_object(options.source, "r"):
+    return False
+
+  if not pypff_test_single_open_close_file_object_with_dereference(
+      options.source, "r"):
+    return False
+
+  if not pypff_test_multi_open_close_file_object(
+      options.source, "r"):
+    return False
+
+  return True
 
 if __name__ == "__main__":
-	sys.exit( main( len( sys.argv ), sys.argv ) )
+  if not main():
+    sys.exit(1)
+  else:
+    sys.exit(0)
 
