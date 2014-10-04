@@ -131,7 +131,7 @@ int libpff_index_value_free(
 }
 
 /* Compares two index values
- * Returns LIBFDATA_TREE_NODE_COMPARE_LESS, LIBFDATA_TREE_NODE_COMPARE_EQUAL, LIBFDATA_TREE_NODE_COMPARE_GREATER if successful or -1 on error
+ * Returns LIBFDATA_COMPARE_LESS, LIBFDATA_COMPARE_EQUAL, LIBFDATA_COMPARE_GREATER if successful or -1 on error
  */
 int libpff_index_value_compare(
      libpff_index_value_t *first_index_value,
@@ -164,12 +164,12 @@ int libpff_index_value_compare(
 	}
 	if( first_index_value->identifier < second_index_value->identifier )
 	{
-		return( LIBFDATA_TREE_NODE_COMPARE_LESS );
+		return( LIBFDATA_COMPARE_LESS );
 	}
 	else if( first_index_value->identifier > second_index_value->identifier )
 	{
-		return( LIBFDATA_TREE_NODE_COMPARE_GREATER );
+		return( LIBFDATA_COMPARE_GREATER );
 	}
-	return( LIBFDATA_TREE_NODE_COMPARE_EQUAL );
+	return( LIBFDATA_COMPARE_EQUAL );
 }
 

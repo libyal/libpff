@@ -300,7 +300,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_data_array_clone,
 		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_array_read_element_data,
 		     NULL,
-		     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
+		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -392,7 +392,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_data_block_clone,
 		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_block_read_element_data,
 		     NULL,
-		     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
+		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

@@ -580,7 +580,7 @@ int libpff_local_descriptors_tree_read(
 	     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_local_descriptors_clone,
 	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_local_descriptors_read_node,
 	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_local_descriptors_read_sub_nodes,
-	     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
+	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

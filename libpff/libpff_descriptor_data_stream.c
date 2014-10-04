@@ -481,7 +481,7 @@ int libpff_descriptor_data_stream_initialize(
 	     (ssize_t (*)(intptr_t *, intptr_t *, int, int, uint8_t *, size_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_descriptor_data_stream_data_handle_read_segment_data,
 	     NULL,
 	     (off64_t (*)(intptr_t *, intptr_t *, int, int, off64_t, libcerror_error_t **)) &libpff_descriptor_data_stream_data_handle_seek_segment_offset,
-	     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
+	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
