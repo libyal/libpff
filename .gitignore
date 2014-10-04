@@ -103,6 +103,8 @@ stamp-h1
 /jpff/classnoinst.stamp
 /libpff/libpff.rc
 /libpff/libpff_definitions.h
+/pfftools/pffexport
+/pfftools/pffinfo
 /pypff/setup.py
 /tests/input
 /tests/pff_read_items

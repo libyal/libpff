@@ -495,8 +495,8 @@ PyObject *pypff_file_signal_abort(
 /* Opens a file
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pyevt_file_open(
-           pyevt_file_t *pyevt_file,
+PyObject *pypff_file_open(
+           pypff_file_t *pypff_file,
            PyObject *arguments,
            PyObject *keywords )
 {
@@ -506,7 +506,7 @@ PyObject *pyevt_file_open(
 	PyObject *exception_value     = NULL;
 	PyObject *string_object       = NULL;
 	libcerror_error_t *error      = NULL;
-	static char *function         = "pyevt_file_open";
+	static char *function         = "pypff_file_open";
 	static char *keyword_list[]   = { "filename", "mode", NULL };
 	const char *filename_narrow   = NULL;
 	char *error_string            = NULL;
@@ -519,7 +519,7 @@ PyObject *pyevt_file_open(
 	PyObject *utf8_string_object  = NULL;
 #endif
 
-	if( pyevt_file == NULL )
+	if( pypff_file == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -602,10 +602,10 @@ PyObject *pyevt_file_open(
 		                             string_object );
 		Py_BEGIN_ALLOW_THREADS
 
-		result = libevt_file_open_wide(
-		          pyevt_file->file,
+		result = libpff_file_open_wide(
+		          pypff_file->file,
 	                  filename_wide,
-		          LIBEVT_OPEN_READ,
+		          LIBPFF_OPEN_READ,
 		          &error );
 
 		Py_END_ALLOW_THREADS
@@ -651,10 +651,10 @@ PyObject *pyevt_file_open(
 
 		Py_BEGIN_ALLOW_THREADS
 
-		result = libevt_file_open(
-		          pyevt_file->file,
+		result = libpff_file_open(
+		          pypff_file->file,
 	                  filename_narrow,
-		          LIBEVT_OPEN_READ,
+		          LIBPFF_OPEN_READ,
 		          &error );
 
 		Py_END_ALLOW_THREADS
@@ -664,7 +664,7 @@ PyObject *pyevt_file_open(
 #endif
 		if( result != 1 )
 		{
-			pyevt_error_raise(
+			pypff_error_raise(
 			 error,
 			 PyExc_IOError,
 			 "%s: unable to open file.",
@@ -728,17 +728,17 @@ PyObject *pyevt_file_open(
 
 		Py_BEGIN_ALLOW_THREADS
 
-		result = libevt_file_open(
-		          pyevt_file->file,
+		result = libpff_file_open(
+		          pypff_file->file,
 	                  filename_narrow,
-		          LIBEVT_OPEN_READ,
+		          LIBPFF_OPEN_READ,
 		          &error );
 
 		Py_END_ALLOW_THREADS
 
 		if( result != 1 )
 		{
-			pyevt_error_raise(
+			pypff_error_raise(
 			 error,
 			 PyExc_IOError,
 			 "%s: unable to open file.",
