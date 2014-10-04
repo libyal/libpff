@@ -86,6 +86,11 @@ PyObject *pypff_item_get_display_name(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
+PyObject *pypff_item_get_entry_value(
+           pypff_item_t *pypff_item,
+           PyObject *arguments,
+           PyObject *keywords );
+
 PyObject *pypff_item_get_number_of_sub_items(
            pypff_item_t *pypff_item,
            PyObject *arguments );

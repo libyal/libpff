@@ -64,6 +64,15 @@ PyMethodDef pypff_item_object_methods[] = {
 	  "\n"
 	  "Retrieves the display name." },
 
+	{ "get_entry_value",
+	  (PyCFunction) pypff_item_get_entry_value,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_entry_value(entry_type) -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves a specific entry value by entry type."
+	  "\n"
+	  "to get more detail ,see [MAPI definitions](https://github.com/libyal/libpff)" },
+
 	/* Functions to access the sub items */
 
 	{ "get_number_of_sub_items",
@@ -696,6 +705,142 @@ PyObject *pypff_item_get_display_name(
 		 error,
 		 PyExc_IOError,
 		 "%s: unable to retrieve display name.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 value_string );
+
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	return( NULL );
+}
+
+
+/* Retrieves the entry value
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_item_get_entry_value(
+           pypff_item_t *pypff_item ,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+
+	/* process the python function parameters */
+	static char *keyword_list[] = { "entry_type", NULL };
+	int entry_type          = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &entry_type ) == 0 )
+        {
+		return( NULL );
+        }
+
+
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	const char *errors       = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "pypff_item_get_entry_value";
+	size_t value_string_size = 0;
+	int result               = 0;
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_utf8_string_size(
+	          pypff_item->item,
+	          0,
+	          entry_type,
+	          &value_string_size,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve entry value size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_string = (uint8_t *) PyMem_Malloc(
+				    sizeof( uint8_t ) * value_string_size );
+
+	if( value_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create entry value.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_utf8_string(
+		  pypff_item->item,
+		  0,
+		  entry_type,
+		  value_string,
+		  value_string_size,
+		  0,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve entry value.",
 		 function );
 
 		libcerror_error_free(
