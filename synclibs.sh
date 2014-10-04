@@ -69,7 +69,7 @@ SED_SCRIPT="
 	N
 	d
 }";
-			sed "${SED_SCRIPT}" -i ${LOCAL_LIB}/Makefile.am;
+			sed -i "${SED_SCRIPT}" ${LOCAL_LIB}/Makefile.am;
 
 SED_SCRIPT="
 /^$/ {
@@ -81,12 +81,12 @@ SED_SCRIPT="
 		D
 	}
 }";
-			sed "${SED_SCRIPT}" -i ${LOCAL_LIB}/Makefile.am;
+			sed -i "${SED_SCRIPT}" ${LOCAL_LIB}/Makefile.am;
 
 			rm -f ${LOCAL_LIB}/${LOCAL_LIB}.c;
 
 			cp ${LOCAL_LIB}-$$/${LOCAL_LIB}/${LOCAL_LIB}_definitions.h.in ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
-			sed 's/@VERSION@/${LOCAL_LIB_VERSION}/' -i ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
+			sed -i 's/@VERSION@/${LOCAL_LIB_VERSION}/' ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
 		fi
 		rm -rf ${LOCAL_LIB}-$$;
 	fi
