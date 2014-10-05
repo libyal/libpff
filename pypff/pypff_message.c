@@ -1478,14 +1478,9 @@ PyObject *pypff_message_get_rtf_body(
 
 		goto on_error;
 	}
-	/* Pass the string length to PyUnicode_DecodeUTF8
-	 * otherwise it makes the end of string character is part
-	 * of the string
-	 */
-	string_object = PyUnicode_DecodeUTF8(
+	string_object = PyString_FromStringAndSize(
 			 (char *) value_string,
-			 (Py_ssize_t) value_string_size - 1,
-			 errors );
+			 (Py_ssize_t) value_string_size );
 
 	PyMem_Free(
 	 value_string );
@@ -1592,14 +1587,9 @@ PyObject *pypff_message_get_html_body(
 
 		goto on_error;
 	}
-	/* Pass the string length to PyUnicode_DecodeUTF8
-	 * otherwise it makes the end of string character is part
-	 * of the string
-	 */
-	string_object = PyUnicode_DecodeUTF8(
+	string_object = PyString_FromStringAndSize(
 			 (char *) value_string,
-			 (Py_ssize_t) value_string_size - 1,
-			 errors );
+			 (Py_ssize_t) value_string_size );
 
 	PyMem_Free(
 	 value_string );
