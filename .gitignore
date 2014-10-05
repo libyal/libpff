@@ -103,11 +103,13 @@ stamp-h1
 /jpff/classnoinst.stamp
 /libpff/libpff.rc
 /libpff/libpff_definitions.h
+/pfftools/pffexport
+/pfftools/pffinfo
 /pypff/setup.py
 /tests/input
-/tests/pff_read_items
-/tests/pff_set_ascii_codepage
 /tests/pff_test_open_close
+/tests/pff_test_read_items
+/tests/pff_test_set_ascii_codepage
 /tests/tmp
 
 # Local library dependencies specific files
