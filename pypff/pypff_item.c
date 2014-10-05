@@ -69,9 +69,7 @@ PyMethodDef pypff_item_object_methods[] = {
 	  METH_VARARGS | METH_KEYWORDS,
 	  "get_entry_value(entry_type) -> Unicode string or None\n"
 	  "\n"
-	  "Retrieves a specific entry value by entry type."
-	  "\n"
-	  "to get more detail ,see [MAPI definitions](https://github.com/libyal/libpff)" },
+	  "Retrieves a specific entry value by entry type." },
 
 	/* Functions to access the sub items */
 
@@ -735,7 +733,6 @@ on_error:
 	return( NULL );
 }
 
-
 /* Retrieves the entry value
  * Returns a Python object if successful or NULL on error
  */
@@ -746,8 +743,15 @@ PyObject *pypff_item_get_entry_value(
 {
 
 	/* process the python function parameters */
-	static char *keyword_list[] = { "entry_type", NULL };
-	int entry_type          = 0;
+	static char *keyword_list[]	= { "entry_type", NULL };
+	int entry_type          	= 0;
+	libcerror_error_t *error 	= NULL;
+	PyObject *string_object  	= NULL;
+	const char *errors       	= NULL;
+	uint8_t *value_string    	= NULL;
+	static char *function    	= "pypff_item_get_entry_value";
+	size_t value_string_size 	= 0;
+	int result               	= 0;
 
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
@@ -758,15 +762,6 @@ PyObject *pypff_item_get_entry_value(
         {
 		return( NULL );
         }
-
-
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "pypff_item_get_entry_value";
-	size_t value_string_size = 0;
-	int result               = 0;
 
 	if( pypff_item == NULL )
 	{
