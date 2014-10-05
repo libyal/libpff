@@ -42,9 +42,80 @@ PyObject *pypff_message_get_subject(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
+PyObject *pypff_message_get_conversation_topic(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_sender_name(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_client_submit_time(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_client_submit_time_as_integer(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_delivery_time(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_delivery_time_as_integer(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_creation_time(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_creation_time_as_integer(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_modification_time(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_modification_time_as_integer(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_transport_headers(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
 PyObject *pypff_message_get_plain_text_body(
            pypff_item_t *pypff_item,
            PyObject *arguments );
+
+PyObject *pypff_message_get_rtf_body(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_html_body(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_number_of_attachments(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+/* TODO create attachment item
+PyObject *pypff_message_get_attachment_by_index(
+           pypff_item_t *pypff_item,
+           int attachment_index );
+
+PyObject *pypff_message_get_attachment(
+           pypff_item_t *pypff_item,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pypff_message_get_attachments(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+*/
 
 #if defined( __cplusplus )
 }

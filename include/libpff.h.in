@@ -423,80 +423,6 @@ int libpff_file_get_recovered_item(
      libpff_error_t **error );
 
 /* -------------------------------------------------------------------------
- * Name to id map entry functions
- * ------------------------------------------------------------------------- */
-
-/* Retrieves the type
- * Returns 1 if successful or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_name_to_id_map_entry_get_type(
-     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
-     uint8_t *entry_type,
-     libpff_error_t **error );
-
-/* Retrieves the number
- * Returns 1 if successful or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_name_to_id_map_entry_get_number(
-     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
-     uint32_t *number,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-8 string size
- * The returned size includes the end of string character
- * Returns 1 if successful or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_name_to_id_map_entry_get_utf8_string_size(
-     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
-     size_t *utf8_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-8 string
- * The size should include the end of string character
- * Returns 1 if successful or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_name_to_id_map_entry_get_utf8_string(
-     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
-     uint8_t *utf8_string,
-     size_t utf8_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-16 string size
- * The returned size includes the end of string character
- * Returns 1 if successful or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_name_to_id_map_entry_get_utf16_string_size(
-     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
-     size_t *utf16_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-16 string
- * The size should include the end of string character
- * Returns 1 if successful or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_name_to_id_map_entry_get_utf16_string(
-     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
-     uint16_t *utf16_string,
-     size_t utf16_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the GUID
- * Returns 1 if successful or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_name_to_id_map_entry_get_guid(
-     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
-     uint8_t *guid,
-     size_t size,
-     libpff_error_t **error );
-
-/* -------------------------------------------------------------------------
  * Item functions
  * ------------------------------------------------------------------------- */
 
@@ -562,8 +488,8 @@ int libpff_item_get_number_of_entries(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_type(
      libpff_item_t *item,
-     int set_index,
-     int entry_index,
+     int record_set_index,
+     int record_entry_index,
      uint32_t *entry_type,
      uint32_t *value_type,
      libpff_name_to_id_map_entry_t **name_to_id_map_entry,
@@ -581,7 +507,7 @@ int libpff_item_get_entry_type(
 LIBPFF_EXTERN \
 int libpff_item_get_value_type(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint32_t *value_type,
      uint8_t flags,
@@ -604,7 +530,7 @@ int libpff_item_get_value_type(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint32_t *value_type,
      uint8_t **value_data,
@@ -618,7 +544,7 @@ int libpff_item_get_entry_value(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint32_t *value_type,
@@ -632,7 +558,7 @@ int libpff_item_get_entry_value_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint32_t *value_type,
@@ -652,7 +578,7 @@ int libpff_item_get_entry_value_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_boolean(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint8_t *entry_value,
      uint8_t flags,
@@ -664,7 +590,7 @@ int libpff_item_get_entry_value_boolean(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_boolean_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint8_t *entry_value,
@@ -676,7 +602,7 @@ int libpff_item_get_entry_value_boolean_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_boolean_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint8_t *entry_value,
@@ -694,7 +620,7 @@ int libpff_item_get_entry_value_boolean_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_16bit(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint16_t *entry_value,
      uint8_t flags,
@@ -706,7 +632,7 @@ int libpff_item_get_entry_value_16bit(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_16bit_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint16_t *entry_value,
@@ -718,7 +644,7 @@ int libpff_item_get_entry_value_16bit_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_16bit_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint16_t *entry_value,
@@ -736,7 +662,7 @@ int libpff_item_get_entry_value_16bit_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_32bit(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint32_t *entry_value,
      uint8_t flags,
@@ -748,7 +674,7 @@ int libpff_item_get_entry_value_32bit(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_32bit_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint32_t *entry_value,
@@ -760,7 +686,7 @@ int libpff_item_get_entry_value_32bit_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_32bit_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint32_t *entry_value,
@@ -778,7 +704,7 @@ int libpff_item_get_entry_value_32bit_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_64bit(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint64_t *entry_value,
      uint8_t flags,
@@ -790,7 +716,7 @@ int libpff_item_get_entry_value_64bit(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_64bit_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint64_t *entry_value,
@@ -802,7 +728,7 @@ int libpff_item_get_entry_value_64bit_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_64bit_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint64_t *entry_value,
@@ -820,7 +746,7 @@ int libpff_item_get_entry_value_64bit_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_filetime(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint64_t *entry_value,
      uint8_t flags,
@@ -832,7 +758,7 @@ int libpff_item_get_entry_value_filetime(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_filetime_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint64_t *entry_value,
@@ -844,7 +770,7 @@ int libpff_item_get_entry_value_filetime_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_filetime_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint64_t *entry_value,
@@ -862,7 +788,7 @@ int libpff_item_get_entry_value_filetime_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_size(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      size_t *entry_value,
      uint8_t flags,
@@ -874,7 +800,7 @@ int libpff_item_get_entry_value_size(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_size_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      size_t *entry_value,
@@ -886,7 +812,7 @@ int libpff_item_get_entry_value_size_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_size_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      size_t *entry_value,
@@ -904,7 +830,7 @@ int libpff_item_get_entry_value_size_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_floating_point(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      double *entry_value,
      uint8_t flags,
@@ -916,7 +842,7 @@ int libpff_item_get_entry_value_floating_point(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_floating_point_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint64_t *entry_value,
@@ -928,7 +854,7 @@ int libpff_item_get_entry_value_floating_point_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_floating_point_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint64_t *entry_value,
@@ -947,7 +873,7 @@ int libpff_item_get_entry_value_floating_point_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf8_string_size(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      size_t *utf8_string_size,
      uint8_t flags,
@@ -960,7 +886,7 @@ int libpff_item_get_entry_value_utf8_string_size(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf8_string_size_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      size_t *utf8_string_size,
@@ -973,7 +899,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      size_t *utf8_string_size,
@@ -993,7 +919,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf8_string(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint8_t *utf8_string,
      size_t utf8_string_size,
@@ -1007,7 +933,7 @@ int libpff_item_get_entry_value_utf8_string(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf8_string_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint8_t *utf8_string,
@@ -1021,7 +947,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf8_string_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint8_t *utf8_string,
@@ -1041,7 +967,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf16_string_size(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      size_t *utf16_string_size,
      uint8_t flags,
@@ -1054,7 +980,7 @@ int libpff_item_get_entry_value_utf16_string_size(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf16_string_size_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      size_t *utf16_string_size,
@@ -1067,7 +993,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      size_t *utf16_string_size,
@@ -1081,7 +1007,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf16_string(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint16_t *utf16_string,
      size_t utf16_string_size,
@@ -1095,7 +1021,7 @@ int libpff_item_get_entry_value_utf16_string(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf16_string_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint16_t *utf16_string,
@@ -1109,7 +1035,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_utf16_string_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint16_t *utf16_string,
@@ -1128,7 +1054,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_binary_data_size(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      size_t *binary_data_size,
      uint8_t flags,
@@ -1140,7 +1066,7 @@ int libpff_item_get_entry_value_binary_data_size(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_binary_data_size_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      size_t *binary_data_size,
@@ -1152,7 +1078,7 @@ int libpff_item_get_entry_value_binary_data_size_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      size_t *binary_data_size,
@@ -1170,7 +1096,7 @@ int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_binary_data(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint8_t *binary_data,
      size_t binary_data_size,
@@ -1183,7 +1109,7 @@ int libpff_item_get_entry_value_binary_data(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_binary_data_by_utf8_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
      uint8_t *binary_data,
@@ -1196,7 +1122,7 @@ int libpff_item_get_entry_value_binary_data_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_binary_data_by_utf16_name(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
      uint8_t *binary_data,
@@ -1215,7 +1141,7 @@ int libpff_item_get_entry_value_binary_data_by_utf16_name(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_value_guid(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint8_t *guid,
      size_t guid_size,
@@ -1237,7 +1163,7 @@ int libpff_item_get_entry_value_guid(
 LIBPFF_EXTERN \
 int libpff_item_get_entry_multi_value(
      libpff_item_t *item,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      libpff_multi_value_t **multi_value,
      uint8_t flags,
@@ -1380,6 +1306,80 @@ int libpff_item_get_number_of_sets(
      libpff_error_t **error );
 
 /* -------------------------------------------------------------------------
+ * Name to id map entry functions
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the type
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_name_to_id_map_entry_get_type(
+     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
+     uint8_t *entry_type,
+     libpff_error_t **error );
+
+/* Retrieves the number
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_name_to_id_map_entry_get_number(
+     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
+     uint32_t *number,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string size
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_name_to_id_map_entry_get_utf8_string_size(
+     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
+     size_t *utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_name_to_id_map_entry_get_utf8_string(
+     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string size
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_name_to_id_map_entry_get_utf16_string_size(
+     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
+     size_t *utf16_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_name_to_id_map_entry_get_utf16_string(
+     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the GUID
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_name_to_id_map_entry_get_guid(
+     libpff_name_to_id_map_entry_t *name_to_id_map_entry,
+     uint8_t *guid,
+     size_t size,
+     libpff_error_t **error );
+
+/* -------------------------------------------------------------------------
  * Record set functions
  * ------------------------------------------------------------------------- */
 
@@ -1406,7 +1406,7 @@ int libpff_record_set_get_number_of_entries(
 LIBPFF_EXTERN \
 int libpff_record_set_get_entry_by_index(
      libpff_record_set_t *record_set,
-     int entry_index,
+     int record_entry_index,
      libpff_record_entry_t **record_entry,
      libpff_error_t **error );
 
@@ -1858,10 +1858,6 @@ int libpff_folder_get_unknowns(
  */
 #define libpff_message_store_get_password_checksum( message_store, password_checksum, error ) \
 	libpff_item_get_entry_value_32bit( message_store, 0, LIBPFF_ENTRY_TYPE_MESSAGE_STORE_PASSWORD_CHECKSUM, password_checksum, 0, error )
-
-/* -------------------------------------------------------------------------
- * Name to id map functions
- * ------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------
  * Message functions

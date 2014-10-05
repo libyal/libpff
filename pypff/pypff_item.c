@@ -543,7 +543,7 @@ PyObject *pypff_item_get_record_set(
 	return( record_set_object );
 }
 
-/* Retrieves a items sequence and iterator object for the items
+/* Retrieves an record sets sequence and iterator object for the record sets
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_item_get_record_sets(
@@ -899,7 +899,7 @@ PyObject *pypff_item_get_sub_item(
 	return( sub_item_object );
 }
 
-/* Retrieves a items sequence and iterator object for the items
+/* Retrieves an items sequence and iterator object for the items
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_item_get_sub_items(

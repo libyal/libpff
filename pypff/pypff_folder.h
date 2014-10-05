@@ -38,7 +38,7 @@ extern "C" {
 extern PyMethodDef pypff_folder_object_methods[];
 extern PyTypeObject pypff_folder_type_object;
 
-PyObject *pypff_folder_get_display_name(
+PyObject *pypff_folder_get_name(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
@@ -46,19 +46,35 @@ PyObject *pypff_folder_get_number_of_sub_folders(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
+PyObject *pypff_folder_get_sub_folder_by_index(
+           pypff_item_t *pypff_item,
+           int sub_folder_index );
+
 PyObject *pypff_folder_get_sub_folder(
            pypff_item_t *pypff_item,
            PyObject *arguments,
            PyObject *keywords );
 
+PyObject *pypff_folder_get_sub_folders(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
 PyObject *pypff_folder_get_number_of_sub_messages(
            pypff_item_t *pypff_item,
            PyObject *arguments );
+
+PyObject *pypff_folder_get_sub_message_by_index(
+           pypff_item_t *pypff_item,
+           int sub_message_index );
 
 PyObject *pypff_folder_get_sub_message(
            pypff_item_t *pypff_item,
            PyObject *arguments,
            PyObject *keywords );
+
+PyObject *pypff_folder_get_sub_messages(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
 
 #if defined( __cplusplus )
 }

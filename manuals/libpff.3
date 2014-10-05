@@ -1,4 +1,4 @@
-.Dd June 24, 2014
+.Dd October 5, 2014
 .Dt libpff 3
 .Os libpff
 .Sh NAME
@@ -105,22 +105,6 @@ Available when compiled with libbfio support:
 .Ft int
 .Fn libpff_file_open_file_io_handle "libpff_file_t *file, libbfio_handle_t *file_io_handle, int flags, libpff_error_t **error"
 .PP
-Name to id map entry functions
-.Ft int
-.Fn libpff_name_to_id_map_entry_get_type "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint8_t *entry_type, libpff_error_t **error"
-.Ft int
-.Fn libpff_name_to_id_map_entry_get_number "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint32_t *number, libpff_error_t **error"
-.Ft int
-.Fn libpff_name_to_id_map_entry_get_utf8_string_size "libpff_name_to_id_map_entry_t *name_to_id_map_entry, size_t *utf8_string_size, libpff_error_t **error"
-.Ft int
-.Fn libpff_name_to_id_map_entry_get_utf8_string "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint8_t *utf8_string, size_t utf8_string_size, libpff_error_t **error"
-.Ft int
-.Fn libpff_name_to_id_map_entry_get_utf16_string_size "libpff_name_to_id_map_entry_t *name_to_id_map_entry, size_t *utf16_string_size, libpff_error_t **error"
-.Ft int
-.Fn libpff_name_to_id_map_entry_get_utf16_string "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint16_t *utf16_string, size_t utf16_string_size, libpff_error_t **error"
-.Ft int
-.Fn libpff_name_to_id_map_entry_get_guid "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint8_t *guid, size_t size, libpff_error_t **error"
-.PP
 Item functions
 .Ft int
 .Fn libpff_item_clone "libpff_item_t **destination_item, libpff_item_t *source_item, libpff_error_t **error"
@@ -135,97 +119,97 @@ Item functions
 .Ft int
 .Fn libpff_item_get_number_of_entries "libpff_item_t *item, uint32_t *number_of_entries, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_type "libpff_item_t *item, int set_index, int entry_index, uint32_t *entry_type, uint32_t *value_type, libpff_name_to_id_map_entry_t **name_to_id_map_entry, libpff_error_t **error"
+.Fn libpff_item_get_entry_type "libpff_item_t *item, int record_set_index, int record_entry_index, uint32_t *entry_type, uint32_t *value_type, libpff_name_to_id_map_entry_t **name_to_id_map_entry, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_value_type "libpff_item_t *item, int set_index, uint32_t entry_type, uint32_t *value_type, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_value_type "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint32_t *value_type, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value "libpff_item_t *item, int set_index, uint32_t entry_type, uint32_t *value_type, uint8_t **value_data, size_t *value_data_size, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint32_t *value_type, uint8_t **value_data, size_t *value_data_size, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint32_t *value_type, uint8_t **value_data, size_t *value_data_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint32_t *value_type, uint8_t **value_data, size_t *value_data_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint32_t *value_type, uint8_t **value_data, size_t *value_data_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint32_t *value_type, uint8_t **value_data, size_t *value_data_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_boolean "libpff_item_t *item, int set_index, uint32_t entry_type, uint8_t *entry_value, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_boolean "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint8_t *entry_value, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_boolean_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint8_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_boolean_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint8_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_boolean_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint8_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_boolean_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint8_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_16bit "libpff_item_t *item, int set_index, uint32_t entry_type, uint16_t *entry_value, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_16bit "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint16_t *entry_value, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_16bit_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint16_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_16bit_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint16_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_16bit_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint16_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_16bit_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint16_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_32bit "libpff_item_t *item, int set_index, uint32_t entry_type, uint32_t *entry_value, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_32bit "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint32_t *entry_value, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_32bit_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint32_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_32bit_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint32_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_32bit_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint32_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_32bit_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint32_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_64bit "libpff_item_t *item, int set_index, uint32_t entry_type, uint64_t *entry_value, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_64bit "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint64_t *entry_value, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_64bit_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint64_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_64bit_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint64_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_64bit_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint64_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_64bit_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint64_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_filetime "libpff_item_t *item, int set_index, uint32_t entry_type, uint64_t *entry_value, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_filetime "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint64_t *entry_value, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_filetime_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint64_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_filetime_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint64_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_filetime_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint64_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_filetime_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint64_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_size "libpff_item_t *item, int set_index, uint32_t entry_type, size_t *entry_value, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_size "libpff_item_t *item, int record_set_index, uint32_t entry_type, size_t *entry_value, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_size_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, size_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_size_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, size_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_size_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, size_t *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_size_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, size_t *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_floating_point "libpff_item_t *item, int set_index, uint32_t entry_type, double *entry_value, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_floating_point "libpff_item_t *item, int record_set_index, uint32_t entry_type, double *entry_value, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_floating_point_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, double *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_floating_point_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, double *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_floating_point_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, double *entry_value, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_floating_point_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, double *entry_value, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf8_string_size "libpff_item_t *item, int set_index, uint32_t entry_type, size_t *utf8_string_size, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf8_string_size "libpff_item_t *item, int record_set_index, uint32_t entry_type, size_t *utf8_string_size, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf8_string_size_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, size_t *utf8_string_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf8_string_size_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, size_t *utf8_string_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf8_string_size_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, size_t *utf8_string_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf8_string_size_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, size_t *utf8_string_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf8_string "libpff_item_t *item, int set_index, uint32_t entry_type, uint8_t *utf8_string, size_t utf8_string_size, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf8_string "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint8_t *utf8_string, size_t utf8_string_size, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf8_string_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint8_t *utf8_string, size_t utf8_string_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf8_string_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint8_t *utf8_string, size_t utf8_string_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf8_string_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint8_t *utf8_string, size_t utf8_string_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf8_string_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint8_t *utf8_string, size_t utf8_string_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf16_string_size "libpff_item_t *item, int set_index, uint32_t entry_type, size_t *utf16_string_size, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf16_string_size "libpff_item_t *item, int record_set_index, uint32_t entry_type, size_t *utf16_string_size, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf16_string_size_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, size_t *utf16_string_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf16_string_size_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, size_t *utf16_string_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf16_string_size_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, size_t *utf16_string_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf16_string_size_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, size_t *utf16_string_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf16_string "libpff_item_t *item, int set_index, uint32_t entry_type, uint8_t *utf16_string, size_t utf16_string_size, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf16_string "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint8_t *utf16_string, size_t utf16_string_size, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf16_string_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint16_t *utf16_string, size_t utf16_string_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf16_string_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint16_t *utf16_string, size_t utf16_string_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_utf16_string_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint16_t *utf16_string, size_t utf16_string_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_utf16_string_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint16_t *utf16_string, size_t utf16_string_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_binary_data_size "libpff_item_t *item, int set_index, uint32_t entry_type, size_t *binary_data_size, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_binary_data_size "libpff_item_t *item, int record_set_index, uint32_t entry_type, size_t *binary_data_size, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_binary_data_size_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, size_t *binary_data_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_binary_data_size_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, size_t *binary_data_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_binary_data_size_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, size_t *binary_data_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_binary_data_size_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, size_t *binary_data_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_binary_data "libpff_item_t *item, int set_index, uint32_t entry_type, uint8_t *binary_data, size_t binary_data_size, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_binary_data "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint8_t *binary_data, size_t binary_data_size, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_binary_data_by_utf8_name "libpff_item_t *item, int set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint8_t *binary_data, size_t binary_data_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_binary_data_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t* utf8_entry_name, size_t utf8_entry_name_length, uint8_t *binary_data, size_t binary_data_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_binary_data_by_utf16_name "libpff_item_t *item, int set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint8_t *binary_data, size_t binary_data_size, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_binary_data_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t* utf16_entry_name, size_t utf16_entry_name_length, uint8_t *binary_data, size_t binary_data_size, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_value_guid "libpff_item_t *item, int set_index, uint32_t entry_type, uint8_t *guid, size_t guid_size, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_value_guid "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint8_t *guid, size_t guid_size, uint8_t flags, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_multi_value "libpff_item_t *item, int set_index, uint32_t entry_type, libpff_multi_value_t **multi_value, uint8_t flags, libpff_error_t **error"
+.Fn libpff_item_get_entry_multi_value "libpff_item_t *item, int record_set_index, uint32_t entry_type, libpff_multi_value_t **multi_value, uint8_t flags, libpff_error_t **error"
 .Ft int
 .Fn libpff_item_get_type "libpff_item_t *item, uint8_t *item_type, libpff_error_t **error"
 .Ft int
@@ -258,6 +242,22 @@ Item functions
 .Fn libpff_item_get_utf16_email_address_size "libpff_item_t *item, size_t *utf16_string_size, libpff_error_t **error"
 .Ft int
 .Fn libpff_item_get_utf16_email_address "libpff_item_t *item, uint16_t *utf16_string, size_t utf16_string_size, libpff_error_t **error"
+.PP
+Name to id map entry functions
+.Ft int
+.Fn libpff_name_to_id_map_entry_get_type "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint8_t *entry_type, libpff_error_t **error"
+.Ft int
+.Fn libpff_name_to_id_map_entry_get_number "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint32_t *number, libpff_error_t **error"
+.Ft int
+.Fn libpff_name_to_id_map_entry_get_utf8_string_size "libpff_name_to_id_map_entry_t *name_to_id_map_entry, size_t *utf8_string_size, libpff_error_t **error"
+.Ft int
+.Fn libpff_name_to_id_map_entry_get_utf8_string "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint8_t *utf8_string, size_t utf8_string_size, libpff_error_t **error"
+.Ft int
+.Fn libpff_name_to_id_map_entry_get_utf16_string_size "libpff_name_to_id_map_entry_t *name_to_id_map_entry, size_t *utf16_string_size, libpff_error_t **error"
+.Ft int
+.Fn libpff_name_to_id_map_entry_get_utf16_string "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint16_t *utf16_string, size_t utf16_string_size, libpff_error_t **error"
+.Ft int
+.Fn libpff_name_to_id_map_entry_get_guid "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint8_t *guid, size_t size, libpff_error_t **error"
 .Pp
 Record set functions
 .Ft int
@@ -265,7 +265,7 @@ Record set functions
 .Ft int
 .Fn libpff_record_set_get_number_of_entries "libpff_record_set_t *record_set, int *number_of_entries, libpff_error_t **error"
 .Ft int
-.Fn libpff_record_set_get_entry_by_index "libpff_record_set_t *record_set, int entry_index, libpff_record_entry_t **record_entry, libpff_error_t **error"
+.Fn libpff_record_set_get_entry_by_index "libpff_record_set_t *record_set, int record_entry_index, libpff_record_entry_t **record_entry, libpff_error_t **error"
 .Ft int
 .Fn libpff_record_set_get_entry_by_type "libpff_record_set_t *record_set, uint32_t entry_type, uint32_t value_type, libpff_record_entry_t **record_entry, uint8_t flags, libpff_error_t **error"
 .Ft int

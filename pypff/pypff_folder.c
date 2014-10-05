@@ -29,6 +29,7 @@
 #include "pypff_error.h"
 #include "pypff_folder.h"
 #include "pypff_item.h"
+#include "pypff_items.h"
 #include "pypff_libcerror.h"
 #include "pypff_libcstring.h"
 #include "pypff_libpff.h"
@@ -39,6 +40,13 @@
 PyMethodDef pypff_folder_object_methods[] = {
 
 	/* Functions to access the folder values */
+
+	{ "get_name",
+	  (PyCFunction) pypff_folder_get_name,
+	  METH_NOARGS,
+	  "get_name() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the name." },
 
 	/* Functions to access the sub folders */
 
@@ -78,16 +86,34 @@ PyMethodDef pypff_folder_object_methods[] = {
 
 PyGetSetDef pypff_folder_object_get_set_definitions[] = {
 
+	{ "name",
+	  (getter) pypff_folder_get_name,
+	  (setter) 0,
+	  "The name.",
+	  NULL },
+
 	{ "number_of_sub_folders",
 	  (getter) pypff_folder_get_number_of_sub_folders,
 	  (setter) 0,
 	  "The number of sub folders.",
 	  NULL },
 
+	{ "sub_folders",
+	  (getter) pypff_folder_get_sub_folders,
+	  (setter) 0,
+	  "The sub folders",
+	  NULL },
+
 	{ "number_of_sub_messages",
 	  (getter) pypff_folder_get_number_of_sub_messages,
 	  (setter) 0,
 	  "The number of sub messages.",
+	  NULL },
+
+	{ "sub_messages",
+	  (getter) pypff_folder_get_sub_messages,
+	  (setter) 0,
+	  "The sub messages",
 	  NULL },
 
 	/* Sentinel */
@@ -191,6 +217,126 @@ PyTypeObject pypff_folder_type_object = {
 	0
 };
 
+/* Retrieves the name
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_folder_get_name(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	const char *errors       = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "pypff_folder_get_name";
+	size_t value_string_size = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_utf8_string_size(
+	          pypff_item->item,
+	          0,
+	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
+	          &value_string_size,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_string = (uint8_t *) PyMem_Malloc(
+				    sizeof( uint8_t ) * value_string_size );
+
+	if( value_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create name.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_utf8_string(
+		  pypff_item->item,
+		  0,
+		  LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
+		  value_string,
+		  value_string_size,
+		  0,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 value_string );
+
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	return( NULL );
+}
+
 /* Retrieves the number of sub folders
  * Returns a Python object if successful or NULL on error
  */
@@ -240,21 +386,19 @@ PyObject *pypff_folder_get_number_of_sub_folders(
 	         (long) number_of_sub_folders ) );
 }
 
-/* Retrieves a specific sub folder
+/* Retrieves a specific sub folder by index
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_folder_get_sub_folder(
+PyObject *pypff_folder_get_sub_folder_by_index(
            pypff_item_t *pypff_item,
-           PyObject *arguments,
-           PyObject *keywords )
+           int sub_folder_index )
 {
-	libcerror_error_t *error    = NULL;
-	libpff_item_t *sub_folder   = NULL;
-	PyObject *folder_object     = NULL;
-	static char *keyword_list[] = { "sub_folder_index", NULL };
-	static char *function       = "pypff_folder_get_sub_folder";
-	int result                  = 0;
-	int sub_folder_index        = 0;
+	libcerror_error_t *error  = NULL;
+	libpff_item_t *sub_item   = NULL;
+	PyObject *sub_item_object = NULL;
+	static char *function     = "pypff_folder_get_sub_folder_by_index";
+	uint8_t sub_item_type     = 0;
+	int result                = 0;
 
 	if( pypff_item == NULL )
 	{
@@ -265,21 +409,12 @@ PyObject *pypff_folder_get_sub_folder(
 
 		return( NULL );
 	}
-	if( PyArg_ParseTupleAndKeywords(
-	     arguments,
-	     keywords,
-	     "i",
-	     keyword_list,
-	     &sub_folder_index ) == 0 )
-	{
-		goto on_error;
-	}
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_folder_get_sub_folder(
 	          pypff_item->item,
 	          sub_folder_index,
-	          &sub_folder,
+	          &sub_item,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -298,30 +433,144 @@ PyObject *pypff_folder_get_sub_folder(
 
 		goto on_error;
 	}
-	folder_object = pypff_item_new(
-	                 &pypff_folder_type_object,
-	                 sub_folder,
-	                 pypff_item->file_object );
+	Py_BEGIN_ALLOW_THREADS
 
-	if( folder_object == NULL )
+	result = libpff_item_get_type(
+	          sub_item,
+	          &sub_item_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve sub folder: %d type.",
+		 function,
+		 sub_folder_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	sub_item_object = pypff_item_new(
+	                   &pypff_folder_type_object,
+	                   sub_item,
+	                   pypff_item->file_object );
+
+	if( sub_item_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to create folder object.",
+		 "%s: unable to create sub folder object.",
 		 function );
 
 		goto on_error;
 	}
-	return( folder_object );
+	return( sub_item_object );
 
 on_error:
-	if( sub_folder != NULL )
+	if( sub_item != NULL )
 	{
 		libpff_item_free(
-		 &sub_folder,
+		 &sub_item,
 		 NULL );
 	}
 	return( NULL );
+}
+
+/* Retrieves a specific sub folder
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_folder_get_sub_folder(
+           pypff_item_t *pypff_item,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *sub_item_object   = NULL;
+	static char *keyword_list[] = { "sub_folder_index", NULL };
+	int sub_folder_index        = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &sub_folder_index ) == 0 )
+	{
+		return( NULL );
+	}
+	sub_item_object = pypff_folder_get_sub_folder_by_index(
+	                   pypff_item,
+	                   sub_folder_index );
+
+	return( sub_item_object );
+}
+
+/* Retrieves an items sequence and iterator object for the sub folders
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_folder_get_sub_folders(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error   = NULL;
+	PyObject *sub_items_object = NULL;
+	static char *function      = "pypff_folder_get_sub_folders";
+	int number_of_sub_folders  = 0;
+	int result                 = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_folder_get_number_of_sub_folders(
+	          pypff_item->item,
+	          &number_of_sub_folders,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of sub folders.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	sub_items_object = pypff_items_new(
+	                    pypff_item,
+	                    &pypff_folder_get_sub_folder_by_index,
+	                    number_of_sub_folders );
+
+	if( sub_items_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create sub items object.",
+		 function );
+
+		return( NULL );
+	}
+	return( sub_items_object );
 }
 
 /* Retrieves the number of sub messages
@@ -373,21 +622,19 @@ PyObject *pypff_folder_get_number_of_sub_messages(
 	         (long) number_of_sub_messages ) );
 }
 
-/* Retrieves a specific sub message
+/* Retrieves a specific sub message by index
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_folder_get_sub_message(
+PyObject *pypff_folder_get_sub_message_by_index(
            pypff_item_t *pypff_item,
-           PyObject *arguments,
-           PyObject *keywords )
+           int sub_message_index )
 {
-	libcerror_error_t *error    = NULL;
-	libpff_item_t *sub_message  = NULL;
-	PyObject *message_object    = NULL;
-	static char *keyword_list[] = { "sub_message_index", NULL };
-	static char *function       = "pypff_folder_get_sub_message";
-	int result                  = 0;
-	int sub_message_index       = 0;
+	libcerror_error_t *error  = NULL;
+	libpff_item_t *sub_item   = NULL;
+	PyObject *sub_item_object = NULL;
+	static char *function     = "pypff_folder_get_sub_message_by_index";
+	uint8_t sub_item_type     = 0;
+	int result                = 0;
 
 	if( pypff_item == NULL )
 	{
@@ -398,21 +645,12 @@ PyObject *pypff_folder_get_sub_message(
 
 		return( NULL );
 	}
-	if( PyArg_ParseTupleAndKeywords(
-	     arguments,
-	     keywords,
-	     "i",
-	     keyword_list,
-	     &sub_message_index ) == 0 )
-	{
-		goto on_error;
-	}
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_folder_get_sub_message(
 	          pypff_item->item,
 	          sub_message_index,
-	          &sub_message,
+	          &sub_item,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -431,30 +669,143 @@ PyObject *pypff_folder_get_sub_message(
 
 		goto on_error;
 	}
-	message_object = pypff_item_new(
-	                  &pypff_message_type_object,
-	                  sub_message,
-	                  pypff_item->file_object );
+	Py_BEGIN_ALLOW_THREADS
 
-	if( message_object == NULL )
+	result = libpff_item_get_type(
+	          sub_item,
+	          &sub_item_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve sub message: %d type.",
+		 function,
+		 sub_message_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	sub_item_object = pypff_item_new(
+	                   &pypff_message_type_object,
+	                   sub_item,
+	                   pypff_item->file_object );
+
+	if( sub_item_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to create message object.",
+		 "%s: unable to create sub message object.",
 		 function );
 
 		goto on_error;
 	}
-	return( message_object );
+	return( sub_item_object );
 
 on_error:
-	if( sub_message != NULL )
+	if( sub_item != NULL )
 	{
 		libpff_item_free(
-		 &sub_message,
+		 &sub_item,
 		 NULL );
 	}
 	return( NULL );
 }
 
+/* Retrieves a specific sub message
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_folder_get_sub_message(
+           pypff_item_t *pypff_item,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *sub_item_object   = NULL;
+	static char *keyword_list[] = { "sub_message_index", NULL };
+	int sub_message_index       = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &sub_message_index ) == 0 )
+	{
+		return( NULL );
+	}
+	sub_item_object = pypff_folder_get_sub_message_by_index(
+	                   pypff_item,
+	                   sub_message_index );
+
+	return( sub_item_object );
+}
+
+/* Retrieves an items sequence and iterator object for the sub messages
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_folder_get_sub_messages(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error   = NULL;
+	PyObject *sub_items_object = NULL;
+	static char *function      = "pypff_folder_get_sub_messages";
+	int number_of_sub_messages = 0;
+	int result                 = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_folder_get_number_of_sub_messages(
+	          pypff_item->item,
+	          &number_of_sub_messages,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of sub messages.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	sub_items_object = pypff_items_new(
+	                    pypff_item,
+	                    &pypff_folder_get_sub_message_by_index,
+	                    number_of_sub_messages );
+
+	if( sub_items_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create sub items object.",
+		 function );
+
+		return( NULL );
+	}
+	return( sub_items_object );
+}
 

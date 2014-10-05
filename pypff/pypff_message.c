@@ -26,8 +26,11 @@
 #include <stdlib.h>
 #endif
 
+#include "pypff_datetime.h"
 #include "pypff_error.h"
+#include "pypff_integer.h"
 #include "pypff_item.h"
+#include "pypff_items.h"
 #include "pypff_libcerror.h"
 #include "pypff_libcstring.h"
 #include "pypff_libpff.h"
@@ -46,12 +49,121 @@ PyMethodDef pypff_message_object_methods[] = {
 	  "\n"
 	  "Retrieves the subject." },
 
+	{ "get_conversation_topic",
+	  (PyCFunction) pypff_message_get_conversation_topic,
+	  METH_NOARGS,
+	  "get_conversation_topic() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the conversation topic." },
+
+	{ "get_sender_name",
+	  (PyCFunction) pypff_message_get_sender_name,
+	  METH_NOARGS,
+	  "get_sender_name() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the sender name." },
+
+	{ "get_client_submit_time",
+	  (PyCFunction) pypff_message_get_client_submit_time,
+	  METH_NOARGS,
+	  "get_client_submit_time() -> Datetime\n"
+	  "\n"
+	  "Returns the client submit date and time." },
+
+	{ "get_client_submit_time_as_integer",
+	  (PyCFunction) pypff_message_get_client_submit_time_as_integer,
+	  METH_NOARGS,
+	  "get_client_submit_time_as_integer() -> Integer\n"
+	  "\n"
+	  "Returns the client submit date and time as a 64-bit integer containing a FILETIME value." },
+
+	{ "get_delivery_time",
+	  (PyCFunction) pypff_message_get_delivery_time,
+	  METH_NOARGS,
+	  "get_delivery_time() -> Datetime\n"
+	  "\n"
+	  "Returns the delivery date and time." },
+
+	{ "get_delivery_time_as_integer",
+	  (PyCFunction) pypff_message_get_delivery_time_as_integer,
+	  METH_NOARGS,
+	  "get_delivery_time_as_integer() -> Integer\n"
+	  "\n"
+	  "Returns the delivery date and time as a 64-bit integer containing a FILETIME value." },
+
+	{ "get_creation_time",
+	  (PyCFunction) pypff_message_get_creation_time,
+	  METH_NOARGS,
+	  "get_creation_time() -> Datetime\n"
+	  "\n"
+	  "Returns the creation date and time." },
+
+	{ "get_creation_time_as_integer",
+	  (PyCFunction) pypff_message_get_creation_time_as_integer,
+	  METH_NOARGS,
+	  "get_creation_time_as_integer() -> Integer\n"
+	  "\n"
+	  "Returns the creation date and time as a 64-bit integer containing a FILETIME value." },
+
+	{ "get_modification_time",
+	  (PyCFunction) pypff_message_get_modification_time,
+	  METH_NOARGS,
+	  "get_modification_time() -> Datetime\n"
+	  "\n"
+	  "Returns the modification date and time." },
+
+	{ "get_modification_time_as_integer",
+	  (PyCFunction) pypff_message_get_modification_time_as_integer,
+	  METH_NOARGS,
+	  "get_modification_time_as_integer() -> Integer\n"
+	  "\n"
+	  "Returns the modification date and time as a 64-bit integer containing a FILETIME value." },
+
+	{ "get_transport_headers",
+	  (PyCFunction) pypff_message_get_transport_headers,
+	  METH_NOARGS,
+	  "get_transport_headers() -> String or None\n"
+	  "\n"
+	  "Retrieves the transport headers." },
+
 	{ "get_plain_text_body",
 	  (PyCFunction) pypff_message_get_plain_text_body,
 	  METH_NOARGS,
 	  "get_plain_text_body() -> String or None\n"
 	  "\n"
 	  "Retrieves the plain-text body." },
+
+	{ "get_rtf_body",
+	  (PyCFunction) pypff_message_get_rtf_body,
+	  METH_NOARGS,
+	  "get_rtf_body() -> String or None\n"
+	  "\n"
+	  "Retrieves the RTF body." },
+
+	{ "get_html_body",
+	  (PyCFunction) pypff_message_get_html_body,
+	  METH_NOARGS,
+	  "get_html_body() -> String or None\n"
+	  "\n"
+	  "Retrieves the HTML body." },
+
+	/* Functions to access the attachments */
+
+	{ "get_number_of_attachments",
+	  (PyCFunction) pypff_message_get_number_of_attachments,
+	  METH_NOARGS,
+	  "get_number_of_attachments() -> Integer\n"
+	  "\n"
+	  "Retrieves the number of attachments." },
+
+/* TODO create attachment item
+	{ "get_attachment",
+	  (PyCFunction) pypff_message_get_attachment,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_attachment(attachment_index) -> Object or None\n"
+	  "\n"
+	  "Retrieves a specific attachment." },
+*/
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -65,11 +177,81 @@ PyGetSetDef pypff_message_object_get_set_definitions[] = {
 	  "The subject.",
 	  NULL },
 
+	{ "conversation_topic",
+	  (getter) pypff_message_get_conversation_topic,
+	  (setter) 0,
+	  "The conversation topic.",
+	  NULL },
+
+/* TODO conversation index */
+
+	{ "sender_name",
+	  (getter) pypff_message_get_sender_name,
+	  (setter) 0,
+	  "The sender name.",
+	  NULL },
+
+	{ "client_submit_time",
+	  (getter) pypff_message_get_client_submit_time,
+	  (setter) 0,
+	  "The client submit date and time.",
+	  NULL },
+
+	{ "delivery_time",
+	  (getter) pypff_message_get_delivery_time,
+	  (setter) 0,
+	  "The delivery date and time.",
+	  NULL },
+
+	{ "creation_time",
+	  (getter) pypff_message_get_creation_time,
+	  (setter) 0,
+	  "The creation date and time.",
+	  NULL },
+
+	{ "modification_time",
+	  (getter) pypff_message_get_modification_time,
+	  (setter) 0,
+	  "The modification date and time.",
+	  NULL },
+
+	{ "transport_headers",
+	  (getter) pypff_message_get_transport_headers,
+	  (setter) 0,
+	  "The transport headers.",
+	  NULL },
+
 	{ "plain_text_body",
 	  (getter) pypff_message_get_plain_text_body,
 	  (setter) 0,
 	  "The plain text body.",
 	  NULL },
+
+	{ "rtf_body",
+	  (getter) pypff_message_get_rtf_body,
+	  (setter) 0,
+	  "The RTF body.",
+	  NULL },
+
+	{ "html_body",
+	  (getter) pypff_message_get_html_body,
+	  (setter) 0,
+	  "The HTML body.",
+	  NULL },
+
+	{ "number_of_attachments",
+	  (getter) pypff_message_get_number_of_attachments,
+	  (setter) 0,
+	  "The number of attachments.",
+	  NULL },
+
+/* TODO create attachment item
+	{ "attachments",
+	  (getter) pypff_message_get_attachments,
+	  (setter) 0,
+	  "The attachments",
+	  NULL },
+*/
 
 	/* Sentinel */
 	{ NULL, NULL, NULL, NULL, NULL }
@@ -200,12 +382,10 @@ PyObject *pypff_message_get_subject(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_utf8_string_size(
+	result = libpff_message_get_entry_value_utf8_string_size(
 	          pypff_item->item,
-	          0,
 	          LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT,
 	          &value_string_size,
-	          0,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -245,13 +425,11 @@ PyObject *pypff_message_get_subject(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_utf8_string(
+	result = libpff_message_get_entry_value_utf8_string(
 		  pypff_item->item,
-		  0,
 		  LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT,
 		  value_string,
 		  value_string_size,
-		  0,
 		  &error );
 
 	Py_END_ALLOW_THREADS
@@ -293,6 +471,794 @@ PyObject *pypff_message_get_subject(
 				 (Py_ssize_t) value_string_size - 1,
 				 errors );
 	}
+	PyMem_Free(
+	 value_string );
+
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	return( NULL );
+}
+
+/* Retrieves the conversation topic
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_conversation_topic(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	const char *errors       = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "pypff_message_get_conversation_topic";
+	size_t value_string_size = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_entry_value_utf8_string_size(
+	          pypff_item->item,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_TOPIC,
+	          &value_string_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve conversation topic size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_string = (uint8_t *) PyMem_Malloc(
+				    sizeof( uint8_t ) * value_string_size );
+
+	if( value_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create conversation topic.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_entry_value_utf8_string(
+		  pypff_item->item,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_TOPIC,
+		  value_string,
+		  value_string_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve conversation topic.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 value_string );
+
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	return( NULL );
+}
+
+/* Retrieves the sender name
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_sender_name(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	const char *errors       = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "pypff_message_get_sender_name";
+	size_t value_string_size = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_entry_value_utf8_string_size(
+	          pypff_item->item,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME,
+	          &value_string_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve sender name size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_string = (uint8_t *) PyMem_Malloc(
+				    sizeof( uint8_t ) * value_string_size );
+
+	if( value_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create sender name.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_entry_value_utf8_string(
+		  pypff_item->item,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME,
+		  value_string,
+		  value_string_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve sender name.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 value_string );
+
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	return( NULL );
+}
+
+/* Retrieves the client submit date and time
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_client_submit_time(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error   = NULL;
+	PyObject *date_time_object = NULL;
+	static char *function      = "pypff_message_get_client_submit_time";
+	uint64_t filetime          = 0;
+	int result                 = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_filetime(
+	          pypff_item->item,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
+	          &filetime,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve client submit time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	date_time_object = pypff_datetime_new_from_filetime(
+	                    filetime );
+
+	return( date_time_object );
+}
+
+/* Retrieves the client submit date and time as an integer
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_client_submit_time_as_integer(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pypff_message_get_client_submit_time_as_integer";
+	uint64_t filetime        = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_filetime(
+	          pypff_item->item,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
+	          &filetime,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve client submit time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pypff_integer_unsigned_new_from_64bit(
+	                  (uint64_t) filetime );
+
+	return( integer_object );
+}
+
+/* Retrieves the delivery date and time
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_delivery_time(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error   = NULL;
+	PyObject *date_time_object = NULL;
+	static char *function      = "pypff_message_get_delivery_time";
+	uint64_t filetime          = 0;
+	int result                 = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_filetime(
+	          pypff_item->item,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
+	          &filetime,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve delivery time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	date_time_object = pypff_datetime_new_from_filetime(
+	                    filetime );
+
+	return( date_time_object );
+}
+
+/* Retrieves the delivery date and time as an integer
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_delivery_time_as_integer(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pypff_message_get_delivery_time_as_integer";
+	uint64_t filetime        = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_filetime(
+	          pypff_item->item,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
+	          &filetime,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve delivery time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pypff_integer_unsigned_new_from_64bit(
+	                  (uint64_t) filetime );
+
+	return( integer_object );
+}
+
+/* Retrieves the creation date and time
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_creation_time(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error   = NULL;
+	PyObject *date_time_object = NULL;
+	static char *function      = "pypff_message_get_creation_time";
+	uint64_t filetime          = 0;
+	int result                 = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_filetime(
+	          pypff_item->item,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
+	          &filetime,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve creation time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	date_time_object = pypff_datetime_new_from_filetime(
+	                    filetime );
+
+	return( date_time_object );
+}
+
+/* Retrieves the creation date and time as an integer
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_creation_time_as_integer(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pypff_message_get_creation_time_as_integer";
+	uint64_t filetime        = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_filetime(
+	          pypff_item->item,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
+	          &filetime,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve creation time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pypff_integer_unsigned_new_from_64bit(
+	                  (uint64_t) filetime );
+
+	return( integer_object );
+}
+
+/* Retrieves the modification date and time
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_modification_time(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error   = NULL;
+	PyObject *date_time_object = NULL;
+	static char *function      = "pypff_message_get_modification_time";
+	uint64_t filetime          = 0;
+	int result                 = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_filetime(
+	          pypff_item->item,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME,
+	          &filetime,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve modification time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	date_time_object = pypff_datetime_new_from_filetime(
+	                    filetime );
+
+	return( date_time_object );
+}
+
+/* Retrieves the modification date and time as an integer
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_modification_time_as_integer(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pypff_message_get_modification_time_as_integer";
+	uint64_t filetime        = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_entry_value_filetime(
+	          pypff_item->item,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME,
+	          &filetime,
+	          0,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve modification time.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pypff_integer_unsigned_new_from_64bit(
+	                  (uint64_t) filetime );
+
+	return( integer_object );
+}
+
+/* Retrieves the transport headers
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_transport_headers(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	const char *errors       = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "pypff_message_get_transport_headers";
+	size_t value_string_size = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_entry_value_utf8_string_size(
+	          pypff_item->item,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
+	          &value_string_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve transport headers size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_string = (uint8_t *) PyMem_Malloc(
+				    sizeof( uint8_t ) * value_string_size );
+
+	if( value_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create transport headers.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_entry_value_utf8_string(
+		  pypff_item->item,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
+		  value_string,
+		  value_string_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve transport headers.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1,
+			 errors );
+
 	PyMem_Free(
 	 value_string );
 
@@ -420,4 +1386,473 @@ on_error:
 	}
 	return( NULL );
 }
+
+/* Retrieves the RTF body
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_rtf_body(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	const char *errors       = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "pypff_message_get_rtf_body";
+	size_t value_string_size = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_rtf_body_size(
+	          pypff_item->item,
+	          &value_string_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve RTF body size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_string = (uint8_t *) PyMem_Malloc(
+				    sizeof( uint8_t ) * value_string_size );
+
+	if( value_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create RTF body.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_rtf_body(
+		  pypff_item->item,
+		  value_string,
+		  value_string_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve RTF body.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 value_string );
+
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	return( NULL );
+}
+
+/* Retrieves the HTML body
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_html_body(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	const char *errors       = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "pypff_message_get_html_body";
+	size_t value_string_size = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_html_body_size(
+	          pypff_item->item,
+	          &value_string_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve HTML body size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_string = (uint8_t *) PyMem_Malloc(
+				    sizeof( uint8_t ) * value_string_size );
+
+	if( value_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create HTML body.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_html_body(
+		  pypff_item->item,
+		  value_string,
+		  value_string_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve HTML body.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 value_string );
+
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	return( NULL );
+}
+
+/* Retrieves the number of attachments
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_number_of_attachments(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error  = NULL;
+	static char *function     = "pypff_message_get_number_of_attachments";
+	int number_of_attachments = 0;
+	int result                = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_number_of_attachments(
+	          pypff_item->item,
+	          &number_of_attachments,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of attachments.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	return( PyInt_FromLong(
+	         (long) number_of_attachments ) );
+}
+
+/* TODO create attachment item */
+#ifdef TODO
+
+/* Retrieves a specific attachment by index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_attachment_by_index(
+           pypff_item_t *pypff_item,
+           int attachment_index )
+{
+	libcerror_error_t *error  = NULL;
+	libpff_item_t *sub_item   = NULL;
+	PyObject *sub_item_object = NULL;
+	static char *function     = "pypff_message_get_attachment_by_index";
+	uint8_t sub_item_type     = 0;
+	int result                = 0;
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_attachment(
+	          pypff_item->item,
+	          attachment_index,
+	          &sub_item,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve attachment: %d.",
+		 function,
+		 attachment_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_type(
+	          sub_item,
+	          &sub_item_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve attachment: %d type.",
+		 function,
+		 attachment_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	sub_item_object = pypff_item_new(
+	                   &pypff_message_type_object,
+	                   sub_item,
+	                   pypff_item->file_object );
+
+	if( sub_item_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create attachment object.",
+		 function );
+
+		goto on_error;
+	}
+	return( sub_item_object );
+
+on_error:
+	if( sub_item != NULL )
+	{
+		libpff_item_free(
+		 &sub_item,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves a specific attachment
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_attachment(
+           pypff_item_t *pypff_item,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *sub_item_object   = NULL;
+	static char *keyword_list[] = { "attachment_index", NULL };
+	int attachment_index        = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &attachment_index ) == 0 )
+	{
+		return( NULL );
+	}
+	sub_item_object = pypff_message_get_attachment_by_index(
+	                   pypff_item,
+	                   attachment_index );
+
+	return( sub_item_object );
+}
+
+/* Retrieves an items sequence and iterator object for the attachments
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_attachments(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error   = NULL;
+	PyObject *sub_items_object = NULL;
+	static char *function      = "pypff_message_get_attachments";
+	int number_of_attachments  = 0;
+	int result                 = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_number_of_attachments(
+	          pypff_item->item,
+	          &number_of_attachments,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of attachments.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	sub_items_object = pypff_items_new(
+	                    pypff_item,
+	                    &pypff_message_get_attachment_by_index,
+	                    number_of_attachments );
+
+	if( sub_items_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create sub items object.",
+		 function );
+
+		return( NULL );
+	}
+	return( sub_items_object );
+}
+
+#endif
 

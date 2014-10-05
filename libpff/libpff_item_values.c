@@ -578,7 +578,7 @@ int libpff_item_values_get_record_entry_by_type(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
-     int set_index,
+     int record_set_index,
      uint32_t entry_type,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
@@ -642,7 +642,7 @@ int libpff_item_values_get_record_entry_by_type(
 	}
 	result = libpff_table_get_record_entry_by_type(
 	          item_values->table,
-	          set_index,
+	          record_set_index,
 	          entry_type,
 	          value_type,
 	          record_entry,
@@ -678,7 +678,7 @@ int libpff_item_values_get_record_entry_by_utf8_name(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
-     int set_index,
+     int record_set_index,
      const uint8_t *utf8_name,
      size_t utf8_name_length,
      uint32_t value_type,
@@ -743,7 +743,7 @@ int libpff_item_values_get_record_entry_by_utf8_name(
 	}
 	result = libpff_table_get_record_entry_by_utf8_name(
 	          item_values->table,
-	          set_index,
+	          record_set_index,
 	          utf8_name,
 	          utf8_name_length,
 	          value_type,
@@ -780,7 +780,7 @@ int libpff_item_values_get_record_entry_by_utf16_name(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
-     int set_index,
+     int record_set_index,
      const uint16_t *utf16_name,
      size_t utf16_name_length,
      uint32_t value_type,
@@ -845,7 +845,7 @@ int libpff_item_values_get_record_entry_by_utf16_name(
 	}
 	result = libpff_table_get_record_entry_by_utf16_name(
 	          item_values->table,
-	          set_index,
+	          record_set_index,
 	          utf16_name,
 	          utf16_name_length,
 	          value_type,
