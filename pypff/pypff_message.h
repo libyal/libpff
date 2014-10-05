@@ -46,6 +46,10 @@ PyObject *pypff_message_get_plain_text_body(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
+PyObject *pypff_message_get_html_body(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
 #if defined( __cplusplus )
 }
 #endif
