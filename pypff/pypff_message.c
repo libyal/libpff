@@ -53,6 +53,13 @@ PyMethodDef pypff_message_object_methods[] = {
 	  "\n"
 	  "Retrieves the plain-text body." },
 
+	{ "get_html_body",
+	  (PyCFunction) pypff_message_get_html_body,
+	  METH_NOARGS,
+	  "get_html_body() -> String or None\n"
+	  "\n"
+	  "Retrieves the html body." },
+
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
@@ -69,6 +76,12 @@ PyGetSetDef pypff_message_object_get_set_definitions[] = {
 	  (getter) pypff_message_get_plain_text_body,
 	  (setter) 0,
 	  "The plain text body.",
+	  NULL },
+
+	{ "html_body",
+	  (getter) pypff_message_get_html_body,
+	  (setter) 0,
+	  "The html body.",
 	  NULL },
 
 	/* Sentinel */
@@ -406,6 +419,114 @@ PyObject *pypff_message_get_plain_text_body(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1,
 			 errors );
+
+	PyMem_Free(
+	 value_string );
+
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	return( NULL );
+}
+
+/* Retrieves the html body
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_html_body(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *string_object  = NULL;
+	const char *errors       = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "pypff_message_get_html_body";
+	size_t value_string_size = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_html_body_size(
+	          pypff_item->item,
+	          &value_string_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve html body size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_string = (uint8_t *) PyMem_Malloc(
+				    sizeof( uint8_t ) * value_string_size );
+
+	if( value_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create html body.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_html_body(
+		  pypff_item->item,
+		  value_string,
+		  value_string_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve html body.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	
+	string_object = PyString_FromString( (char *) value_string);
 
 	PyMem_Free(
 	 value_string );
