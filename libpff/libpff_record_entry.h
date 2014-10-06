@@ -130,6 +130,12 @@ int libpff_record_entry_get_entry_type(
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
+int libpff_record_entry_get_name_to_id_map_entry(
+     libpff_record_entry_t *record_entry,
+     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
 int libpff_record_entry_get_value_type(
      libpff_record_entry_t *record_entry,
      uint32_t *value_type,
@@ -223,6 +229,8 @@ int libpff_record_entry_get_value_floating_point(
      double *value_floating_point,
      libcerror_error_t **error );
 
+/* TODO expose function below in include header */
+
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf8_string_size(
      libpff_record_entry_t *record_entry,
@@ -270,6 +278,12 @@ int libpff_record_entry_compare_value_with_utf16_string(
 int libpff_record_entry_copy_object_identifier(
      libpff_record_entry_t *record_entry,
      uint32_t *object_identifier,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_multi_value(
+     libpff_record_entry_t *record_entry,
+     libpff_multi_value_t **multi_value,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

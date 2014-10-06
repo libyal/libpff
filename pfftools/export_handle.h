@@ -232,11 +232,18 @@ int export_handle_export_item(
      log_handle_t *log_handle,
      libcerror_error_t **error );
 
-int export_handle_export_item_value_to_item_file(
+int export_handle_export_record_set_to_item_file(
      export_handle_t *export_handle,
-     libpff_item_t *item,
-     uint32_t set_index,
-     uint32_t entry_index,
+     libpff_record_set_t *record_set,
+     int record_set_index,
+     item_file_t *item_file,
+     libcerror_error_t **error );
+
+int export_handle_export_record_entry_to_item_file(
+     export_handle_t *export_handle,
+     libpff_record_entry_t *record_entry,
+     int record_set_index,
+     int record_entry_index,
      item_file_t *item_file,
      libcerror_error_t **error );
 

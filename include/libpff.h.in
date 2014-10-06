@@ -1492,6 +1492,15 @@ int libpff_record_entry_get_entry_type(
      uint32_t *entry_type,
      libpff_error_t **error );
 
+/* Retrieves the name to id map entry
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_name_to_id_map_entry(
+     libpff_record_entry_t *record_entry,
+     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
+     libpff_error_t **error );
+
 /* Retrieves the value type
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -1518,6 +1527,89 @@ int libpff_record_entry_copy_value_data(
      libpff_record_entry_t *record_entry,
      uint8_t *value_data,
      size_t value_data_size,
+     libpff_error_t **error );
+
+/* Reads value data from the current offset into a buffer
+ * Returns the number of bytes read or -1 on error
+ */
+LIBPFF_EXTERN \
+ssize_t libpff_record_entry_read_buffer(
+         libpff_record_entry_t *record_entry,
+         uint8_t *buffer,
+         size_t buffer_size,
+         libpff_error_t **error );
+
+/* Seeks a certain offset of the value data
+ * Returns the offset if seek is successful or -1 on error
+ */
+LIBPFF_EXTERN \
+off64_t libpff_record_entry_seek_offset(
+         libpff_record_entry_t *record_entry,
+         off64_t offset,
+         int whence,
+         libpff_error_t **error );
+
+/* Retrieves the 8-bit boolean value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_boolean(
+     libpff_record_entry_t *record_entry,
+     uint8_t *value_boolean,
+     libpff_error_t **error );
+
+/* Retrieves the 16-bit value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_16bit(
+     libpff_record_entry_t *record_entry,
+     uint16_t *value_16bit,
+     libpff_error_t **error );
+
+/* Retrieves the 32-bit value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_32bit(
+     libpff_record_entry_t *record_entry,
+     uint32_t *value_32bit,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_64bit(
+     libpff_record_entry_t *record_entry,
+     uint64_t *value_64bit,
+     libpff_error_t **error );
+
+/* Retrieves the size value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_size(
+     libpff_record_entry_t *record_entry,
+     size_t *value_size,
+     libpff_error_t **error );
+
+/* Retrieves the floating point value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_floating_point(
+     libpff_record_entry_t *record_entry,
+     double *value_floating_point,
+     libpff_error_t **error );
+
+/* Retrieves the multi value
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_multi_value(
+     libpff_record_entry_t *record_entry,
+     libpff_multi_value_t **multi_value,
      libpff_error_t **error );
 
 /* -------------------------------------------------------------------------

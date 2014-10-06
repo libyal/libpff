@@ -29,6 +29,7 @@
 #include "libpff_libcerror.h"
 #include "libpff_libuna.h"
 #include "libpff_mapi.h"
+#include "libpff_multi_value.h"
 #include "libpff_record_entry.h"
 
 /* Function to determine if there are zero bytes in a string
@@ -395,6 +396,51 @@ int libpff_record_entry_get_entry_type(
 		return( 0 );
 	}
 	*entry_type = internal_record_entry->identifier.entry_type;
+
+	return( 1 );
+}
+
+/* Retrieves the name to id map entry
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_record_entry_get_name_to_id_map_entry(
+     libpff_record_entry_t *record_entry,
+     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_name_to_id_map_entry";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( name_to_id_map_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid name to id map entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( internal_record_entry->identifier.format != LIBPFF_RECORD_ENTRY_IDENTIFIER_FORMAT_MAPI_PROPERTY )
+	 || ( internal_record_entry->name_to_id_map_entry == NULL ) )
+	{
+		return( 0 );
+	}
+	*name_to_id_map_entry = (libpff_name_to_id_map_entry_t *) internal_record_entry->name_to_id_map_entry;
 
 	return( 1 );
 }
@@ -2581,5 +2627,306 @@ int libpff_record_entry_copy_object_identifier(
 	 *object_identifier );
 
 	return( 1 );
+}
+
+/* Retrieves the multi value
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_record_entry_get_multi_value(
+     libpff_record_entry_t *record_entry,
+     libpff_multi_value_t **multi_value,
+     libcerror_error_t **error )
+{
+	libpff_internal_multi_value_t *internal_multi_value   = NULL;
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_entry_value";
+	size_t value_size                                     = 0;
+	uint32_t number_of_values                             = 0;
+	uint32_t value_index                                  = 0;
+	uint32_t value_type                                   = 0;
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( multi_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid multi value.",
+		 function );
+
+		return( -1 );
+	}
+	if( *multi_value != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: multi value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( internal_record_entry->value_data == NULL )
+	 || ( internal_record_entry->value_data_size == 0 ) )
+	{
+		return( 0 );
+	}
+	if( libpff_record_entry_get_value_type(
+	     record_entry,
+	     &value_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value type.",
+		 function );
+
+		goto on_error;
+	}
+	if( ( value_type & LIBPFF_VALUE_TYPE_MULTI_VALUE_FLAG ) == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type: 0x%04" PRIx32 ".",
+		 function,
+		 value_type );
+
+		goto on_error;
+	}
+	if( libpff_multi_value_initialize(
+	     multi_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create multi value.",
+		 function );
+
+		goto on_error;
+	}
+	internal_multi_value = (libpff_internal_multi_value_t *) *multi_value;
+
+	internal_multi_value->value_type = value_type;
+
+/* TODO is there a need to copy the multi value data ? use fvalue data handle instead ? */
+
+	/* Internally an empty multi value is represented by a NULL reference
+	 */
+	if( internal_record_entry->value_data != NULL )
+	{
+		internal_multi_value->value_data_size = internal_record_entry->value_data_size;
+
+		internal_multi_value->value_data = (uint8_t *) memory_allocate(
+								sizeof( uint8_t ) * internal_multi_value->value_data_size );
+
+		if( internal_multi_value->value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create multi value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( memory_copy(
+		     internal_multi_value->value_data,
+		     internal_record_entry->value_data,
+		     internal_multi_value->value_data_size ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to set multi value data.",
+			 function );
+
+			goto on_error;
+		}
+		switch( internal_multi_value->value_type )
+		{
+			case LIBPFF_VALUE_TYPE_MULTI_VALUE_INTEGER_16BIT_SIGNED:
+				value_size = 2;
+				break;
+
+			case LIBPFF_VALUE_TYPE_MULTI_VALUE_INTEGER_32BIT_SIGNED:
+				value_size = 4;
+				break;
+
+			case LIBPFF_VALUE_TYPE_MULTI_VALUE_INTEGER_64BIT_SIGNED:
+			case LIBPFF_VALUE_TYPE_MULTI_VALUE_FILETIME:
+				value_size = 8;
+				break;
+
+			case LIBPFF_VALUE_TYPE_MULTI_VALUE_GUID:
+				value_size = 16;
+				break;
+
+			case LIBPFF_VALUE_TYPE_MULTI_VALUE_STRING_ASCII:
+			case LIBPFF_VALUE_TYPE_MULTI_VALUE_STRING_UNICODE:
+			case LIBPFF_VALUE_TYPE_MULTI_VALUE_BINARY_DATA:
+				/* The first 4 bytes contain the number of values
+				 */
+				byte_stream_copy_to_uint32_little_endian(
+				 internal_record_entry->value_data,
+				 internal_multi_value->number_of_values );
+
+				break;
+
+			default:
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported value type: 0x%04" PRIx32 ".",
+				 function,
+				 internal_multi_value->value_type );
+
+				goto on_error;
+		}
+		if( value_size != 0 )
+		{
+			if( ( internal_record_entry->value_data_size % value_size ) != 0 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: value data size: %" PRIzd " not a multitude of value size: %" PRIzd ".",
+				 function,
+				 internal_record_entry->value_data_size,
+				 value_size );
+
+				goto on_error;
+			}
+			number_of_values = internal_record_entry->value_data_size / value_size;
+
+#if SIZE_MAX > UINT32_MAX
+			if( number_of_values > UINT32_MAX )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+				 "%s: number of values value exceeds maximum.\n",
+				 function );
+
+				goto on_error;
+			}
+#endif
+			internal_multi_value->number_of_values = (uint32_t) number_of_values;
+		}
+		if( internal_multi_value->number_of_values > 0 )
+		{
+			internal_multi_value->value_offset = (uint32_t *) memory_allocate(
+									   sizeof( uint32_t ) * internal_multi_value->number_of_values );
+
+			if( internal_multi_value->value_offset == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create multi value offsets.",
+				 function );
+
+				goto on_error;
+			}
+			internal_multi_value->value_size = (size_t *) memory_allocate(
+								       sizeof( size_t ) * internal_multi_value->number_of_values );
+
+			if( internal_multi_value->value_offset == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create multi value offsets.",
+				 function );
+
+				goto on_error;
+			}
+			for( value_index = 0;
+			     value_index < internal_multi_value->number_of_values;
+			     value_index++ )
+			{
+				if( ( internal_multi_value->value_type == LIBPFF_VALUE_TYPE_MULTI_VALUE_STRING_ASCII )
+				 || ( internal_multi_value->value_type == LIBPFF_VALUE_TYPE_MULTI_VALUE_STRING_UNICODE )
+				 || ( internal_multi_value->value_type == LIBPFF_VALUE_TYPE_MULTI_VALUE_BINARY_DATA ) )
+				{
+					internal_record_entry->value_data += 4;
+
+					byte_stream_copy_to_uint32_little_endian(
+					 internal_record_entry->value_data,
+					 internal_multi_value->value_offset[ value_index ] );
+
+					if( internal_multi_value->value_offset[ value_index ] > internal_multi_value->value_data_size )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: value offset: %" PRIu32 " exceeds value data size: %" PRIzd ".",
+						 function,
+						 internal_multi_value->value_offset[ value_index ],
+						 internal_multi_value->value_data_size );
+
+						goto on_error;
+					}
+					if( value_index > 0 )
+					{
+						internal_multi_value->value_size[ value_index - 1 ] = internal_multi_value->value_offset[ value_index ]
+						                                                    - internal_multi_value->value_offset[ value_index - 1 ];
+					}
+				}
+				else
+				{
+					internal_multi_value->value_offset[ value_index ] = (uint32_t) ( value_index * value_size );
+					internal_multi_value->value_size[ value_index ]   = value_size;
+				}
+			}
+			if( ( internal_multi_value->value_type == LIBPFF_VALUE_TYPE_MULTI_VALUE_STRING_ASCII )
+			 || ( internal_multi_value->value_type == LIBPFF_VALUE_TYPE_MULTI_VALUE_STRING_UNICODE )
+			 || ( internal_multi_value->value_type == LIBPFF_VALUE_TYPE_MULTI_VALUE_BINARY_DATA ) )
+			{
+				internal_multi_value->value_size[ value_index - 1 ] = internal_multi_value->value_data_size
+				                                                    - internal_multi_value->value_offset[ value_index - 1 ];
+			}
+/* TODO refactor
+			internal_multi_value->ascii_codepage = ascii_codepage;
+*/
+		}
+	}
+	return( 1 );
+
+on_error:
+	if( *multi_value != NULL )
+	{
+		libpff_multi_value_free(
+		 multi_value,
+		 NULL );
+	}
+	return( -1 );
 }
 

@@ -1803,21 +1803,126 @@ on_error:
 	return( -1 );
 }
 
-/* Exports a specific item value to the item file
+/* Exports a specific record set to the item file
  * Returns 1 if successful or -1 on error
  */
-int export_handle_export_item_value_to_item_file(
+int export_handle_export_record_set_to_item_file(
      export_handle_t *export_handle,
-     libpff_item_t *item,
-     uint32_t set_index,
-     uint32_t entry_index,
+     libpff_record_set_t *record_set,
+     int record_set_index,
+     item_file_t *item_file,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "export_handle_export_record_set_to_item_file";
+	int number_of_record_entries        = 0;
+	int record_entry_index              = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_record_set_get_number_of_entries(
+	     record_set,
+	     &number_of_record_entries,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of entries.",
+		 function );
+
+		goto on_error;
+	}
+	for( record_entry_index = 0;
+	     record_entry_index < number_of_record_entries;
+	     record_entry_index++ )
+	{
+		if( libpff_record_set_get_entry_by_index(
+		     record_set,
+		     record_entry_index,
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve record entry: %d.",
+			 function,
+			 record_entry_index );
+
+			goto on_error;
+		}
+		if( export_handle_export_record_entry_to_item_file(
+		     export_handle,
+		     record_entry,
+		     record_set_index,
+		     record_entry_index,
+		     item_file,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_GENERIC,
+			 "%s: unable to export record entry: %d.",
+			 function,
+			 record_entry_index );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry: %d.",
+			 function,
+			 record_entry_index );
+
+			goto on_error;
+		}
+	}
+	return( 1 );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Exports a specific record entry to the item file
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_record_entry_to_item_file(
+     export_handle_t *export_handle,
+     libpff_record_entry_t *record_entry,
+     int record_set_index,
+     int record_entry_index,
      item_file_t *item_file,
      libcerror_error_t **error )
 {
 	libcstring_system_character_t *name_to_id_map_entry_string = NULL;
 	libpff_name_to_id_map_entry_t *name_to_id_map_entry        = NULL;
 	uint8_t *value_data                                        = NULL;
-	static char *function                                      = "export_handle_export_item_value_to_item_file";
+	static char *function                                      = "export_handle_export_record_entry_to_item_file";
 	size_t name_to_id_map_entry_string_size                    = 0;
 	size_t value_data_size                                     = 0;
 	uint32_t entry_type                                        = 0;
@@ -1845,7 +1950,7 @@ int export_handle_export_item_value_to_item_file(
 	if( item_file_write_value_integer_32bit_as_decimal(
 	     item_file,
 	     _LIBCSTRING_SYSTEM_STRING( "Set:\t\t\t\t" ),
-	     set_index,
+	     (uint32_t) record_set_index,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1860,7 +1965,7 @@ int export_handle_export_item_value_to_item_file(
 	if( item_file_write_value_integer_32bit_as_decimal(
 	     item_file,
 	     _LIBCSTRING_SYSTEM_STRING( "Entry:\t\t\t\t" ),
-	     entry_index,
+	     (uint32_t) record_entry_index,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1872,23 +1977,17 @@ int export_handle_export_item_value_to_item_file(
 
 		goto on_error;
 	}
-	if( libpff_item_get_entry_type(
-	     item,
-	     set_index,
-	     entry_index,
+	if( libpff_record_entry_get_entry_type(
+	     record_entry,
 	     &entry_type,
-	     &value_type,
-	     &name_to_id_map_entry,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve entry type of set: %" PRIu32 " entry: %" PRIu32 ".",
-		 function,
-		 set_index,
-		 entry_index );
+		 "%s: unable to retrieve entry type.",
+		 function );
 
 		goto on_error;
 	}
@@ -1903,6 +2002,20 @@ int export_handle_export_item_value_to_item_file(
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
 		 "%s: unable to write 32-bit integer value.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_record_entry_get_value_type(
+	     record_entry,
+	     &value_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value type.",
 		 function );
 
 		goto on_error;
@@ -1922,7 +2035,23 @@ int export_handle_export_item_value_to_item_file(
 
 		goto on_error;
 	}
-	if( name_to_id_map_entry != NULL )
+	result = libpff_record_entry_get_name_to_id_map_entry(
+	          record_entry,
+	          &name_to_id_map_entry,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve name to ide map entry.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result != 0 )
 	{
 		if( libpff_name_to_id_map_entry_get_type(
 		     name_to_id_map_entry,
@@ -1933,10 +2062,8 @@ int export_handle_export_item_value_to_item_file(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve name to identifier map entry type of set: %" PRIu32 " entry: %" PRIu32 ".",
-			 function,
-			 set_index,
-			 entry_index );
+			 "%s: unable to retrieve name to identifier map entry type.",
+			 function );
 
 			goto on_error;
 		}
@@ -1951,10 +2078,8 @@ int export_handle_export_item_value_to_item_file(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve name to identifier map entry number of set: %" PRIu32 " entry: %" PRIu32 ".",
-				 function,
-				 set_index,
-				 entry_index );
+				 "%s: unable to retrieve name to identifier map entry number.",
+				 function );
 
 				goto on_error;
 			}
@@ -1993,10 +2118,8 @@ int export_handle_export_item_value_to_item_file(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve name to identifier map entry string size of set: %" PRIu32 " entry: %" PRIu32 ".",
-				 function,
-				 set_index,
-				 entry_index );
+				 "%s: unable to retrieve name to identifier map entry string size.",
+				 function );
 
 				goto on_error;
 			}
@@ -2033,10 +2156,8 @@ int export_handle_export_item_value_to_item_file(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve name to identifier map entry string of set: %" PRIu32 " entry: %" PRIu32 ".",
-				 function,
-				 set_index,
-				 entry_index );
+				 "%s: unable to retrieve name to identifier map entry string.",
+				 function );
 
 				goto on_error;
 			}
@@ -2062,77 +2183,48 @@ int export_handle_export_item_value_to_item_file(
 			name_to_id_map_entry_string = NULL;
 		}
 	}
-	matched_value_type = LIBPFF_VALUE_TYPE_UNSPECIFIED;
-
-	result = libpff_item_get_entry_value(
-		  item,
-		  set_index,
-		  entry_type,
-		  &matched_value_type,
-		  &value_data,
-		  &value_data_size,
-		  LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE | LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP,
-		  error );
-
-	if( result == -1 )
+	if( libpff_record_entry_get_value_data_size(
+	     record_entry,
+	     &value_data_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve entry value of set: %" PRIu32 " entry: %" PRIu32 ".",
-		 function,
-		 set_index,
-		 entry_index );
-
-		goto on_error;
-	}
-	if( item_file_write_string(
-	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Matched value type:\t\t" ),
-	     21,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write string.",
+		 "%s: unable to retrieve value data size.",
 		 function );
 
 		goto on_error;
 	}
-	if( item_file_write_integer_32bit_as_hexadecimal(
-	     item_file,
-	     matched_value_type,
-	     error ) != 1 )
+	value_data = (uint8_t *) memory_allocate(
+	                          sizeof( uint8_t ) * value_data_size );
+
+	if( value_data == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write 32-bit integer.",
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create value data.",
 		 function );
 
 		goto on_error;
 	}
-	if( value_type != matched_value_type )
+	if( libpff_record_entry_copy_value_data(
+	     record_entry,
+	     value_data,
+	     value_data_size,
+	     error ) != 1 )
 	{
-		if( item_file_write_string(
-		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( " (mismatch)" ),
-		     11,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write string.",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy value data.",
+		 function );
 
-			goto on_error;
-		}
+		goto on_error;
 	}
 	if( item_file_write_new_line(
 	     item_file,
@@ -2176,28 +2268,30 @@ int export_handle_export_item_value_to_item_file(
 
 		goto on_error;
 	}
+	memory_free(
+	 value_data );
+
+	value_data = NULL;
+
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( ( value_type & 0x1000 ) != 0 )
+/* TODO merge this with "normal" value export */
+	if( ( value_type & LIBPFF_VALUE_TYPE_MULTI_VALUE_FLAG ) != 0 )
 	{
-		if( libpff_item_get_entry_multi_value(
-		     item,
-		     set_index,
-		     entry_type,
+		if( libpff_record_entry_get_multi_value(
+		     record_entry,
 		     &multi_value,
-		     LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve entry multi value of set: %" PRIu32 " entry: %" PRIu32 ".",
-			 function,
-			 set_index,
-			 entry_index );
+			 "%s: unable to retrieve entry multi value.",
+			 function );
 
 			goto on_error;
 		}
+/* TODO do something useful with the multi value */
 		if( libpff_multi_value_free(
 		     &multi_value,
 		     error ) != 1 )
@@ -2216,6 +2310,11 @@ int export_handle_export_item_value_to_item_file(
 	return( 1 );
 
 on_error:
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
 	if( name_to_id_map_entry_string != NULL )
 	{
 		memory_free(
@@ -2237,13 +2336,13 @@ int export_handle_export_item_values(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	item_file_t *item_file     = NULL;
-	static char *function      = "export_handle_export_item_values";
-	uint32_t entry_index       = 0;
-	uint32_t number_of_entries = 0;
-	int number_of_sets         = 0;
-	int result                 = 0;
-	int set_index              = 0;
+	libpff_record_set_t *record_set = NULL;
+	item_file_t *item_file          = NULL;
+	static char *function           = "export_handle_export_item_values";
+	uint32_t number_of_entries      = 0;
+	int number_of_record_sets       = 0;
+	int record_set_index            = 0;
+	int result                      = 0;
 
 	if( export_handle == NULL )
 	{
@@ -2298,7 +2397,7 @@ int export_handle_export_item_values(
 	}
 	if( libpff_item_get_number_of_record_sets(
 	     item,
-	     &number_of_sets,
+	     &number_of_record_sets,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -2310,6 +2409,7 @@ int export_handle_export_item_values(
 
 		goto on_error;
 	}
+/* TODO deprecate? */
 	if( libpff_item_get_number_of_entries(
 	     item,
 	     &number_of_entries,
@@ -2327,7 +2427,7 @@ int export_handle_export_item_values(
 	if( item_file_write_value_integer_32bit_as_decimal(
 	     item_file,
 	     _LIBCSTRING_SYSTEM_STRING( "Number of sets:\t\t\t" ),
-	     (uint32_t) number_of_sets,
+	     (uint32_t) number_of_record_sets,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -2354,31 +2454,56 @@ int export_handle_export_item_values(
 
 		goto on_error;
 	}
-	for( set_index = 0;
-	     set_index < number_of_sets;
-	     set_index++ )
+	for( record_set_index = 0;
+	     record_set_index < number_of_record_sets;
+	     record_set_index++ )
 	{
-		for( entry_index = 0;
-		     entry_index < number_of_entries;
-		     entry_index++ )
+		if( libpff_item_get_record_set_by_index(
+		     item,
+		     record_set_index,
+		     &record_set,
+		     error ) != 1 )
 		{
-			if( export_handle_export_item_value_to_item_file(
-			     export_handle,
-			     item,
-			     set_index,
-			     entry_index,
-			     item_file,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_GENERIC,
-				 "%s: unable to export item value.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of record set: %d.",
+			 function,
+			 record_set_index );
 
-				goto on_error;
-			}
+			goto on_error;
+		}
+		if( export_handle_export_record_set_to_item_file(
+		     export_handle,
+		     record_set,
+		     record_set_index,
+		     item_file,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_GENERIC,
+			 "%s: unable to export record set: %d.",
+			 function,
+			 record_set_index );
+
+			goto on_error;
+		}
+		if( libpff_record_set_free(
+		     &record_set,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record set: %d.",
+			 function,
+			 record_set_index );
+
+			goto on_error;
 		}
 	}
 	if( item_file_close(
@@ -2410,6 +2535,12 @@ int export_handle_export_item_values(
 	return( 1 );
 
 on_error:
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
 	if( item_file != NULL )
 	{
 		item_file_free(
