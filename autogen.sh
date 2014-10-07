@@ -1,17 +1,34 @@
 #!/bin/sh
 # Script to generate ./configure using the autotools
 #
-# Version: 20141004
+# Version: 20141007
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 
-# Default location of MacPorts installed binaries.
-BINDIR="/opt/local/bin";
+BINDIR="/usr/bin";
 
-if ! test -d "${BINDIR}";
+if ! test -x "${BINDIR}/pkg-config";
 then
-	BINDIR="/usr/bin";
+	BINDIR="/usr/local/bin";
+fi
+if ! test -x "${BINDIR}/pkg-config";
+then
+	BINDIR="/usr/local/bin";
+fi
+if ! test -x "${BINDIR}/pkg-config";
+then
+	# Default location of MacPorts installed binaries.
+	BINDIR="/opt/local/bin";
+fi
+
+PKGCONFIG="${BINDIR}/pkg-config";
+
+if ! test -x "${PKGCONFIG}";
+then
+	echo "Unable to find: pkg-config";
+
+	exit ${EXIT_FAILURE};
 fi
 
 ACLOCAL="${BINDIR}/aclocal";
@@ -21,14 +38,6 @@ AUTOMAKE="${BINDIR}/automake";
 AUTOPOINT="${BINDIR}/autopoint";
 AUTORECONF="${BINDIR}/autoreconf";
 LIBTOOLIZE="${BINDIR}/libtoolize";
-PKGCONFIG="${BINDIR}/pkg-config";
-
-if ! test -x "${PKGCONFIG}";
-then
-	echo "Unable to find: pkg-config";
-
-	exit ${EXIT_FAILURE};
-fi
 
 if test -x "${AUTORECONF}";
 then
