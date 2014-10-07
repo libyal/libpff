@@ -1,5 +1,10 @@
 libpff is a library to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format.
-The PFF format is used by Microsoft Outlook to store email, contacts and other related data.
+
+These format are used by Microsoft Outlook to store email, contacts and other data.
+
+Project information:
+* Status: alpha
+* Licence: LGPLv3+
 
 PFF/OFF is used in several file types:
 * PAB (Personal Address Book)
@@ -15,13 +20,13 @@ Additional features:
 * item recovery
 * handles corrupted encrypted PFF with encryption type none
 
-Work in progress:
-* Python bindings
-
 Also see:
 * PFF forensics - analyzing the horrible reference file format: https://googledrive.com/host/0B3fBvzttpiiScU9qcG5ScEZKZE0/PFF%20Forensics%20-%20analyzing%20the%20horrible%20reference%20file%20format.pdf
 * PFF forensics - e-mail and appoinment falsification analysis: https://googledrive.com/host/0B3fBvzttpiiScU9qcG5ScEZKZE0/PFF%20forensics%20-%20e-mail%20and%20appoinment%20falsification%20analysis.pdf
 * MAPI definitions: https://googledrive.com/host/0B3fBvzttpiiSRlR1QkU5Vk43ZWs/MAPI%20definitions.pdf
+
+Work in progress:
+* Python bindings
 
 Planned:
 * Multi-threading support
