@@ -1926,7 +1926,6 @@ int export_handle_export_record_entry_to_item_file(
 	size_t name_to_id_map_entry_string_size                    = 0;
 	size_t value_data_size                                     = 0;
 	uint32_t entry_type                                        = 0;
-	uint32_t matched_value_type                                = LIBPFF_VALUE_TYPE_UNSPECIFIED;
 	uint32_t name_to_id_map_entry_number                       = 0;
 	uint32_t value_type                                        = LIBPFF_VALUE_TYPE_UNSPECIFIED;
 	uint8_t name_to_id_map_entry_type                          = 0;
@@ -2183,45 +2182,32 @@ int export_handle_export_record_entry_to_item_file(
 			name_to_id_map_entry_string = NULL;
 		}
 	}
-	if( libpff_record_entry_get_value_data_size(
-	     record_entry,
-	     &value_data_size,
+/* TODO remove below  after fix of recovery*/
+	if( item_file_write_string(
+	     item_file,
+	     _LIBCSTRING_SYSTEM_STRING( "Matched value type:\t\t" ),
+	     21,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value data size.",
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
 		 function );
 
 		goto on_error;
 	}
-	value_data = (uint8_t *) memory_allocate(
-	                          sizeof( uint8_t ) * value_data_size );
-
-	if( value_data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create value data.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_record_entry_copy_value_data(
-	     record_entry,
-	     value_data,
-	     value_data_size,
+	if( item_file_write_integer_32bit_as_hexadecimal(
+	     item_file,
+	     value_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-		 "%s: unable to copy value data.",
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write 32-bit integer.",
 		 function );
 
 		goto on_error;
@@ -2239,40 +2225,105 @@ int export_handle_export_record_entry_to_item_file(
 
 		goto on_error;
 	}
-	if( item_file_write_value_description(
-	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Value:" ),
+/* TODO remove above after fix of recovery */
+	if( libpff_record_entry_get_value_data_size(
+	     record_entry,
+	     &value_data_size,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write string.",
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value data size.",
 		 function );
 
 		goto on_error;
 	}
-	if( item_file_write_buffer_as_hexdump(
-	     item_file,
-	     value_data,
-	     value_data_size,
-	     error ) != 1 )
+	if( value_data_size > 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write buffer.",
-		 function );
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
 
-		goto on_error;
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_copy_value_data(
+		     record_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( item_file_write_value_description(
+		     item_file,
+		     _LIBCSTRING_SYSTEM_STRING( "Value:" ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
+
+			goto on_error;
+		}
+		if( item_file_write_buffer_as_hexdump(
+		     item_file,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write buffer.",
+			 function );
+
+			goto on_error;
+		}
+		memory_free(
+		 value_data );
+
+		value_data = NULL;
 	}
-	memory_free(
-	 value_data );
+/* TODO remove below  after fix of recovery*/
+	else
+	{
+		if( item_file_write_value_description(
+		     item_file,
+		     _LIBCSTRING_SYSTEM_STRING( "Value:" ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
 
-	value_data = NULL;
-
+			goto on_error;
+		}
+	}
+/* TODO remove above  after fix of recovery*/
 #if defined( HAVE_DEBUG_OUTPUT )
 /* TODO merge this with "normal" value export */
 	if( ( value_type & LIBPFF_VALUE_TYPE_MULTI_VALUE_FLAG ) != 0 )

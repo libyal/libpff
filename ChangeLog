@@ -1,4 +1,6 @@
 TODO
+* look at recover of 75285f43a02b6cb973db5d2953f0cce9.pst
+* export handle remove Matched value type
 * libpff.3 update record entry; see if this can be generated from libpff.h
 * API add
   - libpff_multi_value_get_value_16bit
@@ -30,7 +32,6 @@ libpff
   - add message get_attachments_items function
   - add message get_recipients_items function
 
-* look at recover of 75285f43a02b6cb973db5d2953f0cce9.pst
 * local descriptor node caching
   - local descriptor node cache on top of data block cache ?
   - add cache timestamp
@@ -333,6 +334,10 @@ File Format:
 Notes:
 * in the descriptor index a parent can have a child with a lower identifier value
 * cannot create libpff_item_get_sub_item_by_utf8_name, only folders and messages have names
+
+20141007
+* temporary changes to have the test pass while an issue in recovery needs to
+  be analyed
 
 20141006
 * worked on record entry API
