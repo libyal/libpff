@@ -220,7 +220,8 @@ int libpff_debug_record_entry_print(
      int ascii_codepage,
      libcerror_error_t **error )
 {
-	static char *function = "libpff_debug_record_entry_print";
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_debug_record_entry_print";
 
 	if( record_entry == NULL )
 	{
@@ -233,12 +234,14 @@ int libpff_debug_record_entry_print(
 
 		return( -1 );
 	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
 	if( libpff_debug_property_type_value_print(
 	     name_to_id_map_list,
-	     record_entry->identifier.entry_type,
-	     record_entry->identifier.value_type,
-	     record_entry->value_data,
-	     record_entry->value_data_size,
+	     internal_record_entry->identifier.entry_type,
+	     internal_record_entry->identifier.value_type,
+	     internal_record_entry->value_data,
+	     internal_record_entry->value_data_size,
 	     debug_item_type,
 	     ascii_codepage,
 	     error ) != 1 )

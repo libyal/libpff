@@ -2505,6 +2505,21 @@ int export_handle_export_item_values(
 
 		goto on_error;
 	}
+/* TODO add after fix of recovery
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
+		 function );
+
+		goto on_error;
+	}
+*/
 	for( record_set_index = 0;
 	     record_set_index < number_of_record_sets;
 	     record_set_index++ )

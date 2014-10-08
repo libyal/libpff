@@ -1,5 +1,4 @@
 TODO
-* look at recover of 75285f43a02b6cb973db5d2953f0cce9.pst
 * export handle remove Matched value type
 * libpff.3 update record entry; see if this can be generated from libpff.h
 * API add
@@ -334,6 +333,9 @@ File Format:
 Notes:
 * in the descriptor index a parent can have a child with a lower identifier value
 * cannot create libpff_item_get_sub_item_by_utf8_name, only folders and messages have names
+
+20141008
+* fix in debug output
 
 20141007
 * temporary changes to have the test pass while an issue in recovery needs to
