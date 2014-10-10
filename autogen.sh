@@ -21,6 +21,11 @@ then
 	# Default location of MacPorts installed binaries.
 	BINDIR="/opt/local/bin";
 fi
+if ! test -x "${BINDIR}/pkg-config";
+then
+	# Default location of MSYS-MinGW installed binaries.
+	BINDIR="/mingw/bin";
+fi
 
 PKGCONFIG="${BINDIR}/pkg-config";
 

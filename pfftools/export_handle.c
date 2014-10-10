@@ -8693,29 +8693,30 @@ int export_handle_export_activity(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     activity,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing activity: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing activity: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 activity_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     activity,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -9098,29 +9099,30 @@ int export_handle_export_appointment(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     appointment,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing appointment: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing appointment: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 appointment_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     appointment,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -9617,29 +9619,30 @@ int export_handle_export_contact(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     contact,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing contact: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing contact: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 contact_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     contact,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -10642,29 +10645,30 @@ int export_handle_export_distribution_list(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     distribution_list,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing distribution list: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing distribution list: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 distribution_list_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     distribution_list,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -11220,29 +11224,30 @@ int export_handle_export_document(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     document,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing document: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing document: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 document_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     document,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -11513,29 +11518,30 @@ int export_handle_export_email(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     email,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing email: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing email: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 email_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     email,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -12359,29 +12365,30 @@ int export_handle_export_meeting(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     meeting,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing meeting: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing meeting: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 meeting_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     meeting,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -12710,29 +12717,30 @@ int export_handle_export_note(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     note,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing note: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing note: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 note_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     note,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -13118,29 +13126,30 @@ int export_handle_export_rss_feed(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     rss_feed,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing RSS feed: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing RSS feed: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 rss_feed_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     rss_feed,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -13524,29 +13533,30 @@ int export_handle_export_task(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     task,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing task: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing task: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 task_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     task,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
@@ -14148,29 +14158,30 @@ int export_handle_export_folder(
 
 		return( -1 );
 	}
+	if( libpff_item_get_identifier(
+	     folder,
+	     &identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		goto on_error;
+	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing folder: %05d in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing folder: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
 	 folder_index,
+	 identifier,
 	 export_path,
 	 LIBCPATH_SEPARATOR );
 
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_item_get_identifier(
-		     folder,
-		     &identifier,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve identifier.",
-			 function );
-
-			goto on_error;
-		}
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(

@@ -9622,7 +9622,7 @@ int libpff_table_read_entry_value(
 	if( libcnotify_verbose != 0 )
 	{
 		if( libpff_debug_record_entry_print(
-		     record_entry,
+		     (libpff_record_entry_t *) record_entry,
 		     name_to_id_map_list,
 		     debug_item_type,
 		     io_handle->ascii_codepage,
