@@ -357,7 +357,7 @@ int libpff_file_get_root_item(
      libpff_error_t **error );
 
 /* Retrieves the message store
- * Returns 1 if successful, 0 if not present or -1 on error
+ * Returns 1 if successful, 0 if no such value or -1 on error
  */
 LIBPFF_EXTERN \
 int libpff_file_get_message_store(
@@ -366,7 +366,7 @@ int libpff_file_get_message_store(
      libpff_error_t **error );
 
 /* Retrieves the root folder
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if no such value or -1 on error
  */
 LIBPFF_EXTERN \
 int libpff_file_get_root_folder(

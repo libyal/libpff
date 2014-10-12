@@ -54,6 +54,7 @@ libpff
 * recovery
   - read data block size while scanning, ignore mismatches
   - check if local descriptors are read as block
+  - handle corrupt file header and scan file?
 * debug print
   - free map
   - densitiy list
@@ -333,6 +334,12 @@ File Format:
 Notes:
 * in the descriptor index a parent can have a child with a lower identifier value
 * cannot create libpff_item_get_sub_item_by_utf8_name, only folders and messages have names
+
+20141012
+* changed libpff_file_get_root_folder to return 0 if no root folder
+
+20141011
+* bug fix in handling multi values
 
 20141010
 * worked on MSYS-MinGW support in utility scripts

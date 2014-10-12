@@ -136,6 +136,7 @@ int main( int argc, char * const argv[] )
 	libpff_file_t *file           = NULL;
 	libpff_item_t *item           = NULL;
 	int number_of_recovered_items = 0;
+	int result                    = 0;
 
 	if( argc < 2 )
 	{
@@ -168,10 +169,12 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libpff_file_get_root_folder(
-	     file,
-	     &item,
-	     &error ) != 1 )
+	result = libpff_file_get_root_folder(
+	          file,
+	          &item,
+	          &error );
+
+	if( result == -1 )
 	{
 		fprintf(
 		 stderr,
@@ -179,43 +182,45 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( pff_test_read_items(
-	     item,
-	     &error ) != 1 )
+	else if( result != 0 )
 	{
+		if( pff_test_read_items(
+		     item,
+		     &error ) != 1 )
+		{
+			fprintf(
+			 stderr,
+			 "Unable to read root folder item.\n" );
+
+			goto on_error;
+		}
+		if( libpff_file_recover_items(
+		     file,
+		     0,
+		     &error ) != 1 )
+		{
+			fprintf(
+			 stderr,
+			 "Unable to recover items.\n" );
+
+			goto on_error;
+		}
+		if( libpff_file_get_number_of_recovered_items(
+		     file,
+		     &number_of_recovered_items,
+		     &error ) != 1 )
+		{
+			fprintf(
+			 stderr,
+			 "Unable to retrieve number of recover items.\n" );
+
+			goto on_error;
+		}
 		fprintf(
-		 stderr,
-		 "Unable to read root folder item.\n" );
-
-		goto on_error;
+		 stdout,
+		 "Number of recovered items: %d\n",
+		 number_of_recovered_items );
 	}
-	if( libpff_file_recover_items(
-	     file,
-	     0,
-	     &error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to recover items.\n" );
-
-		goto on_error;
-	}
-	if( libpff_file_get_number_of_recovered_items(
-	     file,
-	     &number_of_recovered_items,
-	     &error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to retrieve number of recover items.\n" );
-
-		goto on_error;
-	}
-	fprintf(
-	 stdout,
-	 "Number of recovered items: %d\n",
-	 number_of_recovered_items );
-
 	if( libpff_file_close(
 	     file,
 	     &error ) != 0 )

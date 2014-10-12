@@ -2058,7 +2058,7 @@ int libpff_file_get_root_item(
 }
 
 /* Retrieves the message store
- * Returns 1 if successful, 0 if not present or -1 on error
+ * Returns 1 if successful, 0 if no such value or -1 on error
  */
 int libpff_file_get_message_store(
      libpff_file_t *file,
@@ -2163,7 +2163,7 @@ int libpff_file_get_message_store(
 }
 
 /* Retrieves the name to id map
- * Returns 1 if successful, 0 if not present or -1 on error
+ * Returns 1 if successful, 0 if no such value or -1 on error
  */
 int libpff_file_get_name_to_id_map(
      libpff_file_t *file,
@@ -2268,7 +2268,7 @@ int libpff_file_get_name_to_id_map(
 }
 
 /* Retrieves the root folder
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if no such value or -1 on error
  */
 int libpff_file_get_root_folder(
      libpff_file_t *file,
@@ -2292,17 +2292,6 @@ int libpff_file_get_root_folder(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
-	if( internal_file->root_folder_item_tree_node == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file - missing root folder item tree node.",
-		 function );
-
-		return( -1 );
-	}
 	if( root_folder == NULL )
 	{
 		libcerror_error_set(
@@ -2324,6 +2313,10 @@ int libpff_file_get_root_folder(
 		 function );
 
 		return( -1 );
+	}
+	if( internal_file->root_folder_item_tree_node == NULL )
+	{
+		return( 0 );
 	}
 	if( libcdata_tree_node_get_value(
 	     internal_file->root_folder_item_tree_node,

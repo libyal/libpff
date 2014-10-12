@@ -641,7 +641,7 @@ int libpff_record_entry_set_value_data(
 			 "%s: invalid value data.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		internal_record_entry->value_data = (uint8_t *) memory_allocate(
 		                                                 value_data_size );
@@ -2788,7 +2788,7 @@ int libpff_record_entry_get_multi_value(
 			case LIBPFF_VALUE_TYPE_MULTI_VALUE_BINARY_DATA:
 				/* The first 4 bytes contain the number of values
 				 */
-				byte_stream_copy_to_uint32_little_endian(
+				byte_stream_copy_from_uint32_little_endian(
 				 internal_record_entry->value_data,
 				 internal_multi_value->number_of_values );
 

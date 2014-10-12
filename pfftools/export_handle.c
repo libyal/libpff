@@ -2182,50 +2182,6 @@ int export_handle_export_record_entry_to_item_file(
 			name_to_id_map_entry_string = NULL;
 		}
 	}
-/* TODO remove below  after fix of recovery*/
-	if( item_file_write_string(
-	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Matched value type:\t\t" ),
-	     21,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write string.",
-		 function );
-
-		goto on_error;
-	}
-	if( item_file_write_integer_32bit_as_hexadecimal(
-	     item_file,
-	     value_type,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write 32-bit integer.",
-		 function );
-
-		goto on_error;
-	}
-	if( item_file_write_new_line(
-	     item_file,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write new line.",
-		 function );
-
-		goto on_error;
-	}
-/* TODO remove above after fix of recovery */
 	if( libpff_record_entry_get_value_data_size(
 	     record_entry,
 	     &value_data_size,
@@ -2305,25 +2261,6 @@ int export_handle_export_record_entry_to_item_file(
 
 		value_data = NULL;
 	}
-/* TODO remove below  after fix of recovery*/
-	else
-	{
-		if( item_file_write_value_description(
-		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "Value:" ),
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write string.",
-			 function );
-
-			goto on_error;
-		}
-	}
-/* TODO remove above  after fix of recovery*/
 #if defined( HAVE_DEBUG_OUTPUT )
 /* TODO merge this with "normal" value export */
 	if( ( value_type & LIBPFF_VALUE_TYPE_MULTI_VALUE_FLAG ) != 0 )
@@ -2505,7 +2442,6 @@ int export_handle_export_item_values(
 
 		goto on_error;
 	}
-/* TODO add after fix of recovery
 	if( item_file_write_new_line(
 	     item_file,
 	     error ) != 1 )
@@ -2519,7 +2455,6 @@ int export_handle_export_item_values(
 
 		goto on_error;
 	}
-*/
 	for( record_set_index = 0;
 	     record_set_index < number_of_record_sets;
 	     record_set_index++ )
@@ -15000,6 +14935,7 @@ int export_handle_export_items(
 	libpff_item_t *pff_root_item = NULL;
 	static char *function        = "export_handle_export_items";
 	int number_of_sub_items      = 0;
+	int result                   = 0;
 
 	if( export_handle == NULL )
 	{
@@ -15038,37 +14974,14 @@ int export_handle_export_items(
 	 export_handle->notify_stream,
 	 "Exporting items.\n" );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcpath_path_make_directory_wide(
-	     export_path,
-	     error ) != 1 )
-#else
-	if( libcpath_path_make_directory(
-	     export_path,
-	     error ) != 1 )
-#endif
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
-		 function,
-		 export_path );
-
-		goto on_error;
-	}
-	log_handle_printf(
-	 log_handle,
-	 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-	 export_path );
-
 	if( export_handle->export_mode == EXPORT_MODE_DEBUG )
 	{
-		if( libpff_file_get_root_item(
-		     file,
-		     &pff_root_item,
-		     error ) != 1 )
+		result = libpff_file_get_root_item(
+		          file,
+		          &pff_root_item,
+		          error );
+
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -15082,10 +14995,12 @@ int export_handle_export_items(
 	}
 	else
 	{
-		if( libpff_file_get_root_folder(
-		     file,
-		     &pff_root_item,
-		     error ) != 1 )
+		result = libpff_file_get_root_folder(
+		          file,
+		          &pff_root_item,
+		          error );
+
+		if( result == -1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -15097,55 +15012,83 @@ int export_handle_export_items(
 			goto on_error;
 		}
 	}
-	if( libpff_item_get_number_of_sub_items(
-	     pff_root_item,
-	     &number_of_sub_items,
-	     error ) != 1 )
+	if( result != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of sub items.",
-		 function );
-
-		goto on_error;
-	}
-	if( number_of_sub_items > 0 )
-	{
-		if( export_handle_export_sub_items(
-		     export_handle,
-		     pff_root_item,
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		if( libcpath_path_make_directory_wide(
 		     export_path,
-		     export_path_length,
-		     log_handle,
 		     error ) != 1 )
+#else
+		if( libcpath_path_make_directory(
+		     export_path,
+		     error ) != 1 )
+#endif
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_OUTPUT,
-			 LIBCERROR_OUTPUT_ERROR_GENERIC,
-			 "%s: unable to export root item.",
-			 function );
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 function,
+			 export_path );
 
 			goto on_error;
 		}
-		if( libpff_item_free(
-		     &pff_root_item,
+		log_handle_printf(
+		 log_handle,
+		 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+		 export_path );
+
+		if( libpff_item_get_number_of_sub_items(
+		     pff_root_item,
+		     &number_of_sub_items,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free root item.",
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of sub items.",
 			 function );
 
 			goto on_error;
 		}
-		fprintf(
-		 export_handle->notify_stream,
-		 "\n" );
+		if( number_of_sub_items > 0 )
+		{
+			if( export_handle_export_sub_items(
+			     export_handle,
+			     pff_root_item,
+			     export_path,
+			     export_path_length,
+			     log_handle,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_OUTPUT,
+				 LIBCERROR_OUTPUT_ERROR_GENERIC,
+				 "%s: unable to export root item.",
+				 function );
+
+				goto on_error;
+			}
+			if( libpff_item_free(
+			     &pff_root_item,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free root item.",
+				 function );
+
+				goto on_error;
+			}
+			fprintf(
+			 export_handle->notify_stream,
+			 "\n" );
+		}
 	}
 	return( 1 );
 

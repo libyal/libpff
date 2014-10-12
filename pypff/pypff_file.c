@@ -1283,7 +1283,7 @@ PyObject *pypff_file_get_root_folder(
 
 	Py_END_ALLOW_THREADS
 
-	if( result != 1 )
+	if( result == -1 )
 	{
 		pypff_error_raise(
 		 error,
@@ -1295,6 +1295,13 @@ PyObject *pypff_file_get_root_folder(
 		 &error );
 
 		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
 	}
 	folder_object = pypff_item_new(
 	                 &pypff_folder_type_object,
