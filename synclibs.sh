@@ -13,7 +13,7 @@ for LOCAL_LIB in ${LOCAL_LIBS};
 do
 	git clone ${GIT_URL_PREFIX}/${LOCAL_LIB}.git ${LOCAL_LIB}-$$;
 
-	if [ -d ${LOCAL_LIB}-$$ ];
+	if test -d ${LOCAL_LIB}-$$;
 	then
 		LOCAL_LIB_UPPER=`echo "${LOCAL_LIB}" | tr "[a-z]" "[A-Z]"`;
 		LOCAL_LIB_VERSION=`grep -A 2 AC_INIT ${LOCAL_LIB}-$$/configure.ac | tail -n 1 | sed 's/^\s*\[\([0-9]*\)\],\s*$/\1/'`;
@@ -21,13 +21,15 @@ do
 		rm -rf ${LOCAL_LIB};
 		mkdir ${LOCAL_LIB};
 
-		if [ -d ${LOCAL_LIB} ];
+		if test -d ${LOCAL_LIB};
 		then
 			cp ${LOCAL_LIB}-$$/${LOCAL_LIB}/*.[ch] ${LOCAL_LIB};
 			cp ${LOCAL_LIB}-$$/${LOCAL_LIB}/Makefile.am ${LOCAL_LIB}/Makefile.am;
 
-SED_SCRIPT="1i\\
+SED_SCRIPT="/AM_CPPFLAGS = / {
+	i\\
 if HAVE_LOCAL_${LOCAL_LIB_UPPER}
+}
 
 /lib_LTLIBRARIES/ {
 	s/lib_LTLIBRARIES/noinst_LTLIBRARIES/
@@ -58,14 +60,6 @@ endif
 	d
 }
 
-/EXTRA_DIST = / {
-	N
-	N
-	N
-	N
-	d
-}
-
 /distclean: clean/ {
 	n
 	N
@@ -74,6 +68,10 @@ endif
 			echo "${SED_SCRIPT}" >> ${LOCAL_LIB}-$$.sed;
 			sed -i'~' -f ${LOCAL_LIB}-$$.sed ${LOCAL_LIB}/Makefile.am;
 			rm -f ${LOCAL_LIB}-$$.sed;
+
+			sed -i'~' "/${LOCAL_LIB}_definitions.h.in/d" ${LOCAL_LIB}/Makefile.am;
+			sed -i'~' "/${LOCAL_LIB}.rc/d" ${LOCAL_LIB}/Makefile.am;
+			sed -i'~' '/EXTRA_DIST = /d' ${LOCAL_LIB}/Makefile.am;
 
 SED_SCRIPT="/^$/ {
 	x
