@@ -41,11 +41,16 @@ struct libpff_internal_record_set
 	/* The (record) entries array
 	 */
 	libcdata_array_t *entries_array;
+
+	/* The codepage of the extended ASCII strings
+	 */
+	int ascii_codepage;
 };
 
 int libpff_record_set_initialize(
      libpff_record_set_t **record_set,
      int number_of_entries,
+     int ascii_codepage,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \

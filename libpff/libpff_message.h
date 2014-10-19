@@ -33,12 +33,14 @@
 extern "C" {
 #endif
 
-int libpff_message_determine_attachments(
+int libpff_internal_message_get_message_codepage(
      libpff_internal_item_t *internal_item,
+     uint32_t *message_codepage,
      libcerror_error_t **error );
 
-int libpff_message_determine_recipients(
+int libpff_internal_message_get_message_body_codepage(
      libpff_internal_item_t *internal_item,
+     uint32_t *message_body_codepage,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
@@ -71,6 +73,10 @@ int libpff_message_get_entry_value_utf16_string(
      size_t utf16_string_size,
      libcerror_error_t **error );
 
+int libpff_message_determine_attachments(
+     libpff_internal_item_t *internal_item,
+     libcerror_error_t **error );
+
 LIBPFF_EXTERN \
 int libpff_message_get_number_of_attachments(
      libpff_item_t *message,
@@ -88,6 +94,10 @@ LIBPFF_EXTERN \
 int libpff_message_get_attachments(
      libpff_item_t *message,
      libpff_item_t **attachments,
+     libcerror_error_t **error );
+
+int libpff_message_determine_recipients(
+     libpff_internal_item_t *internal_item,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \

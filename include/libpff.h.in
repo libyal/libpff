@@ -481,38 +481,6 @@ int libpff_item_get_number_of_entries(
      uint32_t *number_of_entries,
      libpff_error_t **error );
 
-/* Retrieves the entry and value type of a specific entry
- * The name to id map entry is set when available
- * Returns 1 if successful or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_type(
-     libpff_item_t *item,
-     int record_set_index,
-     int record_entry_index,
-     uint32_t *entry_type,
-     uint32_t *value_type,
-     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
-     libpff_error_t **error );
-
-/* Retrieves the value type of a specific entry type
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_value_type(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint32_t *value_type,
-     uint8_t flags,
-     libpff_error_t **error );
-
 /* Retrieves the value of a specific entry
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
@@ -564,482 +532,6 @@ int libpff_item_get_entry_value_by_utf16_name(
      uint32_t *value_type,
      uint8_t **value_data,
      size_t *value_data_size,
-     libpff_error_t **error );
-
-/* Retrieves the boolean value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_boolean(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint8_t *entry_value,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the boolean value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_boolean_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint8_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the boolean value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_boolean_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint8_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the 16-bit value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_16bit(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint16_t *entry_value,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the 16-bit value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_16bit_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint16_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the 16-bit value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_16bit_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint16_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the 32-bit value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_32bit(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint32_t *entry_value,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the 32-bit value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_32bit_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint32_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the 32-bit value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_32bit_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint32_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the 64-bit value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_64bit(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint64_t *entry_value,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the 64-bit value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_64bit_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint64_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the 64-bit value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_64bit_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint64_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the 64-bit filetime value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_filetime(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint64_t *entry_value,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the 64-bit filetime value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_filetime_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint64_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the 64-bit filetime value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_filetime_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint64_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the size value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_size(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     size_t *entry_value,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the size value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_size_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     size_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the size value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_size_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     size_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the floating point value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_floating_point(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     double *entry_value,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the floating point value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_floating_point_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint64_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the floating point value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_floating_point_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint64_t *entry_value,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-8 string size of a specific entry
- * The returned size includes the end of string character
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf8_string_size(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     size_t *utf8_string_size,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-8 string size of a specific entry for an UTF-8 encoded name
- * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf8_string_size_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     size_t *utf8_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-8 string size of a specific entry for an UTF-16 encoded name
- * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     size_t *utf8_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-8 string value of a specific entry
- * The function uses a codepage if necessary, it uses the codepage set for the library
- * The size should include the end of string character
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf8_string(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint8_t *utf8_string,
-     size_t utf8_string_size,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-8 string of a specific entry for an UTF-8 encoded name
- * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf8_string_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint8_t *utf8_string,
-     size_t utf8_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-8 string of a specific entry for an UTF-16 encoded name
- * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf8_string_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint8_t *utf8_string,
-     size_t utf8_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-16 string size of a specific entry
- * The returned size includes the end of string character
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf16_string_size(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     size_t *utf16_string_size,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-16 string size of a specific entry for an UTF-8 encoded name
- * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf16_string_size_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     size_t *utf16_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-16 string size of a specific entry for an UTF-16 encoded name
- * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     size_t *utf16_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-16 string value of a specific entry
- * The function uses a codepage if necessary, it uses the codepage set for the library
- * The size should include the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf16_string(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint16_t *utf16_string,
-     size_t utf16_string_size,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-16 string of a specific entry for an UTF-8 encoded name
- * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf16_string_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint16_t *utf16_string,
-     size_t utf16_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the UTF-16 string of a specific entry for an UTF-16 encoded name
- * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_utf16_string_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint16_t *utf16_string,
-     size_t utf16_string_size,
      libpff_error_t **error );
 
 /* Retrieves the size of a binary data value of a specific entry
@@ -1303,6 +795,648 @@ LIBPFF_EXTERN \
 int libpff_item_get_number_of_sets(
      libpff_item_t *item,
      uint32_t *number_of_sets,
+     libpff_error_t **error );
+
+/* Retrieves the entry and value type of a specific entry
+ * The name to id map entry is set when available
+ *
+ * This function deprecated use libpff_record_entry_get_entry_type instead
+ *
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_type(
+     libpff_item_t *item,
+     int record_set_index,
+     int record_entry_index,
+     uint32_t *entry_type,
+     uint32_t *value_type,
+     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
+     libpff_error_t **error );
+
+/* Retrieves the value type of a specific entry type
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_type instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_value_type(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint32_t *value_type,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the boolean value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_boolean instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_boolean(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint8_t *entry_value,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the boolean value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_boolean instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_boolean_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint8_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the boolean value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_boolean instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_boolean_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint8_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the 16-bit value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_16bit instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_16bit(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint16_t *entry_value,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the 16-bit value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_16bit instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_16bit_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint16_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the 16-bit value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_16bit instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_16bit_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint16_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the 32-bit value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_32bit instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_32bit(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint32_t *entry_value,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the 32-bit value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_32bit instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_32bit_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint32_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the 32-bit value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_32bit instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_32bit_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint32_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_64bit instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_64bit(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint64_t *entry_value,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_64bit instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_64bit_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint64_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_64bit instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_64bit_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint64_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit filetime value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_filetime instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_filetime(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint64_t *entry_value,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit filetime value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_filetime instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_filetime_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint64_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit filetime value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_filetime instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_filetime_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint64_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the size value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_size(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     size_t *entry_value,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the size value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_size_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     size_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the size value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_size_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     size_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the floating point value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_floating_point instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_floating_point(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     double *entry_value,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the floating point value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_floating_point instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_floating_point_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint64_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the floating point value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_value_floating_point instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_floating_point_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint64_t *entry_value,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string size of a specific entry
+ * The returned size includes the end of string character
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf8_string_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf8_string_size(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     size_t *utf8_string_size,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string size of a specific entry for an UTF-8 encoded name
+ * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf8_string_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf8_string_size_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     size_t *utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string size of a specific entry for an UTF-16 encoded name
+ * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf8_string_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     size_t *utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string value of a specific entry
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * The size should include the end of string character
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf8_string instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf8_string(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string of a specific entry for an UTF-8 encoded name
+ * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf8_string instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf8_string_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string of a specific entry for an UTF-16 encoded name
+ * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf8_string instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf8_string_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string size of a specific entry
+ * The returned size includes the end of string character
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf16_string_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf16_string_size(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     size_t *utf16_string_size,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string size of a specific entry for an UTF-8 encoded name
+ * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf16_string_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf16_string_size_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     size_t *utf16_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string size of a specific entry for an UTF-16 encoded name
+ * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf16_string_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     size_t *utf16_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string value of a specific entry
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * The size should include the end of string character
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf16_string instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf16_string(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string of a specific entry for an UTF-8 encoded name
+ * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf16_string instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf16_string_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string of a specific entry for an UTF-16 encoded name
+ * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_value_utf16_string instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_utf16_string_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      libpff_error_t **error );
 
 /* -------------------------------------------------------------------------
@@ -1585,6 +1719,15 @@ int libpff_record_entry_get_value_64bit(
      uint64_t *value_64bit,
      libpff_error_t **error );
 
+/* Retrieves the 64-bit filetime value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_filetime(
+     libpff_record_entry_t *record_entry,
+     uint64_t *value_64bit,
+     libpff_error_t **error );
+
 /* Retrieves the size value
  * Returns 1 if successful or -1 on error
  */
@@ -1601,6 +1744,50 @@ LIBPFF_EXTERN \
 int libpff_record_entry_get_value_floating_point(
      libpff_record_entry_t *record_entry,
      double *value_floating_point,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string size
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_utf8_string_size(
+     libpff_record_entry_t *record_entry,
+     size_t *utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 string value of a specific entry
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_utf8_string(
+     libpff_item_t *item,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string size
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_utf16_string_size(
+     libpff_record_entry_t *record_entry,
+     size_t *utf16_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 string value of a specific entry
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_utf16_string(
+     libpff_item_t *item,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      libpff_error_t **error );
 
 /* Retrieves the multi value
@@ -1652,7 +1839,7 @@ LIBPFF_EXTERN \
 int libpff_multi_value_get_value_32bit(
      libpff_multi_value_t *multi_value,
      int value_index,
-     uint32_t *value,
+     uint32_t *value_32bit,
      libpff_error_t **error );
 
 /* Retrieves the 64-bit value of a specific value of the multi value
@@ -1662,7 +1849,7 @@ LIBPFF_EXTERN \
 int libpff_multi_value_get_value_64bit(
      libpff_multi_value_t *multi_value,
      int value_index,
-     uint64_t *value,
+     uint64_t *value_64bit,
      libpff_error_t **error );
 
 /* Retrieves the 64-bit filetime value of a specific value of the multi value
@@ -1672,7 +1859,7 @@ LIBPFF_EXTERN \
 int libpff_multi_value_get_value_filetime(
      libpff_multi_value_t *multi_value,
      int value_index,
-     uint64_t *filetime,
+     uint64_t *value_64bit,
      libpff_error_t **error );
 
 /* Retrieves the UTF-8 string size of a specific value of the multi value

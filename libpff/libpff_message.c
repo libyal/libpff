@@ -44,6 +44,228 @@
 #define LIBPFF_MESSAGE_SUB_ITEM_ATTACHMENTS	0
 #define LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS	1
 
+/* Retrieves the message string codepage
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_internal_message_get_message_codepage(
+     libpff_internal_item_t *internal_item,
+     uint32_t *message_codepage,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "libpff_message_get_message_codepage";
+	int result                          = 0;
+
+	if( internal_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing internal file.",
+		 function );
+
+		return( -1 );
+	}
+	if( message_codepage == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid message codepage.",
+		 function );
+
+		return( -1 );
+	}
+	result = libpff_item_values_get_record_entry_by_type(
+	          internal_item->item_values,
+	          internal_item->internal_file->name_to_id_map_list,
+	          internal_item->internal_file->io_handle,
+	          internal_item->file_io_handle,
+	          internal_item->internal_file->offsets_index,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+	          LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
+	          &record_entry,
+	          0,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve message codepage record entry.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_32bit(
+		     record_entry,
+		     message_codepage,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value 32-bit.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves the message body string codepage
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_internal_message_get_message_body_codepage(
+     libpff_internal_item_t *internal_item,
+     uint32_t *message_body_codepage,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "libpff_message_get_message_body_codepage";
+	int result                          = 0;
+
+	if( internal_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing internal file.",
+		 function );
+
+		return( -1 );
+	}
+	if( message_body_codepage == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid message body codepage.",
+		 function );
+
+		return( -1 );
+	}
+	result = libpff_item_values_get_record_entry_by_type(
+	          internal_item->item_values,
+	          internal_item->internal_file->name_to_id_map_list,
+	          internal_item->internal_file->io_handle,
+	          internal_item->file_io_handle,
+	          internal_item->internal_file->offsets_index,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_BODY_CODEPAGE,
+	          LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
+	          &record_entry,
+	          0,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve message codepage record entry.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_32bit(
+		     record_entry,
+		     message_body_codepage,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value 32-bit.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
 /* Retrieves the UTF-8 string size of a specific entry from the referenced message item
  * The size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -151,12 +373,9 @@ int libpff_message_get_entry_value_utf8_string_size(
 		}
 		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		{
-			result = libpff_item_get_entry_value_32bit(
-				  message,
-				  0,
-				  LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+			result = libpff_internal_message_get_message_codepage(
+				  internal_item,
 				  &ascii_codepage,
-				  0,
 				  error );
 
 			if( result == -1 )
@@ -176,7 +395,7 @@ int libpff_message_get_entry_value_utf8_string_size(
 			}
 			result = 1;
 		}
-		if( libpff_record_entry_get_value_utf8_string_size(
+		if( libpff_record_entry_get_value_utf8_string_size_with_codepage(
 		     record_entry,
 		     ascii_codepage,
 		     utf8_string_size,
@@ -303,12 +522,9 @@ int libpff_message_get_entry_value_utf8_string(
 		}
 		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		{
-			result = libpff_item_get_entry_value_32bit(
-				  message,
-				  0,
-				  LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+			result = libpff_internal_message_get_message_codepage(
+				  internal_item,
 				  &ascii_codepage,
-				  0,
 				  error );
 
 			if( result == -1 )
@@ -328,7 +544,7 @@ int libpff_message_get_entry_value_utf8_string(
 			}
 			result = 1;
 		}
-		if( libpff_record_entry_get_value_utf8_string(
+		if( libpff_record_entry_get_value_utf8_string_with_codepage(
 		     record_entry,
 		     ascii_codepage,
 		     utf8_string,
@@ -455,12 +671,9 @@ int libpff_message_get_entry_value_utf16_string_size(
 		}
 		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		{
-			result = libpff_item_get_entry_value_32bit(
-				  message,
-				  0,
-				  LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+			result = libpff_internal_message_get_message_codepage(
+				  internal_item,
 				  &ascii_codepage,
-				  0,
 				  error );
 
 			if( result == -1 )
@@ -480,7 +693,7 @@ int libpff_message_get_entry_value_utf16_string_size(
 			}
 			result = 1;
 		}
-		if( libpff_record_entry_get_value_utf16_string_size(
+		if( libpff_record_entry_get_value_utf16_string_size_with_codepage(
 		     record_entry,
 		     ascii_codepage,
 		     utf16_string_size,
@@ -607,12 +820,9 @@ int libpff_message_get_entry_value_utf16_string(
 		}
 		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		{
-			result = libpff_item_get_entry_value_32bit(
-				  message,
-				  0,
-				  LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+			result = libpff_internal_message_get_message_codepage(
+				  internal_item,
 				  &ascii_codepage,
-				  0,
 				  error );
 
 			if( result == -1 )
@@ -632,7 +842,7 @@ int libpff_message_get_entry_value_utf16_string(
 			}
 			result = 1;
 		}
-		if( libpff_record_entry_get_value_utf16_string(
+		if( libpff_record_entry_get_value_utf16_string_with_codepage(
 		     record_entry,
 		     ascii_codepage,
 		     utf16_string,
@@ -1069,291 +1279,6 @@ int libpff_message_determine_attachments(
 				return( -1 );
 			}
 		}
-	}
-	return( 1 );
-}
-
-/* Determine if the message item has recipients
- * Returns 1 if successful or -1 on error
- */
-int libpff_message_determine_recipients(
-     libpff_internal_item_t *internal_item,
-     libcerror_error_t **error )
-{
-	libpff_item_descriptor_t *item_descriptor               = NULL;
-	libpff_item_descriptor_t *recipients_item_descriptor    = NULL;
-	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
-	static char *function                                   = "libpff_message_determine_recipients";
-	int result                                              = 0;
-
-	if( internal_item == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal item.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->item_values == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - missing item values.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ] != NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: recipients sub item tree node already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( libcdata_tree_node_get_value(
-	     internal_item->item_tree_node,
-	     (intptr_t **) &item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve item descriptor.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_descriptor == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing item descriptor.",
-		 function );
-
-		return( -1 );
-	}
-	/* Make sure the item values have been read
-	 */
-	if( internal_item->item_values->table == NULL )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: reading item values of descriptor: %" PRIu32 "\n",
-			 function,
-			 item_descriptor->descriptor_identifier );
-		}
-#endif
-
-		if( libpff_item_values_read(
-		     internal_item->item_values,
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
-		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
-		     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read item values.",
-			 function );
-
-			return( -1 );
-		}
-		if( internal_item->item_values->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid item values - missing table.",
-			 function );
-
-			return( -1 );
-		}
-	}
-	/* Determine if the item has recipients
-	 */
-	result = libpff_item_values_get_local_descriptors_value_by_identifier(
-		  internal_item->item_values,
-		  internal_item->file_io_handle,
-		  (uint32_t) LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS,
-		  &local_descriptor_value,
-		  error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
-		 function,
-		 (uint32_t) LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS );
-
-		return( -1 );
-	}
-	else if( result != 0 )
-	{
-		if( local_descriptor_value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid local descriptor value.",
-			 function );
-
-			return( -1 );
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: local descriptor identifier: %" PRIu64 " (%s), data: %" PRIu64 ", local descriptors: %" PRIu64 "\n",
-			 function,
-			 local_descriptor_value->identifier,
-			 libpff_debug_get_node_identifier_type(
-			  (uint8_t) ( local_descriptor_value->identifier & 0x0000001fUL ) ),
-			 local_descriptor_value->data_identifier,
-			 local_descriptor_value->local_descriptors_identifier );
-		}
-#endif
-		if( libpff_item_values_initialize(
-		     &( internal_item->sub_item_values[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ] ),
-		     LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS,
-		     local_descriptor_value->data_identifier,
-		     local_descriptor_value->local_descriptors_identifier,
-		     item_descriptor->recovered,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create recipients item values.",
-			 function );
-
-			return( -1 );
-		}
-		/* Cache the recipients items values for successive usage
-		 */
-		if( libpff_item_values_read(
-		     internal_item->sub_item_values[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
-		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
-		     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read recipients local descriptor identifier: %" PRIu32 ".",
-			 function,
-			 LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS );
-
-			return( -1 );
-		}
-		if( internal_item->sub_item_values[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ]->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid recipients item values - missing table.",
-			 function );
-
-			return( -1 );
-		}
-		/* Create an recipients item descriptor
-		 */
-		if( libpff_item_descriptor_initialize(
-		     &recipients_item_descriptor,
-		     LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS,
-		     local_descriptor_value->data_identifier,
-		     local_descriptor_value->local_descriptors_identifier ,
-		     item_descriptor->recovered,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create recipients item descriptor.",
-			 function );
-
-			return( -1 );
-		}
-		if( libcdata_tree_node_initialize(
-		     &( internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ] ),
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create recipients sub item tree node.",
-			 function );
-
-			memory_free(
-			 recipients_item_descriptor );
-
-			return( -1 );
-		}
-		if( libcdata_tree_node_set_value(
-		     internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ],
-		     (intptr_t *) recipients_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set recipients item descriptor in recipients sub item tree node.",
-			 function );
-
-			libcdata_tree_node_free(
-			 &( internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ] ),
-			 NULL,
-			 NULL );
-			memory_free(
-			 recipients_item_descriptor );
-
-			return( -1 );
-		}
-		/* All the recipient data is in the recipients item
-		 * there are no sub items like for the attachments item
-		 */
 	}
 	return( 1 );
 }
@@ -1851,6 +1776,291 @@ on_error:
 	return( -1 );
 }
 
+/* Determine if the message item has recipients
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_message_determine_recipients(
+     libpff_internal_item_t *internal_item,
+     libcerror_error_t **error )
+{
+	libpff_item_descriptor_t *item_descriptor               = NULL;
+	libpff_item_descriptor_t *recipients_item_descriptor    = NULL;
+	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
+	static char *function                                   = "libpff_message_determine_recipients";
+	int result                                              = 0;
+
+	if( internal_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid internal item.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal item - missing internal file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->item_values == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal item - missing item values.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ] != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: recipients sub item tree node already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_tree_node_get_value(
+	     internal_item->item_tree_node,
+	     (intptr_t **) &item_descriptor,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve item descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( item_descriptor == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing item descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	/* Make sure the item values have been read
+	 */
+	if( internal_item->item_values->table == NULL )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: reading item values of descriptor: %" PRIu32 "\n",
+			 function,
+			 item_descriptor->descriptor_identifier );
+		}
+#endif
+
+		if( libpff_item_values_read(
+		     internal_item->item_values,
+		     internal_item->internal_file->name_to_id_map_list,
+		     internal_item->internal_file->io_handle,
+		     internal_item->file_io_handle,
+		     internal_item->internal_file->offsets_index,
+		     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read item values.",
+			 function );
+
+			return( -1 );
+		}
+		if( internal_item->item_values->table == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid item values - missing table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	/* Determine if the item has recipients
+	 */
+	result = libpff_item_values_get_local_descriptors_value_by_identifier(
+		  internal_item->item_values,
+		  internal_item->file_io_handle,
+		  (uint32_t) LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS,
+		  &local_descriptor_value,
+		  error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
+		 function,
+		 (uint32_t) LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( local_descriptor_value == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid local descriptor value.",
+			 function );
+
+			return( -1 );
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: local descriptor identifier: %" PRIu64 " (%s), data: %" PRIu64 ", local descriptors: %" PRIu64 "\n",
+			 function,
+			 local_descriptor_value->identifier,
+			 libpff_debug_get_node_identifier_type(
+			  (uint8_t) ( local_descriptor_value->identifier & 0x0000001fUL ) ),
+			 local_descriptor_value->data_identifier,
+			 local_descriptor_value->local_descriptors_identifier );
+		}
+#endif
+		if( libpff_item_values_initialize(
+		     &( internal_item->sub_item_values[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ] ),
+		     LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS,
+		     local_descriptor_value->data_identifier,
+		     local_descriptor_value->local_descriptors_identifier,
+		     item_descriptor->recovered,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create recipients item values.",
+			 function );
+
+			return( -1 );
+		}
+		/* Cache the recipients items values for successive usage
+		 */
+		if( libpff_item_values_read(
+		     internal_item->sub_item_values[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ],
+		     internal_item->internal_file->name_to_id_map_list,
+		     internal_item->internal_file->io_handle,
+		     internal_item->file_io_handle,
+		     internal_item->internal_file->offsets_index,
+		     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read recipients local descriptor identifier: %" PRIu32 ".",
+			 function,
+			 LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS );
+
+			return( -1 );
+		}
+		if( internal_item->sub_item_values[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ]->table == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid recipients item values - missing table.",
+			 function );
+
+			return( -1 );
+		}
+		/* Create an recipients item descriptor
+		 */
+		if( libpff_item_descriptor_initialize(
+		     &recipients_item_descriptor,
+		     LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS,
+		     local_descriptor_value->data_identifier,
+		     local_descriptor_value->local_descriptors_identifier ,
+		     item_descriptor->recovered,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create recipients item descriptor.",
+			 function );
+
+			return( -1 );
+		}
+		if( libcdata_tree_node_initialize(
+		     &( internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ] ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create recipients sub item tree node.",
+			 function );
+
+			memory_free(
+			 recipients_item_descriptor );
+
+			return( -1 );
+		}
+		if( libcdata_tree_node_set_value(
+		     internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ],
+		     (intptr_t *) recipients_item_descriptor,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set recipients item descriptor in recipients sub item tree node.",
+			 function );
+
+			libcdata_tree_node_free(
+			 &( internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ] ),
+			 NULL,
+			 NULL );
+			memory_free(
+			 recipients_item_descriptor );
+
+			return( -1 );
+		}
+		/* All the recipient data is in the recipients item
+		 * there are no sub items like for the attachments item
+		 */
+	}
+	return( 1 );
+}
+
 /* Retrieves the recipients from a message item
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -2164,12 +2374,9 @@ int libpff_message_get_plain_text_body_size(
 		}
 		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		{
-			if( libpff_item_get_entry_value_32bit(
-			     message,
-			     0,
-			     LIBPFF_ENTRY_TYPE_MESSAGE_BODY_CODEPAGE,
+			if( libpff_internal_message_get_message_body_codepage(
+			     internal_item,
 			     &message_body_codepage,
-			     0,
 			     error ) == -1 )
 			{
 				libcerror_error_set(
@@ -2181,12 +2388,9 @@ int libpff_message_get_plain_text_body_size(
 
 				return( -1 );
 			}
-			if( libpff_item_get_entry_value_32bit(
-			     message,
-			     0,
-			     LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+			if( libpff_internal_message_get_message_codepage(
+			     internal_item,
 			     &message_codepage,
-			     0,
 			     error ) == -1 )
 			{
 				libcerror_error_set(
@@ -2217,7 +2421,7 @@ int libpff_message_get_plain_text_body_size(
 		if( ( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		 || ( value_type == LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
 		{
-			if( libpff_record_entry_get_value_utf8_string_size(
+			if( libpff_record_entry_get_value_utf8_string_size_with_codepage(
 			     record_entry,
 			     ascii_codepage,
 			     size,
@@ -2234,7 +2438,7 @@ int libpff_message_get_plain_text_body_size(
 				 * the message body, so try the message codepage as well
 				 */
 				if( ( ascii_codepage == message_codepage )
-				 || ( libpff_record_entry_get_value_utf8_string_size(
+				 || ( libpff_record_entry_get_value_utf8_string_size_with_codepage(
 				       record_entry,
 				       message_codepage,
 				       size,
@@ -2402,12 +2606,9 @@ int libpff_message_get_plain_text_body(
 		}
 		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		{
-			if( libpff_item_get_entry_value_32bit(
-			     message,
-			     0,
-			     LIBPFF_ENTRY_TYPE_MESSAGE_BODY_CODEPAGE,
+			if( libpff_internal_message_get_message_codepage(
+			     internal_item,
 			     &message_body_codepage,
-			     0,
 			     error ) == -1 )
 			{
 				libcerror_error_set(
@@ -2419,12 +2620,9 @@ int libpff_message_get_plain_text_body(
 
 				return( -1 );
 			}
-			if( libpff_item_get_entry_value_32bit(
-			     message,
-			     0,
-			     LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+			if( libpff_internal_message_get_message_codepage(
+			     internal_item,
 			     &message_codepage,
-			     0,
 			     error ) == -1 )
 			{
 				libcerror_error_set(
@@ -2455,7 +2653,7 @@ int libpff_message_get_plain_text_body(
 		if( ( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		 || ( value_type == LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
 		{
-			if( libpff_record_entry_get_value_utf8_string(
+			if( libpff_record_entry_get_value_utf8_string_with_codepage(
 			     record_entry,
 			     ascii_codepage,
 			     message_body,
@@ -2473,7 +2671,7 @@ int libpff_message_get_plain_text_body(
 				 * the message body, so try the message codepage as well
 				 */
 				if( ( ascii_codepage == message_codepage )
-				 || ( libpff_record_entry_get_value_utf8_string(
+				 || ( libpff_record_entry_get_value_utf8_string_with_codepage(
 				       record_entry,
 				       message_codepage,
 				       message_body,

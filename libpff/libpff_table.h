@@ -149,12 +149,14 @@ int libpff_table_resize_record_entries(
      libpff_table_t *table,
      int number_of_sets,
      int number_of_entries,
+     int ascii_codepage,
      libcerror_error_t **error );
 
 int libpff_table_expand_record_entries(
      libpff_table_t *table,
      int number_of_sets,
      int number_of_entries,
+     int ascii_codepage,
      libcerror_error_t **error );
 
 int libpff_table_entries_get_record_entry_by_index(
@@ -332,6 +334,7 @@ int libpff_table_read_9c_values(
 int libpff_table_read_a5_values(
      libpff_table_t *table,
      uint32_t table_header_reference,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
@@ -400,6 +403,7 @@ int libpff_table_read_9c_record_entries(
 int libpff_table_read_a5_record_entries(
      libpff_table_t *table,
      uint32_t record_entries_reference,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 

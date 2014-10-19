@@ -95,6 +95,10 @@ struct libpff_internal_record_entry
 	 */
 	libpff_internal_name_to_id_map_entry_t *name_to_id_map_entry;
 
+	/* The codepage of the extended ASCII strings
+	 */
+	int ascii_codepage;
+
 	/* The flags
 	 */
 	uint8_t flags;
@@ -107,6 +111,7 @@ int libpff_record_entry_string_contains_zero_bytes(
 
 int libpff_record_entry_initialize(
      libpff_record_entry_t **record_entry,
+     int ascii_codepage,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
@@ -218,6 +223,12 @@ int libpff_record_entry_get_value_64bit(
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
+int libpff_record_entry_get_value_filetime(
+     libpff_record_entry_t *record_entry,
+     uint64_t *value_64bit,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
 int libpff_record_entry_get_value_size(
      libpff_record_entry_t *record_entry,
      size_t *value_size,
@@ -229,49 +240,69 @@ int libpff_record_entry_get_value_floating_point(
      double *value_floating_point,
      libcerror_error_t **error );
 
-/* TODO expose function below in include header */
+int libpff_record_entry_get_value_utf8_string_size_with_codepage(
+     libpff_record_entry_t *record_entry,
+     int ascii_codepage,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+int libpff_record_entry_get_value_utf8_string_with_codepage(
+     libpff_record_entry_t *record_entry,
+     int ascii_codepage,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+int libpff_record_entry_compare_value_with_utf8_string_with_codepage(
+     libpff_record_entry_t *record_entry,
+     int ascii_codepage,
+     const uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
 
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf8_string_size(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
      size_t *utf8_string_size,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf8_string(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      libcerror_error_t **error );
 
-int libpff_record_entry_compare_value_with_utf8_string(
+int libpff_record_entry_get_value_utf16_string_size_with_codepage(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
-     const uint8_t *utf8_string,
-     size_t utf8_string_size,
+     int ascii_codepage,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+int libpff_record_entry_get_value_utf16_string_with_codepage(
+     libpff_record_entry_t *record_entry,
+     int ascii_codepage,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error );
+
+int libpff_record_entry_compare_value_with_utf16_string_with_codepage(
+     libpff_record_entry_t *record_entry,
+     int ascii_codepage,
+     const uint16_t *utf16_string,
+     size_t utf16_string_size,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf16_string_size(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
      size_t *utf16_string_size,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf16_string(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
      uint16_t *utf16_string,
-     size_t utf16_string_size,
-     libcerror_error_t **error );
-
-int libpff_record_entry_compare_value_with_utf16_string(
-     libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
-     const uint16_t *utf16_string,
      size_t utf16_string_size,
      libcerror_error_t **error );
 

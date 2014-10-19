@@ -58,6 +58,7 @@ int libpff_folder_get_type(
      libcerror_error_t **error )
 {
 	libpff_internal_item_t *internal_item = NULL;
+	libpff_record_entry_t *record_entry   = NULL;
 	char *container_class_string          = NULL;
 	static char *function                 = "libpff_folder_get_type";
 	size_t container_class_string_size    = 0;
@@ -99,15 +100,40 @@ int libpff_folder_get_type(
 
 		return( -1 );
 	}
-	result = libpff_item_get_entry_value_utf8_string_size(
-		  folder,
-		  0,
-		  LIBPFF_ENTRY_TYPE_CONTAINER_CLASS,
-		  &container_class_string_size,
-		  0,
-		  error );
+	result = libpff_item_values_get_record_entry_by_type(
+	          internal_item->item_values,
+	          internal_item->internal_file->name_to_id_map_list,
+	          internal_item->internal_file->io_handle,
+	          internal_item->file_io_handle,
+	          internal_item->internal_file->offsets_index,
+	          0,
+	          LIBPFF_ENTRY_TYPE_CONTAINER_CLASS,
+	          0,
+	          &record_entry,
+	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          error );
 
 	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve container class record entry.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		*type = (int) LIBPFF_ITEM_TYPE_UNDEFINED;
+
+		return( 1 );
+	}
+	if( libpff_record_entry_get_value_utf8_string_size(
+	     folder,
+	     &container_class_string_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -118,110 +144,115 @@ int libpff_folder_get_type(
 
 		goto on_error;
 	}
-	else if( result == 1 )
+	if( container_class_string_size > 0 )
 	{
-		if( container_class_string_size > 0 )
+		container_class_string = libcstring_narrow_string_allocate(
+		                          container_class_string_size );
+
+		if( container_class_string == NULL )
 		{
-			container_class_string = libcstring_narrow_string_allocate(
-			                          container_class_string_size );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create container class string.",
+			 function );
 
-			if( container_class_string == NULL )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_MEMORY,
-				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-				 "%s: unable to create container class string.",
-				 function );
-
-				goto on_error;
-			}
-			result = libpff_item_get_entry_value_utf8_string(
-				  folder,
-				  0,
-				  LIBPFF_ENTRY_TYPE_CONTAINER_CLASS,
-				  (uint8_t *) container_class_string,
-				  container_class_string_size,
-				  0,
-				  error );
-
-			if( result != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve container class string.",
-				 function );
-
-				goto on_error;
-			}
-			if( container_class_string_size == 9 )
-			{
-				if( libcstring_narrow_string_compare(
-				     container_class_string,
-				     "IPF.Note",
-				     8 ) == 0 )
-				{
-					folder_type = LIBPFF_ITEM_TYPE_EMAIL;
-				}
-				else if( libcstring_narrow_string_compare(
-					  container_class_string,
-					  "IPF.Task",
-					  8 ) == 0 )
-				{
-					folder_type = LIBPFF_ITEM_TYPE_TASK;
-				}
-			}
-			else if( container_class_string_size == 12 )
-			{
-				if( libcstring_narrow_string_compare(
-				     container_class_string,
-				     "IPF.Contact",
-				     11 ) == 0 )
-				{
-					folder_type = LIBPFF_ITEM_TYPE_CONTACT;
-				}
-				else if( libcstring_narrow_string_compare(
-					  container_class_string,
-					  "IPF.Journal",
-					  11 ) == 0 )
-				{
-					folder_type = LIBPFF_ITEM_TYPE_ACTIVITY;
-				}
-			}
-			else if( container_class_string_size == 16 )
-			{
-				if( libcstring_narrow_string_compare(
-				     container_class_string,
-				     "IPF.Appointment",
-				     15 ) == 0 )
-				{
-					folder_type = LIBPFF_ITEM_TYPE_APPOINTMENT;
-				}
-				else if( libcstring_narrow_string_compare(
-					  container_class_string,
-					  "IPF.StickyNote",
-					  15 ) == 0 )
-				{
-					folder_type = LIBPFF_ITEM_TYPE_NOTE;
-				}
-			}
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( ( libcnotify_verbose != 0 )
-			 && ( folder_type == LIBPFF_ITEM_TYPE_UNDEFINED ) )
-			{
-				libcnotify_printf(
-				 "%s: unsupported folder (container) type: %s\n",
-				 function,
-				 container_class_string );
-			}
-#endif
-			memory_free(
-			 container_class_string );
-
-			container_class_string = NULL;
+			goto on_error;
 		}
+		if( libpff_record_entry_get_value_utf8_string(
+		     folder,
+		     (uint8_t *) container_class_string,
+		     container_class_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve container class string.",
+			 function );
+
+			goto on_error;
+		}
+		if( container_class_string_size == 9 )
+		{
+			if( libcstring_narrow_string_compare(
+			     container_class_string,
+			     "IPF.Note",
+			     8 ) == 0 )
+			{
+				folder_type = LIBPFF_ITEM_TYPE_EMAIL;
+			}
+			else if( libcstring_narrow_string_compare(
+				  container_class_string,
+				  "IPF.Task",
+				  8 ) == 0 )
+			{
+				folder_type = LIBPFF_ITEM_TYPE_TASK;
+			}
+		}
+		else if( container_class_string_size == 12 )
+		{
+			if( libcstring_narrow_string_compare(
+			     container_class_string,
+			     "IPF.Contact",
+			     11 ) == 0 )
+			{
+				folder_type = LIBPFF_ITEM_TYPE_CONTACT;
+			}
+			else if( libcstring_narrow_string_compare(
+				  container_class_string,
+				  "IPF.Journal",
+				  11 ) == 0 )
+			{
+				folder_type = LIBPFF_ITEM_TYPE_ACTIVITY;
+			}
+		}
+		else if( container_class_string_size == 16 )
+		{
+			if( libcstring_narrow_string_compare(
+			     container_class_string,
+			     "IPF.Appointment",
+			     15 ) == 0 )
+			{
+				folder_type = LIBPFF_ITEM_TYPE_APPOINTMENT;
+			}
+			else if( libcstring_narrow_string_compare(
+				  container_class_string,
+				  "IPF.StickyNote",
+				  15 ) == 0 )
+			{
+				folder_type = LIBPFF_ITEM_TYPE_NOTE;
+			}
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( ( libcnotify_verbose != 0 )
+		 && ( folder_type == LIBPFF_ITEM_TYPE_UNDEFINED ) )
+		{
+			libcnotify_printf(
+			 "%s: unsupported folder (container) type: %s\n",
+			 function,
+			 container_class_string );
+		}
+#endif
+		memory_free(
+		 container_class_string );
+
+		container_class_string = NULL;
+	}
+	if( libpff_record_entry_free(
+	     &record_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record entry.",
+		 function );
+
+		goto on_error;
 	}
 	*type = (int) folder_type;
 
@@ -232,6 +263,12 @@ on_error:
 	{
 		memory_free(
 		 container_class_string );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
 	}
 	return( -1 );
 }
@@ -1463,7 +1500,7 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 
 				return( -1 );
 			}
-			result = libpff_record_entry_compare_value_with_utf8_string(
+			result = libpff_record_entry_compare_value_with_utf8_string_with_codepage(
 			          record_entry,
 			          internal_item->internal_file->io_handle->ascii_codepage,
 			          utf8_sub_folder_name,
@@ -1780,7 +1817,7 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 
 				return( -1 );
 			}
-			result = libpff_record_entry_compare_value_with_utf16_string(
+			result = libpff_record_entry_compare_value_with_utf16_string_with_codepage(
 			          record_entry,
 			          internal_item->internal_file->io_handle->ascii_codepage,
 			          utf16_sub_folder_name,
@@ -2644,7 +2681,7 @@ int libpff_folder_get_sub_message_by_utf8_name(
 
 				return( -1 );
 			}
-			result = libpff_record_entry_compare_value_with_utf8_string(
+			result = libpff_record_entry_compare_value_with_utf8_string_with_codepage(
 			          record_entry,
 			          internal_item->internal_file->io_handle->ascii_codepage,
 			          utf8_sub_message_name,
@@ -2960,7 +2997,7 @@ int libpff_folder_get_sub_message_by_utf16_name(
 
 				return( -1 );
 			}
-			result = libpff_record_entry_compare_value_with_utf16_string(
+			result = libpff_record_entry_compare_value_with_utf16_string_with_codepage(
 			          record_entry,
 			          internal_item->internal_file->io_handle->ascii_codepage,
 			          utf16_sub_message_name,

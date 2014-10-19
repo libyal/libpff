@@ -95,6 +95,7 @@ int libpff_record_entry_string_contains_zero_bytes(
  */
 int libpff_record_entry_initialize(
      libpff_record_entry_t **record_entry,
+     int ascii_codepage,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
@@ -150,6 +151,8 @@ int libpff_record_entry_initialize(
 
 		goto on_error;
 	}
+	internal_record_entry->ascii_codepage = ascii_codepage;
+
 	*record_entry = (libpff_record_entry_t *) internal_record_entry;
 
 	return( 1 );
@@ -271,6 +274,7 @@ int libpff_record_entry_clone(
 
 	if( libpff_record_entry_initialize(
 	     destination_record_entry,
+	     internal_source_record_entry->ascii_codepage,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1406,6 +1410,72 @@ int libpff_record_entry_get_value_64bit(
 	return( 1 );
 }
 
+/* Retrieves the 64-bit filetime value
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_record_entry_get_value_filetime(
+     libpff_record_entry_t *record_entry,
+     uint64_t *value_64bit,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_value_filetime";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( internal_record_entry->value_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid record entry - missing value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_64bit == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value 64-bit.",
+		 function );
+
+		return( -1 );
+	}
+	/* The value data size of a 64-bit value is 8
+	 */
+	if( internal_record_entry->value_data_size != 8 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value data size.",
+		 function );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint64_little_endian(
+	 internal_record_entry->value_data,
+	 *value_64bit );
+
+	return( 1 );
+}
+
 /* Retrieves the size value
  * Returns 1 if successful or -1 on error
  */
@@ -1567,14 +1637,14 @@ int libpff_record_entry_get_value_floating_point(
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf8_string_size(
+int libpff_record_entry_get_value_utf8_string_size_with_codepage(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
+     int ascii_codepage,
      size_t *utf8_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf8_string_size";
+	static char *function                                 = "libpff_record_entry_get_value_utf8_string_size_with_codepage";
 	uint8_t is_ascii_string                               = 0;
 	int result                                            = 0;
 
@@ -1680,7 +1750,7 @@ int libpff_record_entry_get_value_utf8_string_size(
 		result = libuna_utf8_string_size_from_byte_stream(
 			  internal_record_entry->value_data,
 			  internal_record_entry->value_data_size,
-			  (int) ascii_codepage,
+			  ascii_codepage,
 			  utf8_string_size,
 			  error );
 	}
@@ -1703,15 +1773,15 @@ int libpff_record_entry_get_value_utf8_string_size(
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf8_string(
+int libpff_record_entry_get_value_utf8_string_with_codepage(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
+     int ascii_codepage,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf8_string";
+	static char *function                                 = "libpff_record_entry_get_value_utf8_string_with_codepage";
 	uint8_t is_ascii_string                               = 0;
 	int result                                            = 0;
 
@@ -1844,7 +1914,7 @@ int libpff_record_entry_get_value_utf8_string(
 		          utf8_string_size,
 		          internal_record_entry->value_data,
 		          internal_record_entry->value_data_size,
-		          (int) ascii_codepage,
+		          ascii_codepage,
 		          error );
 	}
 	if( result != 1 )
@@ -1864,15 +1934,15 @@ int libpff_record_entry_get_value_utf8_string(
 /* Compares the value data with an UTF-8 string
  * Returns 1 if the strings are equal, 0 if not or -1 on error
  */
-int libpff_record_entry_compare_value_with_utf8_string(
+int libpff_record_entry_compare_value_with_utf8_string_with_codepage(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
+     int ascii_codepage,
      const uint8_t *utf8_string,
      size_t utf8_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_compare_value_with_utf8_string";
+	static char *function                                 = "libpff_record_entry_compare_value_with_utf8_string_with_codepage";
 	uint8_t is_ascii_string                               = 0;
 	int result                                            = 0;
 
@@ -2039,7 +2109,7 @@ int libpff_record_entry_compare_value_with_utf8_string(
 			  utf8_string_size,
 			  internal_record_entry->value_data,
 			  internal_record_entry->value_data_size,
-			  (int) ascii_codepage,
+			  ascii_codepage,
 			  error );
 
 		if( result == -1 )
@@ -2057,18 +2127,107 @@ int libpff_record_entry_compare_value_with_utf8_string(
 	return( result );
 }
 
+/* Retrieves the UTF-8 string size
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_record_entry_get_value_utf8_string_size(
+     libpff_record_entry_t *record_entry,
+     size_t *utf8_string_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_value_utf8_string_size";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( libpff_record_entry_get_value_utf8_string_size_with_codepage(
+	     record_entry,
+	     internal_record_entry->ascii_codepage,
+	     utf8_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine UTF-8 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 string value
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_record_entry_get_value_utf8_string(
+     libpff_record_entry_t *record_entry,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_value_utf8_string";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( libpff_record_entry_get_value_utf8_string_with_codepage(
+	     record_entry,
+	     internal_record_entry->ascii_codepage,
+	     utf8_string,
+	     utf8_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to set UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the UTF-16 string size
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf16_string_size(
+int libpff_record_entry_get_value_utf16_string_size_with_codepage(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
+     int ascii_codepage,
      size_t *utf16_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf16_string_size";
+	static char *function                                 = "libpff_record_entry_get_value_utf16_string_size_with_codepage";
 	uint8_t is_ascii_string                               = 0;
 	int result                                            = 0;
 
@@ -2174,7 +2333,7 @@ int libpff_record_entry_get_value_utf16_string_size(
 		result = libuna_utf16_string_size_from_byte_stream(
 			  internal_record_entry->value_data,
 			  internal_record_entry->value_data_size,
-		          (int) ascii_codepage,
+		          ascii_codepage,
 		          utf16_string_size,
 		          error );
 	}
@@ -2197,15 +2356,15 @@ int libpff_record_entry_get_value_utf16_string_size(
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf16_string(
+int libpff_record_entry_get_value_utf16_string_with_codepage(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
+     int ascii_codepage,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf16_string";
+	static char *function                                 = "libpff_record_entry_get_value_utf16_string_with_codepage";
 	uint8_t is_ascii_string                               = 0;
 	int result                                            = 0;
 
@@ -2338,7 +2497,7 @@ int libpff_record_entry_get_value_utf16_string(
 		          utf16_string_size,
 			  internal_record_entry->value_data,
 			  internal_record_entry->value_data_size,
-		          (int) ascii_codepage,
+		          ascii_codepage,
 		          error );
 	}
 	if( result != 1 )
@@ -2358,15 +2517,15 @@ int libpff_record_entry_get_value_utf16_string(
 /* Compares the value data with an UTF-16 string
  * Returns 1 if the strings are equal, 0 if not or -1 on error
  */
-int libpff_record_entry_compare_value_with_utf16_string(
+int libpff_record_entry_compare_value_with_utf16_string_with_codepage(
      libpff_record_entry_t *record_entry,
-     uint32_t ascii_codepage,
+     int ascii_codepage,
      const uint16_t *utf16_string,
      size_t utf16_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_compare_value_with_utf16_string";
+	static char *function                                 = "libpff_record_entry_compare_value_with_utf16_string_with_codepage";
 	uint8_t is_ascii_string                               = 0;
 	int result                                            = 0;
 
@@ -2533,7 +2692,7 @@ int libpff_record_entry_compare_value_with_utf16_string(
 			  utf16_string_size,
 			  internal_record_entry->value_data,
 			  internal_record_entry->value_data_size,
-			  (int) ascii_codepage,
+			  ascii_codepage,
 			  error );
 
 		if( result == -1 )
@@ -2549,6 +2708,95 @@ int libpff_record_entry_compare_value_with_utf16_string(
 		}
 	}
 	return( result );
+}
+
+/* Retrieves the UTF-16 string size
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_record_entry_get_value_utf16_string_size(
+     libpff_record_entry_t *record_entry,
+     size_t *utf16_string_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_value_utf16_string_size";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( libpff_record_entry_get_value_utf16_string_size_with_codepage(
+	     record_entry,
+	     internal_record_entry->ascii_codepage,
+	     utf16_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine UTF-16 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 string value
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_record_entry_get_value_utf16_string(
+     libpff_record_entry_t *record_entry,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_value_utf16_string";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( libpff_record_entry_get_value_utf16_string_with_codepage(
+	     record_entry,
+	     internal_record_entry->ascii_codepage,
+	     utf16_string,
+	     utf16_string_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to set UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
 }
 
 /* Copies the value data to an object identifier

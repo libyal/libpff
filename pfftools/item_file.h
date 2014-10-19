@@ -155,6 +155,15 @@ int item_file_write_item_value(
      uint32_t format_flags,
      libcerror_error_t **error );
 
+int item_file_write_record_entry_value(
+     item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
+     int set_index,
+     uint32_t entry_type,
+     const libcstring_system_character_t *description,
+     uint32_t format_flags,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif

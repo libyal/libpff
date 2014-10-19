@@ -37,6 +37,7 @@
 int libpff_record_set_initialize(
      libpff_record_set_t **record_set,
      int number_of_entries,
+     int ascii_codepage,
      libcerror_error_t **error )
 {
 	libpff_internal_record_set_t *internal_record_set = NULL;
@@ -97,6 +98,8 @@ int libpff_record_set_initialize(
 
 		return( -1 );
 	}
+	internal_record_set->ascii_codepage = ascii_codepage;
+
 	if( libcdata_array_initialize(
 	     &( internal_record_set->entries_array ),
 	     number_of_entries,
@@ -117,6 +120,7 @@ int libpff_record_set_initialize(
 	{
 		if( libpff_record_entry_initialize(
 		     &record_entry,
+		     internal_record_set->ascii_codepage,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -413,6 +417,7 @@ int libpff_record_set_resize(
 	{
 		if( libpff_record_entry_initialize(
 		     &record_entry,
+		     internal_record_set->ascii_codepage,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

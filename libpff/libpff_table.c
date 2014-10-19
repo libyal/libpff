@@ -465,6 +465,7 @@ int libpff_table_resize_record_entries(
      libpff_table_t *table,
      int number_of_sets,
      int number_of_entries,
+     int ascii_codepage,
      libcerror_error_t **error )
 {
 	libpff_record_set_t *record_set = NULL;
@@ -577,6 +578,7 @@ int libpff_table_resize_record_entries(
 			if( libpff_record_set_initialize(
 			     &record_set,
 			     last_number_of_entries,
+			     ascii_codepage,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -698,6 +700,7 @@ int libpff_table_expand_record_entries(
      libpff_table_t *table,
      int number_of_sets,
      int number_of_entries,
+     int ascii_codepage,
      libcerror_error_t **error )
 {
 	libpff_record_set_t *record_set = NULL;
@@ -810,6 +813,7 @@ int libpff_table_expand_record_entries(
 	     table,
 	     last_number_of_sets + number_of_sets,
 	     last_number_of_entries + number_of_entries,
+	     ascii_codepage,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -3315,6 +3319,7 @@ int libpff_table_read_values(
 			result = libpff_table_read_a5_values(
 				  table,
 				  table_value_reference,
+				  io_handle,
 				  file_io_handle,
 				  error );
 			break;
@@ -4375,6 +4380,7 @@ on_error:
 int libpff_table_read_a5_values(
      libpff_table_t *table,
      uint32_t table_header_reference,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
@@ -4441,6 +4447,7 @@ int libpff_table_read_a5_values(
 		if( libpff_table_read_a5_record_entries(
 		     table,
 		     0x00000020,
+		     io_handle,
 		     file_io_handle,
 		     error ) != 1 )
 		{
@@ -5218,6 +5225,17 @@ int libpff_table_read_6c_record_entries(
 
 		return( -1 );
 	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libpff_table_clone_value_data_by_reference(
 	     table,
 	     values_array_reference,
@@ -5268,6 +5286,7 @@ int libpff_table_read_6c_record_entries(
 		     table,
 		     1,
 		     0,
+		     io_handle->ascii_codepage,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -5377,6 +5396,7 @@ int libpff_table_read_6c_record_entries(
 			     table,
 			     0,
 			     (int) number_of_record_entries,
+			     io_handle->ascii_codepage,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -5948,6 +5968,17 @@ int libpff_table_read_8c_record_entries(
 
 		return( -1 );
 	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libcdata_array_get_number_of_entries(
 	     record_entries_references_array,
 	     &number_of_record_entries_references,
@@ -5968,6 +5999,7 @@ int libpff_table_read_8c_record_entries(
 		     table,
 		     1,
 		     0,
+		     io_handle->ascii_codepage,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -6077,6 +6109,7 @@ int libpff_table_read_8c_record_entries(
 			     table,
 			     0,
 			     (int) number_of_record_entries,
+			     io_handle->ascii_codepage,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -6214,6 +6247,17 @@ int libpff_table_read_9c_record_entries(
 
 		return( -1 );
 	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libcdata_array_get_number_of_entries(
 	     record_entries_references_array,
 	     &number_of_record_entries_references,
@@ -6234,6 +6278,7 @@ int libpff_table_read_9c_record_entries(
 		     table,
 		     1,
 		     0,
+		     io_handle->ascii_codepage,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -6343,6 +6388,7 @@ int libpff_table_read_9c_record_entries(
 			     table,
 			     0,
 			     (int) number_of_record_entries,
+			     io_handle->ascii_codepage,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -6537,6 +6583,7 @@ on_error:
 int libpff_table_read_a5_record_entries(
      libpff_table_t *table,
      uint32_t record_entries_reference,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
@@ -6589,6 +6636,17 @@ int libpff_table_read_a5_record_entries(
 		 function,
 		 record_entries_reference & 0x0000001fUL,
 		 record_entries_reference );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
 
 		return( -1 );
 	}
@@ -6693,6 +6751,7 @@ int libpff_table_read_a5_record_entries(
 			     table,
 			     number_of_table_index_array_entries,
 			     number_of_table_index_values,
+			     io_handle->ascii_codepage,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -7511,6 +7570,17 @@ int libpff_table_read_bc_record_entries(
 
 		return( -1 );
 	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libcdata_array_get_number_of_entries(
 	     record_entries_references_array,
 	     &number_of_record_entries_references,
@@ -7531,6 +7601,7 @@ int libpff_table_read_bc_record_entries(
 		     table,
 		     1,
 		     0,
+		     io_handle->ascii_codepage,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -7640,6 +7711,7 @@ int libpff_table_read_bc_record_entries(
 			     table,
 			     0,
 			     (int) number_of_record_entries,
+			     io_handle->ascii_codepage,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -8166,6 +8238,7 @@ int libpff_table_read_values_array(
 	     table,
 	     0,
 	     0,
+	     io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -8301,6 +8374,7 @@ int libpff_table_read_values_array(
 			     table,
 			     number_of_sets,
 			     number_of_column_definitions,
+			     io_handle->ascii_codepage,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -8447,6 +8521,7 @@ int libpff_table_read_values_array(
 				     table,
 				     number_of_sets,
 				     number_of_column_definitions,
+				     io_handle->ascii_codepage,
 				     error ) != 1 )
 				{
 					libcerror_error_set(
