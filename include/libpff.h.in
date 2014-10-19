@@ -2123,7 +2123,7 @@ int libpff_folder_get_unknowns(
      libpff_error_t **error );
 
 /* -------------------------------------------------------------------------
- * Message store functions
+ * Message store functions - deprecated
  * ------------------------------------------------------------------------- */
 
 /* Retrieves the message store valid folder mask

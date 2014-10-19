@@ -578,11 +578,13 @@ int info_handle_message_store_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error )
 {
-	libpff_item_t *message_store = NULL;
-	static char *function        = "info_handle_message_store_fprint";
-	uint32_t password_checksum   = 0;
-	uint32_t valid_folder_mask   = 0;
-	int result                   = 0;
+	libpff_item_t *message_store        = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	libpff_record_set_t *record_set     = NULL;
+	static char *function               = "info_handle_message_store_fprint";
+	uint32_t password_checksum          = 0;
+	uint32_t valid_folder_mask          = 0;
+	int result                          = 0;
 
 	if( info_handle == NULL )
 	{
@@ -609,64 +611,113 @@ int info_handle_message_store_fprint(
 		 "%s: unable to retrieve message store.",
 		 function );
 
-		return( -1 );
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		return( 1 );
+	}
+	if( libpff_item_get_record_set_by_index(
+	     message_store,
+	     0,
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record set.",
+		 function );
+
+		goto on_error;
 	}
 	fprintf(
 	 info_handle->notify_stream,
 	 "Message store:\n" );
 
-	if( libpff_message_store_get_valid_folder_mask(
-	     message_store,
-	     &valid_folder_mask,
-	     NULL ) == 1 )
+	result = libpff_record_set_get_entry_by_type(
+		  record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_STORE_VALID_FOLDER_MASK,
+		  LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
+		  &record_entry,
+		  0,
+		  error );
+
+	if( result == -1 )
 	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve valid folder mask record entry.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_32bit(
+		     record_entry,
+		     &valid_folder_mask,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve valid folder mask value.",
+			 function );
+
+			goto on_error;
+		}
 		fprintf(
 		 info_handle->notify_stream,
 		 "\tFolders:\t\t" );
 
-		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_SUBTREE ) == LIBPFF_VALID_FOLDER_MASK_SUBTREE )
+		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_SUBTREE ) != 0 )
 		{
 			fprintf(
 			 info_handle->notify_stream,
 			 "Subtree, " );
 		}
-		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_INBOX ) == LIBPFF_VALID_FOLDER_MASK_INBOX )
+		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_INBOX ) != 0 )
 		{
 			fprintf(
 			 info_handle->notify_stream,
 			 "Inbox, " );
 		}
-		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_OUTBOX ) == LIBPFF_VALID_FOLDER_MASK_OUTBOX )
+		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_OUTBOX ) != 0 )
 		{
 			fprintf(
 			 info_handle->notify_stream,
 			 "Outbox, " );
 		}
-		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_WASTEBOX ) == LIBPFF_VALID_FOLDER_MASK_WASTEBOX )
+		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_WASTEBOX ) != 0 )
 		{
 			fprintf(
 			 info_handle->notify_stream,
 			 "Wastbox, " );
 		}
-		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_SENTMAIL ) == LIBPFF_VALID_FOLDER_MASK_SENTMAIL )
+		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_SENTMAIL ) != 0 )
 		{
 			fprintf(
 			 info_handle->notify_stream,
 			 "Sentmail, " );
 		}
-		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_VIEWS ) == LIBPFF_VALID_FOLDER_MASK_VIEWS )
+		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_VIEWS ) != 0 )
 		{
 			fprintf(
 			 info_handle->notify_stream,
 			 "Views, " );
 		}
-		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_COMMON_VIEWS ) == LIBPFF_VALID_FOLDER_MASK_COMMON_VIEWS )
+		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_COMMON_VIEWS ) != 0 )
 		{
 			fprintf(
 			 info_handle->notify_stream,
 			 "Common views, " );
 		}
-		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_FINDER ) == LIBPFF_VALID_FOLDER_MASK_FINDER )
+		if( ( valid_folder_mask & LIBPFF_VALID_FOLDER_MASK_FINDER ) != 0 )
 		{
 			fprintf(
 			 info_handle->notify_stream,
@@ -675,12 +726,56 @@ int info_handle_message_store_fprint(
 		fprintf(
 		 info_handle->notify_stream,
 		 "\n" );
+
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
 	}
-	if( libpff_message_store_get_password_checksum(
-	     message_store,
-	     &password_checksum,
-	     NULL ) == 1 )
+	result = libpff_record_set_get_entry_by_type(
+		  record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_STORE_PASSWORD_CHECKSUM,
+		  LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
+		  &record_entry,
+		  0,
+		  error );
+
+	if( result == -1 )
 	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve password checksum record entry.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_32bit(
+		     record_entry,
+		     &valid_folder_mask,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve password checksum value.",
+			 function );
+
+			goto on_error;
+		}
 		fprintf(
 		 info_handle->notify_stream,
 		 "\tPassword checksum:\t" );
@@ -701,11 +796,38 @@ int info_handle_message_store_fprint(
 		fprintf(
 		 info_handle->notify_stream,
 		 "\n" );
+
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	fprintf(
 	 info_handle->notify_stream,
 	 "\n" );
 
+	if( libpff_record_set_free(
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record set.",
+		 function );
+
+		goto on_error;
+	}
 	if( libpff_item_free(
 	     &message_store,
 	     error ) != 1 )
@@ -717,9 +839,30 @@ int info_handle_message_store_fprint(
 		 "%s: unable to free message store item.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	return( 1 );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	if( message_store != NULL )
+	{
+		libpff_item_free(
+		 &message_store,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Prints the unallocaated blocks to a stream
