@@ -7533,9 +7533,15 @@ int export_handle_export_attachment_data(
 	}
 	/* Create the attachment file
 	 */
-	attachment_file_stream = libcsystem_file_stream_open(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	attachment_file_stream = file_stream_open_wide(
 				  target_path,
 				  _LIBCSTRING_SYSTEM_STRING( FILE_STREAM_BINARY_OPEN_WRITE ) );
+#else
+	attachment_file_stream = file_stream_open(
+				  target_path,
+				  FILE_STREAM_BINARY_OPEN_WRITE );
+#endif
 
 	if( attachment_file_stream == NULL )
 	{
@@ -7636,7 +7642,7 @@ int export_handle_export_attachment_data(
 
 				goto on_error;
 			}
-			write_count = libcsystem_file_stream_write(
+			write_count = file_stream_write(
 				       attachment_file_stream,
 				       attachment_data,
 				       read_size );
@@ -7658,7 +7664,7 @@ int export_handle_export_attachment_data(
 
 		attachment_data = NULL;
 	}
-	if( libcsystem_file_stream_close(
+	if( file_stream_close(
 	     attachment_file_stream ) != 0 )
 	{
 		libcerror_error_set(
@@ -7684,7 +7690,7 @@ on_error:
 	}
 	if( attachment_file_stream != NULL )
 	{
-		libcsystem_file_stream_close(
+		file_stream_close(
 		 attachment_file_stream );
 	}
 	if( target_path != NULL )

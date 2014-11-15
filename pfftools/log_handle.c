@@ -35,7 +35,6 @@
 #include "log_handle.h"
 #include "pfftools_libcerror.h"
 #include "pfftools_libcstring.h"
-#include "pfftools_libcsystem.h"
 
 /* Creates a log handle
  * Make sure the value log_handle is referencing, is set to NULL
@@ -163,10 +162,15 @@ int log_handle_open(
 	}
 	if( filename != NULL )
 	{
-		log_handle->log_stream = libcsystem_file_stream_open(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		log_handle->log_stream = file_stream_open_wide(
 		                          filename,
 		                          _LIBCSTRING_SYSTEM_STRING( FILE_STREAM_OPEN_APPEND ) );
-
+#else
+		log_handle->log_stream = file_stream_open(
+		                          filename,
+		                          FILE_STREAM_OPEN_APPEND );
+#endif
 		if( log_handle->log_stream == NULL )
 		{
 			libcerror_error_set(
@@ -204,7 +208,7 @@ int log_handle_close(
 	}
 	if( log_handle->log_stream != NULL )
 	{
-		if( libcsystem_file_stream_close(
+		if( file_stream_close(
 		     log_handle->log_stream ) != 0 )
 		{
 			libcerror_error_set(
