@@ -443,7 +443,7 @@ int libpff_item_determine_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal item.",
+		 "%s: invalid item.",
 		 function );
 
 		return( -1 );
@@ -465,7 +465,7 @@ int libpff_item_determine_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -2398,7 +2398,7 @@ int libpff_item_get_entry_multi_value(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );

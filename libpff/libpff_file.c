@@ -459,7 +459,7 @@ on_error:
 	return( -1 );
 }
 
-#endif
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
 /* Opens a file using a Basic File IO (bfio) handle
  * Returns 1 if successful or -1 on error
@@ -855,7 +855,7 @@ int libpff_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal file.",
+		 "%s: invalid file.",
 		 function );
 
 		return( -1 );
@@ -866,7 +866,7 @@ int libpff_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - descriptors index value already set.",
+		 "%s: invalid file - descriptors index value already set.",
 		 function );
 
 		return( -1 );
@@ -877,7 +877,7 @@ int libpff_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - offsets index value already set.",
+		 "%s: invalid file - offsets index value already set.",
 		 function );
 
 		return( -1 );
@@ -888,7 +888,7 @@ int libpff_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - item tree root node value already set.",
+		 "%s: invalid file - item tree root node value already set.",
 		 function );
 
 		return( -1 );
@@ -899,7 +899,7 @@ int libpff_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - root folder item tree root node value already set.",
+		 "%s: invalid file - root folder item tree root node value already set.",
 		 function );
 
 		return( -1 );
@@ -910,7 +910,7 @@ int libpff_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - orphan item list value already set.",
+		 "%s: invalid file - orphan item list value already set.",
 		 function );
 
 		return( -1 );
@@ -921,7 +921,7 @@ int libpff_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - name to id map list value already set.",
+		 "%s: invalid file - name to id map list value already set.",
 		 function );
 
 		return( -1 );
@@ -1147,7 +1147,7 @@ int libpff_file_read_allocation_tables(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal file.",
+		 "%s: invalid file.",
 		 function );
 
 		return( -1 );
@@ -1182,7 +1182,7 @@ int libpff_file_read_allocation_tables(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - allocation tables already set.",
+		 "%s: invalid file - allocation tables already set.",
 		 function );
 
 		return( -1 );
@@ -1193,7 +1193,7 @@ int libpff_file_read_allocation_tables(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - allocaled data block list already set.",
+		 "%s: invalid file - allocaled data block list already set.",
 		 function );
 
 		return( -1 );
@@ -1204,7 +1204,7 @@ int libpff_file_read_allocation_tables(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - allocaled page block list already set.",
+		 "%s: invalid file - allocaled page block list already set.",
 		 function );
 
 		return( -1 );
@@ -1389,7 +1389,7 @@ int libpff_file_recover_items(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - recovered item list already set.",
+		 "%s: invalid file - recovered item list already set.",
 		 function );
 
 		return( -1 );
@@ -2556,7 +2556,7 @@ int libpff_file_get_orphan_item(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing orphan item list.",
+		 "%s: invalid file - missing orphan item list.",
 		 function );
 
 		return( -1 );

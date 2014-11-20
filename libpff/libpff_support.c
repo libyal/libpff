@@ -315,7 +315,7 @@ on_error:
 	return( -1 );
 }
 
-#endif
+#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
 /* Determines if a file is a Personal Folder File file (check for the file signature) using a Basic File IO (bfio) handle
  * Returns 1 if true, 0 if not or -1 on error

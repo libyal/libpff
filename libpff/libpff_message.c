@@ -313,7 +313,7 @@ int libpff_message_get_entry_value_utf8_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -462,7 +462,7 @@ int libpff_message_get_entry_value_utf8_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -611,7 +611,7 @@ int libpff_message_get_entry_value_utf16_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -760,7 +760,7 @@ int libpff_message_get_entry_value_utf16_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -885,7 +885,7 @@ int libpff_message_determine_attachments(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal item.",
+		 "%s: invalid item.",
 		 function );
 
 		return( -1 );
@@ -896,7 +896,7 @@ int libpff_message_determine_attachments(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - missing internal file.",
+		 "%s: invalid item - missing internal file.",
 		 function );
 
 		return( -1 );
@@ -907,7 +907,7 @@ int libpff_message_determine_attachments(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - missing item values.",
+		 "%s: invalid item - missing item values.",
 		 function );
 
 		return( -1 );
@@ -1795,7 +1795,7 @@ int libpff_message_determine_recipients(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal item.",
+		 "%s: invalid item.",
 		 function );
 
 		return( -1 );
@@ -1806,7 +1806,7 @@ int libpff_message_determine_recipients(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - missing internal file.",
+		 "%s: invalid item - missing internal file.",
 		 function );
 
 		return( -1 );
@@ -1817,7 +1817,7 @@ int libpff_message_determine_recipients(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - missing item values.",
+		 "%s: invalid item - missing item values.",
 		 function );
 
 		return( -1 );
@@ -2302,7 +2302,7 @@ int libpff_message_get_plain_text_body_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -2534,7 +2534,7 @@ int libpff_message_get_plain_text_body(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );

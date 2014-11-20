@@ -34,14 +34,10 @@
 #error No variable argument support available
 #endif
 
-#if defined( HAVE_LOCAL_LIBFDATA )
-#include <libfdata_definitions.h>
-#elif defined( HAVE_LIBFDATA_H )
-#include <libfdata.h>
-#endif
-
 #include "pffoutput.h"
 #include "pfftools_libbfio.h"
+#include "pfftools_libfcache.h"
+#include "pfftools_libfdata.h"
 #include "pfftools_libfdatetime.h"
 #include "pfftools_libfguid.h"
 #include "pfftools_libfmapi.h"

@@ -1517,7 +1517,7 @@ int libpff_name_to_id_map_entry_get_guid(
  * Record set functions
  * ------------------------------------------------------------------------- */
 
-/* Frees a record set 
+/* Frees a record set
  * Returns 1 if successful or -1 on error
  */
 LIBPFF_EXTERN \
@@ -1609,7 +1609,7 @@ int libpff_record_set_get_entry_by_utf16_name(
  * Record entry functions
  * ------------------------------------------------------------------------- */
 
-/* Frees a record entry 
+/* Frees a record entry
  * Returns 1 if successful or -1 on error
  */
 LIBPFF_EXTERN \

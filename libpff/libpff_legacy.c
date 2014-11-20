@@ -2438,7 +2438,7 @@ int libpff_item_get_entry_value_utf8_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -2575,7 +2575,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf8_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -2692,7 +2692,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -2817,7 +2817,7 @@ int libpff_item_get_entry_value_utf8_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -2956,7 +2956,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf8_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -3076,7 +3076,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf16_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -3201,7 +3201,7 @@ int libpff_item_get_entry_value_utf16_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -3338,7 +3338,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf8_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -3455,7 +3455,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -3580,7 +3580,7 @@ int libpff_item_get_entry_value_utf16_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -3719,7 +3719,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf8_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -3839,7 +3839,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal item - invalid internal file - missing IO handle.",
+		 "%s: invalid item - invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
