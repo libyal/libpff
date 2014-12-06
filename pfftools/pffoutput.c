@@ -24,18 +24,9 @@
 #include <memory.h>
 #include <types.h>
 
-#include <errno.h>
-
-#if defined( HAVE_STDARG_H ) || defined( WINAPI )
-#include <stdarg.h>
-#elif defined( HAVE_VARARGS_H )
-#include <varargs.h>
-#else
-#error No variable argument support available
-#endif
-
 #include "pffoutput.h"
 #include "pfftools_libbfio.h"
+#include "pfftools_libcsystem.h"
 #include "pfftools_libfcache.h"
 #include "pfftools_libfdata.h"
 #include "pfftools_libfdatetime.h"
@@ -54,11 +45,26 @@ void pffoutput_copyright_fprint(
 	{
 		return;
 	}
+	/* TRANSLATORS: This is a proper name.
+	 */
 	fprintf(
 	 stream,
-	 "Copyright (c) 2008-2014, Joachim Metz <%s> and contributors.\n"
-	 "This is free software; see the source for copying conditions. There is NO\n"
-	 "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n",
+	 _( "Copyright (c) 2008-2014, %s.\n" ),
+	 _( "Joachim Metz" ) );
+
+	fprintf(
+	 stream,
+	 _( "This is free software; see the source for copying conditions. There is NO\n"
+	    "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n" ) );
+
+	/* TRANSLATORS: The placeholder indicates the bug-reporting address
+	 * for this package.  Please add _another line_ saying
+	 * "Report translation bugs to <...>\n" with the address for translation
+	 * bugs (typically your translation team's web or email address).
+	 */
+	fprintf(
+	 stream,
+	 _( "Report bugs to <%s>.\n" ),
 	 PACKAGE_BUGREPORT );
 }
 

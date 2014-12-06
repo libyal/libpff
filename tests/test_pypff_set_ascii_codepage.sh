@@ -2,7 +2,7 @@
 #
 # Python-bindings set ASCII codepage testing script
 #
-# Copyright (c) 2008-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (C) 2008-2014, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -24,7 +24,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-PYTHON="/usr/bin/python";
+PYTHON=`which python`;
 
 if ! test -x ${PYTHON};
 then
@@ -33,7 +33,25 @@ then
 	exit ${EXIT_FAILURE};
 fi
 
-if ! PYTHONPATH=../pypff/.libs/ ${PYTHON} pypff_test_set_ascii_codepage.py;
+SCRIPT="pypff_test_set_ascii_codepage.py";
+
+if ! test -f ${SCRIPT};
+then
+	echo "Missing script: ${SCRIPT}";
+
+	exit ${EXIT_FAILURE};
+fi
+
+if test `uname -s` = 'Darwin';
+then
+	DYLD_LIBRARY_PATH="../libpff/.libs/" PYTHONPATH="../pypff/.libs/" ${PYTHON} ${SCRIPT};
+	RESULT=$?;
+else
+	LD_LIBRARY_PATH="../libpff/.libs/" PYTHONPATH="../pypff/.libs/" ${PYTHON} ${SCRIPT};
+	RESULT=$?;
+fi
+
+if test ${RESULT} -ne ${EXIT_SUCCESS};
 then
 	exit ${EXIT_FAILURE};
 fi

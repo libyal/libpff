@@ -335,6 +335,9 @@ Notes:
 * in the descriptor index a parent can have a child with a lower identifier value
 * cannot create libpff_item_get_sub_item_by_utf8_name, only folders and messages have names
 
+20141130
+* code clean up
+
 20141120
 * code clean up
 
