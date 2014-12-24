@@ -118,10 +118,8 @@ PyGetSetDef pypff_record_entry_object_get_entry_definitions[] = {
 };
 
 PyTypeObject pypff_record_entry_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pypff.record_entry",
 	/* tp_basicsize */
@@ -303,8 +301,9 @@ int pypff_record_entry_init(
 void pypff_record_entry_free(
       pypff_record_entry_t *pypff_record_entry )
 {
-	libcerror_error_t *error = NULL;
-	static char *function    = "pypff_record_entry_free";
+	libcerror_error_t *error    = NULL;
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pypff_record_entry_free";
 
 	if( pypff_record_entry == NULL )
 	{
@@ -315,29 +314,32 @@ void pypff_record_entry_free(
 
 		return;
 	}
-	if( pypff_record_entry->ob_type == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid record entry - missing ob_type.",
-		 function );
-
-		return;
-	}
-	if( pypff_record_entry->ob_type->tp_free == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid record entry - invalid ob_type - missing tp_free.",
-		 function );
-
-		return;
-	}
 	if( pypff_record_entry->record_entry == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
 		 "%s: invalid record entry - missing libpff record entry.",
+		 function );
+
+		return;
+	}
+	ob_type = Py_TYPE(
+	           pypff_record_entry );
+
+	if( ob_type == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
+		 function );
+
+		return;
+	}
+	if( ob_type->tp_free == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -360,7 +362,7 @@ void pypff_record_entry_free(
 		Py_DecRef(
 		 (PyObject *) pypff_record_entry->record_set_object );
 	}
-	pypff_record_entry->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pypff_record_entry );
 }
 
@@ -558,10 +560,15 @@ PyObject *pypff_record_entry_get_value_data(
 
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	string_object = PyBytes_FromStringAndSize(
+			 (char *) value_data,
+			 (Py_ssize_t) value_data_size );
+#else
 	string_object = PyString_FromStringAndSize(
 			 (char *) value_data,
 			 (Py_ssize_t) value_data_size );
-
+#endif
 	PyMem_Free(
 	 value_data );
 

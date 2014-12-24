@@ -2,7 +2,7 @@
 #
 # Python-bindings open close testing script
 #
-# Copyright (c) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (c) 2008-2014, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -49,16 +49,21 @@ test_open_close()
 
 	echo "Testing open close of input: ${INPUT_FILE}";
 
-	PYTHONPATH=../pypff/.libs/ ${PYTHON} pypff_test_open_close.py ${INPUT_FILE};
+	if test `uname -s` = 'Darwin';
+	then
+		DYLD_LIBRARY_PATH="../libpff/.libs/" PYTHONPATH="../pypff/.libs/" ${PYTHON} ${SCRIPT} ${INPUT_FILE};
+		RESULT=$?;
+	else
+		LD_LIBRARY_PATH="../libpff/.libs/" PYTHONPATH="../pypff/.libs/" ${PYTHON} ${SCRIPT} ${INPUT_FILE};
+		RESULT=$?;
+	fi
 
 	rm -rf tmp;
-
-	RESULT=$?;
 
 	return ${RESULT};
 }
 
-PYTHON="/usr/bin/python";
+PYTHON=`which python${PYTHON_VERSION} 2> /dev/null`;
 
 if ! test -x ${PYTHON};
 then
@@ -72,6 +77,15 @@ then
 	echo "No input directory found.";
 
 	exit ${EXIT_IGNORE};
+fi
+
+SCRIPT="pypff_test_open_close.py";
+
+if ! test -f ${SCRIPT};
+then
+	echo "Missing script: ${SCRIPT}";
+
+	exit ${EXIT_FAILURE};
 fi
 
 OLDIFS=${IFS};
@@ -88,9 +102,9 @@ then
 else
 	IGNORELIST="";
 
-	if test -f "input/.libpff/ignore";
+	if test -f "input/.pypff/ignore";
 	then
-		IGNORELIST=`cat input/.libpff/ignore | sed '/^#/d'`;
+		IGNORELIST=`cat input/.pypff/ignore | sed '/^#/d'`;
 	fi
 	for TESTDIR in input/*;
 	do
@@ -100,9 +114,9 @@ else
 
 			if ! list_contains "${IGNORELIST}" "${DIRNAME}";
 			then
-				if test -f "input/.libpff/${DIRNAME}/files";
+				if test -f "input/.pypff/${DIRNAME}/files";
 				then
-					TEST_FILES=`cat input/.libpff/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
+					TEST_FILES=`cat input/.pypff/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
 				else
 					TEST_FILES=`ls -1 ${TESTDIR}/* 2> /dev/null`;
 				fi

@@ -258,10 +258,8 @@ PyGetSetDef pypff_message_object_get_set_definitions[] = {
 };
 
 PyTypeObject pypff_message_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pypff.message",
 	/* tp_basicsize */
@@ -1366,10 +1364,15 @@ PyObject *pypff_message_get_plain_text_body(
 	}
 	/* Do not write the end-of-string byte
 	 */
+#if PY_MAJOR_VERSION >= 3
+	string_object = PyBytes_FromStringAndSize(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1 );
+#else
 	string_object = PyString_FromStringAndSize(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1 );
-
+#endif
 	PyMem_Free(
 	 value_string );
 
@@ -1477,10 +1480,15 @@ PyObject *pypff_message_get_rtf_body(
 	}
 	/* Do not write the end-of-string byte
 	 */
+#if PY_MAJOR_VERSION >= 3
+	string_object = PyBytes_FromStringAndSize(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1 );
+#else
 	string_object = PyString_FromStringAndSize(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1 );
-
+#endif
 	PyMem_Free(
 	 value_string );
 
@@ -1588,10 +1596,15 @@ PyObject *pypff_message_get_html_body(
 	}
 	/* Do not write the end-of-string byte
 	 */
+#if PY_MAJOR_VERSION >= 3
+	string_object = PyBytes_FromStringAndSize(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1 );
+#else
 	string_object = PyString_FromStringAndSize(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1 );
-
+#endif
 	PyMem_Free(
 	 value_string );
 
@@ -1614,6 +1627,7 @@ PyObject *pypff_message_get_number_of_attachments(
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error  = NULL;
+	PyObject *integer_object  = NULL;
 	static char *function     = "pypff_message_get_number_of_attachments";
 	int number_of_attachments = 0;
 	int result                = 0;
@@ -1651,8 +1665,14 @@ PyObject *pypff_message_get_number_of_attachments(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_attachments ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_attachments );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_attachments );
+#endif
+	return( integer_object );
 }
 
 /* TODO create attachment item */

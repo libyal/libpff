@@ -24,7 +24,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-PYTHON=`which python`;
+PYTHON=`which python${PYTHON_VERSION} 2> /dev/null`;
 
 if ! test -x ${PYTHON};
 then

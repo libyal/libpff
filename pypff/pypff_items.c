@@ -56,10 +56,8 @@ PySequenceMethods pypff_items_sequence_methods = {
 };
 
 PyTypeObject pypff_items_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pypff._items",
 	/* tp_basicsize */
@@ -258,7 +256,8 @@ int pypff_items_init(
 void pypff_items_free(
       pypff_items_t *pypff_items )
 {
-	static char *function = "pypff_items_free";
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pypff_items_free";
 
 	if( pypff_items == NULL )
 	{
@@ -269,20 +268,23 @@ void pypff_items_free(
 
 		return;
 	}
-	if( pypff_items->ob_type == NULL )
+	ob_type = Py_TYPE(
+	           pypff_items );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid items - missing ob_type.",
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pypff_items->ob_type->tp_free == NULL )
+	if( ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid items - invalid ob_type - missing tp_free.",
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -292,7 +294,7 @@ void pypff_items_free(
 		Py_DecRef(
 		 (PyObject *) pypff_items->item_object );
 	}
-	pypff_items->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pypff_items );
 }
 

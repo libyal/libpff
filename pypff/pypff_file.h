@@ -110,7 +110,7 @@ PyObject *pypff_file_set_ascii_codepage(
 
 int pypff_file_set_ascii_codepage_setter(
      pypff_file_t *pypff_file,
-     PyObject *value_object,
+     PyObject *string_object,
      void *closure );
 
 PyObject *pypff_file_recover_items(

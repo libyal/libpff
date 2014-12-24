@@ -34,6 +34,18 @@
 extern "C" {
 #endif
 
+void pypff_error_fetch(
+      libcerror_error_t **error,
+      int error_domain,
+      int error_code,
+      const char *format_string,
+      ... );
+
+void pypff_error_fetch_and_raise(
+      PyObject *exception_object,
+      const char *format_string,
+      ... );
+
 void pypff_error_raise(
       libcerror_error_t *error,
       PyObject *exception_object,

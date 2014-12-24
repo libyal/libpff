@@ -121,10 +121,8 @@ PyGetSetDef pypff_folder_object_get_set_definitions[] = {
 };
 
 PyTypeObject pypff_folder_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pypff.folder",
 	/* tp_basicsize */
@@ -345,6 +343,7 @@ PyObject *pypff_folder_get_number_of_sub_folders(
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error  = NULL;
+	PyObject *integer_object  = NULL;
 	static char *function     = "pypff_folder_get_number_of_sub_folders";
 	int number_of_sub_folders = 0;
 	int result                = 0;
@@ -382,8 +381,14 @@ PyObject *pypff_folder_get_number_of_sub_folders(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_sub_folders ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_sub_folders );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_sub_folders );
+#endif
+	return( integer_object );
 }
 
 /* Retrieves a specific sub folder by index
@@ -581,6 +586,7 @@ PyObject *pypff_folder_get_number_of_sub_messages(
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error   = NULL;
+	PyObject *integer_object   = NULL;
 	static char *function      = "pypff_folder_get_number_of_sub_messages";
 	int number_of_sub_messages = 0;
 	int result                 = 0;
@@ -618,8 +624,14 @@ PyObject *pypff_folder_get_number_of_sub_messages(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_sub_messages ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_sub_messages );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_sub_messages );
+#endif
+	return( integer_object );
 }
 
 /* Retrieves a specific sub message by index

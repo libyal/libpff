@@ -57,10 +57,8 @@ PySequenceMethods pypff_record_sets_sequence_methods = {
 };
 
 PyTypeObject pypff_record_sets_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pypff._record_sets",
 	/* tp_basicsize */
@@ -259,7 +257,8 @@ int pypff_record_sets_init(
 void pypff_record_sets_free(
       pypff_record_sets_t *pypff_record_sets )
 {
-	static char *function = "pypff_record_sets_free";
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pypff_record_sets_free";
 
 	if( pypff_record_sets == NULL )
 	{
@@ -270,20 +269,23 @@ void pypff_record_sets_free(
 
 		return;
 	}
-	if( pypff_record_sets->ob_type == NULL )
+	ob_type = Py_TYPE(
+	           pypff_record_sets );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets - missing ob_type.",
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pypff_record_sets->ob_type->tp_free == NULL )
+	if( ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets - invalid ob_type - missing tp_free.",
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -293,7 +295,7 @@ void pypff_record_sets_free(
 		Py_DecRef(
 		 (PyObject *) pypff_record_sets->item_object );
 	}
-	pypff_record_sets->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pypff_record_sets );
 }
 

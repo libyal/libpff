@@ -121,10 +121,8 @@ PyGetSetDef pypff_item_object_get_set_definitions[] = {
 };
 
 PyTypeObject pypff_item_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pypff.item",
 	/* tp_basicsize */
@@ -306,8 +304,9 @@ int pypff_item_init(
 void pypff_item_free(
       pypff_item_t *pypff_item )
 {
-	libcerror_error_t *error = NULL;
-	static char *function    = "pypff_item_free";
+	libcerror_error_t *error    = NULL;
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pypff_item_free";
 
 	if( pypff_item == NULL )
 	{
@@ -318,29 +317,32 @@ void pypff_item_free(
 
 		return;
 	}
-	if( pypff_item->ob_type == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid item - missing ob_type.",
-		 function );
-
-		return;
-	}
-	if( pypff_item->ob_type->tp_free == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid item - invalid ob_type - missing tp_free.",
-		 function );
-
-		return;
-	}
 	if( pypff_item->item == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
 		 "%s: invalid item - missing libpff item.",
+		 function );
+
+		return;
+	}
+	ob_type = Py_TYPE(
+	           pypff_item );
+
+	if( ob_type == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
+		 function );
+
+		return;
+	}
+	if( ob_type->tp_free == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -363,7 +365,7 @@ void pypff_item_free(
 		Py_DecRef(
 		 (PyObject *) pypff_item->file_object );
 	}
-	pypff_item->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pypff_item );
 }
 
@@ -734,6 +736,7 @@ PyObject *pypff_item_get_number_of_sub_items(
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
 	static char *function    = "pypff_item_get_number_of_sub_items";
 	int number_of_sub_items  = 0;
 	int result               = 0;
@@ -771,8 +774,14 @@ PyObject *pypff_item_get_number_of_sub_items(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_sub_items ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_sub_items );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_sub_items );
+#endif
+	return( integer_object );
 }
 
 /* Retrieves a specific sub item by index

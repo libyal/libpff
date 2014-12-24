@@ -79,10 +79,8 @@ PyGetSetDef pypff_record_set_object_get_set_definitions[] = {
 };
 
 PyTypeObject pypff_record_set_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pypff.record_set",
 	/* tp_basicsize */
@@ -264,8 +262,9 @@ int pypff_record_set_init(
 void pypff_record_set_free(
       pypff_record_set_t *pypff_record_set )
 {
-	libcerror_error_t *error = NULL;
-	static char *function    = "pypff_record_set_free";
+	libcerror_error_t *error    = NULL;
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pypff_record_set_free";
 
 	if( pypff_record_set == NULL )
 	{
@@ -276,29 +275,32 @@ void pypff_record_set_free(
 
 		return;
 	}
-	if( pypff_record_set->ob_type == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid record set - missing ob_type.",
-		 function );
-
-		return;
-	}
-	if( pypff_record_set->ob_type->tp_free == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid record set - invalid ob_type - missing tp_free.",
-		 function );
-
-		return;
-	}
 	if( pypff_record_set->record_set == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
 		 "%s: invalid record set - missing libpff record set.",
+		 function );
+
+		return;
+	}
+	ob_type = Py_TYPE(
+	           pypff_record_set );
+
+	if( ob_type == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
+		 function );
+
+		return;
+	}
+	if( ob_type->tp_free == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -321,7 +323,7 @@ void pypff_record_set_free(
 		Py_DecRef(
 		 (PyObject *) pypff_record_set->item_object );
 	}
-	pypff_record_set->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pypff_record_set );
 }
 

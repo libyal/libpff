@@ -26,11 +26,10 @@ Also see:
 * MAPI definitions: https://googledrive.com/host/0B3fBvzttpiiSRlR1QkU5Vk43ZWs/MAPI%20definitions.pdf
 
 Work in progress:
-* Python bindings
+* Python bindings (including Python 3 support)
 
 Planned:
 * Multi-threading support
-* Python 3 support
 * The Java (JNI) bindings are not operational and are there as long-term work in progress.
 
 For more information see:
