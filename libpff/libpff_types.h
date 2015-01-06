@@ -1,7 +1,7 @@
 /*
  * The internal type definitions
  *
- * Copyright (c) 2008-2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *

@@ -1,7 +1,7 @@
 /*
  * Python bindings module for libpff (pypff)
  *
- * Copyright (c) 2008-2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -471,6 +471,14 @@ PyMODINIT_FUNC initpypff(
 	PyTypeObject *record_set_type_object     = NULL;
 	PyTypeObject *record_sets_type_object    = NULL;
 	PyGILState_STATE gil_state               = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	libpff_notify_set_stream(
+	 stderr,
+	 NULL );
+	libpff_notify_set_verbose(
+	 1 );
+#endif
 
 	/* Create the module
 	 * This function must be called before grabbing the GIL

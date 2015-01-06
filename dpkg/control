@@ -1,13 +1,12 @@
 Source: libpff
-Section: unknown
+Section: libs
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
 Build-Depends: debhelper (>= 7), autotools-dev, zlib1g-dev, python-dev
-Standards-Version: 3.8.3
+Standards-Version: 3.9.5
 Homepage: https://github.com/libyal/libpff/
 
 Package: libpff
-Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: libpff-dbg
@@ -17,27 +16,27 @@ Description: Library to access the Personal Folder File (PFF) and the Offline Fo
 Package: libpff-dbg
 Architecture: any
 Section: debug
-Depends: libpff (= ${Source-Version}), ${misc:Depends}
+Depends: libpff (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libpff
 
 Package: libpff-dev
 Section: libdevel
 Architecture: any
-Depends: libpff (= ${Source-Version})
+Depends: libpff (= ${binary:Version}), ${misc:Depends}
 Description: Header files and libraries for developing applications for libpff
  Header files and libraries for developing applications for libpff.
 
 Package: libpff-tools
 Section: utils
 Architecture: any
-Depends: libpff (= ${Source-Version}), ${shlibs:Depends}
+Depends: libpff (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Several tools for reading Personal Folder Files (OST, PAB and PST)
  Several tools for reading Personal Folder Files (OST, PAB and PST)
 
 Package: libpff-python
 Section: python
 Architecture: any
-Depends: libpff (= ${Source-Version}), ${shlibs:Depends}, ${python:Depends}
+Depends: libpff (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Suggests: libpff-python-dbg
 Description: Python bindings for libpff
  Python bindings for libpff.
@@ -45,7 +44,7 @@ Description: Python bindings for libpff
 Package: libpff-python-dbg
 Section: debug
 Architecture: any
-Depends: libpff-python (= ${Source-Version})
+Depends: libpff-python (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libpff-python
  Debugging symbols for libpff-python.
 
