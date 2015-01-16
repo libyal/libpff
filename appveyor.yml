@@ -1,5 +1,3 @@
-version: {build}
-
 environment:
   VisualStudioVersion: 11.0
 
