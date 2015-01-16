@@ -1,3 +1,5 @@
+version: {build}
+
 environment:
   VisualStudioVersion: 11.0
 
@@ -10,12 +12,36 @@ configuration:
   - Release
 
 install:
-  - cmd: git clone https://github.com/libyal/libyal
+  - cmd: git clone https://github.com/libyal/libyal.git && move libyal ..\
+  - ps: >-
+      function DownloadFile($Url, $Destination)
+      {
+          $Client = New-Object Net.WebClient
+          $Client.DownloadFile($Url, $ZipFilename)
+      }
+
+      function ExtractZip($Zip, $Destination)
+      {
+          $Shell = New-Object -ComObject Shell.Application
+          $Archive = $Shell.NameSpace($Zip)
+          $Directory = $Shell.Namespace($Destination)
+
+          foreach($FileEntry in $Archive.items())
+          {
+              $Directory.CopyHere($FileEntry)
+          }
+      }
+
+      $Filename = "${pwd}\zlib128.zip"
+      DownloadFile -Url "http://zlib.net/zlib128.zip" -Destination $Filename
+      ExtractZip -Zip $Filename -Destination "${pwd}"
+      Move-Item $Filename ..\
+      Move-Item zlib-1.2.8 ..\zlib
 
 before_build:
   - ps: .\synclibs.ps1
   - ps: .\autogen.ps1
-  - cmd: C:\Python27\python.exe libyal\msvscpp-convert.py --to 2010 msvscpp\libpff.sln
+  - cmd: C:\Python27\python.exe ..\libyal\msvscpp-convert.py --to 2010 msvscpp\libpff.sln
 
 build:
   project: vs2010\libpff.sln
