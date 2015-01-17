@@ -2,10 +2,11 @@
 #
 # Version: 20150117
 #
+#
 function DownloadFile($Url, $Destination)
 {
 	$Client = New-Object Net.WebClient
-	$Client.DownloadFile($Url, $ZipFilename)
+	$Client.DownloadFile($Url, $Destination)
 }
 
 function ExtractZip($Zip, $Destination)
