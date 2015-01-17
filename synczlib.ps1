@@ -1,8 +1,7 @@
-# Script that synchronizes zlib
+# Script that synchronizes zlib.
 #
 # Version: 20150117
-#
-#
+
 function DownloadFile($Url, $Destination)
 {
 	$Client = New-Object Net.WebClient
