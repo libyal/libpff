@@ -33,7 +33,20 @@ if (Test-Path "zlib-1.2.8")
 {
 	Remove-Item -Path "zlib-1.2.8" -Force -Recurse
 }
-ExtractZip -Zip ${Filename} -Destination "${pwd}"
+
+# AppVeyor don't seem to support "native ZIP extraction" so we use 7z instead.
+$SevenZip = "C:\Program Files\7-Zip\7z.exe"
+
+if (Test-Path ${SevenZip})
+{
+	# PowerShell will raise NativeCommandError if 7z writes to stdout or stderr
+	# therefore 2>&1 is added and the output is stored in a variable.
+	$Output = Invoke-Expression -Command "C:\Program Files\7-Zip\7z.exe -y x ${Filename} 2>&1"
+}
+else
+{
+	ExtractZip -Zip ${Filename} -Destination "${pwd}"
+}
 
 if (Test-Path "..\zlib")
 {
