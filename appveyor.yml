@@ -12,7 +12,7 @@ configuration:
 install:
   - cmd: git clone https://github.com/libyal/libyal.git && move libyal ..\
   - ps: >-
-      function DownloadFile($Url, $Destination)
+      function DownloadZip($Url, $Destination)
       {
           $Client = New-Object Net.WebClient
           $Client.DownloadFile($Url, $ZipFilename)
@@ -31,7 +31,7 @@ install:
       }
 
       $Filename = "${pwd}\zlib128.zip"
-      DownloadFile -Url "http://zlib.net/zlib128.zip" -Destination $Filename
+      DownloadZip -Url "http://zlib.net/zlib128.zip" -Destination $Filename
       ExtractZip -Zip $Filename -Destination "${pwd}"
       Move-Item $Filename ..\
       Move-Item zlib-1.2.8 ..\zlib
