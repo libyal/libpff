@@ -41,7 +41,7 @@ if (Test-Path ${SevenZip})
 {
 	# PowerShell will raise NativeCommandError if 7z writes to stdout or stderr
 	# therefore 2>&1 is added and the output is stored in a variable.
-	$Output = Invoke-Expression -Command "C:\Program Files\7-Zip\7z.exe -y x ${Filename} 2>&1"
+	$Output = Invoke-Expression -Command "'C:\Program Files\7-Zip\7z.exe' -y x ${Filename} 2>&1"
 }
 else
 {
