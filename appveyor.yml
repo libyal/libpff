@@ -11,30 +11,7 @@ configuration:
 
 install:
   - cmd: git clone https://github.com/libyal/libyal.git && move libyal ..\
-  - ps: >-
-      function DownloadZip($Url, $Destination)
-      {
-          $Client = New-Object Net.WebClient
-          $Client.DownloadFile($Url, $ZipFilename)
-      }
-
-      function ExtractZip($Zip, $Destination)
-      {
-          $Shell = New-Object -ComObject Shell.Application
-          $Archive = $Shell.NameSpace($Zip)
-          $Directory = $Shell.Namespace($Destination)
-
-          foreach($FileEntry in $Archive.items())
-          {
-              $Directory.CopyHere($FileEntry)
-          }
-      }
-
-      $Filename = "${pwd}\zlib128.zip"
-      DownloadZip -Url "http://zlib.net/zlib128.zip" -Destination $Filename
-      ExtractZip -Zip $Filename -Destination "${pwd}"
-      Move-Item $Filename ..\
-      Move-Item zlib-1.2.8 ..\zlib
+  - ps: .\synczlib.ps1
 
 before_build:
   - ps: .\synclibs.ps1
