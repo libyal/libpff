@@ -1771,7 +1771,7 @@ int libpff_record_entry_get_value_utf8_string_size(
  */
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf8_string(
-     libpff_item_t *item,
+     libpff_record_entry_t *record_entry,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      libpff_error_t **error );
@@ -1793,7 +1793,7 @@ int libpff_record_entry_get_value_utf16_string_size(
  */
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf16_string(
-     libpff_item_t *item,
+     libpff_record_entry_t *record_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      libpff_error_t **error );
