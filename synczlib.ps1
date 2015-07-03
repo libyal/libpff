@@ -1,6 +1,6 @@
 # Script that synchronizes zlib.
 #
-# Version: 20150117
+# Version: 20150118
 
 function DownloadFile($Url, $Destination)
 {
@@ -8,49 +8,51 @@ function DownloadFile($Url, $Destination)
 	${Client}.DownloadFile(${Url}, ${Destination})
 }
 
-function ExtractZip($Zip, $Destination)
+function ExtractZip($Filename)
 {
-	$Shell = New-Object -ComObject Shell.Application
-	$Archive = ${Shell}.NameSpace(${Zip})
-	$Directory = ${Shell}.Namespace(${Destination})
+	# AppVeyor does not seem to support extraction using "native ZIP" so we use 7z instead.
+	$SevenZip = "C:\Program Files\7-Zip\7z.exe"
 
-	foreach($FileEntry in ${Archive}.items())
+	if (Test-Path ${SevenZip})
 	{
-		${Directory}.CopyHere(${FileEntry})
+		# PowerShell will raise NativeCommandError if 7z writes to stdout or stderr
+		# therefore 2>&1 is added and the output is stored in a variable.
+		# The leading & and single quotes are necessary to compensate for the spaces in the path.
+		$Output = Invoke-Expression -Command "& '${SevenZip}' -y x ${Filename} 2>&1"
+	}
+	else
+	{
+		$Shell = New-Object -ComObject Shell.Application
+		$Archive = ${Shell}.NameSpace(${Filename})
+		$Directory = ${Shell}.Namespace("${pwd}")
+
+		foreach($FileEntry in ${Archive}.items())
+		{
+			${Directory}.CopyHere(${FileEntry})
+		}
 	}
 }
 
 $Filename = "${pwd}\zlib128.zip"
+$Url = "http://zlib.net/zlib128.zip"
+$ExtractedPath = "zlib-1.2.8"
+$DestinationPath = "..\zlib"
 
 if (Test-Path ${Filename})
 {
 	Remove-Item -Path ${Filename} -Force
 }
-DownloadFile -Url "http://zlib.net/zlib128.zip" -Destination ${Filename}
+DownloadFile -Url ${Url} -Destination ${Filename}
 
-if (Test-Path "zlib-1.2.8")
+if (Test-Path ${ExtractedPath})
 {
-	Remove-Item -Path "zlib-1.2.8" -Force -Recurse
+	Remove-Item -Path ${ExtractedPath} -Force -Recurse
 }
+ExtractZip -Filename ${Filename}
 
-# AppVeyor don't seem to support "native ZIP extraction" so we use 7z instead.
-$SevenZip = "C:\Program Files\7-Zip\7z.exe"
-
-if (Test-Path ${SevenZip})
+if (Test-Path ${DestinationPath})
 {
-	# PowerShell will raise NativeCommandError if 7z writes to stdout or stderr
-	# therefore 2>&1 is added and the output is stored in a variable.
-	# The leading & and single quotes are necessary to compensate for the spaces in the path.
-	$Output = Invoke-Expression -Command "& 'C:\Program Files\7-Zip\7z.exe' -y x ${Filename} 2>&1"
+	Remove-Item -Path ${DestinationPath} -Force -Recurse
 }
-else
-{
-	ExtractZip -Zip ${Filename} -Destination "${pwd}"
-}
-
-if (Test-Path "..\zlib")
-{
-	Remove-Item -Path "..\zlib" -Force -Recurse
-}
-Move-Item "zlib-1.2.8" "..\zlib"
+Move-Item ${ExtractedPath} ${DestinationPath}
 
