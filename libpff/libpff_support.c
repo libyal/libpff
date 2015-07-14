@@ -418,7 +418,7 @@ int libpff_check_file_signature_file_io_handle(
 			 "%s: unable to close file.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	if( memory_compare(
@@ -435,7 +435,7 @@ on_error:
 	{
 		libbfio_handle_close(
 		 file_io_handle,
-		 error );
+		 NULL );
 	}
 	return( -1 );
 }
