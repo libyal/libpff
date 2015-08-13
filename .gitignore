@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20141227
+# Version: 20150725
 
 # Generic auto-generated build files
 *~
@@ -33,6 +33,7 @@ stamp-h[1-9]
 /ABOUT-NLS
 /aclocal.m4
 /autom4te.cache/
+/build
 /compile
 /config.guess
 /config.log
@@ -41,6 +42,7 @@ stamp-h[1-9]
 /config.sub
 /configure
 /depcomp
+/dist
 /install-sh
 /libtool
 /ltmain.sh
@@ -118,7 +120,7 @@ stamp-h[1-9]
 /tests/pff_test_open_close
 /tests/pff_test_read_items
 /tests/pff_test_set_ascii_codepage
-/tests/tmp
+/tests/tmp*
 
 # Local library dependencies specific files
 /libbfio
