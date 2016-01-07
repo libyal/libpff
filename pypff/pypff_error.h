@@ -1,7 +1,7 @@
 /*
  * Error functions
  *
- * Copyright (C) 2008-2015, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -28,7 +28,7 @@
 #include "pypff_libcerror.h"
 #include "pypff_python.h"
 
-#define PYPFF_ERROR_STRING_SIZE		768
+#define PYPFF_ERROR_STRING_SIZE		2048
 
 #if defined( __cplusplus )
 extern "C" {

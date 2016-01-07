@@ -1,7 +1,7 @@
 /*
  * Python bindings for libpff (pypff)
  *
- * Copyright (C) 2008-2015, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -45,8 +45,13 @@ PyObject *pypff_check_file_signature_file_object(
            PyObject *arguments,
            PyObject *keywords );
 
+#if PY_MAJOR_VERSION >= 3
+PyMODINIT_FUNC PyInit_pypff(
+                void );
+#else
 PyMODINIT_FUNC initpypff(
                 void );
+#endif
 
 #if defined( __cplusplus )
 }
