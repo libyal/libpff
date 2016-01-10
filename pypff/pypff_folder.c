@@ -704,7 +704,7 @@ PyObject *pypff_folder_get_sub_message_by_index(
 
 		goto on_error;
 	}
-	sub_item_object = pypff_item_new(
+	sub_item_object = pypff_item_new_with_record_set(
 	                   &pypff_message_type_object,
 	                   sub_item,
 	                   pypff_item->file_object );

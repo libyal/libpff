@@ -46,6 +46,10 @@ struct pypff_item
 	 */
 	libpff_item_t *item;
 
+	/* The libpff record set
+	 */
+	libpff_item_t *record_set;
+
 	/* The file object
 	 */
 	pypff_file_t *file_object;
@@ -55,6 +59,11 @@ extern PyMethodDef pypff_item_object_methods[];
 extern PyTypeObject pypff_item_type_object;
 
 PyObject *pypff_item_new(
+           PyTypeObject *type_object,
+           libpff_item_t *item,
+           pypff_file_t *file_object );
+
+PyObject *pypff_item_new_with_record_set(
            PyTypeObject *type_object,
            libpff_item_t *item,
            pypff_file_t *file_object );

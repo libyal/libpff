@@ -722,11 +722,12 @@ PyObject *pypff_message_get_client_submit_time(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error   = NULL;
-	PyObject *date_time_object = NULL;
-	static char *function      = "pypff_message_get_client_submit_time";
-	uint64_t filetime          = 0;
-	int result                 = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *date_time_object          = NULL;
+	static char *function               = "pypff_message_get_client_submit_time";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -741,11 +742,11 @@ PyObject *pypff_message_get_client_submit_time(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_filetime(
-	          pypff_item->item,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
-	          &filetime,
+	result = libpff_record_set_get_entry_by_type(
+	          pypff_item->record_set,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME,
+	          LIBPFF_VALUE_TYPE_FILETIME,
+	          &record_entry,
 	          0,
 	          &error );
 
@@ -756,18 +757,68 @@ PyObject *pypff_message_get_client_submit_time(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve client submit time.",
+		 "%s: unable to retrieve message client submit time record entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_value_filetime(
+	          record_entry,
+	          &filetime,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve filetime value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_free(
+	          &record_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free record entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
 	}
 	date_time_object = pypff_datetime_new_from_filetime(
 	                    filetime );
 
 	return( date_time_object );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the client submit date and time as an integer
@@ -777,11 +828,12 @@ PyObject *pypff_message_get_client_submit_time_as_integer(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *integer_object = NULL;
-	static char *function    = "pypff_message_get_client_submit_time_as_integer";
-	uint64_t filetime        = 0;
-	int result               = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *integer_object            = NULL;
+	static char *function               = "pypff_message_get_client_submit_time_as_integer";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -796,11 +848,11 @@ PyObject *pypff_message_get_client_submit_time_as_integer(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_filetime(
-	          pypff_item->item,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
-	          &filetime,
+	result = libpff_record_set_get_entry_by_type(
+	          pypff_item->record_set,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME,
+	          LIBPFF_VALUE_TYPE_FILETIME,
+	          &record_entry,
 	          0,
 	          &error );
 
@@ -811,18 +863,68 @@ PyObject *pypff_message_get_client_submit_time_as_integer(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve client submit time.",
+		 "%s: unable to retrieve message client submit time record entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_value_filetime(
+	          record_entry,
+	          &filetime,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve filetime value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_free(
+	          &record_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free record entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
 	}
 	integer_object = pypff_integer_unsigned_new_from_64bit(
 	                  (uint64_t) filetime );
 
 	return( integer_object );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the delivery date and time
@@ -832,11 +934,12 @@ PyObject *pypff_message_get_delivery_time(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error   = NULL;
-	PyObject *date_time_object = NULL;
-	static char *function      = "pypff_message_get_delivery_time";
-	uint64_t filetime          = 0;
-	int result                 = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *date_time_object          = NULL;
+	static char *function               = "pypff_message_get_delivery_time";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -851,11 +954,11 @@ PyObject *pypff_message_get_delivery_time(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_filetime(
-	          pypff_item->item,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
-	          &filetime,
+	result = libpff_record_set_get_entry_by_type(
+	          pypff_item->record_set,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_DELIVERY_TIME,
+	          LIBPFF_VALUE_TYPE_FILETIME,
+	          &record_entry,
 	          0,
 	          &error );
 
@@ -866,18 +969,68 @@ PyObject *pypff_message_get_delivery_time(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve delivery time.",
+		 "%s: unable to retrieve message delivery time record entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_value_filetime(
+	          record_entry,
+	          &filetime,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve filetime value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_free(
+	          &record_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free record entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
 	}
 	date_time_object = pypff_datetime_new_from_filetime(
 	                    filetime );
 
 	return( date_time_object );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the delivery date and time as an integer
@@ -887,11 +1040,12 @@ PyObject *pypff_message_get_delivery_time_as_integer(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *integer_object = NULL;
-	static char *function    = "pypff_message_get_delivery_time_as_integer";
-	uint64_t filetime        = 0;
-	int result               = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *integer_object            = NULL;
+	static char *function               = "pypff_message_get_delivery_time_as_integer";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -906,11 +1060,11 @@ PyObject *pypff_message_get_delivery_time_as_integer(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_filetime(
-	          pypff_item->item,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
-	          &filetime,
+	result = libpff_record_set_get_entry_by_type(
+	          pypff_item->record_set,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_DELIVERY_TIME,
+	          LIBPFF_VALUE_TYPE_FILETIME,
+	          &record_entry,
 	          0,
 	          &error );
 
@@ -921,18 +1075,68 @@ PyObject *pypff_message_get_delivery_time_as_integer(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve delivery time.",
+		 "%s: unable to retrieve message delivery time record entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_value_filetime(
+	          record_entry,
+	          &filetime,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve filetime value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_free(
+	          &record_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free record entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
 	}
 	integer_object = pypff_integer_unsigned_new_from_64bit(
 	                  (uint64_t) filetime );
 
 	return( integer_object );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the creation date and time
@@ -942,11 +1146,12 @@ PyObject *pypff_message_get_creation_time(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error   = NULL;
-	PyObject *date_time_object = NULL;
-	static char *function      = "pypff_message_get_creation_time";
-	uint64_t filetime          = 0;
-	int result                 = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *date_time_object          = NULL;
+	static char *function               = "pypff_message_get_creation_time";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -961,11 +1166,11 @@ PyObject *pypff_message_get_creation_time(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_filetime(
-	          pypff_item->item,
-	          0,
+	result = libpff_record_set_get_entry_by_type(
+	          pypff_item->record_set,
 	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
-	          &filetime,
+	          LIBPFF_VALUE_TYPE_FILETIME,
+	          &record_entry,
 	          0,
 	          &error );
 
@@ -976,18 +1181,68 @@ PyObject *pypff_message_get_creation_time(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve creation time.",
+		 "%s: unable to retrieve message creation time record entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_value_filetime(
+	          record_entry,
+	          &filetime,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve filetime value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_free(
+	          &record_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free record entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
 	}
 	date_time_object = pypff_datetime_new_from_filetime(
 	                    filetime );
 
 	return( date_time_object );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the creation date and time as an integer
@@ -997,11 +1252,12 @@ PyObject *pypff_message_get_creation_time_as_integer(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *integer_object = NULL;
-	static char *function    = "pypff_message_get_creation_time_as_integer";
-	uint64_t filetime        = 0;
-	int result               = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *integer_object            = NULL;
+	static char *function               = "pypff_message_get_creation_time_as_integer";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1016,11 +1272,11 @@ PyObject *pypff_message_get_creation_time_as_integer(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_filetime(
-	          pypff_item->item,
-	          0,
+	result = libpff_record_set_get_entry_by_type(
+	          pypff_item->record_set,
 	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
-	          &filetime,
+	          LIBPFF_VALUE_TYPE_FILETIME,
+	          &record_entry,
 	          0,
 	          &error );
 
@@ -1031,18 +1287,68 @@ PyObject *pypff_message_get_creation_time_as_integer(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve creation time.",
+		 "%s: unable to retrieve message creation time record entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_value_filetime(
+	          record_entry,
+	          &filetime,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve filetime value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_free(
+	          &record_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free record entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
 	}
 	integer_object = pypff_integer_unsigned_new_from_64bit(
 	                  (uint64_t) filetime );
 
 	return( integer_object );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the modification date and time
@@ -1052,11 +1358,12 @@ PyObject *pypff_message_get_modification_time(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error   = NULL;
-	PyObject *date_time_object = NULL;
-	static char *function      = "pypff_message_get_modification_time";
-	uint64_t filetime          = 0;
-	int result                 = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *date_time_object          = NULL;
+	static char *function               = "pypff_message_get_modification_time";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1071,11 +1378,11 @@ PyObject *pypff_message_get_modification_time(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_filetime(
-	          pypff_item->item,
-	          0,
+	result = libpff_record_set_get_entry_by_type(
+	          pypff_item->record_set,
 	          LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME,
-	          &filetime,
+	          LIBPFF_VALUE_TYPE_FILETIME,
+	          &record_entry,
 	          0,
 	          &error );
 
@@ -1086,18 +1393,68 @@ PyObject *pypff_message_get_modification_time(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve modification time.",
+		 "%s: unable to retrieve message modification time record entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_value_filetime(
+	          record_entry,
+	          &filetime,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve filetime value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_free(
+	          &record_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free record entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
 	}
 	date_time_object = pypff_datetime_new_from_filetime(
 	                    filetime );
 
 	return( date_time_object );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the modification date and time as an integer
@@ -1107,11 +1464,12 @@ PyObject *pypff_message_get_modification_time_as_integer(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *integer_object = NULL;
-	static char *function    = "pypff_message_get_modification_time_as_integer";
-	uint64_t filetime        = 0;
-	int result               = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *integer_object            = NULL;
+	static char *function               = "pypff_message_get_modification_time_as_integer";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1126,11 +1484,11 @@ PyObject *pypff_message_get_modification_time_as_integer(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_filetime(
-	          pypff_item->item,
-	          0,
+	result = libpff_record_set_get_entry_by_type(
+	          pypff_item->record_set,
 	          LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME,
-	          &filetime,
+	          LIBPFF_VALUE_TYPE_FILETIME,
+	          &record_entry,
 	          0,
 	          &error );
 
@@ -1141,18 +1499,68 @@ PyObject *pypff_message_get_modification_time_as_integer(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve modification time.",
+		 "%s: unable to retrieve message modification time record entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_value_filetime(
+	          record_entry,
+	          &filetime,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve filetime value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_free(
+	          &record_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free record entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
 	}
 	integer_object = pypff_integer_unsigned_new_from_64bit(
 	                  (uint64_t) filetime );
 
 	return( integer_object );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the transport headers

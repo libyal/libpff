@@ -275,6 +275,131 @@ on_error:
 	return( NULL );
 }
 
+/* Creates a new item object with a record set
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_item_new_with_record_set(
+           PyTypeObject *type_object,
+           libpff_item_t *item,
+           pypff_file_t *file_object )
+{
+	libcerror_error_t *error        = NULL;
+	libpff_record_set_t *record_set = NULL;
+	pypff_item_t *pypff_item        = NULL;
+	static char *function           = "pypff_item_new_with_record_set";
+	int number_of_record_sets       = 0;
+	int result                      = 0;
+
+	if( item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_number_of_record_sets(
+	          item,
+	          &number_of_record_sets,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of record sets.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	if( number_of_record_sets != 1 )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item - unsupported number of record sets.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_record_set_by_index(
+	          item,
+	          0,
+	          &record_set,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve record set: 0.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	pypff_item = PyObject_New(
+	              struct pypff_item,
+	              type_object );
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to initialize item.",
+		 function );
+
+		goto on_error;
+	}
+	if( pypff_item_init(
+	     pypff_item ) != 0 )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to initialize item.",
+		 function );
+
+		goto on_error;
+	}
+	pypff_item->item        = item;
+	pypff_item->record_set  = record_set;
+	pypff_item->file_object = file_object;
+
+	Py_IncRef(
+	 (PyObject *) pypff_item->file_object );
+
+	return( (PyObject *) pypff_item );
+
+on_error:
+	if( pypff_item != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pypff_item );
+	}
+	if( record_set != NULL )
+	{
+		libpff_item_free(
+		 &record_set,
+		 NULL );
+	}
+	return( NULL );
+}
+
 /* Intializes an item object
  * Returns 0 if successful or -1 on error
  */
