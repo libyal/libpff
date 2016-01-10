@@ -1,4 +1,10 @@
-if HAVE_PYTHON
+# Note that we cannot use: AUTOMAKE_OPTIONS = subdir-objects
+# subdir-objects will compile the source files to a single version of Python.
+# Since subdir-objects is being deprecated we copy the source files instead.
+am__installdirs = "$(DESTDIR)$(pyexecdir3)"
+pyexecdir = $(pyexecdir3)
+
+if HAVE_PYTHON3
 AM_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
@@ -11,9 +17,9 @@ AM_CFLAGS = \
 	@LIBCPATH_CPPFLAGS@ \
 	@LIBBFIO_CPPFLAGS@
 
-pyexec_LTLIBRARIES = pypff.la
+am_pypff_la_rpath = -rpath $(pyexecdir3)
 
-pypff_la_SOURCES = \
+BUILT_SOURCES = \
 	pypff.c pypff.h \
 	pypff_codepage.c pypff_codepage.h \
 	pypff_datetime.c pypff_datetime.h \
@@ -37,6 +43,10 @@ pypff_la_SOURCES = \
 	pypff_record_sets.c pypff_record_sets.h \
 	pypff_unused.h
 
+pyexec_LTLIBRARIES = pypff.la
+
+nodist_pypff_la_SOURCES = $(BUILT_SOURCES)
+
 pypff_la_LIBADD = \
 	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
@@ -47,13 +57,19 @@ pypff_la_LIBADD = \
 	@LIBCPATH_LIBADD@ \
 	@LIBBFIO_LIBADD@
 
-pypff_la_CPPFLAGS = $(PYTHON_CPPFLAGS)
-pypff_la_LDFLAGS  = -module -avoid-version $(PYTHON_LDFLAGS)
+pypff_la_CPPFLAGS = $(PYTHON3_CPPFLAGS)
+pypff_la_LDFLAGS  = -module -avoid-version $(PYTHON3_LDFLAGS)
+
+$(BUILT_SOURCES):
+	/bin/cp -f $(top_srcdir)/pypff/$@ $@
 
 endif
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
+
+clean-local:
+	/bin/rm -f pypff*.[ch]
 
 distclean: clean
 	/bin/rm -f Makefile

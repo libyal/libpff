@@ -12,7 +12,7 @@ export DH_OPTIONS
 
 .PHONY: override_dh_auto_configure
 override_dh_auto_configure:
-	dh_auto_configure -- --enable-python CFLAGS="-g"
+	dh_auto_configure -- --enable-python2 --enable-python3 CFLAGS="-g"
 
 .PHONY: override_dh_auto_test
 override_dh_auto_test:
@@ -33,8 +33,11 @@ override_dh_install:
 	dh_install "debian/tmp/usr/bin/*" -p libpff-tools
 	dh_install "debian/tmp/usr/share/man/man1/*" -p libpff-tools
 	# Create the libpff-python package.
-	dh_install -X"*_d.so" "debian/tmp/usr/lib/python*/*" -p libpff-python
-	# The libpff-dbg and libpff-python-dbg packages are created by dh_strip.
+	dh_install -X"*_d.so" "debian/tmp/usr/lib/python2*/*" -p libpff-python
+	# Create the libpff-python3 package.
+	dh_install -X"*_d.so" "debian/tmp/usr/lib/python3*/*" -p libpff-python3
+	# The libpff-dbg, libpff-python-dbg and libpff-python3-dbg packages
+	# are created by dh_strip.
 	dh_install
 
 .PHONY: override_dh_installmenu
@@ -84,6 +87,7 @@ override_dh_strip:
 ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
 	dh_strip -plibpff --dbg-package=libpff-dbg
 	dh_strip -plibpff-python --dbg-package=libpff-python-dbg
+	dh_strip -plibpff-python3 --dbg-package=libpff-python3-dbg
 endif
 
 .PHONY: override_dh_shlibdeps

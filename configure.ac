@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libpff],
- [20160107],
+ [20160110],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -130,7 +130,10 @@ dnl Check if libpff java bindings (jpff) should be build
 AX_JAVA_CHECK_ENABLE
 
 dnl Check if libpff python bindings (pypff) should be build
+AX_PYTHON_CHECK_PYPREFIX
 AX_PYTHON_CHECK_ENABLE
+AX_PYTHON2_CHECK_ENABLE
+AX_PYTHON3_CHECK_ENABLE
 
 dnl Headers included in various places
 AC_CHECK_HEADERS([stdarg.h varargs.h])
@@ -228,6 +231,8 @@ AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([pfftools/Makefile])
 AC_CONFIG_FILES([jpff/Makefile])
 AC_CONFIG_FILES([pypff/Makefile])
+AC_CONFIG_FILES([pypff-python2/Makefile])
+AC_CONFIG_FILES([pypff-python3/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
@@ -244,7 +249,6 @@ AC_CONFIG_FILES([common/types.h])
 AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([dpkg/copyright])
 AC_CONFIG_FILES([libpff/libpff.rc])
-AC_CONFIG_FILES([pypff/setup.py])
 AC_CONFIG_FILES([libpff.pc])
 AC_CONFIG_FILES([libpff.spec])
 dnl Have configure write its configuration
@@ -282,6 +286,8 @@ Features:
    pfftools are build as static executables: $ac_cv_enable_static_executables
    Java (jpff) support:                      $ac_cv_enable_java
    Python (pypff) support:                   $ac_cv_enable_python
+   Python version 2 (pypff) support:         $ac_cv_enable_python2
+   Python version 3 (pypff) support:         $ac_cv_enable_python3
    Verbose output:                           $ac_cv_enable_verbose_output
    Debug output:                             $ac_cv_enable_debug_output
 ]);

@@ -113,9 +113,9 @@ stamp-h[1-9]
 /jpff/classnoinst.stamp
 /libpff/libpff.rc
 /libpff/libpff_definitions.h
+/pypff-python[23]/*.[ch]
 /pfftools/pffexport
 /pfftools/pffinfo
-/pypff/setup.py
 /tests/input
 /tests/pff_test_open_close
 /tests/pff_test_read_items

@@ -26,6 +26,8 @@ SUBDIRS = \
 	pfftools \
 	jpff \
 	pypff \
+	pypff-python2 \
+	pypff-python3 \
 	po \
 	manuals \
 	tests \
@@ -39,8 +41,10 @@ DPKG_FILES = \
 	dpkg/copyright \
 	dpkg/copyright.in \
 	dpkg/rules \
-	dpkg/libpff-dev.docs \
 	dpkg/libpff.docs \
+	dpkg/libpff-dev.docs \
+	dpkg/libpff-python.docs \
+	dpkg/libpff-python3.docs \
 	dpkg/libpff-tools.docs \
 	dpkg/source/format
 
@@ -51,6 +55,9 @@ GETTEXT_FILES = \
 PKGCONFIG_FILES = \
 	libpff.pc.in
 
+SETUP_PY_FILES = \
+	setup.py
+
 SPEC_FILES = \
 	libpff.spec \
 	libpff.spec.in
@@ -59,6 +66,7 @@ EXTRA_DIST = \
 	$(DPKG_FILES) \
 	$(GETTEXT_FILES) \
 	$(PKGCONFIG_FILES) \
+	$(SETUP_PY_FILES) \
 	$(SPEC_FILES)
 
 MAINTAINERCLEANFILES = \

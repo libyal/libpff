@@ -2,7 +2,7 @@ Source: libpff
 Section: libs
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
-Build-Depends: debhelper (>= 7), autotools-dev, zlib1g-dev, python-dev
+Build-Depends: debhelper (>= 7), autotools-dev, zlib1g-dev, python-dev, python3-dev
 Standards-Version: 3.9.5
 Homepage: https://github.com/libyal/libpff/
 
@@ -38,8 +38,8 @@ Section: python
 Architecture: any
 Depends: libpff (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Suggests: libpff-python-dbg
-Description: Python bindings for libpff
- Python bindings for libpff.
+Description: Python 2 bindings for libpff
+ Python 2 bindings for libpff.
 
 Package: libpff-python-dbg
 Section: debug
@@ -47,4 +47,19 @@ Architecture: any
 Depends: libpff-python (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libpff-python
  Debugging symbols for libpff-python.
+
+Package: libpff-python3
+Section: python
+Architecture: any
+Depends: libpff (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Suggests: libpff-python3-dbg
+Description: Python 3 bindings for libpff
+ Python 3 bindings for libpff.
+
+Package: libpff-python3-dbg
+Section: debug
+Architecture: any
+Depends: libpff-python3 (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libpff-python3
+ Debugging symbols for libpff-python3.
 
