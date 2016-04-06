@@ -740,6 +740,7 @@ PyObject *pypff_message_get_client_submit_time(
 
 		return( NULL );
 	}
+/* TODO move into a convenience function */
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_record_set_get_entry_by_type(

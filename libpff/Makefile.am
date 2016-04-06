@@ -36,6 +36,7 @@ libpff_la_SOURCES = \
 	libpff_data_block.c libpff_data_block.h \
 	libpff_debug.c libpff_debug.h \
 	libpff_definitions.h \
+	libpff_deflate.c libpff_deflate.h \
 	libpff_descriptor_data_stream.c libpff_descriptor_data_stream.h \
 	libpff_descriptors_index.c libpff_descriptors_index.h \
 	libpff_encryption.c libpff_encryption.h \

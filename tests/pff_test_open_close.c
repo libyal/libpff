@@ -20,15 +20,15 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
 #endif
 
-#include <stdio.h>
-
 #include "pff_test_libcerror.h"
 #include "pff_test_libcstring.h"
+#include "pff_test_libcsystem.h"
 #include "pff_test_libpff.h"
 
 /* Tests single open and close of a file
@@ -40,7 +40,7 @@ int pff_test_single_open_close_file(
      int expected_result )
 {
 	libcerror_error_t *error = NULL;
-	libpff_file_t *file     = NULL;
+	libpff_file_t *file      = NULL;
 	static char *function    = "pff_test_single_open_close_file";
 	int result               = 0;
 
@@ -55,7 +55,7 @@ int pff_test_single_open_close_file(
 		 "%s: unable to create file.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libpff_file_open_wide(
@@ -83,7 +83,7 @@ int pff_test_single_open_close_file(
 			 "%s: unable to close file.",
 			 function );
 
-			result = -1;
+			goto on_error;
 		}
 	}
 	if( libpff_file_free(
@@ -97,7 +97,7 @@ int pff_test_single_open_close_file(
 		 "%s: unable to free file.",
 		 function );
 
-		result = -1;
+		goto on_error;
 	}
 	result = ( expected_result == result );
 
@@ -119,16 +119,30 @@ int pff_test_single_open_close_file(
 
 	if( error != NULL )
 	{
-		if( result != 1 )
-		{
-			libcerror_error_backtrace_fprint(
-			 error,
-			 stderr );
-		}
+		libcerror_error_backtrace_fprint(
+		 error,
+		 stderr );
 		libcerror_error_free(
 		 &error );
 	}
 	return( result );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_backtrace_fprint(
+		 error,
+		 stderr );
+		libcerror_error_free(
+		 &error );
+	}
+	if( file != NULL )
+	{
+		libpff_file_free(
+		 &file,
+		 NULL);
+	}
+	return( -1 );
 }
 
 /* Tests multiple open and close of a file
@@ -140,7 +154,7 @@ int pff_test_multi_open_close_file(
      int expected_result )
 {
 	libcerror_error_t *error = NULL;
-	libpff_file_t *file     = NULL;
+	libpff_file_t *file      = NULL;
 	static char *function    = "pff_test_multi_open_close_file";
 	int result               = 0;
 
@@ -155,7 +169,7 @@ int pff_test_multi_open_close_file(
 		 "%s: unable to create file.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libpff_file_open_wide(
@@ -183,7 +197,7 @@ int pff_test_multi_open_close_file(
 			 "%s: unable to close file.",
 			 function );
 
-			result = -1;
+			goto on_error;
 		}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libpff_file_open_wide(
@@ -211,7 +225,7 @@ int pff_test_multi_open_close_file(
 				 "%s: unable to close file.",
 				 function );
 
-				result = -1;
+				goto on_error;
 			}
 		}
 	}
@@ -226,7 +240,7 @@ int pff_test_multi_open_close_file(
 		 "%s: unable to free file.",
 		 function );
 
-		result = -1;
+		goto on_error;
 	}
 	result = ( expected_result == result );
 
@@ -248,16 +262,30 @@ int pff_test_multi_open_close_file(
 
 	if( error != NULL )
 	{
-		if( result != 1 )
-		{
-			libcerror_error_backtrace_fprint(
-			 error,
-			 stderr );
-		}
+		libcerror_error_backtrace_fprint(
+		 error,
+		 stderr );
 		libcerror_error_free(
 		 &error );
 	}
 	return( result );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_backtrace_fprint(
+		 error,
+		 stderr );
+		libcerror_error_free(
+		 &error );
+	}
+	if( file != NULL )
+	{
+		libpff_file_free(
+		 &file,
+		 NULL);
+	}
+	return( -1 );
 }
 
 /* The main program
@@ -268,23 +296,53 @@ int wmain( int argc, wchar_t * const argv[] )
 int main( int argc, char * const argv[] )
 #endif
 {
-	if( argc != 2 )
+	libcstring_system_character_t *source = NULL;
+	libcstring_system_integer_t option    = 0;
+
+	while( ( option = libcsystem_getopt(
+	                   argc,
+	                   argv,
+	                   _LIBCSTRING_SYSTEM_STRING( "" ) ) ) != (libcstring_system_integer_t) -1 )
+	{
+		switch( option )
+		{
+			case (libcstring_system_integer_t) '?':
+			default:
+				fprintf(
+				 stderr,
+				 "Invalid argument: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+				 argv[ optind - 1 ] );
+
+				return( EXIT_FAILURE );
+		}
+	}
+	if( optind == argc )
 	{
 		fprintf(
 		 stderr,
-		 "Unsupported number of arguments.\n" );
+		 "Missing source file or device.\n" );
 
 		return( EXIT_FAILURE );
 	}
+	source = argv[ optind ];
+
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( PFF_TEST_OPEN_CLOSE_VERBOSE )
+	libpff_notify_set_verbose(
+	 1 );
+	libpff_notify_set_stream(
+	 stderr,
+	 NULL );
+#endif
+
 	/* Case 0: single open and close of a file using filename
 	 */
 	fprintf(
 	 stdout,
 	 "Testing single open close of: %s with access: read\t",
-	 argv[ 1 ] );
+	 source );
 
 	if( pff_test_single_open_close_file(
-	     argv[ 1 ],
+	     source,
 	     LIBPFF_OPEN_READ,
 	     1 ) != 1 )
 	{
@@ -312,10 +370,10 @@ int main( int argc, char * const argv[] )
 	fprintf(
 	 stdout,
 	 "Testing single open close of: %s with access: write\t",
-	 argv[ 1 ] );
+	 source );
 
 	if( pff_test_single_open_close_file(
-	     argv[ 1 ],
+	     source,
 	     LIBPFF_OPEN_WRITE,
 	     -1 ) != 1 )
 	{
@@ -330,10 +388,10 @@ int main( int argc, char * const argv[] )
 	fprintf(
 	 stdout,
 	 "Testing multi open close of: %s with access: read\t",
-	 argv[ 1 ] );
+	 source );
 
 	if( pff_test_multi_open_close_file(
-	     argv[ 1 ],
+	     source,
 	     LIBPFF_OPEN_READ,
 	     1 ) != 1 )
 	{

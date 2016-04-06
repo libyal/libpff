@@ -136,7 +136,7 @@ struct export_handle
 	 */
 	uint8_t print_status_information;
 
-	/* The nofication output stream
+	/* The notification output stream
 	 */
 	FILE *notify_stream;
 
