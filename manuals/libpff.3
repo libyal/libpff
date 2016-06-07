@@ -1,9 +1,9 @@
-.Dd March 16, 2015
+.Dd May  7, 2016
 .Dt libpff 3
 .Os libpff
 .Sh NAME
 .Nm libpff.h
-.Nd Library to access the Personal Folder File (PAB, PST and OST) format
+.Nd Library to access the Personal Folder File (OST, PAB and PST) format
 .Sh LIBRARY
 .Lb libpff
 .Sh SYNOPSIS
@@ -313,18 +313,6 @@ Message functions
 .Ft int
 .Fn libpff_message_get_html_body "libpff_item_t *message, uint8_t *message_body, size_t size, libpff_error_t **error"
 .Pp
-Task functions
-.Pp
-Appointment functions
-.Pp
-Address functions
-.Pp
-Contact functions
-.Pp
-Distribution list functions
-.Pp
-E-mail functions
-.Pp
 Attachment functions
 .Ft int
 .Fn libpff_attachment_get_type "libpff_item_t *attachment, int *attachment_type, libpff_error_t **error"
@@ -334,14 +322,12 @@ Attachment functions
 .Fn libpff_attachment_data_read_buffer "libpff_item_t *attachment, uint8_t *buffer, size_t buffer_size, libpff_error_t **error"
 .Ft off64_t
 .Fn libpff_attachment_data_seek_offset "libpff_item_t *attachment, off64_t offset, int whence, libpff_error_t **error"
-.Ft #endif int
+.Ft int
 .Fn libpff_attachment_get_item "libpff_item_t *attachment, libpff_item_t **attached_item, libpff_error_t **error"
 .Pp
 Available when compiled with libbfio support:
 .Ft int
 .Fn libpff_attachment_get_data_file_io_handle "libpff_item_t *attachment, libbfio_handle_t **file_io_handle, libpff_error_t **error"
-.Pp
-Recipients functions
 .Sh DESCRIPTION
 The
 .Fn libpff_get_version
@@ -353,6 +339,7 @@ For the actual return values see "libpff.h".
 None
 .Sh FILES
 None
+.Sh NOTES
 libpff allows to be compiled with wide character support (wchar_t).
 
 To compile libpff with wide character support use:

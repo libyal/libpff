@@ -42,7 +42,7 @@
 
 #include <libcpath.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBCPATH ) */
 
-#endif
+#endif /* !defined( _PFFTOOLS_LIBCPATH_H ) */
 

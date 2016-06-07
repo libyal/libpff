@@ -19,6 +19,10 @@ MSVSCPP_FILES = \
 	libfwnt/libfwnt.vcproj \
 	libpff/libpff.vcproj \
 	libuna/libuna.vcproj \
+	pff_test_get_version/pff_test_get_version.vcproj \
+	pff_test_open_close/pff_test_open_close.vcproj \
+	pff_test_read_items/pff_test_read_items.vcproj \
+	pff_test_set_ascii_codepage/pff_test_set_ascii_codepage.vcproj \
 	pffexport/pffexport.vcproj \
 	pffinfo/pffinfo.vcproj \
 	pypff/pypff.vcproj \

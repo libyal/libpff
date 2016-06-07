@@ -28,7 +28,7 @@
 #include "pypff_libcerror.h"
 #include "pypff_python.h"
 
-#define PYPFF_ERROR_STRING_SIZE		2048
+#define PYPFF_ERROR_STRING_SIZE	2048
 
 #if defined( __cplusplus )
 extern "C" {
@@ -56,5 +56,5 @@ void pypff_error_raise(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_ERROR_H ) */
 

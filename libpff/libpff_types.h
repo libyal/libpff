@@ -58,5 +58,5 @@ typedef intptr_t libpff_record_set_t;
  */
 typedef unsigned long int libpff_aligned_t;
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI ) */
 

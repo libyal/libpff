@@ -163,10 +163,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcfile\libcfile_stream.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libcfile\libcfile_support.c"
 				>
 			</File>
@@ -214,10 +210,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libcfile\libcfile_notify.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libcfile\libcfile_stream.h"
 				>
 			</File>
 			<File

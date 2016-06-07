@@ -44,7 +44,7 @@
 
 #include <libcnotify.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBCNOTIFY ) */
 
-#endif
+#endif /* !defined( _PFFTOOLS_LIBCNOTIFY_H ) */
 

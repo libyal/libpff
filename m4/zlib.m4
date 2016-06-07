@@ -1,6 +1,6 @@
 dnl Functions for zlib
 dnl
-dnl Version: 20160123
+dnl Version: 20160318
 
 dnl Function to detect if zlib is available
 AC_DEFUN([AX_ZLIB_CHECK_LIB],
@@ -125,10 +125,11 @@ AC_DEFUN([AX_ZLIB_CHECK_COMPRESS2],
    [ac_zlib_dummy=yes])
 
   AS_IF(
-   [test "x$ac_cv_lib_z_compress2" = xno],
-   [AC_MSG_FAILURE(
-    [Missing function: compress2 in library: zlib.],
-    [1])
+   [test "x$ac_cv_lib_z_compress2" = xyes],
+   [AC_DEFINE(
+    [HAVE_ZLIB_COMPRESS2],
+    [1],
+    [Define to 1 if compress2 funtion is available in zlib.])
    ])
   ])
  ])

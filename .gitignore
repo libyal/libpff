@@ -121,6 +121,7 @@ stamp-h[1-9]
 /pfftools/pffexport
 /pfftools/pffinfo
 /tests/input
+/tests/pff_test_get_version
 /tests/pff_test_open_close
 /tests/pff_test_read_items
 /tests/pff_test_set_ascii_codepage

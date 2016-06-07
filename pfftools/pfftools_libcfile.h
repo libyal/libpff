@@ -44,7 +44,7 @@
 
 #include <libcfile.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBCFILE ) */
 
-#endif
+#endif /* !defined( _PFFTOOLS_LIBCFILE_H ) */
 

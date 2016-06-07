@@ -53,11 +53,11 @@ LIBPFF_EXTERN \
 int libpff_notify_stream_close(
      libcerror_error_t **error );
 
-#endif
+#endif /* !defined( HAVE_LOCAL_LIBPFF ) */
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_NOTIFY_H ) */
 

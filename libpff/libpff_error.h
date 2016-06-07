@@ -64,11 +64,11 @@ int libpff_error_backtrace_sprint(
      char *string,
      size_t size );
 
-#endif
+#endif /* !defined( HAVE_LOCAL_LIBPFF ) */
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_INTERNAL_ERROR_H ) */
 

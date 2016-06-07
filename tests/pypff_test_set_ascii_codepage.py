@@ -18,8 +18,8 @@
 #
 # You should have received a copy of the GNU Lesser General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
-#
 
+from __future__ import print_function
 import sys
 
 import pypff
@@ -112,9 +112,9 @@ def main():
 
   return True
 
+
 if __name__ == "__main__":
   if not main():
     sys.exit(1)
   else:
     sys.exit(0)
-

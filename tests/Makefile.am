@@ -17,27 +17,25 @@ AM_CPPFLAGS = \
 
 if HAVE_PYTHON
 TESTS_PYPFF = \
-	test_pypff_set_ascii_codepage.sh \
-	test_pypff_open_close.sh
+	test_python_functions.sh \
+	test_pypff_set_ascii_codepage.sh
 endif
 
 TESTS = \
+	test_api_functions.sh \
 	test_set_ascii_codepage.sh \
-	test_open_close.sh \
 	test_read_items.sh \
 	test_pffinfo.sh \
 	test_pffexport.sh \
-	test_pffexport_recovered.sh \
 	$(TESTS_PYPFF)
 
 check_SCRIPTS = \
+	pypff_test_get_version.py \
 	pypff_test_open_close.py \
 	pypff_test_set_ascii_codepage.py \
-	test_open_close.sh \
+	test_api_functions.sh \
 	test_pffexport.sh \
-	test_pffexport_recovered.sh \
 	test_pffinfo.sh \
-	test_pypff_open_close.sh \
 	test_pypff_set_ascii_codepage.sh \
 	test_read_items.sh \
 	test_runner.sh \
@@ -47,14 +45,26 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	pff_test_get_version \
 	pff_test_open_close \
 	pff_test_read_items \
 	pff_test_set_ascii_codepage
 
+pff_test_get_version_SOURCES = \
+	pff_test_get_version.c \
+	pff_test_libcstring.h \
+	pff_test_libpff.h \
+	pff_test_unused.h
+
+pff_test_get_version_LDADD = \
+	../libpff/libpff.la \
+	@LIBCSTRING_LIBADD@
+
 pff_test_open_close_SOURCES = \
 	pff_test_libcerror.h \
-	pff_test_libpff.h \
 	pff_test_libcstring.h \
+	pff_test_libcsystem.h \
+	pff_test_libpff.h \
 	pff_test_open_close.c
 
 pff_test_open_close_LDADD = \

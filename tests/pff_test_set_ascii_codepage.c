@@ -124,7 +124,7 @@ on_error:
 	{
 		libcerror_error_backtrace_fprint(
 		 error,
-		 stdout );
+		 stderr );
 
 		libcerror_error_free(
 		 &error );

@@ -210,6 +210,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_deflate.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_descriptor_data_stream.c"
 				>
 			</File>
@@ -401,6 +405,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_definitions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_deflate.h"
 				>
 			</File>
 			<File

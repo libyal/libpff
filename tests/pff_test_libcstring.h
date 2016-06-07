@@ -45,7 +45,7 @@
 
 #include <libcstring.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBCSTRING ) */
 
-#endif
+#endif /* !defined( _PFF_TEST_LIBCSTRING_H ) */
 
