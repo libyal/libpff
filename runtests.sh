@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script that runs the tests
 #
-# Version: 20160422
+# Version: 20160816
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -112,7 +112,16 @@ run_setup_py_tests()
 	return ${EXIT_SUCCESS};
 }
 
-if ! run_configure_make_check;
+export CFLAGS="--coverage -O0";
+export LDFLAGS="--coverage";
+
+run_configure_make_check;
+RESULT=$?;
+
+export CFLAGS=;
+export LDFLAGS=;
+
+if test ${RESULT} -ne ${EXIT_SUCCESS};
 then
 	exit ${EXIT_FAILURE};
 fi
@@ -123,7 +132,10 @@ HAVE_WITH_ZLIB=$?;
 
 if test ${HAVE_WITH_ZLIB} -eq 0;
 then
-	if ! run_configure_make_check "--with-zlib=no";
+	run_configure_make_check "--with-zlib=no";
+	RESULT=$?;
+
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
 		exit ${EXIT_FAILURE};
 	fi
@@ -135,12 +147,18 @@ HAVE_WITH_OPENSSL=$?;
 
 if test ${HAVE_WITH_OPENSSL} -eq 0;
 then
-	if ! run_configure_make_check "--with-openssl=no";
+	run_configure_make_check "--with-openssl=no";
+	RESULT=$?;
+
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
 		exit ${EXIT_FAILURE};
 	fi
 
-	if ! run_configure_make_check "--enable-openssl-evp-cipher=no --enable-openssl-evp-md=no";
+	run_configure_make_check "--enable-openssl-evp-cipher=no --enable-openssl-evp-md=no";
+	RESULT=$?;
+
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
 		exit ${EXIT_FAILURE};
 	fi
@@ -160,13 +178,19 @@ then
 	then
 		export PYTHON_VERSION=2;
 
-		if ! run_configure_make_check_python "--enable-python";
+		run_configure_make_check_python "--enable-python";
+		RESULT=$?;
+
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
 			exit ${EXIT_FAILURE};
 		fi
 		export PYTHON_VERSION=;
 
-		if ! run_configure_make "--enable-python2";
+		run_configure_make "--enable-python2";
+		RESULT=$?;
+
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
 			exit ${EXIT_FAILURE};
 		fi
@@ -185,13 +209,19 @@ then
 	then
 		export PYTHON_VERSION=3;
 
-		if ! run_configure_make_check_python "--enable-python";
+		run_configure_make_check_python "--enable-python";
+		RESULT=$?;
+
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
 			exit ${EXIT_FAILURE};
 		fi
 		export PYTHON_VERSION=;
 
-		if ! run_configure_make "--enable-python3";
+		run_configure_make "--enable-python3";
+		RESULT=$?;
+
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
 			exit ${EXIT_FAILURE};
 		fi
@@ -205,7 +235,10 @@ then
 	# Test with the default Python version.
 	if test -z ${PYTHON2} && test -z ${PYTHON3};
 	then
-		if ! run_configure_make_check_python "--enable-python";
+		run_configure_make_check_python "--enable-python";
+		RESULT=$?;
+
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
 			exit ${EXIT_FAILURE};
 		fi
