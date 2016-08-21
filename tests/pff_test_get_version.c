@@ -20,7 +20,6 @@
  */
 
 #include <common.h>
-#include <file_stream.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
@@ -28,6 +27,7 @@
 
 #include "pff_test_libcstring.h"
 #include "pff_test_libpff.h"
+#include "pff_test_macros.h"
 #include "pff_test_unused.h"
 
 /* Tests retrieving the library version
@@ -46,11 +46,15 @@ int pff_test_get_version(
 	          LIBPFF_VERSION_STRING,
 	          9 );
 
-	if( result != 0 )
-	{
-		return( 0 );
-	}
+	PFF_TEST_ASSERT_EQUAL(
+	 "result",
+	 result,
+	 0 );
+
 	return( 1 );
+
+on_error:
+	return( 0 );
 }
 
 /* The main program
@@ -68,10 +72,13 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
-	if( pff_test_get_version() != 1 )
-	{
-		return( EXIT_FAILURE );
-	}
+	PFF_TEST_RUN(
+	 "libpff_get_version",
+	 pff_test_get_version() )
+
 	return( EXIT_SUCCESS );
+
+on_error:
+	return( EXIT_FAILURE );
 }
 

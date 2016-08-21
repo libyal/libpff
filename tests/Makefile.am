@@ -54,6 +54,7 @@ pff_test_get_version_SOURCES = \
 	pff_test_get_version.c \
 	pff_test_libcstring.h \
 	pff_test_libpff.h \
+	pff_test_macros.h \
 	pff_test_unused.h
 
 pff_test_get_version_LDADD = \
