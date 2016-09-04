@@ -46,7 +46,7 @@ int pff_test_get_version(
 	          LIBPFF_VERSION_STRING,
 	          9 );
 
-	PFF_TEST_ASSERT_EQUAL(
+	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
 	 0 );

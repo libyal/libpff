@@ -1,16 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 # Script that runs the tests
 #
-# Version: 20160816
+# Version: 20160824
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 
 run_configure_make()
 {
-	local CONFIGURE_OPTIONS=$1;
+	local CONFIGURE_OPTIONS=$@;
 
-	./configure ${CONFIGURE_OPTIONS};
+	./configure ${CONFIGURE_OPTIONS[@]};
 	RESULT=$?;
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -44,7 +44,7 @@ run_configure_make()
 
 run_configure_make_check()
 {
-	run_configure_make $1;
+	run_configure_make $@;
 	RESULT=$?;
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -69,9 +69,25 @@ run_configure_make_check()
 	return ${EXIT_SUCCESS};
 }
 
+run_configure_make_check_with_coverage()
+{
+	# Disable optimization so we can hook malloc and realloc.
+	export CFLAGS="--coverage -O0";
+	export LDFLAGS="--coverage";
+
+	# Disable creating a shared library so we can hook memset.
+	run_configure_make_check "--enable-shared=no --enable-wide-character-type";
+	RESULT=$?;
+
+	export CFLAGS=;
+	export LDFLAGS=;
+
+	return ${RESULT};
+}
+
 run_configure_make_check_python()
 {
-	run_configure_make $1;
+	run_configure_make $@;
 	RESULT=$?;
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -112,14 +128,8 @@ run_setup_py_tests()
 	return ${EXIT_SUCCESS};
 }
 
-export CFLAGS="--coverage -O0";
-export LDFLAGS="--coverage";
-
 run_configure_make_check;
 RESULT=$?;
-
-export CFLAGS=;
-export LDFLAGS=;
 
 if test ${RESULT} -ne ${EXIT_SUCCESS};
 then
@@ -250,6 +260,14 @@ then
 			exit ${EXIT_FAILURE};
 		fi
 	fi
+fi
+
+run_configure_make_check_with_coverage;
+RESULT=$?;
+
+if test ${RESULT} -ne ${EXIT_SUCCESS};
+then
+	exit ${EXIT_FAILURE};
 fi
 
 exit ${EXIT_SUCCESS};

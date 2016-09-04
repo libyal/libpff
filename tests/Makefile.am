@@ -45,10 +45,22 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	pff_test_error \
 	pff_test_get_version \
 	pff_test_open_close \
 	pff_test_read_items \
 	pff_test_set_ascii_codepage
+
+pff_test_error_SOURCES = \
+	pff_test_error.c \
+	pff_test_libcstring.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_error_LDADD = \
+	../libpff/libpff.la \
+	@LIBCSTRING_LIBADD@
 
 pff_test_get_version_SOURCES = \
 	pff_test_get_version.c \
