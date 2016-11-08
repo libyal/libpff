@@ -21,7 +21,9 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "libpff_codepage.h"
 #include "libpff_debug.h"
@@ -37,7 +39,6 @@
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libcstring.h"
 #include "libpff_libfdata.h"
 #include "libpff_name_to_id_map.h"
 #include "libpff_offsets_index.h"
@@ -245,6 +246,7 @@ int libpff_file_open(
 	libbfio_handle_t *file_io_handle      = NULL;
 	libpff_internal_file_t *internal_file = NULL;
 	static char *function                 = "libpff_file_open";
+	size_t filename_length                = 0;
 
 	if( file == NULL )
 	{
@@ -299,11 +301,13 @@ int libpff_file_open(
 		goto on_error;
 	}
 #endif
+	filename_length = narrow_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name(
 	     file_io_handle,
 	     filename,
-	     libcstring_narrow_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
                 libcerror_error_set(
@@ -359,6 +363,7 @@ int libpff_file_open_wide(
 	libbfio_handle_t *file_io_handle      = NULL;
 	libpff_internal_file_t *internal_file = NULL;
 	static char *function                 = "libpff_file_open_wide";
+	size_t filename_length                = 0;
 
 	if( file == NULL )
 	{
@@ -413,11 +418,13 @@ int libpff_file_open_wide(
 		goto on_error;
 	}
 #endif
+	filename_length = wide_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name_wide(
 	     file_io_handle,
 	     filename,
-	     libcstring_wide_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
                 libcerror_error_set(

@@ -35,21 +35,21 @@
  */
 #if defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI )
 typedef struct libpff_file {}			libpff_file_t;
-typedef struct libpff_name_to_id_map_entry{}	libpff_name_to_id_map_entry_t;
 typedef struct libpff_item {}			libpff_item_t;
 typedef struct libpff_multi_value {}		libpff_multi_value_t;
+typedef struct libpff_name_to_id_map_entry {}	libpff_name_to_id_map_entry_t;
 typedef struct libpff_record_entry {}		libpff_record_entry_t;
 typedef struct libpff_record_set {}		libpff_record_set_t;
 
 #else
 typedef intptr_t libpff_file_t;
-typedef intptr_t libpff_name_to_id_map_entry_t;
 typedef intptr_t libpff_item_t;
 typedef intptr_t libpff_multi_value_t;
+typedef intptr_t libpff_name_to_id_map_entry_t;
 typedef intptr_t libpff_record_entry_t;
 typedef intptr_t libpff_record_set_t;
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI ) */
 
 #endif /* defined( HAVE_LOCAL_LIBPFF ) */
 
@@ -58,5 +58,5 @@ typedef intptr_t libpff_record_set_t;
  */
 typedef unsigned long int libpff_aligned_t;
 
-#endif /* defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI ) */
+#endif /* !defined( _LIBPFF_INTERNAL_TYPES_H ) */
 

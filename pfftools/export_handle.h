@@ -28,7 +28,6 @@
 #include "item_file.h"
 #include "log_handle.h"
 #include "pfftools_libcerror.h"
-#include "pfftools_libcstring.h"
 #include "pfftools_libfdatetime.h"
 #include "pfftools_libfguid.h"
 #include "pfftools_libpff.h"
@@ -77,7 +76,7 @@ struct export_handle
 
 	/* The target path
 	 */
-	libcstring_system_character_t *target_path;
+	system_character_t *target_path;
 
 	/* The target path size
 	 */
@@ -85,7 +84,7 @@ struct export_handle
 
 	/* The items export path
 	 */
-	libcstring_system_character_t *items_export_path;
+	system_character_t *items_export_path;
 
 	/* The items export path size
 	 */
@@ -93,7 +92,7 @@ struct export_handle
 
 	/* The orphans export path
 	 */
-	libcstring_system_character_t *orphans_export_path;
+	system_character_t *orphans_export_path;
 
 	/* The orphans export path size
 	 */
@@ -101,7 +100,7 @@ struct export_handle
 
 	/* The recovered export path
 	 */
-	libcstring_system_character_t *recovered_export_path;
+	system_character_t *recovered_export_path;
 
 	/* The recovered export path size
 	 */
@@ -159,31 +158,31 @@ int export_handle_signal_abort(
 
 int export_handle_set_export_mode(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error );
 
 int export_handle_set_preferred_export_format(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error );
 
 int export_handle_set_ascii_codepage(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error );
 
 int export_handle_set_target_path(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *target_path,
+     const system_character_t *target_path,
      libcerror_error_t **error );
 
 int export_handle_set_export_path(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *base_path,
+     const system_character_t *base_path,
      size_t base_path_length,
-     const libcstring_system_character_t *suffix,
+     const system_character_t *suffix,
      size_t suffix_length,
-     libcstring_system_character_t **export_path,
+     system_character_t **export_path,
      size_t *export_path_size,
      libcerror_error_t **error );
 
@@ -204,20 +203,20 @@ int export_handle_create_recovered_export_path(
 int export_handle_create_default_item_directory(
      export_handle_t *export_handle,
      int item_index,
-     const libcstring_system_character_t *item_prefix,
+     const system_character_t *item_prefix,
      size_t item_prefix_length,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
-     libcstring_system_character_t **item_directory_path,
+     system_character_t **item_directory_path,
      size_t *item_directory_path_size,
      log_handle_t *log_handle,
      libcerror_error_t **error );
 
 int export_handle_create_item_file(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *path,
+     const system_character_t *path,
      size_t path_length,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      size_t filename_length,
      item_file_t **item_file,
      libcerror_error_t **error );
@@ -227,7 +226,7 @@ int export_handle_export_item(
      libpff_item_t *item,
      int item_index,
      int number_of_items,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -250,9 +249,9 @@ int export_handle_export_record_entry_to_item_file(
 int export_handle_export_item_values(
      export_handle_t *export_handle,
      libpff_item_t *item,
-     const libcstring_system_character_t *item_values_filename,
+     const system_character_t *item_values_filename,
      size_t item_values_filename_length,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -260,7 +259,7 @@ int export_handle_export_item_values(
 int export_handle_export_sub_items(
      export_handle_t *export_handle,
      libpff_item_t *item,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -270,7 +269,7 @@ int export_handle_export_sub_items(
 int export_handle_export_message_header(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -278,42 +277,42 @@ int export_handle_export_message_header(
 int export_handle_export_message_flags_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error );
 
 int export_handle_export_message_importance_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error );
 
 int export_handle_export_message_priority_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error );
 
 int export_handle_export_message_sensitivity_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error );
 
 int export_handle_export_message_status_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error );
 
 int export_handle_export_message_subject_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error );
 
@@ -326,7 +325,7 @@ int export_handle_export_message_header_to_item_file(
 int export_handle_export_message_body(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -335,7 +334,7 @@ int export_handle_export_message_body_html(
      export_handle_t *export_handle,
      libpff_item_t *message,
      size_t message_html_body_size,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -351,7 +350,7 @@ int export_handle_export_message_body_rtf(
      export_handle_t *export_handle,
      libpff_item_t *message,
      size_t message_rtf_body_size,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -367,7 +366,7 @@ int export_handle_export_message_body_plain_text(
      export_handle_t *export_handle,
      libpff_item_t *message,
      size_t plain_text_body_size,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -382,7 +381,7 @@ int export_handle_export_message_body_plain_text_to_item_file(
 int export_handle_export_message_conversation_index(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -396,7 +395,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 int export_handle_export_message_transport_headers(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -411,7 +410,7 @@ int export_handle_export_message_transport_headers_to_item_file(
 int export_handle_export_attachments(
      export_handle_t *export_handle,
      libpff_item_t *item,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -421,7 +420,7 @@ int export_handle_export_attachment(
      libpff_item_t *attachment,
      int attachment_index,
      int number_of_attachments,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -431,7 +430,7 @@ int export_handle_export_attachment_data(
      libpff_item_t *attachment,
      int attachment_index,
      int number_of_attachments,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -440,7 +439,7 @@ int export_handle_export_attachment_item(
      export_handle_t *export_handle,
      libpff_item_t *attachment,
      int attachment_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -448,7 +447,7 @@ int export_handle_export_attachment_item(
 int export_handle_export_recipients(
      export_handle_t *export_handle,
      libpff_item_t *item,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -457,7 +456,7 @@ int export_handle_export_recipient_type_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *recipients,
      int recipient_index,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error );
 
@@ -475,7 +474,7 @@ int export_handle_export_activity(
      export_handle_t *export_handle,
      libpff_item_t *activity,
      int activity_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -484,7 +483,7 @@ int export_handle_export_appointment(
      export_handle_t *export_handle,
      libpff_item_t *appointment,
      int appointment_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -493,7 +492,7 @@ int export_handle_export_contact(
      export_handle_t *export_handle,
      libpff_item_t *contact,
      int contact_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -502,7 +501,7 @@ int export_handle_export_distribution_list(
      export_handle_t *export_handle,
      libpff_item_t *distribution_list,
      int distribution_list_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -511,7 +510,7 @@ int export_handle_export_document(
      export_handle_t *export_handle,
      libpff_item_t *document,
      int document_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -520,7 +519,7 @@ int export_handle_export_email(
      export_handle_t *export_handle,
      libpff_item_t *email,
      int email_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -529,7 +528,7 @@ int export_handle_export_email_ftk(
      export_handle_t *export_handle,
      libpff_item_t *email,
      size_t email_html_body_size,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -538,7 +537,7 @@ int export_handle_export_meeting(
      export_handle_t *export_handle,
      libpff_item_t *meeting,
      int meeting_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -547,7 +546,7 @@ int export_handle_export_note(
      export_handle_t *export_handle,
      libpff_item_t *note,
      int note_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -556,7 +555,7 @@ int export_handle_export_rss_feed(
      export_handle_t *export_handle,
      libpff_item_t *rss_feed,
      int rss_feed_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -565,7 +564,7 @@ int export_handle_export_task(
      export_handle_t *export_handle,
      libpff_item_t *task,
      int task_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -576,7 +575,7 @@ int export_handle_export_folder(
      export_handle_t *export_handle,
      libpff_item_t *folder,
      int folder_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -584,7 +583,7 @@ int export_handle_export_folder(
 int export_handle_export_sub_folders(
      export_handle_t *export_handle,
      libpff_item_t *folder,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -592,7 +591,7 @@ int export_handle_export_sub_folders(
 int export_handle_export_sub_messages(
      export_handle_t *export_handle,
      libpff_item_t *folder,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -607,7 +606,7 @@ int export_handle_export_unknowns(
 int export_handle_export_items(
      export_handle_t *export_handle,
      libpff_file_t *file,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -615,7 +614,7 @@ int export_handle_export_items(
 int export_handle_export_orphan_items(
      export_handle_t *export_handle,
      libpff_file_t *file,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -623,7 +622,7 @@ int export_handle_export_orphan_items(
 int export_handle_export_recovered_items(
      export_handle_t *export_handle,
      libpff_file_t *file,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );

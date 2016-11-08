@@ -25,12 +25,11 @@
 /* The libpff type support features
  */
 #if defined( WINAPI ) || @HAVE_WIDE_CHARACTER_TYPE@
-#define LIBPFF_HAVE_WIDE_CHARACTER_TYPE		1
+#define LIBPFF_HAVE_WIDE_CHARACTER_TYPE	1
+#endif
 
-/* Old definition kept for compatibility (for now)
- */
-#define LIBPFF_WIDE_CHARACTER_TYPE		1
-
+#if defined( WINAPI ) || @HAVE_MULTI_THREAD_SUPPORT@
+#define LIBPFF_HAVE_MULTI_THREAD_SUPPORT	1
 #endif
 
 #if defined( HAVE_LIBBFIO ) || ( !defined( WINAPI ) && @HAVE_LIBBFIO@ )
@@ -47,5 +46,5 @@
 #endif
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_FEATURES_H ) */
 

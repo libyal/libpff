@@ -30,7 +30,6 @@
 #include "pypff_integer.h"
 #include "pypff_item.h"
 #include "pypff_libcerror.h"
-#include "pypff_libcstring.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
 #include "pypff_record_entries.h"

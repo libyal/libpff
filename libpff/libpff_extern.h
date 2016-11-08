@@ -38,10 +38,9 @@
 #include <libpff/extern.h>
 
 #else
-
-#define LIBPFF_EXTERN  extern
-
-#endif
+#define LIBPFF_EXTERN	extern
 
 #endif
+
+#endif /* !defined( _LIBPFF_INTERNAL_EXTERN_H ) */
 

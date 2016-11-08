@@ -22,7 +22,10 @@
 #include <common.h>
 #include <byte_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "libpff_codepage.h"
 #include "libpff_debug.h"
@@ -860,7 +863,7 @@ int libpff_name_to_id_map_entry_read(
 			{
 				if( internal_name_to_id_map_entry->is_ascii_string == 0 )
 				{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					result = libuna_utf16_string_size_from_utf16_stream(
 						  internal_name_to_id_map_entry->string_value,
 						  internal_name_to_id_map_entry->value_size,
@@ -878,7 +881,7 @@ int libpff_name_to_id_map_entry_read(
 				}
 				else
 				{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					result = libuna_utf8_string_size_from_byte_stream(
 						  internal_name_to_id_map_entry->string_value,
 						  internal_name_to_id_map_entry->value_size,
@@ -905,7 +908,7 @@ int libpff_name_to_id_map_entry_read(
 
 					goto on_error;
 				}
-				internal_name_to_id_map_entry->debug_string = libcstring_system_string_allocate(
+				internal_name_to_id_map_entry->debug_string = system_string_allocate(
 				                                               internal_name_to_id_map_entry->debug_string_size );
 
 				if( internal_name_to_id_map_entry->debug_string == NULL )
@@ -921,7 +924,7 @@ int libpff_name_to_id_map_entry_read(
 				}
 				if( internal_name_to_id_map_entry->is_ascii_string == 0 )
 				{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					result = libuna_utf16_string_copy_from_utf16_stream(
 						  (libuna_utf16_character_t *) internal_name_to_id_map_entry->debug_string,
 						  internal_name_to_id_map_entry->debug_string_size,
@@ -941,7 +944,7 @@ int libpff_name_to_id_map_entry_read(
 				}
 				else
 				{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					result = libuna_utf16_string_copy_from_byte_stream(
 						  (libuna_utf16_character_t *) internal_name_to_id_map_entry->debug_string,
 						  internal_name_to_id_map_entry->debug_string_size,
@@ -971,7 +974,7 @@ int libpff_name_to_id_map_entry_read(
 					goto on_error;
 				}
 				libcnotify_printf(
-				 "%s: entry: %03d name to id map entry string\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
+				 "%s: entry: %03d name to id map entry string\t: %" PRIs_SYSTEM "\n",
 				 function,
 				 name_to_id_map_entry_index,
 				 internal_name_to_id_map_entry->debug_string );

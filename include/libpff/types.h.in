@@ -187,14 +187,14 @@ typedef int64_t off64_t;
  */
 #if !defined( __USE_UNIX98 )
 #define __USE_UNIX98
-#define LIBCSTRING_DEFINITION_UNIX98
+#define LIBPFF_DEFINITION_UNIX98
 #endif
 
 #include <wchar.h>
 
-#if defined( LIBCSTRING_DEFINITION_UNIX98 )
+#if defined( LIBPFF_DEFINITION_UNIX98 )
 #undef __USE_UNIX98
-#undef LIBCSTRING_DEFINITION_UNIX98
+#undef LIBPFF_DEFINITION_UNIX98
 #endif
 
 #endif
@@ -202,9 +202,9 @@ typedef int64_t off64_t;
 /* The following type definitions hide internal data structures
  */
 typedef intptr_t libpff_file_t;
-typedef intptr_t libpff_name_to_id_map_entry_t;
 typedef intptr_t libpff_item_t;
 typedef intptr_t libpff_multi_value_t;
+typedef intptr_t libpff_name_to_id_map_entry_t;
 typedef intptr_t libpff_record_entry_t;
 typedef intptr_t libpff_record_set_t;
 
@@ -212,5 +212,5 @@ typedef intptr_t libpff_record_set_t;
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_TYPES_H ) */
 

@@ -1,5 +1,5 @@
 /*
- * The internal libcstring header
+ * Library name_to_id_map_entry type testing program
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,33 +19,38 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PFFTOOLS_LIBCSTRING_H )
-#define _PFFTOOLS_LIBCSTRING_H
-
 #include <common.h>
+#include <file_stream.h>
+#include <types.h>
 
-/* Define HAVE_LOCAL_LIBCSTRING for local use of libcstring
- */
-#if defined( HAVE_LOCAL_LIBCSTRING )
-
-#include <libcstring_definitions.h>
-#include <libcstring_narrow_string.h>
-#include <libcstring_system_string.h>
-#include <libcstring_types.h>
-#include <libcstring_wide_string.h>
-
-#else
-
-/* If libtool DLL support is enabled set LIBCSTRING_DLL_IMPORT
- * before including libcstring.h
- */
-#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
-#define LIBCSTRING_DLL_IMPORT
+#if defined( HAVE_STDLIB_H ) || defined( WINAPI )
+#include <stdlib.h>
 #endif
 
-#include <libcstring.h>
+#include "pff_test_libcerror.h"
+#include "pff_test_libpff.h"
+#include "pff_test_macros.h"
+#include "pff_test_memory.h"
+#include "pff_test_unused.h"
 
-#endif /* defined( HAVE_LOCAL_LIBCSTRING ) */
+/* The main program
+ */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+int wmain(
+     int argc PFF_TEST_ATTRIBUTE_UNUSED,
+     wchar_t * const argv[] PFF_TEST_ATTRIBUTE_UNUSED )
+#else
+int main(
+     int argc PFF_TEST_ATTRIBUTE_UNUSED,
+     char * const argv[] PFF_TEST_ATTRIBUTE_UNUSED )
+#endif
+{
+	PFF_TEST_UNREFERENCED_PARAMETER( argc )
+	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
-#endif /* !defined( _PFFTOOLS_LIBCSTRING_H ) */
+	return( EXIT_SUCCESS );
+
+on_error:
+	return( EXIT_FAILURE );
+}
 

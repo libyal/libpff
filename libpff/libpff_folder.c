@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #include "libpff_debug.h"
@@ -35,7 +36,6 @@
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libcstring.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_libfmapi.h"
@@ -146,7 +146,7 @@ int libpff_folder_get_type(
 	}
 	if( container_class_string_size > 0 )
 	{
-		container_class_string = libcstring_narrow_string_allocate(
+		container_class_string = narrow_string_allocate(
 		                          container_class_string_size );
 
 		if( container_class_string == NULL )
@@ -177,14 +177,14 @@ int libpff_folder_get_type(
 		}
 		if( container_class_string_size == 9 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     container_class_string,
 			     "IPF.Note",
 			     8 ) == 0 )
 			{
 				folder_type = LIBPFF_ITEM_TYPE_EMAIL;
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 				  container_class_string,
 				  "IPF.Task",
 				  8 ) == 0 )
@@ -194,14 +194,14 @@ int libpff_folder_get_type(
 		}
 		else if( container_class_string_size == 12 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     container_class_string,
 			     "IPF.Contact",
 			     11 ) == 0 )
 			{
 				folder_type = LIBPFF_ITEM_TYPE_CONTACT;
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 				  container_class_string,
 				  "IPF.Journal",
 				  11 ) == 0 )
@@ -211,14 +211,14 @@ int libpff_folder_get_type(
 		}
 		else if( container_class_string_size == 16 )
 		{
-			if( libcstring_narrow_string_compare(
+			if( narrow_string_compare(
 			     container_class_string,
 			     "IPF.Appointment",
 			     15 ) == 0 )
 			{
 				folder_type = LIBPFF_ITEM_TYPE_APPOINTMENT;
 			}
-			else if( libcstring_narrow_string_compare(
+			else if( narrow_string_compare(
 				  container_class_string,
 				  "IPF.StickyNote",
 				  15 ) == 0 )

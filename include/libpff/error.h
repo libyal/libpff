@@ -39,7 +39,7 @@ enum LIBPFF_ERROR_DOMAINS
 	LIBPFF_ERROR_DOMAIN_INPUT			= (int) 'i',
 	LIBPFF_ERROR_DOMAIN_MEMORY			= (int) 'm',
 	LIBPFF_ERROR_DOMAIN_OUTPUT			= (int) 'o',
-	LIBPFF_ERROR_DOMAIN_RUNTIME			= (int) 'r',
+	LIBPFF_ERROR_DOMAIN_RUNTIME			= (int) 'r'
 };
 
 /* The argument error codes
@@ -208,6 +208,17 @@ enum LIBPFF_MEMORY_ERROR
 	LIBPFF_MEMORY_ERROR_SET_FAILED			= 3
 };
 
+/* The output error codes
+ */
+enum LIBPFF_OUTPUT_ERROR
+{
+	LIBPFF_OUTPUT_ERROR_GENERIC			= 0,
+
+	/* There is insuficient space to write the output
+	 */
+	LIBPFF_OUTPUT_ERROR_INSUFFICIENT_SPACE		= 1
+};
+
 /* The runtime error codes
  * to signify errors regarding runtime processing
  */
@@ -276,16 +287,5 @@ enum LIBPFF_RUNTIME_ERROR
 	LIBPFF_RUNTIME_ERROR_ABORT_REQUESTED		= 15
 };
 
-/* The output error codes
- */
-enum LIBPFF_OUTPUT_ERROR
-{
-	LIBPFF_OUTPUT_ERROR_GENERIC			= 0,
-
-	/* There is insuficient space to write the output
-	 */
-	LIBPFF_OUTPUT_ERROR_INSUFFICIENT_SPACE		= 1
-};
-
-#endif
+#endif /* !defined( _LIBPFF_ERROR_H ) */
 

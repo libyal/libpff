@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #if defined( HAVE_STDARG_H ) || defined( WINAPI )
@@ -33,7 +34,6 @@
 
 #include "pypff_error.h"
 #include "pypff_libcerror.h"
-#include "pypff_libcstring.h"
 #include "pypff_python.h"
 
 #if defined( HAVE_STDARG_H ) || defined( WINAPI )
@@ -113,7 +113,7 @@ void VARARGS(
 
 		return;
 	}
-	error_string_length = libcstring_narrow_string_length(
+	error_string_length = narrow_string_length(
 	                       error_string );
 
 	if( ( error_string_length >= 1 )
@@ -253,7 +253,7 @@ void VARARGS(
 
 		return;
 	}
-	error_string_length = libcstring_narrow_string_length(
+	error_string_length = narrow_string_length(
 	                       error_string );
 
 	if( ( error_string_length >= 1 )

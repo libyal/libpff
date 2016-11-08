@@ -22,6 +22,7 @@
 #include <common.h>
 #include <byte_stream.h>
 #include <memory.h>
+#include <system_string.h>
 #include <types.h>
 
 #include "libpff_column_definition.h"
@@ -2892,7 +2893,7 @@ int libpff_table_read_record_entries(
 	int record_entry_index                              = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libcstring_system_character_t guid_string[ 48 ];
+	system_character_t guid_string[ 48 ];
 
 	libfguid_identifier_t *guid                         = NULL;
 	uint64_t record_entry_identifier                    = 0;
@@ -3113,7 +3114,7 @@ int libpff_table_read_record_entries(
 
 						goto on_error;
 					}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					result = libfguid_identifier_copy_to_utf16_string(
 						  guid,
 						  (uint16_t *) guid_string,
@@ -3153,7 +3154,7 @@ int libpff_table_read_record_entries(
 						goto on_error;
 					}
 					libcnotify_printf(
-					 "%s: record entry: %03d at level: %" PRIu8 " identifier\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "s\n",
+					 "%s: record entry: %03d at level: %" PRIu8 " identifier\t\t\t: %" PRIs_SYSTEM "s\n",
 					 function,
 					 record_entry_index,
 					 record_entries_level,
@@ -5184,7 +5185,7 @@ int libpff_table_read_6c_record_entries(
 	int record_entry_index                              = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libcstring_system_character_t guid_string[ 48 ];
+	system_character_t guid_string[ 48 ];
 
 	libfguid_identifier_t *guid                         = NULL;
 	int result                                          = 0;
@@ -5519,7 +5520,7 @@ int libpff_table_read_6c_record_entries(
 
 						goto on_error;
 					}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					result = libfguid_identifier_copy_to_utf16_string(
 						  guid,
 						  (uint16_t *) guid_string,
@@ -5546,7 +5547,7 @@ int libpff_table_read_6c_record_entries(
 						goto on_error;
 					}
 					libcnotify_printf(
-					 "%s: table set: %03d entry: %03d record entry guid\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
+					 "%s: table set: %03d entry: %03d record entry guid\t\t\t: %" PRIs_SYSTEM "\n",
 					 function,
 					 0,
 					 record_entry_index,
@@ -5568,7 +5569,7 @@ int libpff_table_read_6c_record_entries(
 
 						goto on_error;
 					}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					result = libfguid_identifier_copy_to_utf16_string(
 						  guid,
 						  (uint16_t *) guid_string,
@@ -5608,7 +5609,7 @@ int libpff_table_read_6c_record_entries(
 						goto on_error;
 					}
 					libcnotify_printf(
-					 "%s: table set: %03d entry: %03d record entry value guid\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
+					 "%s: table set: %03d entry: %03d record entry value guid\t\t: %" PRIs_SYSTEM "\n",
 					 function,
 					 0,
 					 record_entry_index,
@@ -6229,7 +6230,7 @@ int libpff_table_read_9c_record_entries(
 	int record_entry_index                              = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libcstring_system_character_t guid_string[ 48 ];
+	system_character_t guid_string[ 48 ];
 
 	libfguid_identifier_t *guid                         = NULL;
 	uint32_t value_32bit                                = 0;
@@ -6495,7 +6496,7 @@ int libpff_table_read_9c_record_entries(
 
 						goto on_error;
 					}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					result = libfguid_identifier_copy_to_utf16_string(
 						  guid,
 						  (uint16_t *) guid_string,
@@ -6535,7 +6536,7 @@ int libpff_table_read_9c_record_entries(
 						goto on_error;
 					}
 					libcnotify_printf(
-					 "%s: table set: %03d entry: %03d record entry guid\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
+					 "%s: table set: %03d entry: %03d record entry guid\t\t\t: %" PRIs_SYSTEM "\n",
 					 function,
 					 0,
 					 record_entry_index,

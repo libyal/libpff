@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20160507
+# Version: 20161030
 
 # Generic auto-generated build files
 *~
@@ -57,6 +57,7 @@ stamp-h[1-9]
 /test-driver
 /ylwrap
 /m4/codeset.m4
+/m4/extern-inline.m4
 /m4/fcntl-o.m4
 /m4/gettext.m4
 /m4/glibc2.m4
@@ -125,10 +126,15 @@ stamp-h[1-9]
 /pfftools/pffinfo
 /tests/input
 /tests/pff_test_error
-/tests/pff_test_get_version
+/tests/pff_test_file
+/tests/pff_test_item
+/tests/pff_test_multi_value
+/tests/pff_test_name_to_id_map_entry
 /tests/pff_test_open_close
 /tests/pff_test_read_items
-/tests/pff_test_set_ascii_codepage
+/tests/pff_test_record_entry
+/tests/pff_test_record_set
+/tests/pff_test_support
 /tests/tmp*
 
 # Local library dependencies specific files
@@ -140,7 +146,6 @@ stamp-h[1-9]
 /libcnotify
 /libcpath
 /libcsplit
-/libcstring
 /libcsystem
 /libcthreads
 /libfcache

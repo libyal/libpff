@@ -28,7 +28,6 @@
 
 #include "pfftools_libcerror.h"
 #include "pfftools_libcfile.h"
-#include "pfftools_libcstring.h"
 #include "pfftools_libfdatetime.h"
 #include "pfftools_libfguid.h"
 #include "pfftools_libpff.h"
@@ -62,7 +61,7 @@ int item_file_free(
 
 int item_file_open(
      item_file_t *item_file,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error );
 
 int item_file_close(
@@ -98,7 +97,7 @@ int item_file_write_floating_point(
 
 int item_file_write_string(
      item_file_t *item_file,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      size_t string_length,
      libcerror_error_t **error );
 
@@ -118,31 +117,31 @@ int item_file_write_guid(
 
 int item_file_write_value_description(
      item_file_t *item_file,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      libcerror_error_t **error );
 
 int item_file_write_value_integer_32bit_as_decimal(
      item_file_t *item_file,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      uint32_t value_32bit,
      libcerror_error_t **error );
 
 int item_file_write_value_integer_32bit_as_hexadecimal(
      item_file_t *item_file,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      uint32_t value_32bit,
      libcerror_error_t **error );
 
 int item_file_write_value_string(
      item_file_t *item_file,
-     const libcstring_system_character_t *description,
-     const libcstring_system_character_t *string,
+     const system_character_t *description,
+     const system_character_t *string,
      size_t string_length,
      libcerror_error_t **error );
 
 int item_file_write_value_filetime(
      item_file_t *item_file,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      libfdatetime_filetime_t *filetime,
      libcerror_error_t **error );
 
@@ -151,7 +150,7 @@ int item_file_write_item_value(
      libpff_item_t *item,
      int set_index,
      uint32_t entry_type,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      uint32_t format_flags,
      libcerror_error_t **error );
 
@@ -160,7 +159,7 @@ int item_file_write_record_set_entry_value(
      libpff_record_set_t *record_set,
      uint32_t entry_type,
      uint32_t value_type,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      uint32_t format_flags,
      libcerror_error_t **error );
 

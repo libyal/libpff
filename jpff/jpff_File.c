@@ -21,10 +21,9 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
-
-#include <libcstring.h>
-#include <liberror.h>
+#include <wide_string.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( HAVE_WINAPI )
 #include <stdlib.h>
@@ -36,6 +35,7 @@
 
 #include "jpff_File.h"
 #include "jpff_jni.h"
+#include "jpff_libcerror.h"
 #include "jpff_string.h"
 
 static jfieldID jpff_File_field_identifier = 0;
@@ -60,10 +60,10 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1initialize(
                         JNIEnv *environment,
                         jobject file_object )
 {
-	jclass exception          = NULL;
-	libpff_error_t *pff_error = NULL;
-	libpff_file_t *pff_file   = NULL;
-	static char *function     = "Java_jpff_File_internal_1initialize";
+	jclass exception        = NULL;
+	libcerror_t *error      = NULL;
+	libpff_file_t *pff_file = NULL;
+	static char *function   = "Java_jpff_File_internal_1initialize";
 
 	if( ( environment == NULL )
 	 || ( *environment == NULL ) )
@@ -95,7 +95,7 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1initialize(
 	}
 	if( libpff_file_initialize(
 	     &pff_file,
-	     &pff_error ) != 1 )
+	     &error ) != 1 )
 	{
 		exception = jpff_jni_environment_find_class(
 		             environment,
@@ -112,8 +112,8 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1initialize(
 			 exception,
 			 "Java_jpff_File_internal_1initialize: unable to create file" );
 		}
-		libpff_error_free(
-		 &pff_error );
+		libcerror_error_free(
+		 &error );
 
 		return;
 	}
@@ -128,10 +128,10 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1free(
                         JNIEnv *environment,
                         jobject file_object )
 {
-	jclass exception          = NULL;
-	libpff_error_t *pff_error = NULL;
-	libpff_file_t *pff_file   = NULL;
-	static char *function     = "Java_jpff_File_internal_1free";
+	jclass exception        = NULL;
+	libcerror_t *error      = NULL;
+	libpff_file_t *pff_file = NULL;
+	static char *function   = "Java_jpff_File_internal_1free";
 
 	if( ( environment == NULL )
 	 || ( *environment == NULL ) )
@@ -169,12 +169,12 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1free(
 
 	if( libpff_file_free(
 	     &pff_file,
-	     &pff_error ) != 1 )
+	     &error ) != 1 )
 	{
 		/* TODO something useful with error */
 
-		libpff_error_free(
-		 &pff_error );
+		libcerror_error_free(
+		 &error );
 
 		return;
 	}
@@ -187,11 +187,11 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1open(
                         jint access_flags )
 {
 	jclass exception             = NULL;
-	libpff_error_t *pff_error    = NULL;
+	libcerror_t *error           = NULL;
 	libpff_file_t *pff_file      = NULL;
 	static char *function        = "Java_jpff_File_internal_1open";
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	wchar_t *wide_filename      = NULL;
 	size_t wide_filename_size   = 0;
 #else
@@ -245,7 +245,7 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1open(
 		}
 		return;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( jpff_string_get_wide_string_size(
 	     environment,
 	     filename,
@@ -273,7 +273,7 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1open(
 		}
 		return;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	wide_filename = (wchar_t *) memory_allocate(
 	                             sizeof( wchar_t ) * wide_filename_size );
 #else
@@ -281,7 +281,7 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1open(
 	                            sizeof( char ) * narrow_filename_size );
 #endif
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( jpff_string_copy_to_wide_string(
 	     environment,
 	     filename,
@@ -309,7 +309,7 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1open(
 			 exception,
 			 "Java_jpff_File_internal_1open: unable to determine narrow filename size" );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		memory_free(
 		 wide_filename );
 #else
@@ -318,18 +318,18 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1open(
 #endif
 		return;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libpff_file_open_wide(
 	     pff_file,
 	     wide_filename,
 	     access_flags,
-	     &pff_error ) != 1 )
+	     &error ) != 1 )
 #else
 	if( libpff_file_open(
 	     pff_file,
 	     narrow_filename,
 	     access_flags,
-	     &pff_error ) != 1 )
+	     &error ) != 1 )
 #endif
 	{
 		exception = jpff_jni_environment_find_class(
@@ -347,10 +347,10 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1open(
 			 exception,
 			 "Java_jpff_File_internal_1open: unable to open file" );
 		}
-		libpff_error_free(
-		 &pff_error );
+		libcerror_error_free(
+		 &error );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		memory_free(
 		 wide_filename );
 #else
@@ -359,7 +359,7 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1open(
 #endif
 		return;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	memory_free(
 	 wide_filename );
 #else
@@ -372,10 +372,10 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1close(
                         JNIEnv *environment,
                         jobject file_object )
 {
-	jclass exception          = NULL;
-	libpff_error_t *pff_error = NULL;
-	libpff_file_t *pff_file   = NULL;
-	static char *function     = "Java_jpff_File_internal_1close";
+	jclass exception        = NULL;
+	libcerror_t *error      = NULL;
+	libpff_file_t *pff_file = NULL;
+	static char *function   = "Java_jpff_File_internal_1close";
 
 	if( ( environment == NULL )
 	 || ( *environment == NULL ) )
@@ -407,7 +407,7 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1close(
 	}
 	if( libpff_file_close(
 	     pff_file,
-	     &pff_error ) != 0 )
+	     &error ) != 0 )
 	{
 		exception = jpff_jni_environment_find_class(
 		             environment,
@@ -424,8 +424,8 @@ JNIEXPORT void JNICALL Java_jpff_File_internal_1close(
 			 exception,
 			 "Java_jpff_File_internal_1close: unable to close file" );
 		}
-		libpff_error_free(
-		 &pff_error );
+		libcerror_error_free(
+		 &error );
 
 		return;
 	}

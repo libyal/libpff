@@ -8,7 +8,6 @@ if HAVE_PYTHON3
 AM_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -33,7 +32,6 @@ BUILT_SOURCES = \
 	pypff_libbfio.h \
 	pypff_libcerror.h \
 	pypff_libclocale.h \
-	pypff_libcstring.h \
 	pypff_libpff.h \
 	pypff_message.c pypff_message.h \
 	pypff_python.h \
@@ -48,7 +46,6 @@ pyexec_LTLIBRARIES = pypff.la
 nodist_pypff_la_SOURCES = $(BUILT_SOURCES)
 
 pypff_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCDATA_LIBADD@ \

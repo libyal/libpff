@@ -26,14 +26,13 @@
 #include <types.h>
 
 #include "pfftools_libcerror.h"
-#include "pfftools_libcstring.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
 int pffinput_determine_export_format(
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      int *export_format,
      libcerror_error_t **error );
 

@@ -81,7 +81,7 @@ struct libpff_internal_name_to_id_map_entry
 #if defined( HAVE_DEBUG_OUTPUT )
 	/* The debug string value
 	 */
-	libcstring_system_character_t *debug_string;
+	system_character_t *debug_string;
 
 	/* The debug string size
 	 */

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Python-bindings set ASCII codepage testing script
 #
-# Version: 20160420
+# Version: 20161107
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -33,7 +33,9 @@ fi
 
 source ${TEST_RUNNER};
 
-run_test_with_arguments "${TEST_SCRIPT}";
+TEST_DESCRIPTION="Testing Python-bindings functions: set_ascii_codepage";
+
+run_test_with_arguments "${TEST_DESCRIPTION}" "${TEST_SCRIPT}";
 RESULT=$?;
 
 exit ${RESULT};

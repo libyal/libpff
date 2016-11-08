@@ -23,7 +23,10 @@
 #include <byte_stream.h>
 #include <file_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "export_handle.h"
 #include "item_file.h"
@@ -33,7 +36,6 @@
 #include "pfftools_libcnotify.h"
 #include "pfftools_libcfile.h"
 #include "pfftools_libcpath.h"
-#include "pfftools_libcstring.h"
 #include "pfftools_libcsystem.h"
 #include "pfftools_libfdatetime.h"
 #include "pfftools_libfguid.h"
@@ -202,7 +204,7 @@ int export_handle_signal_abort(
  */
 int export_handle_set_export_mode(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "export_handle_set_export_mode";
@@ -231,14 +233,14 @@ int export_handle_set_export_mode(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	if( string_length == 3 )
 	{
-		if( libcstring_system_string_compare(
+		if( system_string_compare(
 		     string,
-		     _LIBCSTRING_SYSTEM_STRING( "all" ),
+		     _SYSTEM_STRING( "all" ),
 		     3 ) == 0 )
 		{
 			export_handle->export_mode = EXPORT_MODE_ALL;
@@ -248,27 +250,27 @@ int export_handle_set_export_mode(
 	}
 	else if( string_length == 5 )
 	{
-		if( libcstring_system_string_compare(
+		if( system_string_compare(
 		     string,
-		     _LIBCSTRING_SYSTEM_STRING( "debug" ),
+		     _SYSTEM_STRING( "debug" ),
 		     5 ) == 0 )
 		{
 			export_handle->export_mode = EXPORT_MODE_DEBUG;
 
 			result = 1;
 		}
-		else if( libcstring_system_string_compare(
+		else if( system_string_compare(
 			  string,
-			  _LIBCSTRING_SYSTEM_STRING( "items" ),
+			  _SYSTEM_STRING( "items" ),
 			  5 ) == 0 )
 		{
 			export_handle->export_mode = EXPORT_MODE_ITEMS;
 
 			result = 1;
 		}
-		else if( libcstring_system_string_compare(
+		else if( system_string_compare(
 			  string,
-			  _LIBCSTRING_SYSTEM_STRING( "noatt" ),
+			  _SYSTEM_STRING( "noatt" ),
 			  5 ) == 0 )
 		{
 			export_handle->export_mode = EXPORT_MODE_ITEMS_NO_ATTACHMENTS;
@@ -278,9 +280,9 @@ int export_handle_set_export_mode(
 	}
 	else if( string_length == 9 )
 	{
-		if( libcstring_system_string_compare(
+		if( system_string_compare(
 		     string,
-		     _LIBCSTRING_SYSTEM_STRING( "recovered" ),
+		     _SYSTEM_STRING( "recovered" ),
 		     9 ) == 0 )
 		{
 			export_handle->export_mode = EXPORT_MODE_RECOVERED;
@@ -296,7 +298,7 @@ int export_handle_set_export_mode(
  */
 int export_handle_set_preferred_export_format(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function = "export_handle_preferred_export_format";
@@ -337,7 +339,7 @@ int export_handle_set_preferred_export_format(
  */
 int export_handle_set_ascii_codepage(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function  = "export_handle_set_ascii_codepage";
@@ -359,10 +361,10 @@ int export_handle_set_ascii_codepage(
 	feature_flags = LIBCLOCALE_CODEPAGE_FEATURE_FLAG_HAVE_KOI8
 	              | LIBCLOCALE_CODEPAGE_FEATURE_FLAG_HAVE_WINDOWS;
 
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libclocale_codepage_copy_from_string_wide(
 	          &( export_handle->ascii_codepage ),
 	          string,
@@ -396,16 +398,16 @@ int export_handle_set_ascii_codepage(
  */
 int export_handle_set_target_path(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *target_path,
+     const system_character_t *target_path,
      libcerror_error_t **error )
 {
-	static char *function                           = "export_handle_set_target_path";
-	size_t target_path_length                       = 0;
+	static char *function                = "export_handle_set_target_path";
+	size_t target_path_length            = 0;
 
 #if defined( WINAPI )
-	libcstring_system_character_t *full_target_path = NULL;
-        size_t full_target_path_size                    = 0;
-	int result                                      = 0;
+	system_character_t *full_target_path = NULL;
+        size_t full_target_path_size         = 0;
+	int result                           = 0;
 #endif
 
 	if( export_handle == NULL )
@@ -438,11 +440,11 @@ int export_handle_set_target_path(
 		export_handle->target_path      = NULL;
 		export_handle->target_path_size = 0;
 	}
-	target_path_length = libcstring_system_string_length(
+	target_path_length = system_string_length(
 	                      target_path );
 
 #if defined( WINAPI )
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcpath_path_get_full_path_wide(
 	          target_path,
                   target_path_length,
@@ -476,7 +478,7 @@ int export_handle_set_target_path(
 #endif
 	if( target_path_length > 0 )
 	{
-		export_handle->target_path = libcstring_system_string_allocate(
+		export_handle->target_path = system_string_allocate(
 		                              target_path_length + 1 );
 
 		if( export_handle->target_path == NULL )
@@ -490,7 +492,7 @@ int export_handle_set_target_path(
 
 			goto on_error;
 		}
-		if( libcstring_system_string_copy(
+		if( system_string_copy(
 		     export_handle->target_path,
 		     target_path,
 		     target_path_length ) == NULL )
@@ -538,11 +540,11 @@ on_error:
  */
 int export_handle_set_export_path(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *base_path,
+     const system_character_t *base_path,
      size_t base_path_length,
-     const libcstring_system_character_t *suffix,
+     const system_character_t *suffix,
      size_t suffix_length,
-     libcstring_system_character_t **export_path,
+     system_character_t **export_path,
      size_t *export_path_size,
      libcerror_error_t **error )
 {
@@ -635,7 +637,7 @@ int export_handle_set_export_path(
 	}
 	*export_path_size = base_path_length + suffix_length + 1;
 
-	*export_path = libcstring_system_string_allocate(
+	*export_path = system_string_allocate(
 	                *export_path_size );
 
 	if( *export_path == NULL )
@@ -649,7 +651,7 @@ int export_handle_set_export_path(
 
 		goto on_error;
 	}
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     *export_path,
 	     base_path,
 	     base_path_length ) == NULL )
@@ -663,7 +665,7 @@ int export_handle_set_export_path(
 
 		goto on_error;
 	}
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     &( ( *export_path )[ base_path_length ] ),
 	     suffix,
 	     suffix_length ) == NULL )
@@ -723,7 +725,7 @@ int export_handle_create_items_export_path(
 		     export_handle,
 		     export_handle->target_path,
 		     export_handle->target_path_size - 1,
-		     _LIBCSTRING_SYSTEM_STRING( ".export" ),
+		     _SYSTEM_STRING( ".export" ),
 		     7,
 		     &( export_handle->items_export_path ),
 		     &( export_handle->items_export_path_size ),
@@ -738,7 +740,7 @@ int export_handle_create_items_export_path(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libcfile_file_exists_wide(
 			  export_handle->items_export_path,
 			  error );
@@ -753,7 +755,7 @@ int export_handle_create_items_export_path(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_GENERIC,
-			 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+			 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 			 function,
 			 export_handle->items_export_path );
 
@@ -795,7 +797,7 @@ int export_handle_create_orphans_export_path(
 		     export_handle,
 		     export_handle->target_path,
 		     export_handle->target_path_size - 1,
-		     _LIBCSTRING_SYSTEM_STRING( ".orphans" ),
+		     _SYSTEM_STRING( ".orphans" ),
 		     8,
 		     &( export_handle->orphans_export_path ),
 		     &( export_handle->orphans_export_path_size ),
@@ -810,7 +812,7 @@ int export_handle_create_orphans_export_path(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libcfile_file_exists_wide(
 			  export_handle->orphans_export_path,
 			  error );
@@ -825,7 +827,7 @@ int export_handle_create_orphans_export_path(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_GENERIC,
-			 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+			 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 			 function,
 			 export_handle->orphans_export_path );
 
@@ -867,7 +869,7 @@ int export_handle_create_recovered_export_path(
 		     export_handle,
 		     export_handle->target_path,
 		     export_handle->target_path_size - 1,
-		     _LIBCSTRING_SYSTEM_STRING( ".recovered" ),
+		     _SYSTEM_STRING( ".recovered" ),
 		     10,
 		     &( export_handle->recovered_export_path ),
 		     &( export_handle->recovered_export_path_size ),
@@ -882,7 +884,7 @@ int export_handle_create_recovered_export_path(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libcfile_file_exists_wide(
 			  export_handle->recovered_export_path,
 			  error );
@@ -897,7 +899,7 @@ int export_handle_create_recovered_export_path(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_GENERIC,
-			 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+			 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 			 function,
 			 export_handle->recovered_export_path );
 
@@ -917,16 +919,16 @@ int export_handle_create_recovered_export_path(
 int export_handle_create_default_item_directory(
      export_handle_t *export_handle,
      int item_index,
-     const libcstring_system_character_t *item_prefix,
+     const system_character_t *item_prefix,
      size_t item_prefix_length,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
-     libcstring_system_character_t **item_directory_path,
+     system_character_t **item_directory_path,
      size_t *item_directory_path_size,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t item_directory_name[ 64 ];
+	system_character_t item_directory_name[ 64 ];
 
 	static char *function             = "export_handle_create_default_item_directory";
 	size_t item_directory_name_length = 0;
@@ -990,10 +992,10 @@ int export_handle_create_default_item_directory(
 	}
 	/* Create the item directory
 	 */
-	print_count = libcstring_system_string_sprintf(
+	print_count = system_string_sprintf(
 	               item_directory_name,
 	               64,
-	               _LIBCSTRING_SYSTEM_STRING( "%s%05d" ),
+	               _SYSTEM_STRING( "%s%05d" ),
 	               item_prefix,
 	               item_index + 1 );
 
@@ -1012,7 +1014,7 @@ int export_handle_create_default_item_directory(
 	item_directory_name[ item_prefix_length + 5 ] = 0;
 	item_directory_name_length                    = item_prefix_length + 5;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcpath_path_join_wide(
 	          item_directory_path,
 	          item_directory_path_size,
@@ -1042,7 +1044,7 @@ int export_handle_create_default_item_directory(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcfile_file_exists_wide(
 	          *item_directory_path,
 	          error );
@@ -1057,7 +1059,7 @@ int export_handle_create_default_item_directory(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+		 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 		 function,
 		 *item_directory_path );
 
@@ -1069,13 +1071,13 @@ int export_handle_create_default_item_directory(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: %" PRIs_LIBCSTRING_SYSTEM " already exists.",
+		 "%s: %" PRIs_SYSTEM " already exists.",
 		 function,
 		 *item_directory_path );
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcpath_path_make_directory_wide(
 	     *item_directory_path,
 	     error ) != 1 )
@@ -1089,7 +1091,7 @@ int export_handle_create_default_item_directory(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
+		 "%s: unable to make directory: %" PRIs_SYSTEM ".",
 		 function,
 		 *item_directory_path );
 
@@ -1097,14 +1099,14 @@ int export_handle_create_default_item_directory(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+	 "Created directory: %" PRIs_SYSTEM ".\n",
 	 *item_directory_path );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+		 "%s: created directory: %" PRIs_SYSTEM ".\n",
 		 function,
 		 *item_directory_path );
 	}
@@ -1128,17 +1130,17 @@ on_error:
  */
 int export_handle_create_item_file(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *path,
+     const system_character_t *path,
      size_t path_length,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      size_t filename_length,
      item_file_t **item_file,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *item_file_path = NULL;
-	static char *function                         = "export_handle_create_item_file";
-	size_t item_file_path_size                    = 0;
-	int result                                    = 0;
+	system_character_t *item_file_path = NULL;
+	static char *function              = "export_handle_create_item_file";
+	size_t item_file_path_size         = 0;
+	int result                         = 0;
 
 	if( export_handle == NULL )
 	{
@@ -1162,7 +1164,7 @@ int export_handle_create_item_file(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcpath_path_join_wide(
 	          &item_file_path,
 	          &item_file_path_size,
@@ -1192,7 +1194,7 @@ int export_handle_create_item_file(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcfile_file_exists_wide(
 	          item_file_path,
 	          error );
@@ -1207,7 +1209,7 @@ int export_handle_create_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+		 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 		 function,
 		 item_file_path );
 
@@ -1242,7 +1244,7 @@ int export_handle_create_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open: %" PRIs_LIBCSTRING_SYSTEM ".",
+		 "%s: unable to open: %" PRIs_SYSTEM ".",
 		 function,
 		 item_file_path );
 
@@ -1278,19 +1280,19 @@ int export_handle_export_item(
      libpff_item_t *item,
      int item_index,
      int number_of_items,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *entry_value_string = NULL;
-	libcstring_system_character_t *item_path          = NULL;
-	char *item_type_string                            = NULL;
-	static char *function                             = "export_handle_export_item";
-	size_t entry_value_string_size                    = 0;
-	size_t item_path_size                             = 0;
-	uint8_t item_type                                 = 0;
-	int result                                        = 0;
+	system_character_t *entry_value_string = NULL;
+	system_character_t *item_path          = NULL;
+	static char *function                  = "export_handle_export_item";
+	char *item_type_string                 = NULL;
+	size_t entry_value_string_size         = 0;
+	size_t item_path_size                  = 0;
+	uint8_t item_type                      = 0;
+	int result                             = 0;
 
 	if( export_handle == NULL )
 	{
@@ -1623,7 +1625,7 @@ int export_handle_export_item(
 			if( export_handle_create_default_item_directory(
 			     export_handle,
 			     item_index,
-			     _LIBCSTRING_SYSTEM_STRING( "Item" ),
+			     _SYSTEM_STRING( "Item" ),
 			     4,
 			     export_path,
 			     export_path_length,
@@ -1644,7 +1646,7 @@ int export_handle_export_item(
 			if( export_handle_export_item_values(
 			     export_handle,
 			     item,
-			     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+			     _SYSTEM_STRING( "ItemValues.txt" ),
 			     14,
 			     item_path,
 			     item_path_size - 1,
@@ -1679,7 +1681,7 @@ int export_handle_export_item(
 		}
 		else
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libpff_message_get_utf16_class_size(
 			          item,
 			          &entry_value_string_size,
@@ -1715,7 +1717,7 @@ int export_handle_export_item(
 
 					goto on_error;
 				}
-				entry_value_string = libcstring_system_string_allocate(
+				entry_value_string = system_string_allocate(
 				                      entry_value_string_size );
 
 				if( entry_value_string == NULL )
@@ -1729,7 +1731,7 @@ int export_handle_export_item(
 
 					goto on_error;
 				}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 				result = libpff_message_get_utf16_class(
 					  item,
 					  (uint16_t *) entry_value_string,
@@ -1756,11 +1758,11 @@ int export_handle_export_item(
 			}
 			else
 			{
-				entry_value_string = _LIBCSTRING_SYSTEM_STRING( "UNKNOWN" );
+				entry_value_string = _SYSTEM_STRING( "UNKNOWN" );
 			}
 			fprintf(
 			 export_handle->notify_stream,
-			 "Skipped item %d out of %d of type: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+			 "Skipped item %d out of %d of type: %" PRIs_SYSTEM ".\n",
 			 item_index + 1,
 			 number_of_items,
 			 entry_value_string );
@@ -1768,7 +1770,7 @@ int export_handle_export_item(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: skipped export of item: %d out of: %d of type: %" PRIs_LIBCSTRING_SYSTEM " (0x%02" PRIx8 ").\n",
+				 "%s: skipped export of item: %d out of: %d of type: %" PRIs_SYSTEM " (0x%02" PRIx8 ").\n",
 				 function,
 				 item_index + 1,
 				 number_of_items,
@@ -1777,7 +1779,7 @@ int export_handle_export_item(
 			}
 			log_handle_printf(
 			 log_handle,
-			 "Skipped export of item: %d out of: %d of type: %" PRIs_LIBCSTRING_SYSTEM " (0x%02" PRIx8 ").\n",
+			 "Skipped export of item: %d out of: %d of type: %" PRIs_SYSTEM " (0x%02" PRIx8 ").\n",
 			 item_index + 1,
 			 number_of_items,
 			 entry_value_string,
@@ -1919,20 +1921,20 @@ int export_handle_export_record_entry_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *name_to_id_map_entry_string = NULL;
-	libpff_name_to_id_map_entry_t *name_to_id_map_entry        = NULL;
-	uint8_t *value_data                                        = NULL;
-	static char *function                                      = "export_handle_export_record_entry_to_item_file";
-	size_t name_to_id_map_entry_string_size                    = 0;
-	size_t value_data_size                                     = 0;
-	uint32_t entry_type                                        = 0;
-	uint32_t name_to_id_map_entry_number                       = 0;
-	uint32_t value_type                                        = LIBPFF_VALUE_TYPE_UNSPECIFIED;
-	uint8_t name_to_id_map_entry_type                          = 0;
-	int result                                                 = 0;
+	libpff_name_to_id_map_entry_t *name_to_id_map_entry = NULL;
+	system_character_t *name_to_id_map_entry_string     = NULL;
+	uint8_t *value_data                                 = NULL;
+	static char *function                               = "export_handle_export_record_entry_to_item_file";
+	size_t name_to_id_map_entry_string_size             = 0;
+	size_t value_data_size                              = 0;
+	uint32_t entry_type                                 = 0;
+	uint32_t name_to_id_map_entry_number                = 0;
+	uint32_t value_type                                 = LIBPFF_VALUE_TYPE_UNSPECIFIED;
+	uint8_t name_to_id_map_entry_type                   = 0;
+	int result                                          = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libpff_multi_value_t *multi_value                          = NULL;
+	libpff_multi_value_t *multi_value                   = NULL;
 #endif
 
 	if( export_handle == NULL )
@@ -1948,7 +1950,7 @@ int export_handle_export_record_entry_to_item_file(
 	}
 	if( item_file_write_value_integer_32bit_as_decimal(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Set:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Set:\t\t\t\t" ),
 	     (uint32_t) record_set_index,
 	     error ) != 1 )
 	{
@@ -1963,7 +1965,7 @@ int export_handle_export_record_entry_to_item_file(
 	}
 	if( item_file_write_value_integer_32bit_as_decimal(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Entry:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Entry:\t\t\t\t" ),
 	     (uint32_t) record_entry_index,
 	     error ) != 1 )
 	{
@@ -1992,7 +1994,7 @@ int export_handle_export_record_entry_to_item_file(
 	}
 	if( item_file_write_value_integer_32bit_as_hexadecimal(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Entry type:\t\t\t" ),
+	     _SYSTEM_STRING( "Entry type:\t\t\t" ),
 	     entry_type,
 	     error ) != 1 )
 	{
@@ -2021,7 +2023,7 @@ int export_handle_export_record_entry_to_item_file(
 	}
 	if( item_file_write_value_integer_32bit_as_hexadecimal(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Value type:\t\t\t" ),
+	     _SYSTEM_STRING( "Value type:\t\t\t" ),
 	     value_type,
 	     error ) != 1 )
 	{
@@ -2084,7 +2086,7 @@ int export_handle_export_record_entry_to_item_file(
 			}
 			if( item_file_write_value_integer_32bit_as_hexadecimal(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Maps to entry type:\t\t" ),
+			     _SYSTEM_STRING( "Maps to entry type:\t\t" ),
 			     name_to_id_map_entry_number,
 			     error ) != 1 )
 			{
@@ -2100,7 +2102,7 @@ int export_handle_export_record_entry_to_item_file(
 		}
 		else if( name_to_id_map_entry_type == LIBPFF_NAME_TO_ID_MAP_ENTRY_TYPE_STRING )
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libpff_name_to_id_map_entry_get_utf16_string_size(
 				  name_to_id_map_entry,
 				  &name_to_id_map_entry_string_size,
@@ -2122,7 +2124,7 @@ int export_handle_export_record_entry_to_item_file(
 
 				goto on_error;
 			}
-			name_to_id_map_entry_string = libcstring_system_string_allocate(
+			name_to_id_map_entry_string = system_string_allocate(
 			                               name_to_id_map_entry_string_size );
 
 			if( name_to_id_map_entry_string == NULL )
@@ -2136,7 +2138,7 @@ int export_handle_export_record_entry_to_item_file(
 
 				goto on_error;
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libpff_name_to_id_map_entry_get_utf16_string(
 				  name_to_id_map_entry,
 				  (uint16_t *) name_to_id_map_entry_string,
@@ -2162,7 +2164,7 @@ int export_handle_export_record_entry_to_item_file(
 			}
 			if( item_file_write_value_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Maps to entry:\t\t\t" ),
+			     _SYSTEM_STRING( "Maps to entry:\t\t\t" ),
 			     name_to_id_map_entry_string,
 			     name_to_id_map_entry_string_size - 1,
 			     error ) != 1 )
@@ -2229,7 +2231,7 @@ int export_handle_export_record_entry_to_item_file(
 		}
 		if( item_file_write_value_description(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "Value:" ),
+		     _SYSTEM_STRING( "Value:" ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -2317,9 +2319,9 @@ on_error:
 int export_handle_export_item_values(
      export_handle_t *export_handle,
      libpff_item_t *item,
-     const libcstring_system_character_t *item_values_filename,
+     const system_character_t *item_values_filename,
      size_t item_values_filename_length,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -2378,7 +2380,7 @@ int export_handle_export_item_values(
 	{
 		log_handle_printf(
 		 log_handle,
-		 "Skipping item values file: %" PRIs_LIBCSTRING_SYSTEM " it already exists.\n",
+		 "Skipping item values file: %" PRIs_SYSTEM " it already exists.\n",
 		 item_values_filename );
 
 		return( 1 );
@@ -2414,7 +2416,7 @@ int export_handle_export_item_values(
 	}
 	if( item_file_write_value_integer_32bit_as_decimal(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Number of sets:\t\t\t" ),
+	     _SYSTEM_STRING( "Number of sets:\t\t\t" ),
 	     (uint32_t) number_of_record_sets,
 	     error ) != 1 )
 	{
@@ -2429,7 +2431,7 @@ int export_handle_export_item_values(
 	}
 	if( item_file_write_value_integer_32bit_as_decimal(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Number of entries per set:\t" ),
+	     _SYSTEM_STRING( "Number of entries per set:\t" ),
 	     number_of_entries,
 	     error ) != 1 )
 	{
@@ -2557,7 +2559,7 @@ on_error:
 int export_handle_export_sub_items(
      export_handle_t *export_handle,
      libpff_item_t *item,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -2677,7 +2679,7 @@ int export_handle_export_sub_items(
 int export_handle_export_message_header(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -2701,7 +2703,7 @@ int export_handle_export_message_header(
 	          export_handle,
 	          export_path,
 	          export_path_length,
-	          _LIBCSTRING_SYSTEM_STRING( "OutlookHeaders.txt" ),
+	          _SYSTEM_STRING( "OutlookHeaders.txt" ),
 	          18,
 	          &item_file,
 	          error );
@@ -2784,7 +2786,7 @@ on_error:
 int export_handle_export_message_flags_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error )
 {
@@ -2844,7 +2846,7 @@ int export_handle_export_message_flags_to_item_file(
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     libcstring_system_string_length(
+		     system_string_length(
 		      description ),
 		     error ) != 1 )
 		{
@@ -2873,7 +2875,7 @@ int export_handle_export_message_flags_to_item_file(
 		}
 		if( item_file_write_string(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( " (" ),
+		     _SYSTEM_STRING( " (" ),
 		     2,
 		     error ) != 1 )
 		{
@@ -2890,7 +2892,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Read" ),
+			     _SYSTEM_STRING( "Read" ),
 			     4,
 			     error ) != 1 )
 			{
@@ -2909,7 +2911,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Unread" ),
+			     _SYSTEM_STRING( "Unread" ),
 			     6,
 			     error ) != 1 )
 			{
@@ -2927,7 +2929,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( ", " ),
+			     _SYSTEM_STRING( ", " ),
 			     2,
 			     error ) != 1 )
 			{
@@ -2945,7 +2947,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Unmodified" ),
+			     _SYSTEM_STRING( "Unmodified" ),
 			     10,
 			     error ) != 1 )
 			{
@@ -2964,7 +2966,7 @@ int export_handle_export_message_flags_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -2983,7 +2985,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Submit" ),
+			     _SYSTEM_STRING( "Submit" ),
 			     6,
 			     error ) != 1 )
 			{
@@ -3002,7 +3004,7 @@ int export_handle_export_message_flags_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -3021,7 +3023,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Unsent" ),
+			     _SYSTEM_STRING( "Unsent" ),
 			     6,
 			     error ) != 1 )
 			{
@@ -3040,7 +3042,7 @@ int export_handle_export_message_flags_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -3059,7 +3061,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Has attachments" ),
+			     _SYSTEM_STRING( "Has attachments" ),
 			     15,
 			     error ) != 1 )
 			{
@@ -3078,7 +3080,7 @@ int export_handle_export_message_flags_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -3097,7 +3099,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "From me" ),
+			     _SYSTEM_STRING( "From me" ),
 			     7,
 			     error ) != 1 )
 			{
@@ -3116,7 +3118,7 @@ int export_handle_export_message_flags_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -3135,7 +3137,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Associated" ),
+			     _SYSTEM_STRING( "Associated" ),
 			     10,
 			     error ) != 1 )
 			{
@@ -3154,7 +3156,7 @@ int export_handle_export_message_flags_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -3173,7 +3175,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Resend" ),
+			     _SYSTEM_STRING( "Resend" ),
 			     6,
 			     error ) != 1 )
 			{
@@ -3192,7 +3194,7 @@ int export_handle_export_message_flags_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -3211,7 +3213,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "RN pending" ),
+			     _SYSTEM_STRING( "RN pending" ),
 			     10,
 			     error ) != 1 )
 			{
@@ -3230,7 +3232,7 @@ int export_handle_export_message_flags_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -3249,7 +3251,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "NRN pending" ),
+			     _SYSTEM_STRING( "NRN pending" ),
 			     11,
 			     error ) != 1 )
 			{
@@ -3268,7 +3270,7 @@ int export_handle_export_message_flags_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -3287,7 +3289,7 @@ int export_handle_export_message_flags_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Unknown: " ),
+			     _SYSTEM_STRING( "Unknown: " ),
 			     9,
 			     error ) != 1 )
 			{
@@ -3317,7 +3319,7 @@ int export_handle_export_message_flags_to_item_file(
 		}
 		if( item_file_write_string(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( ")" ),
+		     _SYSTEM_STRING( ")" ),
 		     1,
 		     error ) != 1 )
 		{
@@ -3353,7 +3355,7 @@ int export_handle_export_message_flags_to_item_file(
 int export_handle_export_message_importance_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error )
 {
@@ -3413,7 +3415,7 @@ int export_handle_export_message_importance_to_item_file(
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     libcstring_system_string_length(
+		     system_string_length(
 		      description ),
 		     error ) != 1 )
 		{
@@ -3430,7 +3432,7 @@ int export_handle_export_message_importance_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Low" ),
+			     _SYSTEM_STRING( "Low" ),
 			     3,
 			     error ) != 1 )
 			{
@@ -3448,7 +3450,7 @@ int export_handle_export_message_importance_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Normal" ),
+			     _SYSTEM_STRING( "Normal" ),
 			     6,
 			     error ) != 1 )
 			{
@@ -3466,7 +3468,7 @@ int export_handle_export_message_importance_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "High" ),
+			     _SYSTEM_STRING( "High" ),
 			     4,
 			     error ) != 1 )
 			{
@@ -3484,7 +3486,7 @@ int export_handle_export_message_importance_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Unknown: " ),
+			     _SYSTEM_STRING( "Unknown: " ),
 			     9,
 			     error ) != 1 )
 			{
@@ -3535,7 +3537,7 @@ int export_handle_export_message_importance_to_item_file(
 int export_handle_export_message_priority_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error )
 {
@@ -3595,7 +3597,7 @@ int export_handle_export_message_priority_to_item_file(
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     libcstring_system_string_length(
+		     system_string_length(
 		      description ),
 		     error ) != 1 )
 		{
@@ -3612,7 +3614,7 @@ int export_handle_export_message_priority_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Non Urgent" ),
+			     _SYSTEM_STRING( "Non Urgent" ),
 			     10,
 			     error ) != 1 )
 			{
@@ -3630,7 +3632,7 @@ int export_handle_export_message_priority_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Normal" ),
+			     _SYSTEM_STRING( "Normal" ),
 			     6,
 			     error ) != 1 )
 			{
@@ -3648,7 +3650,7 @@ int export_handle_export_message_priority_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Urgent" ),
+			     _SYSTEM_STRING( "Urgent" ),
 			     6,
 			     error ) != 1 )
 			{
@@ -3666,7 +3668,7 @@ int export_handle_export_message_priority_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Unknown: " ),
+			     _SYSTEM_STRING( "Unknown: " ),
 			     9,
 			     error ) != 1 )
 			{
@@ -3717,7 +3719,7 @@ int export_handle_export_message_priority_to_item_file(
 int export_handle_export_message_sensitivity_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error )
 {
@@ -3777,7 +3779,7 @@ int export_handle_export_message_sensitivity_to_item_file(
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     libcstring_system_string_length(
+		     system_string_length(
 		      description ),
 		     error ) != 1 )
 		{
@@ -3794,7 +3796,7 @@ int export_handle_export_message_sensitivity_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "None" ),
+			     _SYSTEM_STRING( "None" ),
 			     4,
 			     error ) != 1 )
 			{
@@ -3812,7 +3814,7 @@ int export_handle_export_message_sensitivity_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Personal" ),
+			     _SYSTEM_STRING( "Personal" ),
 			     8,
 			     error ) != 1 )
 			{
@@ -3830,7 +3832,7 @@ int export_handle_export_message_sensitivity_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Private" ),
+			     _SYSTEM_STRING( "Private" ),
 			     7,
 			     error ) != 1 )
 			{
@@ -3848,7 +3850,7 @@ int export_handle_export_message_sensitivity_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Confidential" ),
+			     _SYSTEM_STRING( "Confidential" ),
 			     12,
 			     error ) != 1 )
 			{
@@ -3866,7 +3868,7 @@ int export_handle_export_message_sensitivity_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Unknown: " ),
+			     _SYSTEM_STRING( "Unknown: " ),
 			     9,
 			     error ) != 1 )
 			{
@@ -3917,7 +3919,7 @@ int export_handle_export_message_sensitivity_to_item_file(
 int export_handle_export_message_status_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error )
 {
@@ -3977,7 +3979,7 @@ int export_handle_export_message_status_to_item_file(
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     libcstring_system_string_length(
+		     system_string_length(
 		      description ),
 		     error ) != 1 )
 		{
@@ -4006,7 +4008,7 @@ int export_handle_export_message_status_to_item_file(
 		}
 		if( item_file_write_string(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( " (" ),
+		     _SYSTEM_STRING( " (" ),
 		     2,
 		     error ) != 1 )
 		{
@@ -4023,7 +4025,7 @@ int export_handle_export_message_status_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Highlighted" ),
+			     _SYSTEM_STRING( "Highlighted" ),
 			     11,
 			     error ) != 1 )
 			{
@@ -4042,7 +4044,7 @@ int export_handle_export_message_status_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -4061,7 +4063,7 @@ int export_handle_export_message_status_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Tagged" ),
+			     _SYSTEM_STRING( "Tagged" ),
 			     6,
 			     error ) != 1 )
 			{
@@ -4080,7 +4082,7 @@ int export_handle_export_message_status_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -4099,7 +4101,7 @@ int export_handle_export_message_status_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Hidden" ),
+			     _SYSTEM_STRING( "Hidden" ),
 			     6,
 			     error ) != 1 )
 			{
@@ -4118,7 +4120,7 @@ int export_handle_export_message_status_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -4137,7 +4139,7 @@ int export_handle_export_message_status_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Deleted" ),
+			     _SYSTEM_STRING( "Deleted" ),
 			     7,
 			     error ) != 1 )
 			{
@@ -4156,7 +4158,7 @@ int export_handle_export_message_status_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -4175,7 +4177,7 @@ int export_handle_export_message_status_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Draft" ),
+			     _SYSTEM_STRING( "Draft" ),
 			     5,
 			     error ) != 1 )
 			{
@@ -4194,7 +4196,7 @@ int export_handle_export_message_status_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -4213,7 +4215,7 @@ int export_handle_export_message_status_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Answered" ),
+			     _SYSTEM_STRING( "Answered" ),
 			     8,
 			     error ) != 1 )
 			{
@@ -4232,7 +4234,7 @@ int export_handle_export_message_status_to_item_file(
 			{
 				if( item_file_write_string(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( ", " ),
+				     _SYSTEM_STRING( ", " ),
 				     2,
 				     error ) != 1 )
 				{
@@ -4251,7 +4253,7 @@ int export_handle_export_message_status_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Unknown: " ),
+			     _SYSTEM_STRING( "Unknown: " ),
 			     9,
 			     error ) != 1 )
 			{
@@ -4281,7 +4283,7 @@ int export_handle_export_message_status_to_item_file(
 		}
 		if( item_file_write_string(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( ")" ),
+		     _SYSTEM_STRING( ")" ),
 		     1,
 		     error ) != 1 )
 		{
@@ -4317,14 +4319,14 @@ int export_handle_export_message_status_to_item_file(
 int export_handle_export_message_subject_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *value_string = NULL;
-	static char *function                       = "export_handle_export_message_subject_to_item_file";
-	size_t value_string_size                    = 0;
-	int result                                  = 0;
+	system_character_t *value_string = NULL;
+	static char *function            = "export_handle_export_message_subject_to_item_file";
+	size_t value_string_size         = 0;
+	int result                       = 0;
 
 	if( export_handle == NULL )
 	{
@@ -4337,7 +4339,7 @@ int export_handle_export_message_subject_to_item_file(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libpff_message_get_utf16_subject_size(
 	          message,
 	          &value_string_size,
@@ -4371,7 +4373,7 @@ int export_handle_export_message_subject_to_item_file(
 	else if( ( result != 0 )
 	      && ( value_string_size > 0 ) )
 	{
-		value_string = libcstring_system_string_allocate(
+		value_string = system_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -4385,7 +4387,7 @@ int export_handle_export_message_subject_to_item_file(
 
 			goto on_error;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libpff_message_get_utf16_subject(
 		          message,
 		          (uint16_t *) value_string,
@@ -4489,7 +4491,7 @@ int export_handle_export_message_header_to_item_file(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Message:" ),
+	     _SYSTEM_STRING( "Message:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -4506,7 +4508,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "Client submit time:\t\t\t" ),
+	     _SYSTEM_STRING( "Client submit time:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4533,7 +4535,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_DELIVERY_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "Delivery time:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Delivery time:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4560,7 +4562,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "Creation time:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Creation time:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4587,7 +4589,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "Modification time:\t\t\t" ),
+	     _SYSTEM_STRING( "Modification time:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4614,7 +4616,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_SIZE,
-	     _LIBCSTRING_SYSTEM_STRING( "Size:\t\t\t\t\t" ),
+	     _SYSTEM_STRING( "Size:\t\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4639,7 +4641,7 @@ int export_handle_export_message_header_to_item_file(
 	if( export_handle_export_message_flags_to_item_file(
 	     export_handle,
 	     message,
-	     _LIBCSTRING_SYSTEM_STRING( "Flags:\t\t\t\t\t" ),
+	     _SYSTEM_STRING( "Flags:\t\t\t\t\t" ),
 	     item_file,
 	     error ) != 1 )
 	{
@@ -4657,7 +4659,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
-	     _LIBCSTRING_SYSTEM_STRING( "Display name:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Display name:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4684,7 +4686,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_TOPIC,
-	     _LIBCSTRING_SYSTEM_STRING( "Conversation topic:\t\t\t" ),
+	     _SYSTEM_STRING( "Conversation topic:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4709,7 +4711,7 @@ int export_handle_export_message_header_to_item_file(
 	if( export_handle_export_message_subject_to_item_file(
 	     export_handle,
 	     message,
-	     _LIBCSTRING_SYSTEM_STRING( "Subject:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Subject:\t\t\t\t" ),
 	     item_file,
 	     error ) != 1 )
 	{
@@ -4727,7 +4729,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME,
-	     _LIBCSTRING_SYSTEM_STRING( "Sender name:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Sender name:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4754,7 +4756,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS,
-	     _LIBCSTRING_SYSTEM_STRING( "Sender email address:\t\t\t" ),
+	     _SYSTEM_STRING( "Sender email address:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4781,7 +4783,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_SENT_REPRESENTING_NAME,
-	     _LIBCSTRING_SYSTEM_STRING( "Sent representing name:\t\t\t" ),
+	     _SYSTEM_STRING( "Sent representing name:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4808,7 +4810,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_SENT_REPRESENTING_EMAIL_ADDRESS,
-	     _LIBCSTRING_SYSTEM_STRING( "Sent representing email address:\t" ),
+	     _SYSTEM_STRING( "Sent representing email address:\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4833,7 +4835,7 @@ int export_handle_export_message_header_to_item_file(
 	if( export_handle_export_message_importance_to_item_file(
 	     export_handle,
 	     message,
-	     _LIBCSTRING_SYSTEM_STRING( "Importance:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Importance:\t\t\t\t" ),
 	     item_file,
 	     error ) != 1 )
 	{
@@ -4849,7 +4851,7 @@ int export_handle_export_message_header_to_item_file(
 	if( export_handle_export_message_priority_to_item_file(
 	     export_handle,
 	     message,
-	     _LIBCSTRING_SYSTEM_STRING( "Priority:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Priority:\t\t\t\t" ),
 	     item_file,
 	     error ) != 1 )
 	{
@@ -4865,7 +4867,7 @@ int export_handle_export_message_header_to_item_file(
 	if( export_handle_export_message_sensitivity_to_item_file(
 	     export_handle,
 	     message,
-	     _LIBCSTRING_SYSTEM_STRING( "Sensitivity:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Sensitivity:\t\t\t\t" ),
 	     item_file,
 	     error ) != 1 )
 	{
@@ -4883,7 +4885,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_IS_REMINDER,
-	     _LIBCSTRING_SYSTEM_STRING( "Is a reminder:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Is a reminder:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4910,7 +4912,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_REMINDER_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "Reminder time:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Reminder time:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4937,7 +4939,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_REMINDER_SIGNAL_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "Reminder signal time:\t\t\t" ),
+	     _SYSTEM_STRING( "Reminder signal time:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4964,7 +4966,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     LIBPFF_ENTRY_TYPE_MESSAGE_IS_PRIVATE,
-	     _LIBCSTRING_SYSTEM_STRING( "Is private:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Is private:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -4989,7 +4991,7 @@ int export_handle_export_message_header_to_item_file(
 	if( export_handle_export_message_status_to_item_file(
 	     export_handle,
 	     message,
-	     _LIBCSTRING_SYSTEM_STRING( "Status:\t\t\t\t\t" ),
+	     _SYSTEM_STRING( "Status:\t\t\t\t\t" ),
 	     item_file,
 	     error ) != 1 )
 	{
@@ -5024,7 +5026,7 @@ int export_handle_export_message_header_to_item_file(
 int export_handle_export_message_body(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -5297,12 +5299,12 @@ int export_handle_export_message_body_html(
      export_handle_t *export_handle,
      libpff_item_t *message,
      size_t message_html_body_size,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t filename[ 13 ];
+	system_character_t filename[ 13 ];
 
 	item_file_t *item_file = NULL;
 	static char *function  = "export_handle_export_message_body_html";
@@ -5320,9 +5322,9 @@ int export_handle_export_message_body_html(
 
 		return( -1 );
 	}
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     filename,
-	     _LIBCSTRING_SYSTEM_STRING( "Message.html" ),
+	     _SYSTEM_STRING( "Message.html" ),
 	     12 ) == NULL )
 	{
 		libcerror_error_set(
@@ -5339,7 +5341,7 @@ int export_handle_export_message_body_html(
 
 	log_handle_printf(
 	 log_handle,
-	 "Saving HTML message body as: %" PRIs_LIBCSTRING_SYSTEM "\n",
+	 "Saving HTML message body as: %" PRIs_SYSTEM "\n",
 	 filename );
 
 	result = export_handle_create_item_file(
@@ -5366,7 +5368,7 @@ int export_handle_export_message_body_html(
 	{
 		log_handle_printf(
 		 log_handle,
-		 "Skipping message body file: %" PRIs_LIBCSTRING_SYSTEM " it already exists.",
+		 "Skipping message body file: %" PRIs_SYSTEM " it already exists.",
 		 filename );
 
 		return( 1 );
@@ -5531,12 +5533,12 @@ int export_handle_export_message_body_rtf(
      export_handle_t *export_handle,
      libpff_item_t *message,
      size_t message_rtf_body_size,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t filename[ 12 ];
+	system_character_t filename[ 12 ];
 
 	item_file_t *item_file = NULL;
 	static char *function  = "export_handle_export_message_body_rtf";
@@ -5554,9 +5556,9 @@ int export_handle_export_message_body_rtf(
 
 		return( -1 );
 	}
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     filename,
-	     _LIBCSTRING_SYSTEM_STRING( "Message.rtf" ),
+	     _SYSTEM_STRING( "Message.rtf" ),
 	     11 ) == NULL )
 	{
 		libcerror_error_set(
@@ -5573,7 +5575,7 @@ int export_handle_export_message_body_rtf(
 
 	log_handle_printf(
 	 log_handle,
-	 "Saving RTF message body as: %" PRIs_LIBCSTRING_SYSTEM "\n",
+	 "Saving RTF message body as: %" PRIs_SYSTEM "\n",
 	 filename );
 
 	result = export_handle_create_item_file(
@@ -5600,7 +5602,7 @@ int export_handle_export_message_body_rtf(
 	{
 		log_handle_printf(
 		 log_handle,
-		 "Skipping message body file: %" PRIs_LIBCSTRING_SYSTEM " it already exists.",
+		 "Skipping message body file: %" PRIs_SYSTEM " it already exists.",
 		 filename );
 
 		return( 1 );
@@ -5765,12 +5767,12 @@ int export_handle_export_message_body_plain_text(
      export_handle_t *export_handle,
      libpff_item_t *message,
      size_t plain_text_body_size,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t filename[ 12 ];
+	system_character_t filename[ 12 ];
 
 	item_file_t *item_file = NULL;
 	static char *function  = "export_handle_export_message_body_plain_text";
@@ -5788,9 +5790,9 @@ int export_handle_export_message_body_plain_text(
 
 		return( -1 );
 	}
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     filename,
-	     _LIBCSTRING_SYSTEM_STRING( "Message.txt" ),
+	     _SYSTEM_STRING( "Message.txt" ),
 	     11 ) == NULL )
 	{
 		libcerror_error_set(
@@ -5807,7 +5809,7 @@ int export_handle_export_message_body_plain_text(
 
 	log_handle_printf(
 	 log_handle,
-	 "Saving plain text message body as: %" PRIs_LIBCSTRING_SYSTEM "\n",
+	 "Saving plain text message body as: %" PRIs_SYSTEM "\n",
 	 filename );
 
 	result = export_handle_create_item_file(
@@ -5834,7 +5836,7 @@ int export_handle_export_message_body_plain_text(
 	{
 		log_handle_printf(
 		 log_handle,
-		 "Skipping message body file: %" PRIs_LIBCSTRING_SYSTEM " it already exists.",
+		 "Skipping message body file: %" PRIs_SYSTEM " it already exists.",
 		 filename );
 
 		return( 1 );
@@ -5998,7 +6000,7 @@ on_error:
 int export_handle_export_message_conversation_index(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -6022,7 +6024,7 @@ int export_handle_export_message_conversation_index(
 	          export_handle,
 	          export_path,
 	          export_path_length,
-	          _LIBCSTRING_SYSTEM_STRING( "ConversationIndex.txt" ),
+	          _SYSTEM_STRING( "ConversationIndex.txt" ),
 	          21,
 	          &item_file,
 	          error );
@@ -6187,7 +6189,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Conversation index:" ),
+	     _SYSTEM_STRING( "Conversation index:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -6236,7 +6238,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 			}
 			if( item_file_write_value_description(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Header block:" ),
+			     _SYSTEM_STRING( "Header block:" ),
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -6277,7 +6279,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 			}
 			if( item_file_write_value_filetime(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "\tFiletime:\t" ),
+			     _SYSTEM_STRING( "\tFiletime:\t" ),
 			     filetime,
 			     error ) != 1 )
 			{
@@ -6323,7 +6325,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 			}
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "\tGUID:\t\t" ),
+			     _SYSTEM_STRING( "\tGUID:\t\t" ),
 			     8,
 			     error ) != 1 )
 			{
@@ -6384,7 +6386,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 			{
 				if( item_file_write_value_integer_32bit_as_decimal(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( "Child block: " ),
+				     _SYSTEM_STRING( "Child block: " ),
 				     (uint32_t) list_iterator,
 				     error ) != 1 )
 				{
@@ -6458,7 +6460,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 				}
 				if( item_file_write_value_filetime(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( "\tFiletime:\t" ),
+				     _SYSTEM_STRING( "\tFiletime:\t" ),
 				     filetime,
 				     error ) != 1 )
 				{
@@ -6473,7 +6475,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 				}
 				if( item_file_write_value_integer_32bit_as_decimal(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( "\tRandom number:\t" ),
+				     _SYSTEM_STRING( "\tRandom number:\t" ),
 				     (uint32_t) ( ( entry_value[ entry_value_index + 4 ] & 0xf0 ) >> 4 ),
 				     error ) != 1 )
 				{
@@ -6488,7 +6490,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 				}
 				if( item_file_write_value_integer_32bit_as_decimal(
 				     item_file,
-				     _LIBCSTRING_SYSTEM_STRING( "\tSequence count:\t" ),
+				     _SYSTEM_STRING( "\tSequence count:\t" ),
 				     (uint32_t) ( entry_value[ entry_value_index + 4 ] & 0x0f ),
 				     error ) != 1 )
 				{
@@ -6597,12 +6599,12 @@ on_error:
 int export_handle_export_message_transport_headers(
      export_handle_t *export_handle,
      libpff_item_t *message,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t transport_headers_filename[ 20 ];
+	system_character_t transport_headers_filename[ 20 ];
 
 	item_file_t *item_file                 = NULL;
 	static char *function                  = "export_handle_export_message_transport_headers";
@@ -6644,9 +6646,9 @@ int export_handle_export_message_transport_headers(
 	{
 		return( 1 );
 	}
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     transport_headers_filename,
-	     _LIBCSTRING_SYSTEM_STRING( "InternetHeaders.txt" ),
+	     _SYSTEM_STRING( "InternetHeaders.txt" ),
 	     19 ) == NULL )
 	{
 		libcerror_error_set(
@@ -6662,7 +6664,7 @@ int export_handle_export_message_transport_headers(
 
 	log_handle_printf(
 	 log_handle,
-	 "Saving message transport headers as: %" PRIs_LIBCSTRING_SYSTEM "\n",
+	 "Saving message transport headers as: %" PRIs_SYSTEM "\n",
 	 transport_headers_filename );
 
 	result = export_handle_create_item_file(
@@ -6689,7 +6691,7 @@ int export_handle_export_message_transport_headers(
 	{
 		log_handle_printf(
 		 log_handle,
-		 "Skipping message transport headers file: %" PRIs_LIBCSTRING_SYSTEM " it already exists.",
+		 "Skipping message transport headers file: %" PRIs_SYSTEM " it already exists.",
 		 transport_headers_filename );
 
 		return( 1 );
@@ -6842,19 +6844,19 @@ on_error:
 int export_handle_export_attachments(
      export_handle_t *export_handle,
      libpff_item_t *item,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libpff_item_t *attachment                       = NULL;
-	libpff_item_t *attachments                      = NULL;
-	libcstring_system_character_t *attachments_path = NULL;
-	static char *function                           = "export_handle_export_attachments";
-	size_t attachments_path_size                    = 0;
-	int attachment_index                            = 0;
-	int number_of_attachments                       = 0;
-	int result                                      = 0;
+	libpff_item_t *attachment            = NULL;
+	libpff_item_t *attachments           = NULL;
+	system_character_t *attachments_path = NULL;
+	static char *function                = "export_handle_export_attachments";
+	size_t attachments_path_size         = 0;
+	int attachment_index                 = 0;
+	int number_of_attachments            = 0;
+	int result                           = 0;
 
 	if( export_handle == NULL )
 	{
@@ -6896,13 +6898,13 @@ int export_handle_export_attachments(
 	{
 		/* Create the attachments directory
 		 */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libcpath_path_join_wide(
 		          &attachments_path,
 		          &attachments_path_size,
 		          export_path,
 		          export_path_length,
-		          _LIBCSTRING_SYSTEM_STRING( "Attachments" ),
+		          _SYSTEM_STRING( "Attachments" ),
 		          11,
 		          error );
 #else
@@ -6911,7 +6913,7 @@ int export_handle_export_attachments(
 		          &attachments_path_size,
 		          export_path,
 		          export_path_length,
-		          _LIBCSTRING_SYSTEM_STRING( "Attachments" ),
+		          _SYSTEM_STRING( "Attachments" ),
 		          11,
 		          error );
 #endif
@@ -6926,7 +6928,7 @@ int export_handle_export_attachments(
 
 			goto on_error;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libcfile_file_exists_wide(
 			  attachments_path,
 		          error );
@@ -6941,7 +6943,7 @@ int export_handle_export_attachments(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_GENERIC,
-			 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+			 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 			 function,
 			 attachments_path );
 
@@ -6953,13 +6955,13 @@ int export_handle_export_attachments(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_GENERIC,
-			 "%s: %" PRIs_LIBCSTRING_SYSTEM " already exists.",
+			 "%s: %" PRIs_SYSTEM " already exists.",
 			 function,
 			 attachments_path );
 
 			goto on_error;
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcpath_path_make_directory_wide(
 		     attachments_path,
 		     error ) != 1 )
@@ -6973,7 +6975,7 @@ int export_handle_export_attachments(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 "%s: unable to make directory: %" PRIs_SYSTEM ".",
 			 function,
 			 attachments_path );
 
@@ -6981,7 +6983,7 @@ int export_handle_export_attachments(
 		}
 		log_handle_printf(
 		 log_handle,
-		 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+		 "Created directory: %" PRIs_SYSTEM ".\n",
 		 attachments_path );
 
 		if( export_handle->dump_item_values != 0 )
@@ -7007,7 +7009,7 @@ int export_handle_export_attachments(
 				if( export_handle_export_item_values(
 				     export_handle,
 				     attachments,
-				     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+				     _SYSTEM_STRING( "ItemValues.txt" ),
 				     14,
 				     attachments_path,
 				     attachments_path_size - 1,
@@ -7148,7 +7150,7 @@ int export_handle_export_attachment(
      libpff_item_t *attachment,
      int attachment_index,
      int number_of_attachments,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -7267,25 +7269,25 @@ int export_handle_export_attachment_data(
      libpff_item_t *attachment,
      int attachment_index,
      int number_of_attachments,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *attachment_filename = NULL;
-	libcstring_system_character_t *target_path         = NULL;
-	uint8_t *attachment_data                           = NULL;
-	FILE *attachment_file_stream                       = NULL;
-	static char *function                              = "export_handle_export_attachment_data";
-	size64_t attachment_data_size                      = 0;
-	size_t attachment_filename_index                   = 0;
-	size_t attachment_filename_size                    = 0;
-	size_t read_size                                   = 0;
-	size_t string_index                                = 0;
-	size_t target_path_size                            = 0;
-	size_t write_count                                 = 0;
-	ssize_t read_count                                 = 0;
-	int result                                         = 0;
+	system_character_t *attachment_filename = NULL;
+	system_character_t *target_path         = NULL;
+	FILE *attachment_file_stream            = NULL;
+	uint8_t *attachment_data                = NULL;
+	static char *function                   = "export_handle_export_attachment_data";
+	size64_t attachment_data_size           = 0;
+	size_t attachment_filename_index        = 0;
+	size_t attachment_filename_size         = 0;
+	size_t read_size                        = 0;
+	size_t string_index                     = 0;
+	size_t target_path_size                 = 0;
+	size_t write_count                      = 0;
+	ssize_t read_count                      = 0;
+	int result                              = 0;
 
 	if( export_handle == NULL )
 	{
@@ -7300,7 +7302,7 @@ int export_handle_export_attachment_data(
 	}
 	/* Determine the attachment filename size
 	 */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libpff_attachment_get_utf16_long_filename_size(
 		  attachment,
 		  &attachment_filename_size,
@@ -7339,7 +7341,7 @@ int export_handle_export_attachment_data(
 	{
 		attachment_filename_size = attachment_filename_index + 17;
 	}
-	attachment_filename = libcstring_system_string_allocate(
+	attachment_filename = system_string_allocate(
 	                       attachment_filename_size );
 
 	if( attachment_filename == NULL )
@@ -7360,17 +7362,17 @@ int export_handle_export_attachment_data(
 
 	while( string_index > 0 )
 	{
-		attachment_filename[ string_index-- ] = (libcstring_system_character_t) ( '0' + ( attachment_index % 10 ) );
+		attachment_filename[ string_index-- ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
 
 		attachment_index /= 10;
 	}
-	attachment_filename[ 0 ] = (libcstring_system_character_t) ( '0' + ( attachment_index % 10 ) );
+	attachment_filename[ 0 ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
 
 	attachment_filename_index++;
 
-	attachment_filename[ attachment_filename_index++ ] = (libcstring_system_character_t) '_';
+	attachment_filename[ attachment_filename_index++ ] = (system_character_t) '_';
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libpff_attachment_get_utf16_long_filename(
 		  attachment,
 		  (uint16_t *) &( attachment_filename[ attachment_filename_index ] ),
@@ -7385,17 +7387,17 @@ int export_handle_export_attachment_data(
 #endif
 	if( result == 1 )
 	{
-		attachment_filename_size = 1 + libcstring_system_string_length(
+		attachment_filename_size = 1 + system_string_length(
 		                                attachment_filename );
 
 		if( attachment_filename_size > 1 )
 		{
 			log_handle_printf(
 			 log_handle,
-			 "Saving attachment with filename: %" PRIs_LIBCSTRING_SYSTEM "",
+			 "Saving attachment with filename: %" PRIs_SYSTEM "",
 			 &( attachment_filename[ attachment_filename_index ] ) );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libcpath_path_sanitize_filename_wide(
 			          attachment_filename,
 			          &attachment_filename_size,
@@ -7419,7 +7421,7 @@ int export_handle_export_attachment_data(
 			}
 			log_handle_printf(
 			 log_handle,
-			 " as: %" PRIs_LIBCSTRING_SYSTEM "\n",
+			 " as: %" PRIs_SYSTEM "\n",
 			 &( attachment_filename[ attachment_filename_index ] ) );
 		}
 		else
@@ -7429,9 +7431,9 @@ int export_handle_export_attachment_data(
 	}
 	if( result != 1 )
 	{
-		if( libcstring_system_string_copy(
+		if( system_string_copy(
 		     &( attachment_filename[ attachment_filename_index ] ),
-		     _LIBCSTRING_SYSTEM_STRING( "Attachment.txt" ),
+		     _SYSTEM_STRING( "Attachment.txt" ),
 		     14 ) == NULL )
 		{
 			libcerror_error_set(
@@ -7449,10 +7451,10 @@ int export_handle_export_attachment_data(
 
 		log_handle_printf(
 		 log_handle,
-		 "Missing attachment filename defaulting to: %" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "Missing attachment filename defaulting to: %" PRIs_SYSTEM "\n",
 		 attachment_filename );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcpath_path_join_wide(
 	          &target_path,
 	          &target_path_size,
@@ -7482,7 +7484,7 @@ int export_handle_export_attachment_data(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcfile_file_exists_wide(
 		  target_path,
 	          error );
@@ -7497,7 +7499,7 @@ int export_handle_export_attachment_data(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+		 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 		 function,
 		 target_path );
 
@@ -7509,7 +7511,7 @@ int export_handle_export_attachment_data(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: %" PRIs_LIBCSTRING_SYSTEM " already exists.",
+		 "%s: %" PRIs_SYSTEM " already exists.",
 		 function,
 		 target_path );
 
@@ -7533,10 +7535,10 @@ int export_handle_export_attachment_data(
 	}
 	/* Create the attachment file
 	 */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	attachment_file_stream = file_stream_open_wide(
 				  target_path,
-				  _LIBCSTRING_SYSTEM_STRING( FILE_STREAM_BINARY_OPEN_WRITE ) );
+				  _SYSTEM_STRING( FILE_STREAM_BINARY_OPEN_WRITE ) );
 #else
 	attachment_file_stream = file_stream_open(
 				  target_path,
@@ -7549,7 +7551,7 @@ int export_handle_export_attachment_data(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open: %" PRIs_LIBCSTRING_SYSTEM ".",
+		 "%s: unable to open: %" PRIs_SYSTEM ".",
 		 function,
 		 target_path );
 
@@ -7713,19 +7715,19 @@ int export_handle_export_attachment_item(
      export_handle_t *export_handle,
      libpff_item_t *attachment,
      int attachment_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libpff_item_t *attached_item                       = NULL;
-	libcstring_system_character_t *attachment_filename = NULL;
-	libcstring_system_character_t *target_path         = NULL;
-	static char *function                              = "export_handle_export_attachment_item";
-	size_t attachment_filename_size                    = 0;
-	size_t target_path_size                            = 0;
-	int print_count                                    = 0;
-	int result                                         = 0;
+	libpff_item_t *attached_item            = NULL;
+	system_character_t *attachment_filename = NULL;
+	system_character_t *target_path         = NULL;
+	static char *function                   = "export_handle_export_attachment_item";
+	size_t attachment_filename_size         = 0;
+	size_t target_path_size                 = 0;
+	int print_count                         = 0;
+	int result                              = 0;
 
 	if( export_handle == NULL )
 	{
@@ -7738,7 +7740,7 @@ int export_handle_export_attachment_item(
 
 		return( -1 );
 	}
-	attachment_filename = libcstring_system_string_allocate(
+	attachment_filename = system_string_allocate(
 	                       16 );
 
 	if( attachment_filename == NULL )
@@ -7752,10 +7754,10 @@ int export_handle_export_attachment_item(
 
 		goto on_error;
 	}
-	print_count = libcstring_system_string_sprintf(
+	print_count = system_string_sprintf(
 		       attachment_filename,
 		       16,
-		       _LIBCSTRING_SYSTEM_STRING( "Attachment%05d" ),
+		       _SYSTEM_STRING( "Attachment%05d" ),
 		       attachment_index + 1 );
 
 	if( ( print_count < 0 )
@@ -7775,10 +7777,10 @@ int export_handle_export_attachment_item(
 
 	log_handle_printf(
 	 log_handle,
-	 "Missing attachment filename saving as: %" PRIs_LIBCSTRING_SYSTEM "\n",
+	 "Missing attachment filename saving as: %" PRIs_SYSTEM "\n",
 	 attachment_filename );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcpath_path_join_wide(
 	          &target_path,
 	          &target_path_size,
@@ -7813,7 +7815,7 @@ int export_handle_export_attachment_item(
 
 	attachment_filename = NULL;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcfile_file_exists_wide(
 		  target_path,
 	          error );
@@ -7828,7 +7830,7 @@ int export_handle_export_attachment_item(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+		 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 		 function,
 		 target_path );
 
@@ -7840,13 +7842,13 @@ int export_handle_export_attachment_item(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: %" PRIs_LIBCSTRING_SYSTEM " already exists.",
+		 "%s: %" PRIs_SYSTEM " already exists.",
 		 function,
 		 target_path );
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcpath_path_make_directory_wide(
 	     target_path,
 	     error ) != 1 )
@@ -7860,7 +7862,7 @@ int export_handle_export_attachment_item(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
+		 "%s: unable to make directory: %" PRIs_SYSTEM ".",
 		 function,
 		 target_path );
 
@@ -7868,7 +7870,7 @@ int export_handle_export_attachment_item(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+	 "Created directory: %" PRIs_SYSTEM ".\n",
 	 target_path );
 
 	if( libpff_attachment_get_item(
@@ -7957,7 +7959,7 @@ on_error:
 int export_handle_export_recipients(
      export_handle_t *export_handle,
      libpff_item_t *item,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -8029,7 +8031,7 @@ int export_handle_export_recipients(
 				if( export_handle_export_item_values(
 				     export_handle,
 				     recipients,
-				     _LIBCSTRING_SYSTEM_STRING( "RecipientsItemValues.txt" ),
+				     _SYSTEM_STRING( "RecipientsItemValues.txt" ),
 				     24,
 				     export_path,
 				     export_path_length,
@@ -8065,7 +8067,7 @@ int export_handle_export_recipients(
 				  export_handle,
 				  export_path,
 				  export_path_length,
-				  _LIBCSTRING_SYSTEM_STRING( "Recipients.txt" ),
+				  _SYSTEM_STRING( "Recipients.txt" ),
 				  14,
 				  &item_file,
 				  error );
@@ -8173,7 +8175,7 @@ int export_handle_export_recipient_type_to_item_file(
      export_handle_t *export_handle,
      libpff_item_t *recipients,
      int recipient_index,
-     const libcstring_system_character_t *description,
+     const system_character_t *description,
      item_file_t *item_file,
      libcerror_error_t **error )
 {
@@ -8234,7 +8236,7 @@ int export_handle_export_recipient_type_to_item_file(
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     libcstring_system_string_length(
+		     system_string_length(
 		      description ),
 		     error ) != 1 )
 		{
@@ -8251,7 +8253,7 @@ int export_handle_export_recipient_type_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Originator" ),
+			     _SYSTEM_STRING( "Originator" ),
 			     10,
 			     error ) != 1 )
 			{
@@ -8269,7 +8271,7 @@ int export_handle_export_recipient_type_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "To" ),
+			     _SYSTEM_STRING( "To" ),
 			     2,
 			     error ) != 1 )
 			{
@@ -8287,7 +8289,7 @@ int export_handle_export_recipient_type_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "CC" ),
+			     _SYSTEM_STRING( "CC" ),
 			     2,
 			     error ) != 1 )
 			{
@@ -8305,7 +8307,7 @@ int export_handle_export_recipient_type_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "BCC" ),
+			     _SYSTEM_STRING( "BCC" ),
 			     3,
 			     error ) != 1 )
 			{
@@ -8323,7 +8325,7 @@ int export_handle_export_recipient_type_to_item_file(
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Unknown (" ),
+			     _SYSTEM_STRING( "Unknown (" ),
 			     9,
 			     error ) != 1 )
 			{
@@ -8352,7 +8354,7 @@ int export_handle_export_recipient_type_to_item_file(
 			}
 			if( item_file_write_string(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( ")" ),
+			     _SYSTEM_STRING( ")" ),
 			     1,
 			     error ) != 1 )
 			{
@@ -8444,7 +8446,7 @@ int export_handle_export_recipients_to_item_file(
 		     recipients,
 		     recipient_index,
 		     LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
-		     _LIBCSTRING_SYSTEM_STRING( "Display name:\t\t" ),
+		     _SYSTEM_STRING( "Display name:\t\t" ),
 		     0,
 		     error ) != 1 )
 		{
@@ -8471,7 +8473,7 @@ int export_handle_export_recipients_to_item_file(
 		     recipients,
 		     recipient_index,
 		     LIBPFF_ENTRY_TYPE_RECIPIENT_DISPLAY_NAME,
-		     _LIBCSTRING_SYSTEM_STRING( "Recipient display name:\t" ),
+		     _SYSTEM_STRING( "Recipient display name:\t" ),
 		     0,
 		     error ) != 1 )
 		{
@@ -8498,7 +8500,7 @@ int export_handle_export_recipients_to_item_file(
 		     recipients,
 		     recipient_index,
 		     LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS,
-		     _LIBCSTRING_SYSTEM_STRING( "Email address:\t\t" ),
+		     _SYSTEM_STRING( "Email address:\t\t" ),
 		     0,
 		     error ) != 1 )
 		{
@@ -8525,7 +8527,7 @@ int export_handle_export_recipients_to_item_file(
 		     recipients,
 		     recipient_index,
 		     LIBPFF_ENTRY_TYPE_ADDRESS_TYPE,
-		     _LIBCSTRING_SYSTEM_STRING( "Address type:\t\t" ),
+		     _SYSTEM_STRING( "Address type:\t\t" ),
 		     0,
 		     error ) != 1 )
 		{
@@ -8551,7 +8553,7 @@ int export_handle_export_recipients_to_item_file(
 		     export_handle,
 		     recipients,
 		     recipient_index,
-		     _LIBCSTRING_SYSTEM_STRING( "Recipient type:\t\t" ),
+		     _SYSTEM_STRING( "Recipient type:\t\t" ),
 		     item_file,
 		     error ) != 1 )
 		{
@@ -8588,18 +8590,18 @@ int export_handle_export_activity(
      export_handle_t *export_handle,
      libpff_item_t *activity,
      int activity_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	item_file_t *item_file                       = NULL;
-	libcstring_system_character_t *activity_path = NULL;
-	static char *function                        = "export_handle_export_activity";
-	size_t plain_text_body_size                  = 0;
-	size_t activity_path_size                    = 0;
-	uint32_t identifier                          = 0;
-	int result                                   = 0;
+	item_file_t *item_file            = NULL;
+	system_character_t *activity_path = NULL;
+	static char *function             = "export_handle_export_activity";
+	size_t activity_path_size         = 0;
+	size_t plain_text_body_size       = 0;
+	uint32_t identifier               = 0;
+	int result                        = 0;
 
 	if( export_handle == NULL )
 	{
@@ -8650,7 +8652,7 @@ int export_handle_export_activity(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing activity: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing activity: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 activity_index,
 	 identifier,
 	 export_path,
@@ -8669,7 +8671,7 @@ int export_handle_export_activity(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     activity_index,
-	     _LIBCSTRING_SYSTEM_STRING( "Activity" ),
+	     _SYSTEM_STRING( "Activity" ),
 	     8,
 	     export_path,
 	     export_path_length,
@@ -8703,7 +8705,7 @@ int export_handle_export_activity(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     activity,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     activity_path,
 		     activity_path_size - 1,
@@ -8734,7 +8736,7 @@ int export_handle_export_activity(
 	          export_handle,
 	          activity_path,
 	          activity_path_size - 1,
-	          _LIBCSTRING_SYSTEM_STRING( "Activity.txt" ),
+	          _SYSTEM_STRING( "Activity.txt" ),
 	          12,
 	          &item_file,
 	          error );
@@ -8778,7 +8780,7 @@ int export_handle_export_activity(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Activity:" ),
+	     _SYSTEM_STRING( "Activity:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -8819,7 +8821,7 @@ int export_handle_export_activity(
 	{
 		if( item_file_write_value_description(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "\nBody:\n" ),
+		     _SYSTEM_STRING( "\nBody:\n" ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -8995,17 +8997,17 @@ int export_handle_export_appointment(
      export_handle_t *export_handle,
      libpff_item_t *appointment,
      int appointment_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	item_file_t *item_file                          = NULL;
-	libcstring_system_character_t *appointment_path = NULL;
-	static char *function                           = "export_handle_export_appointment";
-	size_t appointment_path_size                    = 0;
-	uint32_t identifier                             = 0;
-	int result                                      = 0;
+	item_file_t *item_file               = NULL;
+	system_character_t *appointment_path = NULL;
+	static char *function                = "export_handle_export_appointment";
+	size_t appointment_path_size         = 0;
+	uint32_t identifier                  = 0;
+	int result                           = 0;
 
 	if( export_handle == NULL )
 	{
@@ -9056,7 +9058,7 @@ int export_handle_export_appointment(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing appointment: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing appointment: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 appointment_index,
 	 identifier,
 	 export_path,
@@ -9075,7 +9077,7 @@ int export_handle_export_appointment(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     appointment_index,
-	     _LIBCSTRING_SYSTEM_STRING( "Appointment" ),
+	     _SYSTEM_STRING( "Appointment" ),
 	     11,
 	     export_path,
 	     export_path_length,
@@ -9098,7 +9100,7 @@ int export_handle_export_appointment(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     appointment,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     appointment_path,
 		     appointment_path_size - 1,
@@ -9129,7 +9131,7 @@ int export_handle_export_appointment(
 	          export_handle,
 	          appointment_path,
 	          appointment_path_size - 1,
-	          _LIBCSTRING_SYSTEM_STRING( "Appointment.txt" ),
+	          _SYSTEM_STRING( "Appointment.txt" ),
 	          15,
 	          &item_file,
 	          error );
@@ -9173,7 +9175,7 @@ int export_handle_export_appointment(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Appointment:" ),
+	     _SYSTEM_STRING( "Appointment:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -9190,7 +9192,7 @@ int export_handle_export_appointment(
 	     appointment,
 	     0,
 	     LIBPFF_ENTRY_TYPE_APPOINTMENT_START_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "Start time:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Start time:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9217,7 +9219,7 @@ int export_handle_export_appointment(
 	     appointment,
 	     0,
 	     LIBPFF_ENTRY_TYPE_APPOINTMENT_END_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "End time:\t\t\t\t" ),
+	     _SYSTEM_STRING( "End time:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9244,7 +9246,7 @@ int export_handle_export_appointment(
 	     appointment,
 	     0,
 	     LIBPFF_ENTRY_TYPE_APPOINTMENT_DURATION,
-	     _LIBCSTRING_SYSTEM_STRING( "Duration:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Duration:\t\t\t\t" ),
 	     ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES,
 	     error ) != 1 )
 	{
@@ -9271,7 +9273,7 @@ int export_handle_export_appointment(
 	     appointment,
 	     0,
 	     LIBPFF_ENTRY_TYPE_APPOINTMENT_LOCATION,
-	     _LIBCSTRING_SYSTEM_STRING( "Location:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Location:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9298,7 +9300,7 @@ int export_handle_export_appointment(
 	     appointment,
 	     0,
 	     LIBPFF_ENTRY_TYPE_APPOINTMENT_RECURRENCE_PATTERN,
-	     _LIBCSTRING_SYSTEM_STRING( "Recurrence pattern:\t\t\t" ),
+	     _SYSTEM_STRING( "Recurrence pattern:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9325,7 +9327,7 @@ int export_handle_export_appointment(
 	     appointment,
 	     0,
 	     LIBPFF_ENTRY_TYPE_APPOINTMENT_FIRST_EFFECTIVE_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "First effective time:\t\t\t" ),
+	     _SYSTEM_STRING( "First effective time:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9352,7 +9354,7 @@ int export_handle_export_appointment(
 	     appointment,
 	     0,
 	     LIBPFF_ENTRY_TYPE_APPOINTMENT_LAST_EFFECTIVE_TIME,
-	     _LIBCSTRING_SYSTEM_STRING( "Last effective time:\t\t\t" ),
+	     _SYSTEM_STRING( "Last effective time:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9380,7 +9382,7 @@ int export_handle_export_appointment(
 	     appointment,
 	     0,
 	     LIBPFF_ENTRY_TYPE_APPOINTMENT_BUSY_STATUS,
-	     _LIBCSTRING_SYSTEM_STRING( "Busy status:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Busy status:\t\t\t\t" ),
 	     ITEM_FILE_FORMAT_FLAG_HEXADECIMAL,
 	     error ) != 1 )
 	{
@@ -9514,18 +9516,18 @@ int export_handle_export_contact(
      export_handle_t *export_handle,
      libpff_item_t *contact,
      int contact_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	item_file_t *item_file                      = NULL;
-	libcstring_system_character_t *contact_path = NULL;
-	static char *function                       = "export_handle_export_contact";
-	size_t contact_path_size                    = 0;
-	size_t plain_text_body_size                 = 0;
-	uint32_t identifier                         = 0;
-	int result                                  = 0;
+	item_file_t *item_file           = NULL;
+	system_character_t *contact_path = NULL;
+	static char *function            = "export_handle_export_contact";
+	size_t contact_path_size         = 0;
+	size_t plain_text_body_size      = 0;
+	uint32_t identifier              = 0;
+	int result                       = 0;
 
 	if( export_handle == NULL )
 	{
@@ -9576,7 +9578,7 @@ int export_handle_export_contact(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing contact: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing contact: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 contact_index,
 	 identifier,
 	 export_path,
@@ -9595,7 +9597,7 @@ int export_handle_export_contact(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     contact_index,
-	     _LIBCSTRING_SYSTEM_STRING( "Contact" ),
+	     _SYSTEM_STRING( "Contact" ),
 	     7,
 	     export_path,
 	     export_path_length,
@@ -9618,7 +9620,7 @@ int export_handle_export_contact(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     contact,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     contact_path,
 		     contact_path_size - 1,
@@ -9649,7 +9651,7 @@ int export_handle_export_contact(
 	          export_handle,
 	          contact_path,
 	          contact_path_size - 1,
-	          _LIBCSTRING_SYSTEM_STRING( "Contact.txt" ),
+	          _SYSTEM_STRING( "Contact.txt" ),
 	          11,
 	          &item_file,
 	          error );
@@ -9693,7 +9695,7 @@ int export_handle_export_contact(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Contact:" ),
+	     _SYSTEM_STRING( "Contact:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -9710,7 +9712,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_ADDRESS_FILE_UNDER,
-	     _LIBCSTRING_SYSTEM_STRING( "File under:\t\t\t\t" ),
+	     _SYSTEM_STRING( "File under:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9737,7 +9739,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_GIVEN_NAME,
-	     _LIBCSTRING_SYSTEM_STRING( "Given name:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Given name:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9764,7 +9766,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_INITIALS,
-	     _LIBCSTRING_SYSTEM_STRING( "Initials:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Initials:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9791,7 +9793,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_SURNAME,
-	     _LIBCSTRING_SYSTEM_STRING( "Surname:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Surname:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9818,7 +9820,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_GENERATIONAL_ABBREVIATION,
-	     _LIBCSTRING_SYSTEM_STRING( "Generational abbreviation:\t\t" ),
+	     _SYSTEM_STRING( "Generational abbreviation:\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9845,7 +9847,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_TITLE,
-	     _LIBCSTRING_SYSTEM_STRING( "Title:\t\t\t\t\t" ),
+	     _SYSTEM_STRING( "Title:\t\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9872,7 +9874,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_CALLBACK_PHONE_NUMBER,
-	     _LIBCSTRING_SYSTEM_STRING( "Callback phone number:\t\t" ),
+	     _SYSTEM_STRING( "Callback phone number:\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9899,7 +9901,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_PRIMARY_PHONE_NUMBER,
-	     _LIBCSTRING_SYSTEM_STRING( "Primary phone number:\t\t" ),
+	     _SYSTEM_STRING( "Primary phone number:\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9926,7 +9928,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_HOME_PHONE_NUMBER,
-	     _LIBCSTRING_SYSTEM_STRING( "Home phone number:\t\t\t" ),
+	     _SYSTEM_STRING( "Home phone number:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9953,7 +9955,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_MOBILE_PHONE_NUMBER,
-	     _LIBCSTRING_SYSTEM_STRING( "Mobile phone number:\t\t\t" ),
+	     _SYSTEM_STRING( "Mobile phone number:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -9980,7 +9982,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_COMPANY_NAME,
-	     _LIBCSTRING_SYSTEM_STRING( "Company name:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Company name:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10007,7 +10009,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_JOB_TITLE,
-	     _LIBCSTRING_SYSTEM_STRING( "Job title:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Job title:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10034,7 +10036,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_OFFICE_LOCATION,
-	     _LIBCSTRING_SYSTEM_STRING( "Office location:\t\t\t" ),
+	     _SYSTEM_STRING( "Office location:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10061,7 +10063,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_DEPARTMENT_NAME,
-	     _LIBCSTRING_SYSTEM_STRING( "Department name:\t\t\t" ),
+	     _SYSTEM_STRING( "Department name:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10088,7 +10090,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_POSTAL_ADDRESS,
-	     _LIBCSTRING_SYSTEM_STRING( "Postal address:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Postal address:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10115,7 +10117,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_COUNTRY,
-	     _LIBCSTRING_SYSTEM_STRING( "Country:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Country:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10142,7 +10144,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_LOCALITY,
-	     _LIBCSTRING_SYSTEM_STRING( "Locality:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Locality:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10169,7 +10171,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_BUSINESS_PHONE_NUMBER_1,
-	     _LIBCSTRING_SYSTEM_STRING( "Business phone number 1:\t\t" ),
+	     _SYSTEM_STRING( "Business phone number 1:\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10196,7 +10198,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_BUSINESS_PHONE_NUMBER_2,
-	     _LIBCSTRING_SYSTEM_STRING( "Business phone number 2:\t\t" ),
+	     _SYSTEM_STRING( "Business phone number 2:\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10223,7 +10225,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_BUSINESS_FAX_NUMBER,
-	     _LIBCSTRING_SYSTEM_STRING( "Business fax number:\t\t\t" ),
+	     _SYSTEM_STRING( "Business fax number:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10250,7 +10252,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_1,
-	     _LIBCSTRING_SYSTEM_STRING( "Email address 1:\t\t\t" ),
+	     _SYSTEM_STRING( "Email address 1:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10277,7 +10279,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_2,
-	     _LIBCSTRING_SYSTEM_STRING( "Email address 2:\t\t\t" ),
+	     _SYSTEM_STRING( "Email address 2:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10304,7 +10306,7 @@ int export_handle_export_contact(
 	     contact,
 	     0,
 	     LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_3,
-	     _LIBCSTRING_SYSTEM_STRING( "Email address 3:\t\t\t" ),
+	     _SYSTEM_STRING( "Email address 3:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10353,7 +10355,7 @@ int export_handle_export_contact(
 	{
 		if( item_file_write_value_description(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "\nBody:\n" ),
+		     _SYSTEM_STRING( "\nBody:\n" ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -10531,16 +10533,16 @@ int export_handle_export_distribution_list(
      export_handle_t *export_handle,
      libpff_item_t *distribution_list,
      int distribution_list_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
 	item_file_t *item_file                                 = NULL;
-	libcstring_system_character_t *distribution_list_path  = NULL;
-	libpff_multi_value_t *multi_value                      = 0;
-	libfmapi_entry_identifier_t *member_entry_identifier   = 0;
-	libfmapi_one_off_entry_identifier_t *member_identifier = 0;
+	libfmapi_entry_identifier_t *member_entry_identifier   = NULL;
+	libfmapi_one_off_entry_identifier_t *member_identifier = NULL;
+	libpff_multi_value_t *multi_value                      = NULL;
+	system_character_t *distribution_list_path             = NULL;
 	uint8_t *member_identifier_data                        = 0;
 	static char *function                                  = "export_handle_export_distribution_list";
 	size_t distribution_list_path_size                     = 0;
@@ -10549,8 +10551,8 @@ int export_handle_export_distribution_list(
 	int number_of_values                                   = 0;
 	int result                                             = 0;
 #ifdef TODO
-	int value_index                                        = 0;
 	size_t member_identifier_data_size                     = 0;
+	int value_index                                        = 0;
 #endif
 
 	if( export_handle == NULL )
@@ -10602,7 +10604,7 @@ int export_handle_export_distribution_list(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing distribution list: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing distribution list: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 distribution_list_index,
 	 identifier,
 	 export_path,
@@ -10621,7 +10623,7 @@ int export_handle_export_distribution_list(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     distribution_list_index,
-	     _LIBCSTRING_SYSTEM_STRING( "DistributionList" ),
+	     _SYSTEM_STRING( "DistributionList" ),
 	     16,
 	     export_path,
 	     export_path_length,
@@ -10655,7 +10657,7 @@ int export_handle_export_distribution_list(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     distribution_list,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     distribution_list_path,
 		     distribution_list_path_size - 1,
@@ -10686,7 +10688,7 @@ int export_handle_export_distribution_list(
 	          export_handle,
 	          distribution_list_path,
 	          distribution_list_path_size - 1,
-	          _LIBCSTRING_SYSTEM_STRING( "DistributionList.txt" ),
+	          _SYSTEM_STRING( "DistributionList.txt" ),
 	          20,
 	          &item_file,
 	          error );
@@ -10730,7 +10732,7 @@ int export_handle_export_distribution_list(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Distribution list:" ),
+	     _SYSTEM_STRING( "Distribution list:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -10747,7 +10749,7 @@ int export_handle_export_distribution_list(
 	     distribution_list,
 	     0,
 	     LIBPFF_ENTRY_TYPE_DISTRIBUTION_LIST_NAME,
-	     _LIBCSTRING_SYSTEM_STRING( "Name:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Name:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -10978,7 +10980,7 @@ int export_handle_export_distribution_list(
 	{
 		if( item_file_write_value_description(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "\nBody:\n" ),
+		     _SYSTEM_STRING( "\nBody:\n" ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -11120,17 +11122,17 @@ int export_handle_export_document(
      export_handle_t *export_handle,
      libpff_item_t *document,
      int document_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	item_file_t *item_file                       = NULL;
-	libcstring_system_character_t *document_path = NULL;
-	static char *function                        = "export_handle_export_document";
-	size_t document_path_size                    = 0;
-	uint32_t identifier                          = 0;
-	int result                                   = 0;
+	item_file_t *item_file            = NULL;
+	system_character_t *document_path = NULL;
+	static char *function             = "export_handle_export_document";
+	size_t document_path_size         = 0;
+	uint32_t identifier               = 0;
+	int result                        = 0;
 
 	if( export_handle == NULL )
 	{
@@ -11181,7 +11183,7 @@ int export_handle_export_document(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing document: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing document: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 document_index,
 	 identifier,
 	 export_path,
@@ -11200,7 +11202,7 @@ int export_handle_export_document(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     document_index,
-	     _LIBCSTRING_SYSTEM_STRING( "Document" ),
+	     _SYSTEM_STRING( "Document" ),
 	     8,
 	     export_path,
 	     export_path_length,
@@ -11234,7 +11236,7 @@ int export_handle_export_document(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     document,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     document_path,
 		     document_path_size - 1,
@@ -11265,7 +11267,7 @@ int export_handle_export_document(
 	          export_handle,
 	          document_path,
 	          document_path_size - 1,
-	          _LIBCSTRING_SYSTEM_STRING( "Document.txt" ),
+	          _SYSTEM_STRING( "Document.txt" ),
 	          12,
 	          &item_file,
 	          error );
@@ -11418,24 +11420,24 @@ int export_handle_export_email(
      export_handle_t *export_handle,
      libpff_item_t *email,
      int email_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *email_path = NULL;
-	static char *function                     = "export_handle_export_email";
-	uint8_t *email_filename                   = NULL;
-	size_t email_filename_size                = 0;
-	size_t email_html_body_size               = 0;
-	size_t email_path_size                    = 0;
-	size_t email_rtf_body_size                = 0;
-	size_t email_plain_text_body_size         = 0;
-	uint32_t identifier                       = 0;
-	int export_format                         = 0;
-	int has_html_body                         = 0;
-	int has_rtf_body                          = 0;
-	int has_text_body                         = 0;
+	system_character_t *email_path    = NULL;
+	uint8_t *email_filename           = NULL;
+	static char *function             = "export_handle_export_email";
+	size_t email_filename_size        = 0;
+	size_t email_html_body_size       = 0;
+	size_t email_path_size            = 0;
+	size_t email_plain_text_body_size = 0;
+	size_t email_rtf_body_size        = 0;
+	uint32_t identifier               = 0;
+	int export_format                 = 0;
+	int has_html_body                 = 0;
+	int has_rtf_body                  = 0;
+	int has_text_body                 = 0;
 
 	if( export_handle == NULL )
 	{
@@ -11475,7 +11477,7 @@ int export_handle_export_email(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing email: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing email: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 email_index,
 	 identifier,
 	 export_path,
@@ -11494,7 +11496,7 @@ int export_handle_export_email(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     email_index,
-	     _LIBCSTRING_SYSTEM_STRING( "Message" ),
+	     _SYSTEM_STRING( "Message" ),
 	     7,
 	     export_path,
 	     export_path_length,
@@ -11528,7 +11530,7 @@ int export_handle_export_email(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     email,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     email_path,
 		     email_path_size - 1,
@@ -11921,12 +11923,12 @@ int export_handle_export_email_ftk(
      export_handle_t *export_handle,
      libpff_item_t *email,
      size_t plain_text_body_size,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t email_filename[ 12 ];
+	system_character_t email_filename[ 12 ];
 
 	item_file_t *item_file                = NULL;
 	libpff_item_t *recipients             = NULL;
@@ -11969,9 +11971,9 @@ int export_handle_export_email_ftk(
 
 		return( -1 );
 	}
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     email_filename,
-	     _LIBCSTRING_SYSTEM_STRING( "Message.txt" ),
+	     _SYSTEM_STRING( "Message.txt" ),
 	     11 ) == NULL )
 	{
 		libcerror_error_set(
@@ -11988,7 +11990,7 @@ int export_handle_export_email_ftk(
 
 	log_handle_printf(
 	 log_handle,
-	 "Saving email as: %" PRIs_LIBCSTRING_SYSTEM "\n",
+	 "Saving email as: %" PRIs_SYSTEM "\n",
 	 email_filename );
 
 	result = export_handle_create_item_file(
@@ -12015,7 +12017,7 @@ int export_handle_export_email_ftk(
 	{
 		log_handle_printf(
 		 log_handle,
-		 "Skipping email file: %" PRIs_LIBCSTRING_SYSTEM " it already exists.",
+		 "Skipping email file: %" PRIs_SYSTEM " it already exists.",
 		 email_filename );
 
 		return( 1 );
@@ -12088,7 +12090,7 @@ int export_handle_export_email_ftk(
 		{
 			if( item_file_write_value_description(
 			     item_file,
-			     _LIBCSTRING_SYSTEM_STRING( "Recipients:" ),
+			     _SYSTEM_STRING( "Recipients:" ),
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -12164,7 +12166,7 @@ int export_handle_export_email_ftk(
 	{
 		if( item_file_write_value_description(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "Internet headers:" ),
+		     _SYSTEM_STRING( "Internet headers:" ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -12260,18 +12262,18 @@ int export_handle_export_meeting(
      export_handle_t *export_handle,
      libpff_item_t *meeting,
      int meeting_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	item_file_t *item_file                      = NULL;
-	libcstring_system_character_t *meeting_path = NULL;
-	static char *function                       = "export_handle_export_meeting";
-	size_t meeting_path_size                    = 0;
-	size_t plain_text_body_size                 = 0;
-	uint32_t identifier                         = 0;
-	int result                                  = 0;
+	item_file_t *item_file           = NULL;
+	system_character_t *meeting_path = NULL;
+	static char *function            = "export_handle_export_meeting";
+	size_t meeting_path_size         = 0;
+	size_t plain_text_body_size      = 0;
+	uint32_t identifier              = 0;
+	int result                       = 0;
 
 	if( export_handle == NULL )
 	{
@@ -12322,7 +12324,7 @@ int export_handle_export_meeting(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing meeting: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing meeting: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 meeting_index,
 	 identifier,
 	 export_path,
@@ -12341,7 +12343,7 @@ int export_handle_export_meeting(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     meeting_index,
-	     _LIBCSTRING_SYSTEM_STRING( "Meeting" ),
+	     _SYSTEM_STRING( "Meeting" ),
 	     7,
 	     export_path,
 	     export_path_length,
@@ -12375,7 +12377,7 @@ int export_handle_export_meeting(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     meeting,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     meeting_path,
 		     meeting_path_size - 1,
@@ -12406,7 +12408,7 @@ int export_handle_export_meeting(
 	          export_handle,
 	          meeting_path,
 	          meeting_path_size - 1,
-	          _LIBCSTRING_SYSTEM_STRING( "Meeting.txt" ),
+	          _SYSTEM_STRING( "Meeting.txt" ),
 	          11,
 	          &item_file,
 	          error );
@@ -12450,7 +12452,7 @@ int export_handle_export_meeting(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Meeting:" ),
+	     _SYSTEM_STRING( "Meeting:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -12491,7 +12493,7 @@ int export_handle_export_meeting(
 	{
 		if( item_file_write_value_description(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "\nBody:\n" ),
+		     _SYSTEM_STRING( "\nBody:\n" ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -12612,18 +12614,18 @@ int export_handle_export_note(
      export_handle_t *export_handle,
      libpff_item_t *note,
      int note_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	item_file_t *item_file                   = NULL;
-	libcstring_system_character_t *note_path = NULL;
-	static char *function                    = "export_handle_export_note";
-	size_t note_path_size                    = 0;
-	size_t plain_text_body_size              = 0;
-	uint32_t identifier                      = 0;
-	int result                               = 0;
+	item_file_t *item_file        = NULL;
+	system_character_t *note_path = NULL;
+	static char *function         = "export_handle_export_note";
+	size_t note_path_size         = 0;
+	size_t plain_text_body_size   = 0;
+	uint32_t identifier           = 0;
+	int result                    = 0;
 
 	if( export_handle == NULL )
 	{
@@ -12674,7 +12676,7 @@ int export_handle_export_note(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing note: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing note: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 note_index,
 	 identifier,
 	 export_path,
@@ -12693,7 +12695,7 @@ int export_handle_export_note(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     note_index,
-	     _LIBCSTRING_SYSTEM_STRING( "Note" ),
+	     _SYSTEM_STRING( "Note" ),
 	     4,
 	     export_path,
 	     export_path_length,
@@ -12727,7 +12729,7 @@ int export_handle_export_note(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     note,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     note_path,
 		     note_path_size - 1,
@@ -12758,7 +12760,7 @@ int export_handle_export_note(
 	          export_handle,
 	          note_path,
 	          note_path_size - 1,
-	          _LIBCSTRING_SYSTEM_STRING( "Note.txt" ),
+	          _SYSTEM_STRING( "Note.txt" ),
 	          8,
 	          &item_file,
 	          error );
@@ -12802,7 +12804,7 @@ int export_handle_export_note(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Note:" ),
+	     _SYSTEM_STRING( "Note:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -12843,7 +12845,7 @@ int export_handle_export_note(
 	{
 		if( item_file_write_value_description(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "\nBody:\n" ),
+		     _SYSTEM_STRING( "\nBody:\n" ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -13021,18 +13023,18 @@ int export_handle_export_rss_feed(
      export_handle_t *export_handle,
      libpff_item_t *rss_feed,
      int rss_feed_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	item_file_t *item_file                       = NULL;
-	libcstring_system_character_t *rss_feed_path = NULL;
-	static char *function                        = "export_handle_export_rss_feed";
-	size_t plain_text_body_size                  = 0;
-	size_t rss_feed_path_size                    = 0;
-	uint32_t identifier                          = 0;
-	int result                                   = 0;
+	item_file_t *item_file            = NULL;
+	system_character_t *rss_feed_path = NULL;
+	static char *function             = "export_handle_export_rss_feed";
+	size_t plain_text_body_size       = 0;
+	size_t rss_feed_path_size         = 0;
+	uint32_t identifier               = 0;
+	int result                        = 0;
 
 	if( export_handle == NULL )
 	{
@@ -13083,7 +13085,7 @@ int export_handle_export_rss_feed(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing RSS feed: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing RSS feed: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 rss_feed_index,
 	 identifier,
 	 export_path,
@@ -13102,7 +13104,7 @@ int export_handle_export_rss_feed(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     rss_feed_index,
-	     _LIBCSTRING_SYSTEM_STRING( "Feed" ),
+	     _SYSTEM_STRING( "Feed" ),
 	     4,
 	     export_path,
 	     export_path_length,
@@ -13136,7 +13138,7 @@ int export_handle_export_rss_feed(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     rss_feed,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     rss_feed_path,
 		     rss_feed_path_size - 1,
@@ -13167,7 +13169,7 @@ int export_handle_export_rss_feed(
 	          export_handle,
 	          rss_feed_path,
 	          rss_feed_path_size - 1,
-	          _LIBCSTRING_SYSTEM_STRING( "Feed.txt" ),
+	          _SYSTEM_STRING( "Feed.txt" ),
 	          8,
 	          &item_file,
 	          error );
@@ -13211,7 +13213,7 @@ int export_handle_export_rss_feed(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "RSS feed:" ),
+	     _SYSTEM_STRING( "RSS feed:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -13252,7 +13254,7 @@ int export_handle_export_rss_feed(
 	{
 		if( item_file_write_value_description(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "\nBody:\n" ),
+		     _SYSTEM_STRING( "\nBody:\n" ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -13428,18 +13430,18 @@ int export_handle_export_task(
      export_handle_t *export_handle,
      libpff_item_t *task,
      int task_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	item_file_t *item_file                   = NULL;
-	libcstring_system_character_t *task_path = NULL;
-	static char *function                    = "export_handle_export_task";
-	size_t plain_text_body_size              = 0;
-	size_t task_path_size                    = 0;
-	uint32_t identifier                      = 0;
-	int result                               = 0;
+	item_file_t *item_file        = NULL;
+	system_character_t *task_path = NULL;
+	static char *function         = "export_handle_export_task";
+	size_t plain_text_body_size   = 0;
+	size_t task_path_size         = 0;
+	uint32_t identifier           = 0;
+	int result                    = 0;
 
 	if( export_handle == NULL )
 	{
@@ -13490,7 +13492,7 @@ int export_handle_export_task(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing task: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing task: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 task_index,
 	 identifier,
 	 export_path,
@@ -13509,7 +13511,7 @@ int export_handle_export_task(
 	if( export_handle_create_default_item_directory(
 	     export_handle,
 	     task_index,
-	     _LIBCSTRING_SYSTEM_STRING( "Task" ),
+	     _SYSTEM_STRING( "Task" ),
 	     4,
 	     export_path,
 	     export_path_length,
@@ -13543,7 +13545,7 @@ int export_handle_export_task(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     task,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     task_path,
 		     task_path_size - 1,
@@ -13574,7 +13576,7 @@ int export_handle_export_task(
 	          export_handle,
 	          task_path,
 	          task_path_size - 1,
-	          _LIBCSTRING_SYSTEM_STRING( "Task.txt" ),
+	          _SYSTEM_STRING( "Task.txt" ),
 	          8,
 	          &item_file,
 	          error );
@@ -13618,7 +13620,7 @@ int export_handle_export_task(
 	}
 	if( item_file_write_value_description(
 	     item_file,
-	     _LIBCSTRING_SYSTEM_STRING( "Task:" ),
+	     _SYSTEM_STRING( "Task:" ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -13635,7 +13637,7 @@ int export_handle_export_task(
 	     task,
 	     0,
 	     LIBPFF_ENTRY_TYPE_TASK_START_DATE,
-	     _LIBCSTRING_SYSTEM_STRING( "Start date:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Start date:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -13662,7 +13664,7 @@ int export_handle_export_task(
 	     task,
 	     0,
 	     LIBPFF_ENTRY_TYPE_TASK_DUE_DATE,
-	     _LIBCSTRING_SYSTEM_STRING( "Due date:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Due date:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -13690,7 +13692,7 @@ int export_handle_export_task(
 	     task,
 	     0,
 	     LIBPFF_ENTRY_TYPE_TASK_STATUS,
-	     _LIBCSTRING_SYSTEM_STRING( "Status:\t\t\t\t\t" ),
+	     _SYSTEM_STRING( "Status:\t\t\t\t\t" ),
 	     ITEM_FILE_FORMAT_FLAG_HEXADECIMAL,
 	     error ) != 1 )
 	{
@@ -13717,7 +13719,7 @@ int export_handle_export_task(
 	     task,
 	     0,
 	     LIBPFF_ENTRY_TYPE_TASK_PERCENTAGE_COMPLETE,
-	     _LIBCSTRING_SYSTEM_STRING( "Percentage complete:\t\t\t" ),
+	     _SYSTEM_STRING( "Percentage complete:\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -13744,7 +13746,7 @@ int export_handle_export_task(
 	     task,
 	     0,
 	     LIBPFF_ENTRY_TYPE_TASK_ACTUAL_EFFORT,
-	     _LIBCSTRING_SYSTEM_STRING( "Actual effort:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Actual effort:\t\t\t\t" ),
 	     ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES,
 	     error ) != 1 )
 	{
@@ -13771,7 +13773,7 @@ int export_handle_export_task(
 	     task,
 	     0,
 	     LIBPFF_ENTRY_TYPE_TASK_TOTAL_EFFORT,
-	     _LIBCSTRING_SYSTEM_STRING( "Total effort:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Total effort:\t\t\t\t" ),
 	     ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES,
 	     error ) != 1 )
 	{
@@ -13798,7 +13800,7 @@ int export_handle_export_task(
 	     task,
 	     0,
 	     LIBPFF_ENTRY_TYPE_TASK_IS_COMPLETE,
-	     _LIBCSTRING_SYSTEM_STRING( "Is complete:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Is complete:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -13825,7 +13827,7 @@ int export_handle_export_task(
 	     task,
 	     0,
 	     LIBPFF_ENTRY_TYPE_TASK_VERSION,
-	     _LIBCSTRING_SYSTEM_STRING( "Version:\t\t\t\t" ),
+	     _SYSTEM_STRING( "Version:\t\t\t\t" ),
 	     0,
 	     error ) != 1 )
 	{
@@ -13874,7 +13876,7 @@ int export_handle_export_task(
 	{
 		if( item_file_write_value_description(
 		     item_file,
-		     _LIBCSTRING_SYSTEM_STRING( "\nBody:\n" ),
+		     _SYSTEM_STRING( "\nBody:\n" ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -14052,19 +14054,19 @@ int export_handle_export_folder(
      export_handle_t *export_handle,
      libpff_item_t *folder,
      int folder_index,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *folder_name = NULL;
-	libcstring_system_character_t *target_path = NULL;
-	static char *function                      = "export_handle_export_folder";
-	size_t folder_name_size                    = 0;
-	size_t target_path_size                    = 0;
-	uint32_t identifier                        = 0;
-	int print_count                            = 0;
-	int result                                 = 0;
+	system_character_t *folder_name = NULL;
+	system_character_t *target_path = NULL;
+	static char *function           = "export_handle_export_folder";
+	size_t folder_name_size         = 0;
+	size_t target_path_size         = 0;
+	uint32_t identifier             = 0;
+	int print_count                 = 0;
+	int result                      = 0;
 
 	if( export_handle == NULL )
 	{
@@ -14115,7 +14117,7 @@ int export_handle_export_folder(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Processing folder: %05d (identifier: %" PRIu32 ") in path: %" PRIs_LIBCSTRING_SYSTEM "%c\n",
+	 "Processing folder: %05d (identifier: %" PRIu32 ") in path: %" PRIs_SYSTEM "%c\n",
 	 folder_index,
 	 identifier,
 	 export_path,
@@ -14133,7 +14135,7 @@ int export_handle_export_folder(
 	}
 	/* Create the folder directory
 	 */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libpff_folder_get_utf16_name_size(
 	          folder,
 	          &folder_name_size,
@@ -14162,7 +14164,7 @@ int export_handle_export_folder(
 	{
 		folder_name_size = 12;
 	}
-	folder_name = libcstring_system_string_allocate(
+	folder_name = system_string_allocate(
 	               folder_name_size );
 
 	if( folder_name == NULL )
@@ -14176,7 +14178,7 @@ int export_handle_export_folder(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libpff_folder_get_utf16_name(
 	          folder,
 	          (uint16_t *) folder_name,
@@ -14191,17 +14193,17 @@ int export_handle_export_folder(
 #endif
 	if( result == 1 )
 	{
-		folder_name_size = 1 + libcstring_system_string_length(
+		folder_name_size = 1 + system_string_length(
 		                        folder_name );
 
 		if( folder_name_size > 1 )
 		{
 			log_handle_printf(
 			 log_handle,
-			 "Folder name: %" PRIs_LIBCSTRING_SYSTEM "\n",
+			 "Folder name: %" PRIs_SYSTEM "\n",
 			 folder_name );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libcpath_path_sanitize_filename_wide(
 			          folder_name,
 			          &folder_name_size,
@@ -14231,10 +14233,10 @@ int export_handle_export_folder(
 	}
 	if( result != 1 )
 	{
-		print_count = libcstring_system_string_sprintf(
+		print_count = system_string_sprintf(
 		               folder_name,
 		               12,
-		               _LIBCSTRING_SYSTEM_STRING( "Folder%05d" ),
+		               _SYSTEM_STRING( "Folder%05d" ),
 		               folder_index + 1 );
 
 		if( ( print_count < 0 )
@@ -14254,10 +14256,10 @@ int export_handle_export_folder(
 
 		log_handle_printf(
 		 log_handle,
-		 "Missing folder name defaulting to: %" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "Missing folder name defaulting to: %" PRIs_SYSTEM "\n",
 		 folder_name );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcpath_path_join_wide(
 	          &target_path,
 	          &target_path_size,
@@ -14287,7 +14289,7 @@ int export_handle_export_folder(
 
 		goto on_error;
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcfile_file_exists_wide(
 	          target_path,
 	          error );
@@ -14302,7 +14304,7 @@ int export_handle_export_folder(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_GENERIC,
-		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+		 "%s: unable to determine if %" PRIs_SYSTEM " exists.",
 		 function,
 		 target_path );
 
@@ -14315,10 +14317,10 @@ int export_handle_export_folder(
 
 		target_path = NULL;
 
-		print_count = libcstring_system_string_sprintf(
+		print_count = system_string_sprintf(
 		               folder_name,
 		               12,
-		               _LIBCSTRING_SYSTEM_STRING( "Folder%05d" ),
+		               _SYSTEM_STRING( "Folder%05d" ),
 		               folder_index + 1 );
 
 		if( ( print_count < 0 )
@@ -14338,10 +14340,10 @@ int export_handle_export_folder(
 
 		log_handle_printf(
 		 log_handle,
-		 "Folder already exists defaulting to: %" PRIs_LIBCSTRING_SYSTEM "\n",
+		 "Folder already exists defaulting to: %" PRIs_SYSTEM "\n",
 		 folder_name );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libcpath_path_join_wide(
 		          &target_path,
 		          &target_path_size,
@@ -14377,7 +14379,7 @@ int export_handle_export_folder(
 
 	folder_name = NULL;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libcpath_path_make_directory_wide(
 	     target_path,
 	     error ) != 1 )
@@ -14391,7 +14393,7 @@ int export_handle_export_folder(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
+		 "%s: unable to make directory: %" PRIs_SYSTEM ".",
 		 function,
 		 target_path );
 
@@ -14399,7 +14401,7 @@ int export_handle_export_folder(
 	}
 	log_handle_printf(
 	 log_handle,
-	 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+	 "Created directory: %" PRIs_SYSTEM ".\n",
 	 target_path );
 
 	if( export_handle->dump_item_values != 0 )
@@ -14407,7 +14409,7 @@ int export_handle_export_folder(
 		if( export_handle_export_item_values(
 		     export_handle,
 		     folder,
-		     _LIBCSTRING_SYSTEM_STRING( "ItemValues.txt" ),
+		     _SYSTEM_STRING( "ItemValues.txt" ),
 		     14,
 		     target_path,
 		     target_path_size - 1,
@@ -14550,7 +14552,7 @@ on_error:
 int export_handle_export_sub_folders(
      export_handle_t *export_handle,
      libpff_item_t *folder,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -14691,7 +14693,7 @@ int export_handle_export_sub_folders(
 int export_handle_export_sub_messages(
      export_handle_t *export_handle,
      libpff_item_t *folder,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -14933,7 +14935,7 @@ int export_handle_export_unknowns(
 int export_handle_export_items(
      export_handle_t *export_handle,
      libpff_file_t *file,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -15020,7 +15022,7 @@ int export_handle_export_items(
 	}
 	if( result != 0 )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcpath_path_make_directory_wide(
 		     export_path,
 		     error ) != 1 )
@@ -15034,7 +15036,7 @@ int export_handle_export_items(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 "%s: unable to make directory: %" PRIs_SYSTEM ".",
 			 function,
 			 export_path );
 
@@ -15042,7 +15044,7 @@ int export_handle_export_items(
 		}
 		log_handle_printf(
 		 log_handle,
-		 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+		 "Created directory: %" PRIs_SYSTEM ".\n",
 		 export_path );
 
 		if( libpff_item_get_number_of_sub_items(
@@ -15114,7 +15116,7 @@ on_error:
 int export_handle_export_orphan_items(
      export_handle_t *export_handle,
      libpff_file_t *file,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -15176,7 +15178,7 @@ int export_handle_export_orphan_items(
 		 export_handle->notify_stream,
 		 "Exporting orphan items.\n" );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcpath_path_make_directory_wide(
 		     export_path,
 		     error ) != 1 )
@@ -15190,7 +15192,7 @@ int export_handle_export_orphan_items(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 "%s: unable to make directory: %" PRIs_SYSTEM ".",
 			 function,
 			 export_path );
 
@@ -15198,7 +15200,7 @@ int export_handle_export_orphan_items(
 		}
 		log_handle_printf(
 		 log_handle,
-		 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+		 "Created directory: %" PRIs_SYSTEM ".\n",
 		 export_path );
 
 		for( orphan_item_iterator = 0;
@@ -15306,7 +15308,7 @@ int export_handle_export_orphan_items(
 int export_handle_export_recovered_items(
      export_handle_t *export_handle,
      libpff_file_t *file,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error )
@@ -15372,7 +15374,7 @@ int export_handle_export_recovered_items(
 		 export_handle->notify_stream,
 		 "Exporting recovered items.\n" );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcpath_path_make_directory_wide(
 		     export_path,
 		     error ) != 1 )
@@ -15386,7 +15388,7 @@ int export_handle_export_recovered_items(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
+			 "%s: unable to make directory: %" PRIs_SYSTEM ".",
 			 function,
 			 export_path );
 
@@ -15394,7 +15396,7 @@ int export_handle_export_recovered_items(
 		}
 		log_handle_printf(
 		 log_handle,
-		 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+		 "Created directory: %" PRIs_SYSTEM ".\n",
 		 export_path );
 
 		for( recovered_item_iterator = 0;

@@ -29,7 +29,6 @@
 #include <stdio.h>
 
 #include "pff_test_libcerror.h"
-#include "pff_test_libcstring.h"
 #include "pff_test_libpff.h"
 
 /* Define to make pff_test_read_items generate verbose output

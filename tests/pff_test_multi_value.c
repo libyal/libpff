@@ -1,5 +1,5 @@
 /*
- * Library get version test program
+ * Library multi_value type testing program
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -20,46 +20,60 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
 #endif
 
-#include "pff_test_libcstring.h"
+#include "pff_test_libcerror.h"
 #include "pff_test_libpff.h"
 #include "pff_test_macros.h"
+#include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
-/* Tests retrieving the library version
+/* Tests the libpff_multi_value_free function
  * Returns 1 if successful or 0 if not
  */
-int pff_test_get_version(
+int pff_test_multi_value_free(
      void )
 {
-	const char *version_string = NULL;
-	int result                 = 0;
+	libcerror_error_t *error = NULL;
+	int result               = 0;
 
-	version_string = libpff_get_version();
-
-	result = libcstring_narrow_string_compare(
-	          version_string,
-	          LIBPFF_VERSION_STRING,
-	          9 );
+	/* Test error cases
+	 */
+	result = libpff_multi_value_free(
+	          NULL,
+	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
+
+        PFF_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
 
 	return( 1 );
 
 on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
 	return( 0 );
 }
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain(
      int argc PFF_TEST_ATTRIBUTE_UNUSED,
      wchar_t * const argv[] PFF_TEST_ATTRIBUTE_UNUSED )
@@ -73,8 +87,8 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
 	PFF_TEST_RUN(
-	 "libpff_get_version",
-	 pff_test_get_version() )
+	 "libpff_multi_value_free",
+	 pff_test_multi_value_free );
 
 	return( EXIT_SUCCESS );
 

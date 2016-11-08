@@ -20,6 +20,8 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
@@ -108,7 +110,7 @@ int pff_test_error_backtrace_sprint(
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain(
      int argc PFF_TEST_ATTRIBUTE_UNUSED,
      wchar_t * const argv[] PFF_TEST_ATTRIBUTE_UNUSED )
@@ -123,23 +125,23 @@ int main(
 
 	PFF_TEST_RUN(
 	 "libpff_error_free",
-	 pff_test_error_free() )
+	 pff_test_error_free );
 
 	PFF_TEST_RUN(
 	 "libpff_error_fprint",
-	 pff_test_error_fprint() )
+	 pff_test_error_fprint );
 
 	PFF_TEST_RUN(
 	 "libpff_error_sprint",
-	 pff_test_error_sprint() )
+	 pff_test_error_sprint );
 
 	PFF_TEST_RUN(
 	 "libpff_error_backtrace_fprint",
-	 pff_test_error_backtrace_fprint() )
+	 pff_test_error_backtrace_fprint );
 
 	PFF_TEST_RUN(
 	 "libpff_error_backtrace_sprint",
-	 pff_test_error_backtrace_sprint() )
+	 pff_test_error_backtrace_sprint );
 
 	return( EXIT_SUCCESS );
 

@@ -23,6 +23,7 @@
 #include <byte_stream.h>
 #include <file_stream.h>
 #include <memory.h>
+#include <system_string.h>
 #include <types.h>
 
 #include "libpff_debug.h"
@@ -475,7 +476,7 @@ int libpff_debug_name_to_id_map_value_print(
      int ascii_codepage,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t guid_string[ 48 ];
+	system_character_t guid_string[ 48 ];
 
 	libfguid_identifier_t *guid = NULL;
 	static char *function       = "libpff_debug_name_to_id_map_value_print";
@@ -555,7 +556,7 @@ int libpff_debug_name_to_id_map_value_print(
 
 						goto on_error;
 					}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 					result = libfguid_identifier_copy_to_utf16_string(
 						  guid,
 						  (uint16_t *) guid_string,
@@ -582,7 +583,7 @@ int libpff_debug_name_to_id_map_value_print(
 						goto on_error;
 					}
 					libcnotify_printf(
-					 "Class identifier: %02" PRIu32 "\t: %" PRIs_LIBCSTRING_SYSTEM " (%s)\n",
+					 "Class identifier: %02" PRIu32 "\t: %" PRIs_SYSTEM " (%s)\n",
 					 value_iterator,
 					 guid_string,
 					 libfmapi_class_identifier_get_name(

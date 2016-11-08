@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -40,7 +39,6 @@ pffexport_SOURCES = \
 	pfftools_libcfile.h \
 	pfftools_libcpath.h \
 	pfftools_libcsplit.h \
-	pfftools_libcstring.h \
 	pfftools_libcsystem.h \
 	pfftools_libfcache.h \
 	pfftools_libfdata.h \
@@ -69,7 +67,6 @@ pffexport_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 pffinfo_SOURCES = \
@@ -80,7 +77,6 @@ pffinfo_SOURCES = \
 	pfftools_libcerror.h \
 	pfftools_libclocale.h \
 	pfftools_libcnotify.h \
-	pfftools_libcstring.h \
 	pfftools_libcsystem.h \
 	pfftools_libfcache.h \
 	pfftools_libfdata.h \
@@ -102,7 +98,6 @@ pffinfo_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 MAINTAINERCLEANFILES = \

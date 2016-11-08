@@ -22,6 +22,7 @@
 #include <common.h>
 #include <file_stream.h>
 #include <memory.h>
+#include <system_string.h>
 #include <types.h>
 
 #if defined( HAVE_STDARG_H ) || defined( WINAPI )
@@ -34,7 +35,6 @@
 
 #include "log_handle.h"
 #include "pfftools_libcerror.h"
-#include "pfftools_libcstring.h"
 
 /* Creates a log handle
  * Make sure the value log_handle is referencing, is set to NULL
@@ -144,7 +144,7 @@ int log_handle_free(
  */
 int log_handle_open(
      log_handle_t *log_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error )
 {
 	static char *function = "log_handle_open";
@@ -162,10 +162,10 @@ int log_handle_open(
 	}
 	if( filename != NULL )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		log_handle->log_stream = file_stream_open_wide(
 		                          filename,
-		                          _LIBCSTRING_SYSTEM_STRING( FILE_STREAM_OPEN_APPEND ) );
+		                          _SYSTEM_STRING( FILE_STREAM_OPEN_APPEND ) );
 #else
 		log_handle->log_stream = file_stream_open(
 		                          filename,

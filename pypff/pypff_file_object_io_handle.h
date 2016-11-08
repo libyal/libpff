@@ -27,7 +27,6 @@
 
 #include "pypff_libbfio.h"
 #include "pypff_libcerror.h"
-#include "pypff_libcstring.h"
 #include "pypff_python.h"
 
 #if defined( __cplusplus )

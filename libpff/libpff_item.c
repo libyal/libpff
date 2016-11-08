@@ -22,6 +22,7 @@
 #include <common.h>
 #include <byte_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
 
 #include "libpff_debug.h"
@@ -35,7 +36,6 @@
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libcstring.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_libfmapi.h"
@@ -550,7 +550,7 @@ int libpff_item_determine_type(
 		}
 		if( item_type_string_size > 0 )
 		{
-			item_type_string = libcstring_narrow_string_allocate(
+			item_type_string = narrow_string_allocate(
 			                    item_type_string_size );
 
 			if( item_type_string == NULL )
@@ -582,7 +582,7 @@ int libpff_item_determine_type(
 			}
 			if( item_type_string_size == 4 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM",
 				     3 ) == 0 )
@@ -592,7 +592,7 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 8 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.FAX",
 				     7 ) == 0 )
@@ -602,21 +602,21 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 9 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.Note",
 				     8 ) == 0 )
 				{
 					internal_item->type = LIBPFF_ITEM_TYPE_EMAIL;
 				}
-				else if( libcstring_narrow_string_compare_no_case(
+				else if( narrow_string_compare_no_case(
 					  item_type_string,
 					  "IPM.Post",
 					  8 ) == 0 )
 				{
 					internal_item->type = LIBPFF_ITEM_TYPE_POSTING_NOTE;
 				}
-				else if( libcstring_narrow_string_compare_no_case(
+				else if( narrow_string_compare_no_case(
 					  item_type_string,
 					  "IPM.Task",
 					  8 ) == 0 )
@@ -626,7 +626,7 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 12 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.Contact",
 				     11 ) == 0 )
@@ -636,28 +636,28 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 13 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.Activity",
 				     12 ) == 0 )
 				{
 					internal_item->type = LIBPFF_ITEM_TYPE_ACTIVITY;
 				}
-				else if( libcstring_narrow_string_compare_no_case(
+				else if( narrow_string_compare_no_case(
 					  item_type_string,
 					  "IPM.DistList",
 					  12 ) == 0 )
 				{
 					internal_item->type = LIBPFF_ITEM_TYPE_DISTRIBUTION_LIST;
 				}
-				else if( libcstring_narrow_string_compare_no_case(
+				else if( narrow_string_compare_no_case(
 					  item_type_string,
 					  "IPM.Note.Fax",
 					  12 ) == 0 )
 				{
 					internal_item->type = LIBPFF_ITEM_TYPE_FAX;
 				}
-				else if( libcstring_narrow_string_compare_no_case(
+				else if( narrow_string_compare_no_case(
 					  item_type_string,
 					  "IPM.Post.RSS",
 					  12 ) == 0 )
@@ -667,7 +667,7 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 15 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.StickyNote",
 				     15 ) == 0 )
@@ -677,7 +677,7 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 16 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.Appointment",
 				     15 ) == 0 )
@@ -687,7 +687,7 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 19 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.Note.Voicemail",
 				     18 ) == 0 )
@@ -697,14 +697,14 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 20 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.Note.Mobile.SMS",
 				     19 ) == 0 )
 				{
 					internal_item->type = LIBPFF_ITEM_TYPE_SMS;
 				}
-				else if( libcstring_narrow_string_compare_no_case(
+				else if( narrow_string_compare_no_case(
 					  item_type_string,
 					  "IPM.Note.Mobile.MMS",
 					  19 ) == 0 )
@@ -714,7 +714,7 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 21 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.Conflict.Message",
 				     20 ) == 0 )
@@ -724,7 +724,7 @@ int libpff_item_determine_type(
 			}
 			else if( item_type_string_size == 53 )
 			{
-				if( libcstring_narrow_string_compare_no_case(
+				if( narrow_string_compare_no_case(
 				     item_type_string,
 				     "IPM.OLE.CLASS.{00061055-0000-0000-C000-000000000046}",
 				     52 ) == 0 )
@@ -736,7 +736,7 @@ int libpff_item_determine_type(
 			{
 				if( item_type_string_size >= 12 )
 				{
-					if( libcstring_narrow_string_compare_no_case(
+					if( narrow_string_compare_no_case(
 					     item_type_string,
 					     "IPM.Sharing",
 					     11 ) == 0 )
@@ -749,7 +749,7 @@ int libpff_item_determine_type(
 			{
 				if( item_type_string_size >= 13 )
 				{
-					if( libcstring_narrow_string_compare_no_case(
+					if( narrow_string_compare_no_case(
 					     item_type_string,
 					     "IPM.Document",
 					     12 ) == 0 )
@@ -762,7 +762,7 @@ int libpff_item_determine_type(
 			{
 				if( item_type_string_size >= 15 )
 				{
-					if( libcstring_narrow_string_compare_no_case(
+					if( narrow_string_compare_no_case(
 					     item_type_string,
 					     "IPM.Note.SMIME",
 					     14 ) == 0 )
@@ -775,14 +775,14 @@ int libpff_item_determine_type(
 			{
 				if( item_type_string_size >= 16 )
 				{
-					if( libcstring_narrow_string_compare_no_case(
+					if( narrow_string_compare_no_case(
 					     item_type_string,
 					     "IPM.TaskRequest",
 					     15 ) == 0 )
 					{
 						internal_item->type = LIBPFF_ITEM_TYPE_TASK_REQUEST;
 					}
-					else if( libcstring_narrow_string_compare_no_case(
+					else if( narrow_string_compare_no_case(
 						  item_type_string,
 						  "REPORT.IPM.Note",
 						  15 ) == 0 )
@@ -795,7 +795,7 @@ int libpff_item_determine_type(
 			{
 				if( item_type_string_size >= 18 )
 				{
-					if( libcstring_narrow_string_compare_no_case(
+					if( narrow_string_compare_no_case(
 					     item_type_string,
 					     "IPM.Configuration",
 					     17 ) == 0 )
@@ -808,7 +808,7 @@ int libpff_item_determine_type(
 			{
 				if( item_type_string_size >= 21 )
 				{
-					if( libcstring_narrow_string_compare_no_case(
+					if( narrow_string_compare_no_case(
 					     item_type_string,
 					     "IPM.Schedule.Meeting",
 					     20 ) == 0 )
@@ -821,7 +821,7 @@ int libpff_item_determine_type(
 			{
 				if( item_type_string_size >= 28 )
 				{
-					if( libcstring_narrow_string_compare_no_case(
+					if( narrow_string_compare_no_case(
 					     item_type_string,
 					     "REPORT.IPM.Schedule.Meeting",
 					     27 ) == 0 )
@@ -837,7 +837,7 @@ int libpff_item_determine_type(
 				 */
 				if( item_type_string_size >= 10 )
 				{
-					if( libcstring_narrow_string_compare_no_case(
+					if( narrow_string_compare_no_case(
 					     item_type_string,
 					     "IPM.Note.",
 					     9 ) == 0 )

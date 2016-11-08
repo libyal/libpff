@@ -28,7 +28,6 @@
 #include "pypff_integer.h"
 #include "pypff_libbfio.h"
 #include "pypff_libcerror.h"
-#include "pypff_libcstring.h"
 #include "pypff_python.h"
 
 /* Creates a file object IO handle

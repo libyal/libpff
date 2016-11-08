@@ -20,19 +20,21 @@
  */
 
 #include <common.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "export_handle.h"
 #include "pffinput.h"
 #include "pfftools_libcerror.h"
-#include "pfftools_libcstring.h"
 #include "pfftools_libpff.h"
 
 /* Determines the export format from a string
  * Returns 1 if successful, 0 if unsupported value or -1 on error
  */
 int pffinput_determine_export_format(
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      int *export_format,
      libcerror_error_t **error )
 {
@@ -62,46 +64,46 @@ int pffinput_determine_export_format(
 
 		return( -1 );
 	}
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
 	if( string_length == 3 )
 	{
-		if( libcstring_system_string_compare(
+		if( system_string_compare(
 		     string,
-		     _LIBCSTRING_SYSTEM_STRING( "all" ),
+		     _SYSTEM_STRING( "all" ),
 		     3 ) == 0 )
 		{
 			*export_format = EXPORT_FORMAT_ALL;
 			result         = 1;
 		}
-		else if( libcstring_system_string_compare(
+		else if( system_string_compare(
 			  string,
-			  _LIBCSTRING_SYSTEM_STRING( "ftk" ),
+			  _SYSTEM_STRING( "ftk" ),
 			  3 ) == 0 )
 		{
 			*export_format = EXPORT_FORMAT_FTK;
 			result         = 1;
 		}
-		else if( libcstring_system_string_compare(
+		else if( system_string_compare(
 			  string,
-			  _LIBCSTRING_SYSTEM_STRING( "htm" ),
+			  _SYSTEM_STRING( "htm" ),
 			  3 ) == 0 )
 		{
 			*export_format = EXPORT_FORMAT_HTML;
 			result         = 1;
 		}
-		else if( libcstring_system_string_compare(
+		else if( system_string_compare(
 			  string,
-			  _LIBCSTRING_SYSTEM_STRING( "rtf" ),
+			  _SYSTEM_STRING( "rtf" ),
 			  3 ) == 0 )
 		{
 			*export_format = EXPORT_FORMAT_RTF;
 			result         = 1;
 		}
-		else if( libcstring_system_string_compare(
+		else if( system_string_compare(
 			  string,
-			  _LIBCSTRING_SYSTEM_STRING( "txt" ),
+			  _SYSTEM_STRING( "txt" ),
 			  3 ) == 0 )
 		{
 			*export_format = EXPORT_FORMAT_TEXT;
@@ -110,17 +112,17 @@ int pffinput_determine_export_format(
 	}
 	else if( string_length == 4 )
 	{
-		if( libcstring_system_string_compare(
+		if( system_string_compare(
 		     string,
-		     _LIBCSTRING_SYSTEM_STRING( "html" ),
+		     _SYSTEM_STRING( "html" ),
 		     4 ) == 0 )
 		{
 			*export_format = EXPORT_FORMAT_HTML;
 			result         = 1;
 		}
-		else if( libcstring_system_string_compare(
+		else if( system_string_compare(
 			  string,
-			  _LIBCSTRING_SYSTEM_STRING( "text" ),
+			  _SYSTEM_STRING( "text" ),
 			  4 ) == 0 )
 		{
 			*export_format = EXPORT_FORMAT_TEXT;

@@ -29,7 +29,6 @@
 #include "pypff_error.h"
 #include "pypff_integer.h"
 #include "pypff_libcerror.h"
-#include "pypff_libcstring.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
 #include "pypff_unused.h"

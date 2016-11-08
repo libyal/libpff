@@ -27,7 +27,6 @@
 #include <types.h>
 
 #include "pfftools_libcerror.h"
-#include "pfftools_libcstring.h"
 #include "pfftools_libpff.h"
 
 #if defined( __cplusplus )
@@ -69,12 +68,12 @@ int info_handle_signal_abort(
 
 int info_handle_set_ascii_codepage(
      info_handle_t *info_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error );
 
 int info_handle_open_input(
      info_handle_t *info_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error );
 
 int info_handle_close(

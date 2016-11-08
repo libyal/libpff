@@ -118,5 +118,5 @@ enum LIBPFF_CODEPAGES
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_CODEPAGE_H ) */
 

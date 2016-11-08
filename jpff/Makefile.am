@@ -10,7 +10,6 @@ if HAVE_JAVA
 AM_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@
 
 jardir = @JAR_PACKAGE_DIR@
@@ -31,10 +30,10 @@ BUILT_SOURCES = \
 libjpff_la_SOURCES = \
 	jpff_File.c \
 	jpff_jni.h \
+	jpff_libcerror.h \
 	jpff_string.c jpff_string.h
 
 libjpff_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	../libpff/libpff.la
 

@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
@@ -61,7 +60,6 @@ libpff_la_SOURCES = \
 	libpff_libcerror.h \
 	libpff_libclocale.h \
 	libpff_libcnotify.h \
-	libpff_libcstring.h \
 	libpff_libfcache.h \
 	libpff_libfdata.h \
 	libpff_libfguid.h \
@@ -101,7 +99,6 @@ libpff_la_SOURCES = \
 	pff_value_data.h
 
 libpff_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	@LIBCTHREADS_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
