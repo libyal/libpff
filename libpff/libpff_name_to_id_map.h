@@ -171,5 +171,5 @@ int libpff_name_to_id_map_entry_get_guid(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_NAME_TO_ID_MAP_H ) */
 

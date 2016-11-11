@@ -67,5 +67,5 @@ void log_handle_printf(
 }
 #endif
 
-#endif
+#endif /* !defined( _LOG_HANDLE_H ) */
 

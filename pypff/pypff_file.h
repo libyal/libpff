@@ -129,5 +129,5 @@ PyObject *pypff_file_get_number_of_recovered_items(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_FILE_H ) */
 

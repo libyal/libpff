@@ -92,5 +92,5 @@ int libpff_descriptor_data_stream_initialize(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_DESCRIPTOR_DATA_STREAM_H ) */
 

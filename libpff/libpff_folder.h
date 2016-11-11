@@ -155,5 +155,5 @@ int libpff_folder_get_unknowns(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_FOLDER_H ) */
 

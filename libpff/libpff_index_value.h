@@ -106,5 +106,5 @@ int libpff_index_value_compare(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_INDEX_VALUES_H ) */
 

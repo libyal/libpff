@@ -86,5 +86,5 @@ PyObject *pypff_record_set_get_record_entries(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_RECORD_SET_H ) */
 

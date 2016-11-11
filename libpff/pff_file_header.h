@@ -364,5 +364,5 @@ struct pff_file_header_data_64bit
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_FILE_HEADER_H ) */
 

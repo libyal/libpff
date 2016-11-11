@@ -138,5 +138,5 @@ int libpff_deflate_decompress(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_DEFLATE_COMPRESSION_H ) */
 

@@ -321,5 +321,5 @@ int libpff_record_entry_get_multi_value(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_INTERNAL_RECORD_ENTRY_H ) */
 

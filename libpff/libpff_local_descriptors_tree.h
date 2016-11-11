@@ -76,5 +76,5 @@ int libpff_local_descriptors_tree_read(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_LOCAL_DESCRIPTORS_TREE_H ) */
 

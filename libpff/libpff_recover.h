@@ -82,5 +82,5 @@ int libpff_recover_local_descriptors(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_RECOVER_H ) */
 

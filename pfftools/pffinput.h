@@ -40,5 +40,5 @@ int pffinput_determine_export_format(
 }
 #endif
 
-#endif
+#endif /* !defined( _PFFINPUT_H ) */
 

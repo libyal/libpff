@@ -170,5 +170,5 @@ int libpff_item_values_get_record_entry_by_utf16_name(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_ITEM_VALUES_H ) */
 

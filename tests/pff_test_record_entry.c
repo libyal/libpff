@@ -33,6 +33,10 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
+#include "../libpff/libpff_record_entry.h"
+
+#if defined( __GNUC__ )
+
 /* Tests the libpff_record_entry_free function
  * Returns 1 if successful or 0 if not
  */
@@ -71,6 +75,8 @@ on_error:
 	return( 0 );
 }
 
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -86,9 +92,76 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
+	/* TODO: add tests for libpff_record_entry_initialize */
+
 	PFF_TEST_RUN(
 	 "libpff_record_entry_free",
 	 pff_test_record_entry_free );
+
+	/* TODO: add tests for libpff_record_entry_string_contains_zero_bytes */
+
+	/* TODO: add tests for libpff_record_entry_clone */
+
+	/* TODO: add tests for libpff_record_entry_get_entry_type */
+
+	/* TODO: add tests for libpff_record_entry_get_name_to_id_map_entry */
+
+	/* TODO: add tests for libpff_record_entry_get_value_type */
+
+	/* TODO: add tests for libpff_record_entry_get_value_data_size */
+
+	/* TODO: add tests for libpff_record_entry_get_value_data */
+
+	/* TODO: add tests for libpff_record_entry_set_value_data */
+
+	/* TODO: add tests for libpff_record_entry_set_value_data_from_list */
+
+	/* TODO: add tests for libpff_record_entry_set_value_data_from_stream */
+
+	/* TODO: add tests for libpff_record_entry_copy_value_data */
+
+	/* TODO: add tests for libpff_record_entry_read_buffer */
+
+	/* TODO: add tests for libpff_record_entry_seek_offset */
+
+	/* TODO: add tests for libpff_record_entry_get_value_boolean */
+
+	/* TODO: add tests for libpff_record_entry_get_value_16bit */
+
+	/* TODO: add tests for libpff_record_entry_get_value_32bit */
+
+	/* TODO: add tests for libpff_record_entry_get_value_64bit */
+
+	/* TODO: add tests for libpff_record_entry_get_value_filetime */
+
+	/* TODO: add tests for libpff_record_entry_get_value_size */
+
+	/* TODO: add tests for libpff_record_entry_get_value_floating_point */
+
+	/* TODO: add tests for libpff_record_entry_get_value_utf8_string_size_with_codepage */
+
+	/* TODO: add tests for libpff_record_entry_get_value_utf8_string_with_codepage */
+
+	/* TODO: add tests for libpff_record_entry_compare_value_with_utf8_string_with_codepage */
+
+	/* TODO: add tests for libpff_record_entry_get_value_utf8_string_size */
+
+	/* TODO: add tests for libpff_record_entry_get_value_utf8_string */
+
+	/* TODO: add tests for libpff_record_entry_get_value_utf16_string_size_with_codepage */
+
+	/* TODO: add tests for libpff_record_entry_get_value_utf16_string_with_codepage */
+
+	/* TODO: add tests for libpff_record_entry_compare_value_with_utf16_string_with_codepage */
+
+	/* TODO: add tests for libpff_record_entry_get_value_utf16_string_size */
+
+	/* TODO: add tests for libpff_record_entry_get_value_utf16_string */
+
+	/* TODO: add tests for libpff_record_entry_copy_object_identifier */
+
+	/* TODO: add tests for libpff_record_entry_get_multi_value */
+
 
 	return( EXIT_SUCCESS );
 

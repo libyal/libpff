@@ -92,5 +92,5 @@ PyObject *pypff_record_sets_iternext(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_RECORD_SETS_H ) */
 

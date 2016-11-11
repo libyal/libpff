@@ -149,5 +149,5 @@ int libpff_message_get_html_body(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_MESSAGE_H ) */
 

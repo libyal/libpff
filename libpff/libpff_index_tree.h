@@ -99,5 +99,5 @@ int libpff_index_tree_insert_value(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_INDEX_TREE_H ) */
 

@@ -123,5 +123,5 @@ struct pff_block_footer_64bit_4k_page
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_BLOCK_H ) */
 

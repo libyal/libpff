@@ -364,5 +364,5 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_LEGACY_H ) */
 

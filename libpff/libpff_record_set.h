@@ -118,5 +118,5 @@ int libpff_record_set_get_entry_by_utf16_name(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_INTERNAL_RECORD_SET_H ) */
 

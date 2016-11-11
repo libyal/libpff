@@ -92,5 +92,5 @@ PyObject *pypff_items_iternext(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_ITEMS_H ) */
 

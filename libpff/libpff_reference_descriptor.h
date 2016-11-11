@@ -53,5 +53,5 @@ int libpff_reference_descriptor_free(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_REFERENCE_DESCRIPTOR_H ) */
 

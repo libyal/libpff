@@ -38,5 +38,5 @@ const char *pypff_codepage_to_string(
 }
 #endif
 
-#endif /* !defined( _PYPFF_CODEPAGE_H */
+#endif /* !defined( _PYPFF_CODEPAGE_H ) */
 

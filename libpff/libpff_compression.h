@@ -43,5 +43,5 @@ int libpff_decompress_data(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_COMPRESS_H ) */
 

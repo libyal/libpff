@@ -112,5 +112,5 @@ int libpff_local_descriptor_node_read_element_data(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_NODE_LOCAL_DESCRIPTOR_H ) */
 

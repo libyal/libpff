@@ -74,5 +74,5 @@ struct pff_name_to_id_map_entry
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_VALUE_DATA_H ) */
 

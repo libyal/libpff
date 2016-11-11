@@ -82,5 +82,5 @@ int libpff_attachment_get_item(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_ATTACHMENT_H ) */
 

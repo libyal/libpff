@@ -121,5 +121,5 @@ PyObject *pypff_message_get_attachments(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_MESSAGE_H ) */
 

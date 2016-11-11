@@ -107,5 +107,5 @@ int libpff_attached_file_io_handle_get_size(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_ATTACHED_FILE_IO_HANDLE_H ) */
 

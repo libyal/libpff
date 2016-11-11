@@ -60,5 +60,5 @@ int libpff_table_index_value_free(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_TABLE_INDEX_VALUE_H ) */
 

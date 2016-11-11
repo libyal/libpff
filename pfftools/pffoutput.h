@@ -45,5 +45,5 @@ void pffoutput_version_detailed_fprint(
 }
 #endif
 
-#endif
+#endif /* !defined( _PFFOUTPUT_H ) */
 

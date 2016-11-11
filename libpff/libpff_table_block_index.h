@@ -72,5 +72,5 @@ int libpff_table_block_index_set_value_by_index(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_TABLE_BLOCK_INDEX_H ) */
 

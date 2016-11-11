@@ -161,5 +161,5 @@ struct pff_allocation_table_64bit_4k_page
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_ALLOCATION_TABLE_H ) */
 

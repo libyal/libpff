@@ -61,5 +61,5 @@ int libpff_data_array_entry_clone(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_DATA_ARRAY_ENTRY_H ) */
 

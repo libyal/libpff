@@ -64,5 +64,5 @@ struct pff_array
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_ARRAY_H ) */
 

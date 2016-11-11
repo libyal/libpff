@@ -116,5 +116,5 @@ PyObject *pypff_item_get_sub_items(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_ITEM_H ) */
 

@@ -94,5 +94,5 @@ int libpff_item_tree_create(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_ITEM_TREE_H ) */
 

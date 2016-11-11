@@ -33,6 +33,10 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
+#include "../libpff/libpff_record_set.h"
+
+#if defined( __GNUC__ )
+
 /* Tests the libpff_record_set_free function
  * Returns 1 if successful or 0 if not
  */
@@ -71,6 +75,8 @@ on_error:
 	return( 0 );
 }
 
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -86,9 +92,26 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
+	/* TODO: add tests for libpff_record_set_initialize */
+
 	PFF_TEST_RUN(
 	 "libpff_record_set_free",
 	 pff_test_record_set_free );
+
+	/* TODO: add tests for libpff_record_set_clone */
+
+	/* TODO: add tests for libpff_record_set_resize */
+
+	/* TODO: add tests for libpff_record_set_get_number_of_entries */
+
+	/* TODO: add tests for libpff_record_set_get_entry_by_index */
+
+	/* TODO: add tests for libpff_record_set_get_entry_by_type */
+
+	/* TODO: add tests for libpff_record_set_get_entry_by_utf8_name */
+
+	/* TODO: add tests for libpff_record_set_get_entry_by_utf16_name */
+
 
 	return( EXIT_SUCCESS );
 

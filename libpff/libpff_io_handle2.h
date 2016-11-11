@@ -52,5 +52,5 @@ int libpff_io_handle_read_descriptor_data_list(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_IO_HANDLE2_H ) */
 

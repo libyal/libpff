@@ -475,5 +475,5 @@ int libpff_table_read_entry_value(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_TABLE_H ) */
 

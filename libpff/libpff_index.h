@@ -124,5 +124,5 @@ int libpff_index_read_sub_nodes(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_INDEX_H ) */
 

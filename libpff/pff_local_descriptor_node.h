@@ -164,5 +164,5 @@ struct pff_local_descriptor_leaf_node_entry_type_64bit
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_LOCAL_DESCRIPTOR_NODE_H ) */
 

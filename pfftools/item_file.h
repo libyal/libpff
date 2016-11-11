@@ -167,5 +167,5 @@ int item_file_write_record_set_entry_value(
 }
 #endif
 
-#endif
+#endif /* !defined( _ITEM_FILE_H ) */
 

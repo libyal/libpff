@@ -99,5 +99,5 @@ int libpff_debug_print_read_offsets(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_DEBUG_H ) */
 

@@ -137,5 +137,5 @@ int libpff_local_descriptors_read_sub_nodes(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_LOCAL_DESCRIPTORS_H ) */
 

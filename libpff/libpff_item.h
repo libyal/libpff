@@ -121,7 +121,7 @@ int libpff_item_get_identifier(
 LIBPFF_EXTERN \
 int libpff_item_get_number_of_record_sets(
      libpff_item_t *item,
-     uint32_t *number_of_record_sets,
+     int *number_of_record_sets,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
@@ -285,5 +285,5 @@ int libpff_item_get_sub_item_by_identifier(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_INTERNAL_ITEM_H ) */
 

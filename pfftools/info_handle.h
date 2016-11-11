@@ -102,5 +102,5 @@ int info_handle_unallocated_blocks_fprint(
 }
 #endif
 
-#endif
+#endif /* !defined( _INFO_HANDLE_H ) */
 

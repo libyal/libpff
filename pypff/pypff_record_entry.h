@@ -89,5 +89,5 @@ PyObject *pypff_record_entry_get_value_data_as_string(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_RECORD_ENTRY_H ) */
 

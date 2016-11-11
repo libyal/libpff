@@ -57,5 +57,5 @@ PyMODINIT_FUNC initpypff(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_H ) */
 

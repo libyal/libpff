@@ -168,5 +168,5 @@ int libpff_multi_value_get_value_guid(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_INTERNAL_MULTI_VALUE_H ) */
 

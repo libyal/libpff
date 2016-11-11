@@ -108,5 +108,5 @@ int libpff_index_node_check_for_empty_block(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_NODE_INDEX_H ) */
 

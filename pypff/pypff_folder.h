@@ -80,5 +80,5 @@ PyObject *pypff_folder_get_sub_messages(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYPFF_FOLDER_H ) */
 

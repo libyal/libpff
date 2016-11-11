@@ -290,5 +290,5 @@ int libpff_file_get_recovered_item(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_INTERNAL_FILE_H ) */
 

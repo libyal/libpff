@@ -86,5 +86,5 @@ int libpff_offsets_index_get_index_value_by_identifier(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_OFFSETS_INDEX_H ) */
 

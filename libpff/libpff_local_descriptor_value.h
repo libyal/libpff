@@ -82,5 +82,5 @@ int libpff_local_descriptor_value_clone(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_LOCAL_DESCRIPTOR_VALUE_H ) */
 

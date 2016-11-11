@@ -349,5 +349,5 @@ struct pff_index_node_64bit_4k_page_footer
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_INDEX_NODE_H ) */
 

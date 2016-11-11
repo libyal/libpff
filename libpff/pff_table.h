@@ -407,5 +407,5 @@ struct pff_table_record_entry_bc
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_TABLE_H ) */
 

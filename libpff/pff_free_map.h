@@ -111,5 +111,5 @@ struct pff_free_map_64bit
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_FREE_MAP_H ) */
 

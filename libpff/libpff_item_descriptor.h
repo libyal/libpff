@@ -86,5 +86,5 @@ int libpff_item_descriptor_compare(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_ITEM_DESCRIPTOR_H ) */
 

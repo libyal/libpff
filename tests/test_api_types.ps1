@@ -1,6 +1,6 @@
 # Library API type testing script
 #
-# Version: 20161107
+# Version: 20161110
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -10,8 +10,8 @@ $TestPrefix = Split-Path -path ${Pwd}.Path -parent
 $TestPrefix = Split-Path -path ${TestPrefix} -leaf
 $TestPrefix = ${TestPrefix}.Substring(3)
 
-$TestTypes = "file name_to_id_map_entry item multi_value record_entry record_set"
-$TestTypes = ${TestTypes} -split " "
+$TestTypes = "attached_file_io_handle column_definition data_array data_array_entry data_block descriptors_index index index_node index_value io_handle item item_descriptor item_values local_descriptor_node local_descriptor_value local_descriptors multi_value name_to_id_map_entry offsets_index record_entry record_set reference_descriptor table table_block_index table_index_value"
+$TestTypesWithInput = "file"
 
 $TestToolDirectory = "..\msvscpp\Release"
 
@@ -55,7 +55,17 @@ If (-Not (Test-Path ${TestToolDirectory}))
 
 $Result = ${ExitIgnore}
 
-Foreach (${TestType} in ${TestTypes})
+Foreach (${TestType} in ${TestTypes} -split " ")
+{
+	$Result = TestAPIType ${TestType}
+
+	If (${Result} -ne ${ExitSuccess})
+	{
+		Break
+	}
+}
+
+Foreach (${TestType} in ${TestTypesWithInput} -split " ")
 {
 	$Result = TestAPIType ${TestType}
 

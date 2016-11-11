@@ -917,12 +917,11 @@ int libpff_item_get_identifier(
  */
 int libpff_item_get_number_of_record_sets(
      libpff_item_t *item,
-     uint32_t *number_of_record_sets,
+     int *number_of_record_sets,
      libcerror_error_t **error )
 {
 	libpff_internal_item_t *internal_item = NULL;
 	static char *function                 = "libpff_item_get_number_of_record_sets";
-	int table_number_of_record_sets       = 0;
 
 	if( item == NULL )
 	{
@@ -955,17 +954,6 @@ int libpff_item_get_number_of_record_sets(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid item - missing item values.",
-		 function );
-
-		return( -1 );
-	}
-	if( number_of_record_sets == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid number of record sets.",
 		 function );
 
 		return( -1 );
@@ -1004,7 +992,7 @@ int libpff_item_get_number_of_record_sets(
 	}
 	if( libpff_table_get_number_of_record_sets(
 	     internal_item->item_values->table,
-	     &table_number_of_record_sets,
+	     number_of_record_sets,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1016,8 +1004,6 @@ int libpff_item_get_number_of_record_sets(
 
 		return( -1 );
 	}
-	*number_of_record_sets = (uint32_t) table_number_of_record_sets;
-
 	return( 1 );
 }
 

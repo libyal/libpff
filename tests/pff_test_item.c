@@ -33,6 +33,10 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
+#include "../libpff/libpff_item.h"
+
+#if defined( __GNUC__ )
+
 /* Tests the libpff_item_free function
  * Returns 1 if successful or 0 if not
  */
@@ -71,6 +75,8 @@ on_error:
 	return( 0 );
 }
 
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -86,9 +92,54 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
+	/* TODO: add tests for libpff_item_initialize */
+
 	PFF_TEST_RUN(
 	 "libpff_item_free",
 	 pff_test_item_free );
+
+	/* TODO: add tests for libpff_item_clone */
+
+	/* TODO: add tests for libpff_item_determine_type */
+
+	/* TODO: add tests for libpff_item_get_identifier */
+
+	/* TODO: add tests for libpff_item_get_number_of_record_sets */
+
+	/* TODO: add tests for libpff_item_get_record_set_by_index */
+
+	/* TODO: add tests for libpff_item_get_number_of_entries */
+
+	/* TODO: add tests for libpff_item_get_entry_value */
+
+	/* TODO: add tests for libpff_item_get_entry_value_by_utf8_name */
+
+	/* TODO: add tests for libpff_item_get_entry_value_by_utf16_name */
+
+	/* TODO: add tests for libpff_item_get_entry_value_binary_data_size */
+
+	/* TODO: add tests for libpff_item_get_entry_value_binary_data_size_by_utf8_name */
+
+	/* TODO: add tests for libpff_item_get_entry_value_binary_data_size_by_utf16_name */
+
+	/* TODO: add tests for libpff_item_get_entry_value_binary_data */
+
+	/* TODO: add tests for libpff_item_get_entry_value_binary_data_by_utf8_name */
+
+	/* TODO: add tests for libpff_item_get_entry_value_binary_data_by_utf16_name */
+
+	/* TODO: add tests for libpff_item_get_entry_value_guid */
+
+	/* TODO: add tests for libpff_item_get_entry_multi_value */
+
+	/* TODO: add tests for libpff_item_get_type */
+
+	/* TODO: add tests for libpff_item_get_number_of_sub_items */
+
+	/* TODO: add tests for libpff_item_get_sub_item */
+
+	/* TODO: add tests for libpff_item_get_sub_item_by_identifier */
+
 
 	return( EXIT_SUCCESS );
 

@@ -69,5 +69,5 @@ struct pff_table_block_index
 }
 #endif
 
-#endif
+#endif /* !defined( _PFF_TABLE_BLOCK_H ) */
 

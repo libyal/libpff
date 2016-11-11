@@ -42,5 +42,5 @@ ssize_t libpff_encryption_decrypt(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_ENCRYPTION_H ) */
 

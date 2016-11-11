@@ -75,5 +75,5 @@ int libpff_column_definition_free(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_COLUMN_DEFINITION_H ) */
 

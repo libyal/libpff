@@ -44,5 +44,5 @@ int libpff_free_map_read(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_FREE_MAP_H ) */
 

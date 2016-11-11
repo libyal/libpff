@@ -113,5 +113,5 @@ int libpff_data_block_decrypt_data(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_DATA_BLOCK_H ) */
 

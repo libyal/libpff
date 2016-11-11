@@ -44,5 +44,5 @@ int libpff_allocation_table_read(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_ALLOCATION_TABLE_H ) */
 

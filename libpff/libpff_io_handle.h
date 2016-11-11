@@ -130,5 +130,5 @@ int libpff_io_handle_read_index_node(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_IO_HANDLE_H ) */
 

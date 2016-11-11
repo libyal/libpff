@@ -808,7 +808,7 @@ int main(
 
 #if defined( LIBPFF_HAVE_BFIO )
 
-		/* TODO add test for libpff_file_open_file_io_handle */
+		/* TODO add test for libpff_check_file_file_io_handle */
 
 #endif /* defined( LIBPFF_HAVE_BFIO ) */
 	}

@@ -129,5 +129,5 @@ int libpff_data_array_decrypt_entry_data(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_DATA_ARRAY_H ) */
 
