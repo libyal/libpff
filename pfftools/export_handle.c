@@ -2673,6 +2673,682 @@ int export_handle_export_sub_items(
 	return( 1 );
 }
 
+/* Retrieves a record entry matching the entry and value type
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int export_handle_item_get_record_entry_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint32_t value_type,
+     libpff_record_set_t **record_set,
+     libpff_record_entry_t **record_entry,
+     uint8_t flags,
+     libcerror_error_t **error )
+{
+	static char *function = "export_handle_item_get_record_entry_by_type";
+	int result            = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( record_set == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_item_get_record_set_by_index(
+	     item,
+	     record_set_index,
+	     record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record set: %d from item.",
+		 function,
+		 record_set_index );
+
+		return( -1 );
+	}
+	result = libpff_record_set_get_entry_by_type(
+	          *record_set,
+	          entry_type,
+	          value_type,
+	          record_entry,
+	          flags,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry from record set: %d.",
+		 function,
+		 record_set_index );
+
+		return( -1 );
+	}
+	return( result );
+}
+
+/* Retrieves a 32-bit value matching the entry type
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int export_handle_item_get_value_32bit_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint32_t *value_32bit,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	libpff_record_set_t *record_set     = NULL;
+	static char *function               = "export_handle_item_get_value_32bit";
+	int result                          = 0;
+
+	result = export_handle_item_get_record_entry_by_type(
+	          export_handle,
+	          item,
+	          record_set_index,
+	          entry_type,
+	          LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
+	          &record_set,
+	          &record_entry,
+	          0,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x%04x 0x%04x from record set: %d.",
+		 function,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
+		 record_set_index );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_32bit(
+		     record_entry,
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve 32-bit value from record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libpff_record_entry_free(
+	     &record_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record entry.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_record_set_free(
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record set.",
+		 function );
+
+		goto on_error;
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves the size of a string value matching the entry type
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int export_handle_item_get_value_string_size_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     size_t *value_string_size,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	libpff_record_set_t *record_set     = NULL;
+	static char *function               = "export_handle_item_get_value_string_size_by_type";
+	uint32_t value_type                 = 0;
+	int result                          = 0;
+
+	if( value_string_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value string size.",
+		 function );
+
+		return( -1 );
+	}
+	result = export_handle_item_get_record_entry_by_type(
+	          export_handle,
+	          item,
+	          record_set_index,
+	          entry_type,
+	          0,
+	          &record_set,
+	          &record_entry,
+	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x%04x 0x%04x or 0x%04x 0x%04x from record set: %d.",
+		 function,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_STRING_ASCII,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_STRING_UNICODE,
+		 record_set_index );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_type(
+		     record_entry,
+		     &value_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value type.",
+			 function );
+
+			return( -1 );
+		}
+		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value type: 0x%04" PRIx32 ".",
+			 function,
+			 value_type );
+
+			return( -1 );
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		if( libpff_record_entry_get_value_utf16_string_size(
+		     record_entry,
+		     value_string_size,
+		     error ) != 1 )
+#else
+		if( libpff_record_entry_get_value_utf8_string_size(
+		     record_entry,
+		     value_string_size,
+		     error ) != 1 )
+#endif
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve string size from record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libpff_record_entry_free(
+	     &record_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record entry.",
+		 function );
+
+		goto on_error;
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves the size of a string value matching the entry type
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int export_handle_item_get_value_string_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     system_character_t *value_string,
+     size_t value_string_size,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	libpff_record_set_t *record_set     = NULL;
+	static char *function               = "export_handle_item_get_value_string_by_type";
+	uint32_t value_type                 = 0;
+	int result                          = 0;
+
+	result = export_handle_item_get_record_entry_by_type(
+	          export_handle,
+	          item,
+	          record_set_index,
+	          entry_type,
+	          0,
+	          &record_set,
+	          &record_entry,
+	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x%04x 0x%04x or 0x%04x 0x%04x from record set: %d.",
+		 function,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_STRING_ASCII,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_STRING_UNICODE,
+		 record_set_index );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_type(
+		     record_entry,
+		     &value_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value type.",
+			 function );
+
+			return( -1 );
+		}
+		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value type: 0x%04" PRIx32 ".",
+			 function,
+			 value_type );
+
+			return( -1 );
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		if( libpff_record_entry_get_value_utf16_string(
+		     record_entry,
+		     (uint16_t *) value_string,
+		     value_string_size,
+		     error ) != 1 )
+#else
+		if( libpff_record_entry_get_value_utf8_string(
+		     record_entry,
+		     (uint8_t *) value_string,
+		     value_string_size,
+		     error ) != 1 )
+#endif
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve string from record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libpff_record_entry_free(
+	     &record_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record entry.",
+		 function );
+
+		goto on_error;
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Creates a string value matching the entry type
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int export_handle_item_create_value_string_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     system_character_t **value_string,
+     size_t *value_string_size,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	libpff_record_set_t *record_set     = NULL;
+	static char *function               = "export_handle_item_create_value_string_by_type";
+	uint32_t value_type                 = 0;
+	int result                          = 0;
+
+	if( value_string == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value string.",
+		 function );
+
+		return( -1 );
+	}
+	if( *value_string != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid value string value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_string_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value string size.",
+		 function );
+
+		return( -1 );
+	}
+	result = export_handle_item_get_record_entry_by_type(
+	          export_handle,
+	          item,
+	          record_set_index,
+	          entry_type,
+	          0,
+	          &record_set,
+	          &record_entry,
+	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x%04x 0x%04x or 0x%04x 0x%04x from record set: %d.",
+		 function,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_STRING_ASCII,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_STRING_UNICODE,
+		 record_set_index );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_type(
+		     record_entry,
+		     &value_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value type.",
+			 function );
+
+			return( -1 );
+		}
+		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value type: 0x%04" PRIx32 ".",
+			 function,
+			 value_type );
+
+			return( -1 );
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		if( libpff_record_entry_get_value_utf16_string_size(
+		     record_entry,
+		     value_string_size,
+		     error ) != 1 )
+#else
+		if( libpff_record_entry_get_value_utf8_string_size(
+		     record_entry,
+		     value_string_size,
+		     error ) != 1 )
+#endif
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve string size from record entry.",
+			 function );
+
+			goto on_error;
+		}
+		if( *value_string_size > (size_t) SSIZE_MAX )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid value string size value exceeds maximum.",
+			 function );
+
+			goto on_error;
+		}
+		*value_string = system_string_allocate(
+		                 *value_string_size );
+
+		if( *value_string == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value string.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		if( libpff_record_entry_get_value_utf8_string(
+		     record_entry,
+		     (uint16_t *) *value_string,
+		     *value_string_size,
+		     error ) != 1 )
+#else
+		if( libpff_record_entry_get_value_utf8_string(
+		     record_entry,
+		     (uint8_t *) *value_string,
+		     *value_string_size,
+		     error ) != 1 )
+#endif
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve string size from record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libpff_record_entry_free(
+	     &record_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record entry.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_record_set_free(
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record set.",
+		 function );
+
+		goto on_error;
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	if( *value_string != NULL )
+	{
+		memory_free(
+		 *value_string );
+
+		*value_string = NULL;
+	}
+	*value_string_size = 0;
+
+	return( -1 );
+}
+
 /* Exports the Outlook message header
  * Returns 1 if successful or -1 on error
  */
@@ -2790,9 +3466,10 @@ int export_handle_export_message_flags_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error )
 {
-	static char *function = "export_handle_export_message_flags_to_item_file";
-	uint32_t value_32bit  = 0;
-	int result            = 0;
+	static char *function     = "export_handle_export_message_flags_to_item_file";
+	size_t description_length = 0;
+	uint32_t value_32bit      = 0;
+	int result                = 0;
 
 	if( export_handle == NULL )
 	{
@@ -2816,8 +3493,11 @@ int export_handle_export_message_flags_to_item_file(
 
 		return( -1 );
 	}
-	result = libpff_message_get_flags(
+	result = export_handle_item_get_value_32bit_by_type(
+	          export_handle,
 	          message,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_FLAGS,
 	          &value_32bit,
 	          error );
 
@@ -2827,7 +3507,7 @@ int export_handle_export_message_flags_to_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve flags.",
+		 "%s: unable to retrieve message flags.",
 		 function );
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -2843,11 +3523,13 @@ int export_handle_export_message_flags_to_item_file(
 	}
 	else if( result != 0 )
 	{
+		description_length = system_string_length(
+		                      description );
+
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     system_string_length(
-		      description ),
+		     description_length,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -3359,9 +4041,12 @@ int export_handle_export_message_importance_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error )
 {
-	static char *function = "export_handle_export_message_importance_to_item_file";
-	uint32_t value_32bit  = 0;
-	int result            = 0;
+	system_character_t *value_string = NULL;
+	static char *function            = "export_handle_export_message_importance_to_item_file";
+	size_t description_length        = 0;
+	size_t value_string_length       = 0;
+	uint32_t value_32bit             = 0;
+	int result                       = 0;
 
 	if( export_handle == NULL )
 	{
@@ -3385,8 +4070,11 @@ int export_handle_export_message_importance_to_item_file(
 
 		return( -1 );
 	}
-	result = libpff_message_get_importance(
+	result = export_handle_item_get_value_32bit_by_type(
+	          export_handle,
 	          message,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_IMPORTANCE,
 	          &value_32bit,
 	          error );
 
@@ -3412,11 +4100,13 @@ int export_handle_export_message_importance_to_item_file(
 	}
 	else if( result != 0 )
 	{
+		description_length = system_string_length(
+		                      description );
+
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     system_string_length(
-		      description ),
+		     description_length,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -3428,48 +4118,28 @@ int export_handle_export_message_importance_to_item_file(
 
 			return( -1 );
 		}
+/* TODO move to callback */
 		if( value_32bit == (uint32_t) LIBPFF_MESSAGE_IMPORTANCE_TYPE_LOW )
 		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Low" ),
-			     3,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
+			value_string = _SYSTEM_STRING( "Low" );
 		}
 		else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_IMPORTANCE_TYPE_NORMAL )
 		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Normal" ),
-			     6,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
+			value_string = _SYSTEM_STRING( "Normal" );
 		}
 		else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_IMPORTANCE_TYPE_HIGH )
 		{
+			value_string = _SYSTEM_STRING( "High" );
+		}
+		if( value_string != NULL )
+		{
+			value_string_length = system_string_length(
+			                       value_string );
+
 			if( item_file_write_string(
 			     item_file,
-			     _SYSTEM_STRING( "High" ),
-			     4,
+			     value_string,
+			     value_string_length,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -3541,9 +4211,10 @@ int export_handle_export_message_priority_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error )
 {
-	static char *function = "export_handle_export_message_priority_to_item_file";
-	uint32_t value_32bit  = 0;
-	int result            = 0;
+	static char *function     = "export_handle_export_message_priority_to_item_file";
+	size_t description_length = 0;
+	uint32_t value_32bit      = 0;
+	int result                = 0;
 
 	if( export_handle == NULL )
 	{
@@ -3567,8 +4238,11 @@ int export_handle_export_message_priority_to_item_file(
 
 		return( -1 );
 	}
-	result = libpff_message_get_priority(
+	result = export_handle_item_get_value_32bit_by_type(
+	          export_handle,
 	          message,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_PRIORITY,
 	          &value_32bit,
 	          error );
 
@@ -3594,11 +4268,13 @@ int export_handle_export_message_priority_to_item_file(
 	}
 	else if( result != 0 )
 	{
+		description_length = system_string_length(
+		                      description );
+
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     system_string_length(
-		      description ),
+		     description_length,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -3723,9 +4399,10 @@ int export_handle_export_message_sensitivity_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error )
 {
-	static char *function = "export_handle_export_message_sensitivity_to_item_file";
-	uint32_t value_32bit  = 0;
-	int result            = 0;
+	static char *function     = "export_handle_export_message_sensitivity_to_item_file";
+	size_t description_length = 0;
+	uint32_t value_32bit      = 0;
+	int result                = 0;
 
 	if( export_handle == NULL )
 	{
@@ -3749,8 +4426,11 @@ int export_handle_export_message_sensitivity_to_item_file(
 
 		return( -1 );
 	}
-	result = libpff_message_get_sensitivity(
+	result = export_handle_item_get_value_32bit_by_type(
+	          export_handle,
 	          message,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_SENSITIVITY,
 	          &value_32bit,
 	          error );
 
@@ -3776,11 +4456,13 @@ int export_handle_export_message_sensitivity_to_item_file(
 	}
 	else if( result != 0 )
 	{
+		description_length = system_string_length(
+		                      description );
+
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     system_string_length(
-		      description ),
+		     description_length,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -3923,9 +4605,10 @@ int export_handle_export_message_status_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error )
 {
-	static char *function = "export_handle_export_message_status_to_item_file";
-	uint32_t value_32bit  = 0;
-	int result            = 0;
+	static char *function     = "export_handle_export_message_status_to_item_file";
+	size_t description_length = 0;
+	uint32_t value_32bit      = 0;
+	int result                = 0;
 
 	if( export_handle == NULL )
 	{
@@ -3949,8 +4632,11 @@ int export_handle_export_message_status_to_item_file(
 
 		return( -1 );
 	}
-	result = libpff_message_get_status(
+	result = export_handle_item_get_value_32bit_by_type(
+	          export_handle,
 	          message,
+	          0,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_STATUS,
 	          &value_32bit,
 	          error );
 
@@ -3976,11 +4662,13 @@ int export_handle_export_message_status_to_item_file(
 	}
 	else if( result != 0 )
 	{
+		description_length = system_string_length(
+		                      description );
+
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     system_string_length(
-		      description ),
+		     description_length,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -7261,33 +7949,27 @@ int export_handle_export_attachment(
 	return( 1 );
 }
 
-/* Exports the attachment data
+/* Retrieves an attachment filename
+ * If no attachment filename is found default to "#_Attachment.txt"
  * Returns 1 if successful or -1 on error
  */
-int export_handle_export_attachment_data(
+int export_handle_get_attachment_filename(
      export_handle_t *export_handle,
      libpff_item_t *attachment,
      int attachment_index,
      int number_of_attachments,
-     const system_character_t *export_path,
-     size_t export_path_length,
+     system_character_t **attachment_filename,
+     size_t *attachment_filename_size,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	system_character_t *attachment_filename = NULL;
-	system_character_t *target_path         = NULL;
-	FILE *attachment_file_stream            = NULL;
-	uint8_t *attachment_data                = NULL;
-	static char *function                   = "export_handle_export_attachment_data";
-	size64_t attachment_data_size           = 0;
-	size_t attachment_filename_index        = 0;
-	size_t attachment_filename_size         = 0;
-	size_t read_size                        = 0;
-	size_t string_index                     = 0;
-	size_t target_path_size                 = 0;
-	size_t write_count                      = 0;
-	ssize_t read_count                      = 0;
-	int result                              = 0;
+	system_character_t *long_filename = NULL;
+	static char *function             = "export_handle_get_attachment_filename";
+	size_t attachment_filename_index  = 0;
+	size_t attachment_filename_length = 0;
+	size_t long_filename_size         = 0;
+	size_t string_index               = 0;
+	int result                        = 0;
 
 	if( export_handle == NULL )
 	{
@@ -7300,22 +7982,50 @@ int export_handle_export_attachment_data(
 
 		return( -1 );
 	}
-	/* Determine the attachment filename size
-	 */
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libpff_attachment_get_utf16_long_filename_size(
-		  attachment,
-		  &attachment_filename_size,
-		  NULL );
-#else
-	result = libpff_attachment_get_utf8_long_filename_size(
-		  attachment,
-		  &attachment_filename_size,
-		  NULL );
-#endif
+	if( attachment_filename == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid attachment filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( *attachment_filename != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid attachment filename value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( attachment_filename_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid attachment filename size.",
+		 function );
+
+		return( -1 );
+	}
+	result = export_handle_item_get_value_string_size_by_type(
+	          export_handle,
+	          attachment,
+	          0,
+	          LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG,
+	          &long_filename_size,
+	          NULL );
+
 	if( result == 1 )
 	{
-		if( attachment_filename_size > (size_t) SSIZE_MAX )
+		if( *attachment_filename_size > (size_t) SSIZE_MAX )
 		{
 			libcerror_error_set(
 			 error,
@@ -7335,16 +8045,16 @@ int export_handle_export_attachment_data(
 
 		attachment_filename_index++;
 	}
-	attachment_filename_size += 2 + attachment_filename_index;
+	*attachment_filename_size = 2 + attachment_filename_index + long_filename_size;
 
-	if( attachment_filename_size < ( attachment_filename_index + 17 ) )
+	if( *attachment_filename_size < ( attachment_filename_index + 17 ) )
 	{
-		attachment_filename_size = attachment_filename_index + 17;
+		*attachment_filename_size = attachment_filename_index + 17;
 	}
-	attachment_filename = system_string_allocate(
-	                       attachment_filename_size );
+	*attachment_filename = system_string_allocate(
+	                        *attachment_filename_size );
 
-	if( attachment_filename == NULL )
+	if( *attachment_filename == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -7362,50 +8072,49 @@ int export_handle_export_attachment_data(
 
 	while( string_index > 0 )
 	{
-		attachment_filename[ string_index-- ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
+		( *attachment_filename )[ string_index-- ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
 
 		attachment_index /= 10;
 	}
-	attachment_filename[ 0 ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
+	( *attachment_filename )[ 0 ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
 
 	attachment_filename_index++;
 
-	attachment_filename[ attachment_filename_index++ ] = (system_character_t) '_';
+	( *attachment_filename )[ attachment_filename_index++ ] = (system_character_t) '_';
 
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libpff_attachment_get_utf16_long_filename(
-		  attachment,
-		  (uint16_t *) &( attachment_filename[ attachment_filename_index ] ),
-		  attachment_filename_size - attachment_filename_index,
-		  NULL );
-#else
-	result = libpff_attachment_get_utf8_long_filename(
-		  attachment,
-		  (uint8_t *) &( attachment_filename[ attachment_filename_index ] ),
-		  attachment_filename_size - attachment_filename_index,
-		  NULL );
-#endif
+	long_filename = &( ( *attachment_filename )[ attachment_filename_index ] );
+
+/* TODO make this more efficient by directly operating on record_entry */
+	result = export_handle_item_get_value_string_by_type(
+	          export_handle,
+	          attachment,
+	          0,
+	          LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG,
+	          long_filename,
+	          long_filename_size,
+	          NULL );
+
 	if( result == 1 )
 	{
-		attachment_filename_size = 1 + system_string_length(
-		                                attachment_filename );
+		attachment_filename_length = system_string_length(
+		                              *attachment_filename );
 
-		if( attachment_filename_size > 1 )
+		if( attachment_filename_length > 0 )
 		{
 			log_handle_printf(
 			 log_handle,
 			 "Saving attachment with filename: %" PRIs_SYSTEM "",
-			 &( attachment_filename[ attachment_filename_index ] ) );
+			 long_filename );
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libcpath_path_sanitize_filename_wide(
-			          attachment_filename,
-			          &attachment_filename_size,
+			          *attachment_filename,
+			          attachment_filename_size,
 			          error );
 #else
 			result = libcpath_path_sanitize_filename(
-			          attachment_filename,
-			          &attachment_filename_size,
+			          *attachment_filename,
+			          attachment_filename_size,
 			          error );
 #endif
 			if( result != 1 )
@@ -7422,7 +8131,7 @@ int export_handle_export_attachment_data(
 			log_handle_printf(
 			 log_handle,
 			 " as: %" PRIs_SYSTEM "\n",
-			 &( attachment_filename[ attachment_filename_index ] ) );
+			 *attachment_filename );
 		}
 		else
 		{
@@ -7432,7 +8141,7 @@ int export_handle_export_attachment_data(
 	if( result != 1 )
 	{
 		if( system_string_copy(
-		     &( attachment_filename[ attachment_filename_index ] ),
+		     &( ( *attachment_filename )[ attachment_filename_index ] ),
 		     _SYSTEM_STRING( "Attachment.txt" ),
 		     14 ) == NULL )
 		{
@@ -7445,14 +8154,88 @@ int export_handle_export_attachment_data(
 
 			goto on_error;
 		}
-		attachment_filename[ attachment_filename_index + 14 ] = 0;
+		( *attachment_filename )[ attachment_filename_index + 14 ] = 0;
 
-		attachment_filename_size = attachment_filename_index + 15;
+		*attachment_filename_size = attachment_filename_index + 15;
 
 		log_handle_printf(
 		 log_handle,
 		 "Missing attachment filename defaulting to: %" PRIs_SYSTEM "\n",
-		 attachment_filename );
+		 *attachment_filename );
+	}
+	return( 1 );
+
+on_error:
+	if( *attachment_filename != NULL )
+	{
+		memory_free(
+		 *attachment_filename );
+
+		*attachment_filename = NULL;
+	}
+	*attachment_filename_size = 0;
+
+	return( -1 );
+}
+
+/* Exports the attachment data
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_attachment_data(
+     export_handle_t *export_handle,
+     libpff_item_t *attachment,
+     int attachment_index,
+     int number_of_attachments,
+     const system_character_t *export_path,
+     size_t export_path_length,
+     log_handle_t *log_handle,
+     libcerror_error_t **error )
+{
+	system_character_t *attachment_filename = NULL;
+	system_character_t *target_path         = NULL;
+	FILE *attachment_file_stream            = NULL;
+	uint8_t *attachment_data                = NULL;
+	static char *function                   = "export_handle_export_attachment_data";
+	size64_t attachment_data_size           = 0;
+	size_t attachment_filename_size         = 0;
+	size_t read_size                        = 0;
+	size_t target_path_size                 = 0;
+	size_t write_count                      = 0;
+	ssize_t read_count                      = 0;
+	int result                              = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	/* Determine the attachment filename size
+	 */
+	if( export_handle_get_attachment_filename(
+	     export_handle,
+	     attachment,
+	     attachment_index,
+	     number_of_attachments,
+	     &attachment_filename,
+	     &attachment_filename_size,
+	     log_handle,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable retrieve attachment filename: %d.",
+		 function,
+		 attachment_index );
+
+		goto on_error;
 	}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcpath_path_join_wide(
@@ -8179,9 +8962,10 @@ int export_handle_export_recipient_type_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error )
 {
-	static char *function = "export_handle_export_recipient_type_to_item_file";
-	uint32_t value_32bit  = 0;
-	int result            = 0;
+	static char *function     = "export_handle_export_recipient_type_to_item_file";
+	size_t description_length = 0;
+	uint32_t value_32bit      = 0;
+	int result                = 0;
 
 	if( export_handle == NULL )
 	{
@@ -8205,9 +8989,11 @@ int export_handle_export_recipient_type_to_item_file(
 
 		return( -1 );
 	}
-	result = libpff_recipients_get_type(
+	result = export_handle_item_get_value_32bit_by_type(
+	          export_handle,
 	          recipients,
 	          recipient_index,
+	          LIBPFF_ENTRY_TYPE_RECIPIENT_TYPE,
 	          &value_32bit,
 	          error );
 
@@ -8233,11 +9019,13 @@ int export_handle_export_recipient_type_to_item_file(
 	}
 	else if( result != 0 )
 	{
+		description_length = system_string_length(
+		                      description );
+
 		if( item_file_write_string(
 		     item_file,
 		     description,
-		     system_string_length(
-		      description ),
+		     description_length,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -14047,6 +14835,188 @@ on_error:
 	return( -1 );
 }
 
+/* Retrieves a folder name
+ * If no folder name is found default to "Folder%05d"
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_get_folder_name(
+     export_handle_t *export_handle,
+     libpff_item_t *folder,
+     int folder_index,
+     system_character_t **folder_name,
+     size_t *folder_name_size,
+     log_handle_t *log_handle,
+     libcerror_error_t **error )
+{
+	static char *function     = "export_handle_get_folder_name";
+	size_t folder_name_length = 0;
+	int print_count           = 0;
+	int result                = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( folder_name == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid folder name.",
+		 function );
+
+		return( -1 );
+	}
+	if( *folder_name != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid folder name value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( folder_name_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid folder name size.",
+		 function );
+
+		return( -1 );
+	}
+	result = export_handle_item_create_value_string_by_type(
+	          export_handle,
+	          folder,
+	          0,
+	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
+	          folder_name,
+	          folder_name_size,
+	          NULL );
+
+	if( result == 1 )
+	{
+		folder_name_length = system_string_length(
+		                      *folder_name );
+
+		if( folder_name_length > 0 )
+		{
+			log_handle_printf(
+			 log_handle,
+			 "Saving folder with name: %" PRIs_SYSTEM "",
+			 *folder_name );
+
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libcpath_path_sanitize_filename_wide(
+			          *folder_name,
+			          folder_name_size,
+			          error );
+#else
+			result = libcpath_path_sanitize_filename(
+			          *folder_name,
+			          folder_name_size,
+			          error );
+#endif
+			if( result != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable sanitize folder name.",
+				 function );
+
+				goto on_error;
+			}
+			log_handle_printf(
+			 log_handle,
+			 " as: %" PRIs_SYSTEM "\n",
+			 *folder_name );
+		}
+		else
+		{
+			result = 0;
+		}
+	}
+	if( result != 1 )
+	{
+		if( ( *folder_name == NULL )
+		 || ( *folder_name_size < 12 ) )
+		{
+			if( *folder_name != NULL )
+			{
+				memory_free(
+				 *folder_name );
+			}
+			*folder_name_size = 12;
+
+			*folder_name = system_string_allocate(
+			                *folder_name_size );
+
+			if( *folder_name == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create folder name.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		print_count = system_string_sprintf(
+		               *folder_name,
+		               12,
+		               _SYSTEM_STRING( "Folder%05d" ),
+		               folder_index + 1 );
+
+		if( ( print_count < 0 )
+		 || ( print_count > 12 ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set folder name.",
+			 function );
+
+			goto on_error;
+		}
+		( *folder_name )[ 11 ] = 0;
+
+		log_handle_printf(
+		 log_handle,
+		 "Missing folder name defaulting to: %" PRIs_SYSTEM "\n",
+		 *folder_name );
+	}
+	return( 1 );
+
+on_error:
+	if( *folder_name != NULL )
+	{
+		memory_free(
+		 *folder_name );
+
+		*folder_name = NULL;
+	}
+	*folder_name_size = 0;
+
+	return( -1 );
+}
+
 /* Exports the folder
  * Returns 1 if successful or -1 on error
  */
@@ -14135,129 +15105,24 @@ int export_handle_export_folder(
 	}
 	/* Create the folder directory
 	 */
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libpff_folder_get_utf16_name_size(
-	          folder,
-	          &folder_name_size,
-	          NULL );
-#else
-	result = libpff_folder_get_utf8_name_size(
-	          folder,
-	          &folder_name_size,
-	          NULL );
-#endif
-	if( result == 1 )
-	{
-		if( folder_name_size > (size_t) SSIZE_MAX )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-			 "%s: folder name size value exceeds maximum.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	if( folder_name_size < 12 )
-	{
-		folder_name_size = 12;
-	}
-	folder_name = system_string_allocate(
-	               folder_name_size );
-
-	if( folder_name == NULL )
+	if( export_handle_get_folder_name(
+	     export_handle,
+	     folder,
+	     folder_index,
+	     &folder_name,
+	     &folder_name_size,
+	     log_handle,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create folder name.",
-		 function );
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable retrieve folder name: %d.",
+		 function,
+		 folder_index );
 
 		goto on_error;
-	}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libpff_folder_get_utf16_name(
-	          folder,
-	          (uint16_t *) folder_name,
-	          folder_name_size,
-	          NULL );
-#else
-	result = libpff_folder_get_utf8_name(
-	          folder,
-	          (uint8_t *) folder_name,
-	          folder_name_size,
-	          NULL );
-#endif
-	if( result == 1 )
-	{
-		folder_name_size = 1 + system_string_length(
-		                        folder_name );
-
-		if( folder_name_size > 1 )
-		{
-			log_handle_printf(
-			 log_handle,
-			 "Folder name: %" PRIs_SYSTEM "\n",
-			 folder_name );
-
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-			result = libcpath_path_sanitize_filename_wide(
-			          folder_name,
-			          &folder_name_size,
-			          error );
-#else
-			result = libcpath_path_sanitize_filename(
-			          folder_name,
-			          &folder_name_size,
-			          error );
-#endif
-			if( result != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable sanitize folder name.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		else
-		{
-			result = 0;
-		}
-	}
-	if( result != 1 )
-	{
-		print_count = system_string_sprintf(
-		               folder_name,
-		               12,
-		               _SYSTEM_STRING( "Folder%05d" ),
-		               folder_index + 1 );
-
-		if( ( print_count < 0 )
-		 || ( print_count > 12 ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set folder name.",
-			 function );
-
-			goto on_error;
-		}
-		folder_name[ 11 ] = 0;
-		folder_name_size  = 12;
-
-		log_handle_printf(
-		 log_handle,
-		 "Missing folder name defaulting to: %" PRIs_SYSTEM "\n",
-		 folder_name );
 	}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcpath_path_join_wide(

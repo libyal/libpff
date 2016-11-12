@@ -710,19 +710,6 @@ int libpff_item_get_sub_item_by_identifier(
      libpff_item_t **sub_item,
      libpff_error_t **error );
 
-/* Retrieves the size of the UTF-8 encoded item display name
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_item_get_utf8_display_name_size( item, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string_size( item, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded item display name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_item_get_utf8_display_name( item, utf8_string, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string( item, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string, utf8_string_size, 0, error )
-
 /* Retrieves the size of the UTF-16 encoded item display name
  * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -736,19 +723,6 @@ int libpff_item_get_sub_item_by_identifier(
 #define libpff_item_get_utf16_display_name( item, utf16_string, utf16_string_size, error ) \
         libpff_item_get_entry_value_utf16_string( item, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf16_string, utf16_string_size, 0, error )
 
-/* Retrieves the size of the UTF-8 encoded item address type
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_item_get_utf8_address_type_size( item, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string_size( item, 0, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded item address type
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_item_get_utf8_address_type( item, utf8_string, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string( item, 0, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf8_string, utf8_string_size, 0, error )
-
 /* Retrieves the size of the UTF-16 encoded item address type
  * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -761,19 +735,6 @@ int libpff_item_get_sub_item_by_identifier(
  */
 #define libpff_item_get_utf16_address_type( item, utf16_string, utf16_string_size, error ) \
         libpff_item_get_entry_value_utf16_string( item, 0, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf16_string, utf16_string_size, 0, error )
-
-/* Retrieves the size of the UTF-8 encoded item e-mail address
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_item_get_utf8_email_address_size( item, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string_size( item, 0, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded item e-mail address
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_item_get_utf8_email_address( item, utf8_string, size, error ) \
-        libpff_item_get_entry_value_utf8_string( item, 0, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string, utf8_string_size, 0, error )
 
 /* Retrieves the size of the UTF-16 encoded item e-mail address
  * Size includes the end of string character
@@ -1447,6 +1408,45 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
      size_t utf16_string_size,
      libpff_error_t **error );
 
+/* Retrieves the size of the UTF-8 encoded item display name
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_item_get_utf8_display_name_size( item, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string_size( item, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string_size, 0, error )
+
+/* Retrieves the size of the UTF-8 encoded item address type
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_item_get_utf8_address_type_size( item, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string_size( item, 0, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf8_string_size, 0, error )
+
+/* Retrieves the size of the UTF-8 encoded item e-mail address
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_item_get_utf8_email_address_size( item, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string_size( item, 0, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded item display name
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_item_get_utf8_display_name( item, utf8_string, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string( item, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded item address type
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_item_get_utf8_address_type( item, utf8_string, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string( item, 0, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf8_string, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded item e-mail address
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_item_get_utf8_email_address( item, utf8_string, size, error ) \
+        libpff_item_get_entry_value_utf8_string( item, 0, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string, utf8_string_size, 0, error )
+
 /* -------------------------------------------------------------------------
  * Name to id map entry functions
  * ------------------------------------------------------------------------- */
@@ -1952,19 +1952,6 @@ int libpff_multi_value_get_value_guid(
  * Folder functions
  * ------------------------------------------------------------------------- */
 
-/* Retrieves the size of the UTF-8 encoded folder name
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_folder_get_utf8_name_size( folder, utf8_string_size, error ) \
-	libpff_item_get_entry_value_utf8_string_size( folder, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded folder name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_folder_get_utf8_name( folder, utf8_string, utf8_string_size, error ) \
-	libpff_item_get_entry_value_utf8_string( folder, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string, utf8_string_size, 0, error )
-
 /* Retrieves the size of the UTF-16 encoded folder name
  * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -2129,6 +2116,23 @@ int libpff_folder_get_unknowns(
      libpff_item_t *folder,
      libpff_item_t **unknowns,
      libpff_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Folder functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the size of the UTF-8 encoded folder name
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_folder_get_utf8_name_size( folder, utf8_string_size, error ) \
+	libpff_item_get_entry_value_utf8_string_size( folder, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded folder name
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_folder_get_utf8_name( folder, utf8_string, utf8_string_size, error ) \
+	libpff_item_get_entry_value_utf8_string( folder, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string, utf8_string_size, 0, error )
 
 /* -------------------------------------------------------------------------
  * Message store functions - deprecated
@@ -2483,42 +2487,6 @@ int libpff_message_get_recipients(
 #define libpff_message_get_utf16_received_by_email_address( message, utf16_string, utf16_string_size, error ) \
 	libpff_message_get_entry_value_utf16_string( message, LIBPFF_ENTRY_TYPE_MESSAGE_RECEIVED_BY_EMAIL_ADDRESS, utf16_string, utf16_string_size, error )
 
-/* Retrieves the message importance
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_importance( message, importance, error ) \
-	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_IMPORTANCE, importance, 0, error )
-
-/* Retrieves the message priority
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_priority( message, priority, error ) \
-	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_PRIORITY, priority, 0, error )
-
-/* Retrieves the message sensitivity
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_sensitivity( message, sensitivity, error ) \
-	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_SENSITIVITY, sensitivity, 0, error )
-
-/* Retrieves the message flags
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_flags( message, flags, error ) \
-	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_FLAGS, flags, 0, error )
-
-/* Retrieves the message size
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_size( message, size, error ) \
-	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_SIZE, size, 0, error )
-
-/* Retrieves the message status (flags)
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_status( message, status, error ) \
-	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_STATUS, status, 0, error )
-
 /* Retrieves the message client submit time
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -2663,14 +2631,48 @@ int libpff_message_get_html_body(
 	libpff_item_get_entry_value_filetime( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_REMINDER_SIGNAL_TIME, reminder_signal_time, 0, error )
 
 /* -------------------------------------------------------------------------
- * Task functions
+ * Message functions - deprecated
  * ------------------------------------------------------------------------- */
 
-/* Retrieves the task status
+/* Retrieves the message importance
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
-#define libpff_task_get_status( task, status, error ) \
-	libpff_item_get_entry_value_32bit( task, 0, LIBPFF_ENTRY_TYPE_TASK_STATUS, status, 0, error )
+#define libpff_message_get_importance( message, importance, error ) \
+	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_IMPORTANCE, importance, 0, error )
+
+/* Retrieves the message priority
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_message_get_priority( message, priority, error ) \
+	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_PRIORITY, priority, 0, error )
+
+/* Retrieves the message sensitivity
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_message_get_sensitivity( message, sensitivity, error ) \
+	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_SENSITIVITY, sensitivity, 0, error )
+
+/* Retrieves the message flags
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_message_get_flags( message, flags, error ) \
+	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_FLAGS, flags, 0, error )
+
+/* Retrieves the message size
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_message_get_size( message, size, error ) \
+	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_SIZE, size, 0, error )
+
+/* Retrieves the message status (flags)
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_message_get_status( message, status, error ) \
+	libpff_item_get_entry_value_32bit( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_STATUS, status, 0, error )
+
+/* -------------------------------------------------------------------------
+ * Task functions
+ * ------------------------------------------------------------------------- */
 
 /* Retrieves the task percentage complete
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -2690,6 +2692,28 @@ int libpff_message_get_html_body(
 #define libpff_task_due_date( task, due_date, error ) \
 	libpff_item_get_entry_value_filetime( task, 0, LIBPFF_ENTRY_TYPE_TASK_DUE_DATE, due_date, 0, error )
 
+/* Retrieves the value indicating if the task is complete
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_task_get_is_complete( task, is_complete, error ) \
+	libpff_item_get_entry_value_boolean( task, 0, LIBPFF_ENTRY_TYPE_TASK_IS_COMPLETE, is_complete, 0, error )
+
+/* Retrieves the value indicating if the task is recurring
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_task_get_is_recurring( task, is_recurring, error ) \
+	libpff_item_get_entry_value_boolean( task, 0, LIBPFF_ENTRY_TYPE_TASK_IS_RECURRING, is_recurring, 0, error )
+
+/* -------------------------------------------------------------------------
+ * Task functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the task status
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_task_get_status( task, status, error ) \
+	libpff_item_get_entry_value_32bit( task, 0, LIBPFF_ENTRY_TYPE_TASK_STATUS, status, 0, error )
+
 /* Retrieves the task actual effort in minutes
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -2708,27 +2732,9 @@ int libpff_message_get_html_body(
 #define libpff_task_get_version( task, version, error ) \
 	libpff_item_get_entry_value_32bit( task, 0, LIBPFF_ENTRY_TYPE_TASK_VERSION, version, 0, error )
 
-/* Retrieves the value indicating if the task is complete
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_task_get_is_complete( task, is_complete, error ) \
-	libpff_item_get_entry_value_boolean( task, 0, LIBPFF_ENTRY_TYPE_TASK_IS_COMPLETE, is_complete, 0, error )
-
-/* Retrieves the value indicating if the task is recurring
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_task_get_is_recurring( task, is_recurring, error ) \
-	libpff_item_get_entry_value_boolean( task, 0, LIBPFF_ENTRY_TYPE_TASK_IS_RECURRING, is_recurring, 0, error )
-
 /* -------------------------------------------------------------------------
  * Appointment functions
  * ------------------------------------------------------------------------- */
-
-/* Retrieves the appointment busy status
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_appointment_get_busy_status( appointment, busy_status, error ) \
-	libpff_item_get_entry_value_32bit( appointment, 0, LIBPFF_ENTRY_TYPE_APPOINTMENT_BUSY_STATUS, busy_status, 0, error )
 
 /* Retrieves the size of the UTF-8 encoded appointment location
  * Size includes the end of string character
@@ -2767,12 +2773,6 @@ int libpff_message_get_html_body(
  */
 #define libpff_appointment_get_end_time( appointment, end_time, error ) \
 	libpff_item_get_entry_value_filetime( appointment, 0, LIBPFF_ENTRY_TYPE_APPOINTMENT_END_TIME, end_time, 0, error )
-
-/* Retrieves the appointment duration in minutes
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_appointment_get_duration( appointment, duration, error ) \
-	libpff_item_get_entry_value_32bit( appointment, 0, LIBPFF_ENTRY_TYPE_APPOINTMENT_DURATION, duration, 0, error )
 
 /* Retrieves the size of the UTF-8 encoded appointment recurrence pattern
  * Size includes the end of string character
@@ -2837,6 +2837,22 @@ int libpff_message_get_html_body(
  */
 #define libpff_appointment_last_effective_time( appointment, last_effective_time, error ) \
 	libpff_item_get_entry_value_filetime( appointment, 0, LIBPFF_ENTRY_TYPE_APPOINTMENT_LAST_EFFECTIVE_TIME, last_effective_time, 0, error )
+
+/* -------------------------------------------------------------------------
+ * Appointment functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the appointment busy status
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_appointment_get_busy_status( appointment, busy_status, error ) \
+	libpff_item_get_entry_value_32bit( appointment, 0, LIBPFF_ENTRY_TYPE_APPOINTMENT_BUSY_STATUS, busy_status, 0, error )
+
+/* Retrieves the appointment duration in minutes
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_appointment_get_duration( appointment, duration, error ) \
+	libpff_item_get_entry_value_32bit( appointment, 0, LIBPFF_ENTRY_TYPE_APPOINTMENT_DURATION, duration, 0, error )
 
 /* -------------------------------------------------------------------------
  * Address functions
@@ -3517,19 +3533,6 @@ int libpff_attachment_get_type(
      int *attachment_type,
      libpff_error_t **error );
 
-/* Retrieves the size of the UTF-8 encoded attachment short filename
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_attachment_get_utf8_short_filename_size( attachment, utf8_string_size, error ) \
-	libpff_item_get_entry_value_utf8_string_size( attachment, 0, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_SHORT, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded attachment short filename
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_attachment_get_utf8_short_filename( attachment, utf8_string, utf8_string_size, error ) \
-	libpff_item_get_entry_value_utf8_string( attachment, 0, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_SHORT, utf8_string, utf8_string_size, 0, error )
-
 /* Retrieves the size of the UTF-16 encoded attachment short filename
  * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -3542,19 +3545,6 @@ int libpff_attachment_get_type(
  */
 #define libpff_attachment_get_utf16_short_filename( attachment, utf16_string, utf16_string_size, error ) \
 	libpff_item_get_entry_value_utf16_string( attachment, 0, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_SHORT, utf16_string, utf16_string_size, 0, error )
-
-/* Retrieves the size of the UTF-8 encoded attachment long filename
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_attachment_get_utf8_long_filename_size( attachment, utf8_string_size, error ) \
-	libpff_item_get_entry_value_utf8_string_size( attachment, 0, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded attachment long filename
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_attachment_get_utf8_long_filename( attachment, utf8_string, utf8_string_size, error ) \
-	libpff_item_get_entry_value_utf8_string( attachment, 0, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, utf8_string, utf8_string_size, 0, error )
 
 /* Retrieves the size of the UTF-16 encoded attachment long filename
  * Size includes the end of string character
@@ -3619,21 +3609,38 @@ int libpff_attachment_get_item(
      libpff_error_t **error );
 
 /* -------------------------------------------------------------------------
- * Recipients functions
+ * Attachment functions - deprecated
  * ------------------------------------------------------------------------- */
 
-/* Retrieves the size of the UTF-8 encoded display name
+/* Retrieves the size of the UTF-8 encoded attachment short filename
  * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
-#define libpff_recipients_get_utf8_display_name_size( recipients, recipient_index, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string_size( recipients, recipient_index, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string_size, 0, error )
+#define libpff_attachment_get_utf8_short_filename_size( attachment, utf8_string_size, error ) \
+	libpff_item_get_entry_value_utf8_string_size( attachment, 0, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_SHORT, utf8_string_size, 0, error )
 
-/* Retrieves the UTF-8 encoded display name
+/* Retrieves the size of the UTF-8 encoded attachment long filename
+ * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
-#define libpff_recipients_get_utf8_display_name( recipients, recipient_index, utf8_string, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string, utf8_string_size, 0, error )
+#define libpff_attachment_get_utf8_long_filename_size( attachment, utf8_string_size, error ) \
+	libpff_item_get_entry_value_utf8_string_size( attachment, 0, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded attachment short filename
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_attachment_get_utf8_short_filename( attachment, utf8_string, utf8_string_size, error ) \
+	libpff_item_get_entry_value_utf8_string( attachment, 0, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_SHORT, utf8_string, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded attachment long filename
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_attachment_get_utf8_long_filename( attachment, utf8_string, utf8_string_size, error ) \
+	libpff_item_get_entry_value_utf8_string( attachment, 0, LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG, utf8_string, utf8_string_size, 0, error )
+
+/* -------------------------------------------------------------------------
+ * Recipients functions
+ * ------------------------------------------------------------------------- */
 
 /* Retrieves the size of the UTF-16 encoded display name
  * Size includes the end of string character
@@ -3648,19 +3655,6 @@ int libpff_attachment_get_item(
 #define libpff_recipients_get_utf16_display_name( recipients, recipient_index, utf16_string, utf16_string_size, error ) \
         libpff_item_get_entry_value_utf16_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf16_string, utf16_string_size, 0, error )
 
-/* Retrieves the size of the UTF-8 encoded address type
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_recipients_get_utf8_address_type_size( recipients, recipient_index, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string_size( recipients, recipient_index, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded address type
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_recipients_get_utf8_address_type( recipients, recipient_index, utf8_string, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf8_string, utf8_string_size, 0, error )
-
 /* Retrieves the size of the UTF-16 encoded address type
  * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -3673,19 +3667,6 @@ int libpff_attachment_get_item(
  */
 #define libpff_recipients_get_utf16_address_type( recipients, recipient_index, utf16_string, utf16_string_size, error ) \
         libpff_item_get_entry_value_utf16_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf16_string, utf16_string_size, 0, error )
-
-/* Retrieves the size of the UTF-8 encoded email address
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_recipients_get_utf8_email_address_size( recipients, recipient_index, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string_size( recipients, recipient_index, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded email address
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_recipients_get_utf8_email_address( recipients, recipient_index, utf8_string, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string, utf8_string_size, 0, error )
 
 /* Retrieves the size of the UTF-16 encoded email address
  * Size includes the end of string character
@@ -3700,19 +3681,6 @@ int libpff_attachment_get_item(
 #define libpff_recipients_get_utf16_email_address( recipients, recipient_index, utf16_string, utf16_string_size, error ) \
         libpff_item_get_entry_value_utf16_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf16_string, utf16_string_size, 0, error )
 
-/* Retrieves the size of the UTF-8 encoded recipient display name
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_recipients_get_utf8_recipient_display_name_size( recipients, recipient_index, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string_size( recipients, recipient_index, LIBPFF_ENTRY_TYPE_RECIPIENT_DISPLAY_NAME, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded recipient display name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_recipients_get_utf8_recipient_display_name( recipients, recipient_index, utf8_string, utf8_string_size, error ) \
-        libpff_item_get_entry_value_utf8_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_RECIPIENT_DISPLAY_NAME, utf8_string, utf8_string_size, 0, error )
-
 /* Retrieves the size of the UTF-16 encoded recipient display name
  * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -3726,15 +3694,71 @@ int libpff_attachment_get_item(
 #define libpff_recipients_get_utf16_recipient_display_name( recipients, recipient_index, utf16_string, utf16_string_size, error ) \
         libpff_item_get_entry_value_utf16_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_RECIPIENT_DISPLAY_NAME, utf16_string, utf16_string_size, 0, error )
 
+/* -------------------------------------------------------------------------
+ * Recipients functions - deprecated
+ * ------------------------------------------------------------------------- */
+
 /* Retrieves the recipient type
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
 #define libpff_recipients_get_type( recipients, recipient_index, type, error ) \
 	libpff_item_get_entry_value_32bit( recipients, recipient_index, LIBPFF_ENTRY_TYPE_RECIPIENT_TYPE, type, 0, error )
 
+/* Retrieves the size of the UTF-8 encoded display name
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_recipients_get_utf8_display_name_size( recipients, recipient_index, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string_size( recipients, recipient_index, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string_size, 0, error )
+
+/* Retrieves the size of the UTF-8 encoded address type
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_recipients_get_utf8_address_type_size( recipients, recipient_index, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string_size( recipients, recipient_index, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf8_string_size, 0, error )
+
+/* Retrieves the size of the UTF-8 encoded email address
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_recipients_get_utf8_email_address_size( recipients, recipient_index, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string_size( recipients, recipient_index, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string_size, 0, error )
+
+/* Retrieves the size of the UTF-8 encoded recipient display name
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_recipients_get_utf8_recipient_display_name_size( recipients, recipient_index, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string_size( recipients, recipient_index, LIBPFF_ENTRY_TYPE_RECIPIENT_DISPLAY_NAME, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded display name
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_recipients_get_utf8_display_name( recipients, recipient_index, utf8_string, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded address type
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_recipients_get_utf8_address_type( recipients, recipient_index, utf8_string, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, utf8_string, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded email address
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_recipients_get_utf8_email_address( recipients, recipient_index, utf8_string, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded recipient display name
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+#define libpff_recipients_get_utf8_recipient_display_name( recipients, recipient_index, utf8_string, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string( recipients, recipient_index, LIBPFF_ENTRY_TYPE_RECIPIENT_DISPLAY_NAME, utf8_string, utf8_string_size, 0, error )
+
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBPFF_H ) */
 

@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_INTERNAL_RECORD_SET_H )
-#define _LIBPFF_INTERNAL_RECORD_SET_H
+#if !defined( _LIBPFF_RECORD_SET_H )
+#define _LIBPFF_RECORD_SET_H
 
 #include <common.h>
 #include <types.h>
@@ -118,5 +118,5 @@ int libpff_record_set_get_entry_by_utf16_name(
 }
 #endif
 
-#endif /* !defined( _LIBPFF_INTERNAL_RECORD_SET_H ) */
+#endif /* !defined( _LIBPFF_RECORD_SET_H ) */
 

@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_INTERNAL_FILE_H )
-#define _LIBPFF_INTERNAL_FILE_H
+#if !defined( _LIBPFF_FILE_H )
+#define _LIBPFF_FILE_H
 
 #include <common.h>
 #include <types.h>
@@ -290,5 +290,5 @@ int libpff_file_get_recovered_item(
 }
 #endif
 
-#endif /* !defined( _LIBPFF_INTERNAL_FILE_H ) */
+#endif /* !defined( _LIBPFF_FILE_H ) */
 

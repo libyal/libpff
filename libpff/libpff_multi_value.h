@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_INTERNAL_MULTI_VALUE_H )
-#define _LIBPFF_INTERNAL_MULTI_VALUE_H
+#if !defined( _LIBPFF_MULTI_VALUE_H )
+#define _LIBPFF_MULTI_VALUE_H
 
 #include <common.h>
 #include <types.h>
@@ -168,5 +168,5 @@ int libpff_multi_value_get_value_guid(
 }
 #endif
 
-#endif /* !defined( _LIBPFF_INTERNAL_MULTI_VALUE_H ) */
+#endif /* !defined( _LIBPFF_MULTI_VALUE_H ) */
 

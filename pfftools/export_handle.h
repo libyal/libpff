@@ -264,6 +264,53 @@ int export_handle_export_sub_items(
      log_handle_t *log_handle,
      libcerror_error_t **error );
 
+/* Item export functions
+ */
+int export_handle_item_get_record_entry_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint32_t value_type,
+     libpff_record_set_t **record_set,
+     libpff_record_entry_t **record_entry,
+     uint8_t flags,
+     libcerror_error_t **error );
+
+int export_handle_item_get_value_32bit_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint32_t *value_32bit,
+     libcerror_error_t **error );
+
+int export_handle_item_get_value_string_size_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     size_t *value_string_size,
+     libcerror_error_t **error );
+
+int export_handle_item_get_value_string_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     system_character_t *value_string,
+     size_t value_string_size,
+     libcerror_error_t **error );
+
+int export_handle_item_create_value_string_by_type(
+     export_handle_t *export_handle,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     system_character_t **value_string,
+     size_t *value_string_size,
+     libcerror_error_t **error );
+
 /* Message item export functions
  */
 int export_handle_export_message_header(
@@ -425,6 +472,16 @@ int export_handle_export_attachment(
      log_handle_t *log_handle,
      libcerror_error_t **error );
 
+int export_handle_get_attachment_filename(
+     export_handle_t *export_handle,
+     libpff_item_t *attachment,
+     int attachment_index,
+     int number_of_attachments,
+     system_character_t **attachment_filename,
+     size_t *attachment_filename_size,
+     log_handle_t *log_handle,
+     libcerror_error_t **error );
+
 int export_handle_export_attachment_data(
      export_handle_t *export_handle,
      libpff_item_t *attachment,
@@ -571,6 +628,15 @@ int export_handle_export_task(
 
 /* Folder export functions
  */
+int export_handle_get_folder_name(
+     export_handle_t *export_handle,
+     libpff_item_t *folder,
+     int folder_index,
+     system_character_t **folder_name,
+     size_t *folder_name_size,
+     log_handle_t *log_handle,
+     libcerror_error_t **error );
+
 int export_handle_export_folder(
      export_handle_t *export_handle,
      libpff_item_t *folder,
