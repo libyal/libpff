@@ -30,6 +30,8 @@
 
 #include "export_handle.h"
 #include "item_file.h"
+#include "mapi_property_definition.h"
+#include "log_handle.h"
 #include "pffinput.h"
 #include "pfftools_libcerror.h"
 #include "pfftools_libclocale.h"
@@ -2313,6 +2315,55 @@ on_error:
 	return( -1 );
 }
 
+/* Writes a specific record set value to the item file
+ * Returns 1 if successful or -1 on error
+ */
+void export_handle_write_record_set_value_to_item_file(
+      item_file_t *item_file,
+      const system_character_t *description,
+      libpff_record_set_t *record_set,
+      uint32_t entry_type,
+      uint32_t value_type,
+      uint32_t format_flags,
+      int (*write_to_item_file_function)(
+             item_file_t *item_file,
+             libpff_record_entry_t *record_entry,
+             libcerror_error_t **error ) )
+{
+	libcerror_error_t *error = NULL;
+	static char *function    = "export_handle_write_record_set_value_to_item_file";
+
+	if( item_file_write_record_set_value(
+	     item_file,
+	     description,
+	     record_set,
+	     entry_type,
+	     value_type,
+	     format_flags,
+	     write_to_item_file_function,
+	     &error ) != 1 )
+	{
+		libcerror_error_set(
+		 &error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write record set value: 0x%04" PRIx32 " 0x%04" PRIx32 ".",
+		 function,
+		 entry_type,
+		 value_type );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( error != NULL )
+		{
+			libcnotify_print_error_backtrace(
+			 error );
+		}
+#endif
+		libcerror_error_free(
+		 &error );
+	}
+}
+
 /* Exports the item values
  * Returns 1 if successful or -1 on error
  */
@@ -2754,6 +2805,94 @@ int export_handle_item_get_record_entry_by_type(
 /* Retrieves a 32-bit value matching the entry type
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
+int export_handle_record_set_get_value_32bit_by_type(
+     export_handle_t *export_handle,
+     libpff_record_set_t *record_set,
+     uint32_t entry_type,
+     uint32_t *value_32bit,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "export_handle_record_set_get_value_32bit";
+	int result                          = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	result = libpff_record_set_get_entry_by_type(
+	          record_set,
+	          entry_type,
+	          LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
+	          &record_entry,
+	          0,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 " 0x%04x from record set.",
+		 function,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_32bit(
+		     record_entry,
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve 32-bit value from record entry.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves a 32-bit value matching the entry type
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
 int export_handle_item_get_value_32bit_by_type(
      export_handle_t *export_handle,
      libpff_item_t *item,
@@ -2784,7 +2923,7 @@ int export_handle_item_get_value_32bit_by_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x%04x 0x%04x from record set: %d.",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 " 0x%04x from record set: %d.",
 		 function,
 		 entry_type,
 		 LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
@@ -2808,19 +2947,19 @@ int export_handle_item_get_value_32bit_by_type(
 
 			goto on_error;
 		}
-	}
-	if( libpff_record_entry_free(
-	     &record_entry,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free record entry.",
-		 function );
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	if( libpff_record_set_free(
 	     &record_set,
@@ -2898,7 +3037,7 @@ int export_handle_item_get_value_string_size_by_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x%04x 0x%04x or 0x%04x 0x%04x from record set: %d.",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 " 0x%04x or 0x%04" PRIx32 " 0x%04x from record set: %d.",
 		 function,
 		 entry_type,
 		 LIBPFF_VALUE_TYPE_STRING_ASCII,
@@ -2958,16 +3097,29 @@ int export_handle_item_get_value_string_size_by_type(
 
 			goto on_error;
 		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
 	}
-	if( libpff_record_entry_free(
-	     &record_entry,
+	if( libpff_record_set_free(
+	     &record_set,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free record entry.",
+		 "%s: unable to free record set.",
 		 function );
 
 		goto on_error;
@@ -3025,7 +3177,7 @@ int export_handle_item_get_value_string_by_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x%04x 0x%04x or 0x%04x 0x%04x from record set: %d.",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 " 0x%04x or 0x%04" PRIx32 " 0x%04x from record set: %d.",
 		 function,
 		 entry_type,
 		 LIBPFF_VALUE_TYPE_STRING_ASCII,
@@ -3087,8 +3239,21 @@ int export_handle_item_get_value_string_by_type(
 
 			goto on_error;
 		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
 	}
-	if( libpff_record_entry_free(
+	if( libpff_record_set_free(
 	     &record_entry,
 	     error ) != 1 )
 	{
@@ -3096,7 +3261,7 @@ int export_handle_item_get_value_string_by_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free record entry.",
+		 "%s: unable to free record set.",
 		 function );
 
 		goto on_error;
@@ -3187,7 +3352,7 @@ int export_handle_item_create_value_string_by_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x%04x 0x%04x or 0x%04x 0x%04x from record set: %d.",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 " 0x%04x or 0x%04" PRIx32 " 0x%04x from record set: %d.",
 		 function,
 		 entry_type,
 		 LIBPFF_VALUE_TYPE_STRING_ASCII,
@@ -3295,19 +3460,19 @@ int export_handle_item_create_value_string_by_type(
 
 			goto on_error;
 		}
-	}
-	if( libpff_record_entry_free(
-	     &record_entry,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free record entry.",
-		 function );
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	if( libpff_record_set_free(
 	     &record_set,
@@ -3346,6 +3511,106 @@ on_error:
 	}
 	*value_string_size = 0;
 
+	return( -1 );
+}
+
+/* Exports the item to an item file
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_item_value_to_item_file(
+     export_handle_t *export_handle,
+     item_file_t *item_file,
+     const system_character_t *description,
+     libpff_item_t *item,
+     int record_set_index,
+     mapi_property_definitions_t *property_definitions,
+     int number_of_property_definitions,
+     libcerror_error_t **error )
+{
+	libpff_record_set_t *record_set                  = NULL;
+	mapi_property_definitions_t *property_definition = NULL;
+	static char *function                            = "export_handle_export_item_values_to_item_file";
+	int property_definition_index                    = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_item_get_record_set_by_index(
+	     item,
+	     record_set_index,
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record set: %d from item.",
+		 function,
+		 record_set_index );
+
+		goto on_error;
+	}
+	if( item_file_write_value_description(
+	     item_file,
+	     description,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write description.",
+		 function );
+
+		goto on_error;
+	}
+	for( property_definition_index = 0;
+	     property_definition_index < number_of_property_definitions;
+	     property_definition_index++ )
+	{
+		property_definition = &( property_definitions[ property_definition_index ] );
+
+		export_handle_write_record_set_value_to_item_file(
+		 item_file,
+		 property_definition->description,
+		 record_set,
+		 property_definition->entry_type,
+		 property_definition->value_type,
+		 property_definition->format_flags,
+		 property_definition->write_to_item_file_function );
+	}
+	if( libpff_record_set_free(
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record set: %s.",
+		 function,
+		 record_set_index );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
 	return( -1 );
 }
 
@@ -3460,104 +3725,90 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int export_handle_export_message_flags_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error )
 {
-	static char *function     = "export_handle_export_message_flags_to_item_file";
-	size_t description_length = 0;
-	uint32_t value_32bit      = 0;
-	int result                = 0;
+	system_character_t *value_string = NULL;
+	static char *function            = "export_handle_export_message_flags_to_item_file";
+	size_t value_string_length       = 0;
+	uint32_t value_32bit             = 0;
 
-	if( export_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( description == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid description.",
-		 function );
-
-		return( -1 );
-	}
-	result = export_handle_item_get_value_32bit_by_type(
-	          export_handle,
-	          message,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_FLAGS,
-	          &value_32bit,
-	          error );
-
-	if( result == -1 )
+	if( libpff_record_entry_get_value_32bit(
+	     record_entry,
+	     &value_32bit,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve message flags.",
+		 "%s: unable to retrieve retrieve 32-bit integer value.",
 		 function );
 
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
+		return( -1 );
 	}
-	else if( result != 0 )
+	if( item_file_write_integer_32bit_as_hexadecimal(
+	     item_file,
+	     value_32bit,
+	     error ) != 1 )
 	{
-		description_length = system_string_length(
-		                      description );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write 32-bit integer.",
+		 function );
 
+		return( -1 );
+	}
+	if( item_file_write_string(
+	     item_file,
+	     _SYSTEM_STRING( " (" ),
+	     2,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_READ ) != 0 )
+	{
+		value_string        = _SYSTEM_STRING( "Read" );
+		value_string_length = 4;
+
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_READ );
+	}
+	else
+	{
+		value_string        = _SYSTEM_STRING( "Unread" );
+		value_string_length = 6;
+	}
+	if( item_file_write_string(
+	     item_file,
+	     value_string,
+	     value_string_length,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_32bit != 0 )
+	{
 		if( item_file_write_string(
 		     item_file,
-		     description,
-		     description_length,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write description.",
-			 function );
-
-			return( -1 );
-		}
-		if( item_file_write_integer_32bit_as_hexadecimal(
-		     item_file,
-		     value_32bit,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write 32-bit integer.",
-			 function );
-
-			return( -1 );
-		}
-		if( item_file_write_string(
-		     item_file,
-		     _SYSTEM_STRING( " (" ),
+		     _SYSTEM_STRING( ", " ),
 		     2,
 		     error ) != 1 )
 		{
@@ -3570,43 +3821,26 @@ int export_handle_export_message_flags_to_item_file(
 
 			return( -1 );
 		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_READ ) != 0 )
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_UNMODIFIED ) != 0 )
+	{
+		if( item_file_write_string(
+		     item_file,
+		     _SYSTEM_STRING( "Unmodified" ),
+		     10,
+		     error ) != 1 )
 		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Read" ),
-			     4,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
 
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_READ );
+			return( -1 );
 		}
-		else
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Unread" ),
-			     6,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_UNMODIFIED );
 
-				return( -1 );
-			}
-		}
 		if( value_32bit != 0 )
 		{
 			if( item_file_write_string(
@@ -3625,384 +3859,13 @@ int export_handle_export_message_flags_to_item_file(
 				return( -1 );
 			}
 		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_UNMODIFIED ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Unmodified" ),
-			     10,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_UNMODIFIED );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_SUBMIT ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Submit" ),
-			     6,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_SUBMIT );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_UNSENT ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Unsent" ),
-			     6,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_UNSENT );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_HAS_ATTACHMENTS ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Has attachments" ),
-			     15,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_HAS_ATTACHMENTS );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_FROM_ME ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "From me" ),
-			     7,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_FROM_ME );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_ASSOCIATED ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Associated" ),
-			     10,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_ASSOCIATED );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_RESEND ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Resend" ),
-			     6,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_RESEND );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_RN_PENDING ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "RN pending" ),
-			     10,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_RN_PENDING );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_FLAG_NRN_PENDING ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "NRN pending" ),
-			     11,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_FLAG_NRN_PENDING );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( value_32bit != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Unknown: " ),
-			     9,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			if( item_file_write_integer_32bit_as_hexadecimal(
-			     item_file,
-			     value_32bit,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write 32-bit integer.",
-				 function );
-
-				return( -1 );
-			}
-		}
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_SUBMIT ) != 0 )
+	{
 		if( item_file_write_string(
 		     item_file,
-		     _SYSTEM_STRING( ")" ),
-		     1,
+		     _SYSTEM_STRING( "Submit" ),
+		     6,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -4014,132 +3877,52 @@ int export_handle_export_message_flags_to_item_file(
 
 			return( -1 );
 		}
-		if( item_file_write_new_line(
-		     item_file,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write new line.",
-			 function );
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_SUBMIT );
 
-			return( -1 );
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
 		}
 	}
-	return( 1 );
-}
-
-/* Exports the message importance to an item file
- * Returns 1 if successful or -1 on error
- */
-int export_handle_export_message_importance_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
-     item_file_t *item_file,
-     libcerror_error_t **error )
-{
-	system_character_t *value_string = NULL;
-	static char *function            = "export_handle_export_message_importance_to_item_file";
-	size_t description_length        = 0;
-	size_t value_string_length       = 0;
-	uint32_t value_32bit             = 0;
-	int result                       = 0;
-
-	if( export_handle == NULL )
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_UNSENT ) != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( description == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid description.",
-		 function );
-
-		return( -1 );
-	}
-	result = export_handle_item_get_value_32bit_by_type(
-	          export_handle,
-	          message,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_IMPORTANCE,
-	          &value_32bit,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve importance.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	else if( result != 0 )
-	{
-		description_length = system_string_length(
-		                      description );
-
 		if( item_file_write_string(
 		     item_file,
-		     description,
-		     description_length,
+		     _SYSTEM_STRING( "Unsent" ),
+		     6,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write description.",
+			 "%s: unable to write string.",
 			 function );
 
 			return( -1 );
 		}
-/* TODO move to callback */
-		if( value_32bit == (uint32_t) LIBPFF_MESSAGE_IMPORTANCE_TYPE_LOW )
-		{
-			value_string = _SYSTEM_STRING( "Low" );
-		}
-		else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_IMPORTANCE_TYPE_NORMAL )
-		{
-			value_string = _SYSTEM_STRING( "Normal" );
-		}
-		else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_IMPORTANCE_TYPE_HIGH )
-		{
-			value_string = _SYSTEM_STRING( "High" );
-		}
-		if( value_string != NULL )
-		{
-			value_string_length = system_string_length(
-			                       value_string );
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_UNSENT );
 
+		if( value_32bit != 0 )
+		{
 			if( item_file_write_string(
 			     item_file,
-			     value_string,
-			     value_string_length,
+			     _SYSTEM_STRING( ", " ),
+			     2,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -4152,146 +3935,32 @@ int export_handle_export_message_importance_to_item_file(
 				return( -1 );
 			}
 		}
-		else
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Unknown: " ),
-			     9,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			if( item_file_write_integer_32bit_as_hexadecimal(
-			     item_file,
-			     value_32bit,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write 32-bit integer.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		if( item_file_write_new_line(
-		     item_file,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write new line.",
-			 function );
-
-			return( -1 );
-		}
 	}
-	return( 1 );
-}
-
-/* Exports the message priority to an item file
- * Returns 1 if successful or -1 on error
- */
-int export_handle_export_message_priority_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
-     item_file_t *item_file,
-     libcerror_error_t **error )
-{
-	static char *function     = "export_handle_export_message_priority_to_item_file";
-	size_t description_length = 0;
-	uint32_t value_32bit      = 0;
-	int result                = 0;
-
-	if( export_handle == NULL )
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_HAS_ATTACHMENTS ) != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( description == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid description.",
-		 function );
-
-		return( -1 );
-	}
-	result = export_handle_item_get_value_32bit_by_type(
-	          export_handle,
-	          message,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_PRIORITY,
-	          &value_32bit,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve priority.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	else if( result != 0 )
-	{
-		description_length = system_string_length(
-		                      description );
-
 		if( item_file_write_string(
 		     item_file,
-		     description,
-		     description_length,
+		     _SYSTEM_STRING( "Has attachments" ),
+		     15,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write description.",
+			 "%s: unable to write string.",
 			 function );
 
 			return( -1 );
 		}
-		if( value_32bit == (uint32_t) LIBPFF_MESSAGE_PRIORITY_TYPE_NON_URGENT )
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_HAS_ATTACHMENTS );
+
+		if( value_32bit != 0 )
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _SYSTEM_STRING( "Non Urgent" ),
-			     10,
+			     _SYSTEM_STRING( ", " ),
+			     2,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -4304,182 +3973,32 @@ int export_handle_export_message_priority_to_item_file(
 				return( -1 );
 			}
 		}
-		else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_PRIORITY_TYPE_NORMAL )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Normal" ),
-			     6,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_PRIORITY_TYPE_URGENT )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Urgent" ),
-			     6,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Unknown: " ),
-			     9,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			if( item_file_write_integer_32bit_as_hexadecimal(
-			     item_file,
-			     value_32bit,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write 32-bit integer.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		if( item_file_write_new_line(
-		     item_file,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write new line.",
-			 function );
-
-			return( -1 );
-		}
 	}
-	return( 1 );
-}
-
-/* Exports the message sensitivity to an item file
- * Returns 1 if successful or -1 on error
- */
-int export_handle_export_message_sensitivity_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
-     item_file_t *item_file,
-     libcerror_error_t **error )
-{
-	static char *function     = "export_handle_export_message_sensitivity_to_item_file";
-	size_t description_length = 0;
-	uint32_t value_32bit      = 0;
-	int result                = 0;
-
-	if( export_handle == NULL )
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_FROM_ME ) != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( description == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid description.",
-		 function );
-
-		return( -1 );
-	}
-	result = export_handle_item_get_value_32bit_by_type(
-	          export_handle,
-	          message,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_SENSITIVITY,
-	          &value_32bit,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve sensitivity.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	else if( result != 0 )
-	{
-		description_length = system_string_length(
-		                      description );
-
 		if( item_file_write_string(
 		     item_file,
-		     description,
-		     description_length,
+		     _SYSTEM_STRING( "From me" ),
+		     7,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write description.",
+			 "%s: unable to write string.",
 			 function );
 
 			return( -1 );
 		}
-		if( value_32bit == (uint32_t) LIBPFF_MESSAGE_SENSITIVITY_TYPE_NONE )
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_FROM_ME );
+
+		if( value_32bit != 0 )
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _SYSTEM_STRING( "None" ),
-			     4,
+			     _SYSTEM_STRING( ", " ),
+			     2,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -4491,191 +4010,173 @@ int export_handle_export_message_sensitivity_to_item_file(
 
 				return( -1 );
 			}
-		}
-		else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_SENSITIVITY_TYPE_PERSONAL )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Personal" ),
-			     8,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_SENSITIVITY_TYPE_PRIVATE )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Private" ),
-			     7,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_SENSITIVITY_TYPE_CONFIDENTIAL )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Confidential" ),
-			     12,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Unknown: " ),
-			     9,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			if( item_file_write_integer_32bit_as_hexadecimal(
-			     item_file,
-			     value_32bit,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write 32-bit integer.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		if( item_file_write_new_line(
-		     item_file,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write new line.",
-			 function );
-
-			return( -1 );
 		}
 	}
-	return( 1 );
-}
-
-/* Exports the message status to an item file
- * Returns 1 if successful or -1 on error
- */
-int export_handle_export_message_status_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
-     item_file_t *item_file,
-     libcerror_error_t **error )
-{
-	static char *function     = "export_handle_export_message_status_to_item_file";
-	size_t description_length = 0;
-	uint32_t value_32bit      = 0;
-	int result                = 0;
-
-	if( export_handle == NULL )
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_ASSOCIATED ) != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( description == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid description.",
-		 function );
-
-		return( -1 );
-	}
-	result = export_handle_item_get_value_32bit_by_type(
-	          export_handle,
-	          message,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_STATUS,
-	          &value_32bit,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve status.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	else if( result != 0 )
-	{
-		description_length = system_string_length(
-		                      description );
-
 		if( item_file_write_string(
 		     item_file,
-		     description,
-		     description_length,
+		     _SYSTEM_STRING( "Associated" ),
+		     10,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write description.",
+			 "%s: unable to write string.",
+			 function );
+
+			return( -1 );
+		}
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_ASSOCIATED );
+
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_RESEND ) != 0 )
+	{
+		if( item_file_write_string(
+		     item_file,
+		     _SYSTEM_STRING( "Resend" ),
+		     6,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
+
+			return( -1 );
+		}
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_RESEND );
+
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_RN_PENDING ) != 0 )
+	{
+		if( item_file_write_string(
+		     item_file,
+		     _SYSTEM_STRING( "RN pending" ),
+		     10,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
+
+			return( -1 );
+		}
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_RN_PENDING );
+
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_FLAG_NRN_PENDING ) != 0 )
+	{
+		if( item_file_write_string(
+		     item_file,
+		     _SYSTEM_STRING( "NRN pending" ),
+		     11,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
+
+			return( -1 );
+		}
+		value_32bit &= ~( LIBPFF_MESSAGE_FLAG_NRN_PENDING );
+
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
+	if( value_32bit != 0 )
+	{
+		if( item_file_write_string(
+		     item_file,
+		     _SYSTEM_STRING( "Unknown: " ),
+		     9,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
 			 function );
 
 			return( -1 );
@@ -4694,10 +4195,394 @@ int export_handle_export_message_status_to_item_file(
 
 			return( -1 );
 		}
+	}
+	if( item_file_write_string(
+	     item_file,
+	     _SYSTEM_STRING( ")" ),
+	     1,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
+		 function );
+
+		return( -1 );
+	}
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Exports the message importance to an item file
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_message_importance_to_item_file(
+     item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
+     libcerror_error_t **error )
+{
+	system_character_t *value_string = NULL;
+	static char *function            = "export_handle_export_message_importance_to_item_file";
+	size_t value_string_length       = 0;
+	uint32_t value_32bit             = 0;
+	int unknown_value                = 0;
+
+	if( libpff_record_entry_get_value_32bit(
+	     record_entry,
+	     &value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_32bit == (uint32_t) LIBPFF_MESSAGE_IMPORTANCE_TYPE_LOW )
+	{
+		value_string        = _SYSTEM_STRING( "Low" );
+		value_string_length = 3;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_IMPORTANCE_TYPE_NORMAL )
+	{
+		value_string        = _SYSTEM_STRING( "Normal" );
+		value_string_length = 6;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_IMPORTANCE_TYPE_HIGH )
+	{
+		value_string        = _SYSTEM_STRING( "High" );
+		value_string_length = 4;
+	}
+	else
+	{
+		value_string        = _SYSTEM_STRING( "Unknown: " );
+		value_string_length = 9;
+		unknown_value       = 1;
+	}
+	if( item_file_write_string(
+	     item_file,
+	     value_string,
+	     value_string_length,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
+		 function );
+
+		return( -1 );
+	}
+	if( unknown_value != 0 )
+	{
+		if( item_file_write_integer_32bit_as_hexadecimal(
+		     item_file,
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write 32-bit integer.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Exports the message priority to an item file
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_message_priority_to_item_file(
+     item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
+     libcerror_error_t **error )
+{
+	system_character_t *value_string = NULL;
+	static char *function            = "export_handle_export_message_priority_to_item_file";
+	size_t value_string_length       = 0;
+	uint32_t value_32bit             = 0;
+	int unknown_value                = 0;
+
+	if( libpff_record_entry_get_value_32bit(
+	     record_entry,
+	     &value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_32bit == (uint32_t) LIBPFF_MESSAGE_PRIORITY_TYPE_NON_URGENT )
+	{
+		value_string        = _SYSTEM_STRING( "Non Urgent" );
+		value_string_length = 10;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_PRIORITY_TYPE_NORMAL )
+	{
+		value_string        = _SYSTEM_STRING( "Normal" );
+		value_string_length = 6;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_PRIORITY_TYPE_URGENT )
+	{
+		value_string        = _SYSTEM_STRING( "Urgent" );
+		value_string_length = 6;
+	}
+	else
+	{
+		value_string        = _SYSTEM_STRING( "Unknown: " );
+		value_string_length = 9;
+		unknown_value       = 1;
+	}
+	if( item_file_write_string(
+	     item_file,
+	     value_string,
+	     value_string_length,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
+		 function );
+
+		return( -1 );
+	}
+	if( unknown_value != 0 )
+	{
+		if( item_file_write_integer_32bit_as_hexadecimal(
+		     item_file,
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write 32-bit integer.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Exports the message sensitivity to an item file
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_message_sensitivity_to_item_file(
+     item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
+     libcerror_error_t **error )
+{
+	system_character_t *value_string = NULL;
+	static char *function            = "export_handle_export_message_sensitivity_to_item_file";
+	size_t value_string_length       = 0;
+	uint32_t value_32bit             = 0;
+	int unknown_value                = 0;
+
+	if( libpff_record_entry_get_value_32bit(
+	     record_entry,
+	     &value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_32bit == (uint32_t) LIBPFF_MESSAGE_SENSITIVITY_TYPE_NONE )
+	{
+		value_string        = _SYSTEM_STRING( "None" );
+		value_string_length = 4;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_SENSITIVITY_TYPE_PERSONAL )
+	{
+		value_string        = _SYSTEM_STRING( "Personal" );
+		value_string_length = 8;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_SENSITIVITY_TYPE_PRIVATE )
+	{
+		value_string        = _SYSTEM_STRING( "Private" );
+		value_string_length = 7;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_MESSAGE_SENSITIVITY_TYPE_CONFIDENTIAL )
+	{
+		value_string        = _SYSTEM_STRING( "Confidential" );
+		value_string_length = 12;
+	}
+	else
+	{
+		value_string        = _SYSTEM_STRING( "Unknown: " );
+		value_string_length = 9;
+		unknown_value       = 1;
+	}
+	if( item_file_write_string(
+	     item_file,
+	     value_string,
+	     value_string_length,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
+		 function );
+
+		return( -1 );
+	}
+	if( unknown_value != 0 )
+	{
+		if( item_file_write_integer_32bit_as_hexadecimal(
+		     item_file,
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write 32-bit integer.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Exports the message status to an item file
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_message_status_to_item_file(
+     item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
+     libcerror_error_t **error )
+{
+	static char *function = "export_handle_export_message_status_to_item_file";
+	uint32_t value_32bit  = 0;
+
+	if( libpff_record_entry_get_value_32bit(
+	     record_entry,
+	     &value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 function );
+
+		return( -1 );
+	}
+	if( item_file_write_integer_32bit_as_hexadecimal(
+	     item_file,
+	     value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write 32-bit integer.",
+		 function );
+
+		return( -1 );
+	}
+	if( item_file_write_string(
+	     item_file,
+	     _SYSTEM_STRING( " (" ),
+	     2,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_HIGHLIGHTED ) != 0 )
+	{
 		if( item_file_write_string(
 		     item_file,
-		     _SYSTEM_STRING( " (" ),
-		     2,
+		     _SYSTEM_STRING( "Highlighted" ),
+		     11,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -4709,240 +4594,14 @@ int export_handle_export_message_status_to_item_file(
 
 			return( -1 );
 		}
-		if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_HIGHLIGHTED ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Highlighted" ),
-			     11,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
+		value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_HIGHLIGHTED );
 
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_HIGHLIGHTED );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_TAGGED ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Tagged" ),
-			     6,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_TAGGED );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_HIDDEN ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Hidden" ),
-			     6,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_HIDDEN );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_DELETED ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Deleted" ),
-			     7,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_DELETED );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_DRAFT ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Draft" ),
-			     5,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_DRAFT );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
-		if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_ANSWERED ) != 0 )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Answered" ),
-			     8,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_ANSWERED );
-
-			if( value_32bit != 0 )
-			{
-				if( item_file_write_string(
-				     item_file,
-				     _SYSTEM_STRING( ", " ),
-				     2,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					return( -1 );
-				}
-			}
-		}
 		if( value_32bit != 0 )
 		{
 			if( item_file_write_string(
 			     item_file,
-			     _SYSTEM_STRING( "Unknown: " ),
-			     9,
+			     _SYSTEM_STRING( ", " ),
+			     2,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -4954,25 +4613,14 @@ int export_handle_export_message_status_to_item_file(
 
 				return( -1 );
 			}
-			if( item_file_write_integer_32bit_as_hexadecimal(
-			     item_file,
-			     value_32bit,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write 32-bit integer.",
-				 function );
-
-				return( -1 );
-			}
 		}
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_TAGGED ) != 0 )
+	{
 		if( item_file_write_string(
 		     item_file,
-		     _SYSTEM_STRING( ")" ),
-		     1,
+		     _SYSTEM_STRING( "Tagged" ),
+		     6,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -4984,19 +4632,238 @@ int export_handle_export_message_status_to_item_file(
 
 			return( -1 );
 		}
-		if( item_file_write_new_line(
+		value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_TAGGED );
+
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_HIDDEN ) != 0 )
+	{
+		if( item_file_write_string(
 		     item_file,
+		     _SYSTEM_STRING( "Hidden" ),
+		     6,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write new line.",
+			 "%s: unable to write string.",
 			 function );
 
 			return( -1 );
 		}
+		value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_HIDDEN );
+
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_DELETED ) != 0 )
+	{
+		if( item_file_write_string(
+		     item_file,
+		     _SYSTEM_STRING( "Deleted" ),
+		     7,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
+
+			return( -1 );
+		}
+		value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_DELETED );
+
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_DRAFT ) != 0 )
+	{
+		if( item_file_write_string(
+		     item_file,
+		     _SYSTEM_STRING( "Draft" ),
+		     5,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
+
+			return( -1 );
+		}
+		value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_DRAFT );
+
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
+	if( ( value_32bit & LIBPFF_MESSAGE_STATUS_FLAG_ANSWERED ) != 0 )
+	{
+		if( item_file_write_string(
+		     item_file,
+		     _SYSTEM_STRING( "Answered" ),
+		     8,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
+
+			return( -1 );
+		}
+		value_32bit &= ~( LIBPFF_MESSAGE_STATUS_FLAG_ANSWERED );
+
+		if( value_32bit != 0 )
+		{
+			if( item_file_write_string(
+			     item_file,
+			     _SYSTEM_STRING( ", " ),
+			     2,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
+	if( value_32bit != 0 )
+	{
+		if( item_file_write_string(
+		     item_file,
+		     _SYSTEM_STRING( "Unknown: " ),
+		     9,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write string.",
+			 function );
+
+			return( -1 );
+		}
+		if( item_file_write_integer_32bit_as_hexadecimal(
+		     item_file,
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write 32-bit integer.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( item_file_write_string(
+	     item_file,
+	     _SYSTEM_STRING( ")" ),
+	     1,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
+		 function );
+
+		return( -1 );
+	}
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
+		 function );
+
+		return( -1 );
 	}
 	return( 1 );
 }
@@ -5005,10 +4872,8 @@ int export_handle_export_message_status_to_item_file(
  * Returns 1 if successful or -1 on error
  */
 int export_handle_export_message_subject_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error )
 {
 	system_character_t *value_string = NULL;
@@ -5016,47 +4881,27 @@ int export_handle_export_message_subject_to_item_file(
 	size_t value_string_size         = 0;
 	int result                       = 0;
 
-	if( export_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libpff_message_get_utf16_subject_size(
-	          message,
+	result = libpff_record_entry_get_value_utf16_string_size(
+	          record_entry,
 	          &value_string_size,
 	          error );
 #else
-	result = libpff_message_get_utf8_subject_size(
-	          message,
+	result = libpff_record_entry_get_value_utf8_string_size(
+	          record_entry,
 	          &value_string_size,
 	          error );
 #endif
-	if( result == -1 )
+	if( result != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve subject size.",
+		 "%s: unable to retrieve string size.",
 		 function );
 
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
+		goto on_error;
 	}
 	else if( ( result != 0 )
 	      && ( value_string_size > 0 ) )
@@ -5070,20 +4915,20 @@ int export_handle_export_message_subject_to_item_file(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_MEMORY,
 			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create subject.",
+			 "%s: unable to create value string.",
 			 function );
 
 			goto on_error;
 		}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		result = libpff_message_get_utf16_subject(
-		          message,
+		result = libpff_record_entry_get_value_utf16_string(
+		          record_entry,
 		          (uint16_t *) value_string,
 		          value_string_size,
 		          error );
 #else
-		result = libpff_message_get_utf8_subject(
-		          message,
+		result = libpff_record_entry_get_value_utf8_string(
+		          record_entry,
 		          (uint8_t *) value_string,
 		          value_string_size,
 		          error );
@@ -5094,7 +4939,7 @@ int export_handle_export_message_subject_to_item_file(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve subject.",
+			 "%s: unable to retrieve string.",
 			 function );
 
 			goto on_error;
@@ -5103,41 +4948,30 @@ int export_handle_export_message_subject_to_item_file(
 		 */
 		if( value_string[ 0 ] < 0x20 )
 		{
-			if( item_file_write_value_string(
-			     item_file,
-			     description,
-			     &( value_string[ 2 ] ),
-			     value_string_size - 3,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write subject.",
-				 function );
-
-				goto on_error;
-			}
+			result = item_file_write_string(
+			          item_file,
+			          &( value_string[ 2 ] ),
+			          value_string_size - 3,
+			          error );
 		}
 		else
 		{
-			if( item_file_write_value_string(
-			     item_file,
-			     description,
-			     value_string,
-			     value_string_size - 1,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write subject.",
-				 function );
+			result = item_file_write_string(
+			          item_file,
+			          value_string,
+			          value_string_size - 1,
+			          error );
+		}
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write subject.",
+			 function );
 
-				goto on_error;
-			}
+			goto on_error;
 		}
 		memory_free(
 		 value_string );
@@ -5164,543 +4998,46 @@ int export_handle_export_message_header_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error )
 {
+	mapi_property_definitions_t property_definitions[ 21 ] = {
+		{ _SYSTEM_STRING( "Client submit time:\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Delivery time:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_DELIVERY_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Creation time:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Modification time:\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Size:\t\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_SIZE, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, 0, NULL },
+		{ _SYSTEM_STRING( "Flags:\t\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_FLAGS, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, 0, &export_handle_export_message_flags_to_item_file },
+		{ _SYSTEM_STRING( "Display name:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_DISPLAY_NAME, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Conversation topic:\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_TOPIC, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Subject:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT, LIBPFF_VALUE_TYPE_STRING, 0, &export_handle_export_message_subject_to_item_file },
+		{ _SYSTEM_STRING( "Sender name:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Sender email address:\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Sent representing name:\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_SENT_REPRESENTING_NAME, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Sent representing email address:\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_SENT_REPRESENTING_EMAIL_ADDRESS, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Importance:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_IMPORTANCE, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, 0, &export_handle_export_message_importance_to_item_file },
+		{ _SYSTEM_STRING( "Priority:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_PRIORITY, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, 0, &export_handle_export_message_priority_to_item_file },
+		{ _SYSTEM_STRING( "Sensitivity:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_SENSITIVITY, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, 0, &export_handle_export_message_sensitivity_to_item_file },
+		{ _SYSTEM_STRING( "Is a reminder:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_IS_REMINDER, LIBPFF_VALUE_TYPE_BOOLEAN, 0, NULL },
+		{ _SYSTEM_STRING( "Reminder time:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_REMINDER_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Reminder signal time:\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_REMINDER_SIGNAL_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Is private:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_IS_PRIVATE, LIBPFF_VALUE_TYPE_BOOLEAN, 0, NULL },
+		{ _SYSTEM_STRING( "Status:\t\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_STATUS, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, 0, &export_handle_export_message_status_to_item_file } };
+
 	static char *function = "export_handle_export_message_header_to_item_file";
 
-	if( export_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_file_write_value_description(
+	if( export_handle_export_item_value_to_item_file(
+	     export_handle,
 	     item_file,
 	     _SYSTEM_STRING( "Message:" ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write string.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_file_write_item_value(
-	     item_file,
 	     message,
 	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME,
-	     _SYSTEM_STRING( "Client submit time:\t\t\t" ),
-	     0,
+	     (mapi_property_definitions_t *) &property_definitions,
+	     21,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write client submit time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_DELIVERY_TIME,
-	     _SYSTEM_STRING( "Delivery time:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write delivery time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
-	     _SYSTEM_STRING( "Creation time:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write creation time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME,
-	     _SYSTEM_STRING( "Modification time:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write modification time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_SIZE,
-	     _SYSTEM_STRING( "Size:\t\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write size.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( export_handle_export_message_flags_to_item_file(
-	     export_handle,
-	     message,
-	     _SYSTEM_STRING( "Flags:\t\t\t\t\t" ),
-	     item_file,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write flags.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
-	     _SYSTEM_STRING( "Display name:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write display name.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_TOPIC,
-	     _SYSTEM_STRING( "Conversation topic:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write conversation topic.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( export_handle_export_message_subject_to_item_file(
-	     export_handle,
-	     message,
-	     _SYSTEM_STRING( "Subject:\t\t\t\t" ),
-	     item_file,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write subject.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME,
-	     _SYSTEM_STRING( "Sender name:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write sender name.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS,
-	     _SYSTEM_STRING( "Sender email address:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write sender email address.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_SENT_REPRESENTING_NAME,
-	     _SYSTEM_STRING( "Sent representing name:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write sent representing name.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_SENT_REPRESENTING_EMAIL_ADDRESS,
-	     _SYSTEM_STRING( "Sent representing email address:\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write sent representing email address.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( export_handle_export_message_importance_to_item_file(
-	     export_handle,
-	     message,
-	     _SYSTEM_STRING( "Importance:\t\t\t\t" ),
-	     item_file,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write importance.",
-		 function );
-
-		return( -1 );
-	}
-	if( export_handle_export_message_priority_to_item_file(
-	     export_handle,
-	     message,
-	     _SYSTEM_STRING( "Priority:\t\t\t\t" ),
-	     item_file,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write priority.",
-		 function );
-
-		return( -1 );
-	}
-	if( export_handle_export_message_sensitivity_to_item_file(
-	     export_handle,
-	     message,
-	     _SYSTEM_STRING( "Sensitivity:\t\t\t\t" ),
-	     item_file,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write sensitivity.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_IS_REMINDER,
-	     _SYSTEM_STRING( "Is a reminder:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write is reminder.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_REMINDER_TIME,
-	     _SYSTEM_STRING( "Reminder time:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write reminder time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_REMINDER_SIGNAL_TIME,
-	     _SYSTEM_STRING( "Reminder signal time:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write reminder signal time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     message,
-	     0,
-	     LIBPFF_ENTRY_TYPE_MESSAGE_IS_PRIVATE,
-	     _SYSTEM_STRING( "Is private:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write is private.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( export_handle_export_message_status_to_item_file(
-	     export_handle,
-	     message,
-	     _SYSTEM_STRING( "Status:\t\t\t\t\t" ),
-	     item_file,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write status.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_file_write_new_line(
-	     item_file,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write new line.",
+		 "%s: unable to export message item values to item file.",
 		 function );
 
 		return( -1 );
@@ -8879,7 +8216,6 @@ int export_handle_export_recipients(
 				     recipients,
 				     number_of_recipients,
 				     item_file,
-				     log_handle,
 				     error ) != 1 )
 				{
 					libcerror_error_set(
@@ -8955,220 +8291,115 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int export_handle_export_recipient_type_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *recipients,
-     int recipient_index,
-     const system_character_t *description,
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error )
 {
-	static char *function     = "export_handle_export_recipient_type_to_item_file";
-	size_t description_length = 0;
-	uint32_t value_32bit      = 0;
-	int result                = 0;
+	system_character_t *value_string = NULL;
+	static char *function            = "export_handle_export_recipient_type_to_item_file";
+	size_t value_string_length       = 0;
+	uint32_t value_32bit             = 0;
+	int unknown_value                = 0;
 
-	if( export_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( description == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid description.",
-		 function );
-
-		return( -1 );
-	}
-	result = export_handle_item_get_value_32bit_by_type(
-	          export_handle,
-	          recipients,
-	          recipient_index,
-	          LIBPFF_ENTRY_TYPE_RECIPIENT_TYPE,
-	          &value_32bit,
-	          error );
-
-	if( result == -1 )
+	if( libpff_record_entry_get_value_32bit(
+	     record_entry,
+	     &value_32bit,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve recipient type.",
+		 "%s: unable to retrieve retrieve 32-bit integer value.",
 		 function );
 
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
+		return( -1 );
 	}
-	else if( result != 0 )
+	if( value_32bit == (uint32_t) LIBPFF_RECIPIENT_TYPE_ORIGINATOR )
 	{
-		description_length = system_string_length(
-		                      description );
+		value_string        = _SYSTEM_STRING( "Originator" );
+		value_string_length = 10;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_RECIPIENT_TYPE_TO )
+	{
+		value_string        = _SYSTEM_STRING( "To" );
+		value_string_length = 2;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_RECIPIENT_TYPE_CC )
+	{
+		value_string        = _SYSTEM_STRING( "CC" );
+		value_string_length = 2;
+	}
+	else if( value_32bit == (uint32_t) LIBPFF_RECIPIENT_TYPE_BCC )
+	{
+		value_string        = _SYSTEM_STRING( "BCC" );
+		value_string_length = 3;
+	}
+	else
+	{
+		value_string        = _SYSTEM_STRING( "Unknown (" );
+		value_string_length = 9;
+		unknown_value       = 1;
+	}
+	if( item_file_write_string(
+	     item_file,
+	     value_string,
+	     value_string_length,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write string.",
+		 function );
 
+		return( -1 );
+	}
+	if( unknown_value != 0 )
+	{
+		if( item_file_write_integer_32bit_as_hexadecimal(
+		     item_file,
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write 32-bit integer.",
+			 function );
+
+			return( -1 );
+		}
 		if( item_file_write_string(
 		     item_file,
-		     description,
-		     description_length,
+		     _SYSTEM_STRING( ")" ),
+		     1,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write description.",
+			 "%s: unable to write string.",
 			 function );
 
 			return( -1 );
 		}
-		if( value_32bit == (uint32_t) LIBPFF_RECIPIENT_TYPE_ORIGINATOR )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Originator" ),
-			     10,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
+	}
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
+		 function );
 
-				return( -1 );
-			}
-		}
-		else if( value_32bit == (uint32_t) LIBPFF_RECIPIENT_TYPE_TO )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "To" ),
-			     2,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else if( value_32bit == (uint32_t) LIBPFF_RECIPIENT_TYPE_CC )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "CC" ),
-			     2,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else if( value_32bit == (uint32_t) LIBPFF_RECIPIENT_TYPE_BCC )
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "BCC" ),
-			     3,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else
-		{
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( "Unknown (" ),
-			     9,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-			if( item_file_write_integer_32bit_as_hexadecimal(
-			     item_file,
-			     value_32bit,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write 32-bit integer.",
-				 function );
-
-				return( -1 );
-			}
-			if( item_file_write_string(
-			     item_file,
-			     _SYSTEM_STRING( ")" ),
-			     1,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write string.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		if( item_file_write_new_line(
-		     item_file,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write new line.",
-			 function );
-
-			return( -1 );
-		}
+		return( -1 );
 	}
 	return( 1 );
 }
@@ -9181,11 +8412,20 @@ int export_handle_export_recipients_to_item_file(
      libpff_item_t *recipients,
      int number_of_recipients,
      item_file_t *item_file,
-     log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	static char *function = "export_handle_export_recipients_to_item_file";
-	int recipient_index   = 0;
+	mapi_property_definitions_t property_definitions[ 5 ] = {
+		{ _SYSTEM_STRING( "Display name:\t\t" ), LIBPFF_ENTRY_TYPE_DISPLAY_NAME, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Recipient display name:\t" ), LIBPFF_ENTRY_TYPE_RECIPIENT_DISPLAY_NAME, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Email address:\t\t" ), LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Address type:\t\t" ), LIBPFF_ENTRY_TYPE_ADDRESS_TYPE, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Recipient type:\t\t" ), LIBPFF_ENTRY_TYPE_RECIPIENT_TYPE, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, 0, &export_handle_export_recipient_type_to_item_file } };
+
+	libpff_record_set_t *record_set                  = NULL;
+	mapi_property_definitions_t *property_definition = NULL;
+	static char *function                            = "export_handle_export_recipients_to_item_file";
+	int property_definition_index                    = 0;
+	int recipient_index                              = 0;
 
 	if( export_handle == NULL )
 	{
@@ -9229,130 +8469,39 @@ int export_handle_export_recipients_to_item_file(
 	     recipient_index < number_of_recipients;
 	     recipient_index++ )
 	{
-		if( item_file_write_item_value(
-		     item_file,
+		if( libpff_item_get_record_set_by_index(
 		     recipients,
 		     recipient_index,
-		     LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
-		     _SYSTEM_STRING( "Display name:\t\t" ),
-		     0,
+		     &record_set,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write display name.",
-			 function );
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve record set: %d from item.",
+			 function,
+			 recipient_index );
 
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
-			{
-				libcnotify_print_error_backtrace(
-				 *error );
-			}
-#endif
-			libcerror_error_free(
-			 error );
+			goto on_error;
 		}
-		if( item_file_write_item_value(
-		     item_file,
-		     recipients,
-		     recipient_index,
-		     LIBPFF_ENTRY_TYPE_RECIPIENT_DISPLAY_NAME,
-		     _SYSTEM_STRING( "Recipient display name:\t" ),
-		     0,
-		     error ) != 1 )
+/* TODO merge with export_handle_export_item_value_to_item_file ?
+ * allow description to be NULL ?
+ */
+		for( property_definition_index = 0;
+		     property_definition_index < 5;
+		     property_definition_index++ )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write recipient display name.",
-			 function );
+			property_definition = &( property_definitions[ property_definition_index ] );
 
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
-			{
-				libcnotify_print_error_backtrace(
-				 *error );
-			}
-#endif
-			libcerror_error_free(
-			 error );
-		}
-		if( item_file_write_item_value(
-		     item_file,
-		     recipients,
-		     recipient_index,
-		     LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS,
-		     _SYSTEM_STRING( "Email address:\t\t" ),
-		     0,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write address type.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
-			{
-				libcnotify_print_error_backtrace(
-				 *error );
-			}
-#endif
-			libcerror_error_free(
-			 error );
-		}
-		if( item_file_write_item_value(
-		     item_file,
-		     recipients,
-		     recipient_index,
-		     LIBPFF_ENTRY_TYPE_ADDRESS_TYPE,
-		     _SYSTEM_STRING( "Address type:\t\t" ),
-		     0,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write email address.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
-			{
-				libcnotify_print_error_backtrace(
-				 *error );
-			}
-#endif
-			libcerror_error_free(
-			 error );
-		}
-		if( export_handle_export_recipient_type_to_item_file(
-		     export_handle,
-		     recipients,
-		     recipient_index,
-		     _SYSTEM_STRING( "Recipient type:\t\t" ),
-		     item_file,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write recipient type.",
-			 function );
-
-			return( -1 );
+			export_handle_write_record_set_value_to_item_file(
+			 item_file,
+			 property_definition->description,
+			 record_set,
+			 property_definition->entry_type,
+			 property_definition->value_type,
+			 property_definition->format_flags,
+			 property_definition->write_to_item_file_function );
 		}
 		if( item_file_write_new_line(
 		     item_file,
@@ -9365,10 +8514,33 @@ int export_handle_export_recipients_to_item_file(
 			 "%s: unable to write new line.",
 			 function );
 
-			return( -1 );
+			goto on_error;
+		}
+		if( libpff_record_set_free(
+		     &record_set,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record set: %d.",
+			 function,
+			 recipient_index );
+
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Exports the activity
@@ -9790,6 +8962,17 @@ int export_handle_export_appointment(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
+	mapi_property_definitions_t property_definitions[ 8 ] = {
+		{ _SYSTEM_STRING( "Start time:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_APPOINTMENT_START_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "End time:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_APPOINTMENT_END_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Duration:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_APPOINTMENT_DURATION, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES, NULL },
+		{ _SYSTEM_STRING( "Location:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_APPOINTMENT_LOCATION, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Recurrence pattern:\t\t\t" ), LIBPFF_ENTRY_TYPE_APPOINTMENT_RECURRENCE_PATTERN, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "First effective time:\t\t\t" ), LIBPFF_ENTRY_TYPE_APPOINTMENT_FIRST_EFFECTIVE_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Last effective time:\t\t\t" ), LIBPFF_ENTRY_TYPE_APPOINTMENT_LAST_EFFECTIVE_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+/* TODO print human readable string */
+		{ _SYSTEM_STRING( "Busy status:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_APPOINTMENT_BUSY_STATUS, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, ITEM_FILE_FORMAT_FLAG_HEXADECIMAL, NULL } };
+
 	item_file_t *item_file               = NULL;
 	system_character_t *appointment_path = NULL;
 	static char *function                = "export_handle_export_appointment";
@@ -9804,17 +8987,6 @@ int export_handle_export_appointment(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( appointment == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid appointment.",
 		 function );
 
 		return( -1 );
@@ -9961,236 +9133,24 @@ int export_handle_export_appointment(
 
 		goto on_error;
 	}
-	if( item_file_write_value_description(
+	if( export_handle_export_item_value_to_item_file(
+	     export_handle,
 	     item_file,
 	     _SYSTEM_STRING( "Appointment:" ),
+	     appointment,
+	     0,
+	     (mapi_property_definitions_t *) &property_definitions,
+	     8,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write string.",
+		 "%s: unable to export appointment item values to item file.",
 		 function );
 
 		goto on_error;
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     appointment,
-	     0,
-	     LIBPFF_ENTRY_TYPE_APPOINTMENT_START_TIME,
-	     _SYSTEM_STRING( "Start time:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write start time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     appointment,
-	     0,
-	     LIBPFF_ENTRY_TYPE_APPOINTMENT_END_TIME,
-	     _SYSTEM_STRING( "End time:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write end time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     appointment,
-	     0,
-	     LIBPFF_ENTRY_TYPE_APPOINTMENT_DURATION,
-	     _SYSTEM_STRING( "Duration:\t\t\t\t" ),
-	     ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write duration.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     appointment,
-	     0,
-	     LIBPFF_ENTRY_TYPE_APPOINTMENT_LOCATION,
-	     _SYSTEM_STRING( "Location:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write location.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     appointment,
-	     0,
-	     LIBPFF_ENTRY_TYPE_APPOINTMENT_RECURRENCE_PATTERN,
-	     _SYSTEM_STRING( "Recurrence pattern:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write recurrence pattern.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     appointment,
-	     0,
-	     LIBPFF_ENTRY_TYPE_APPOINTMENT_FIRST_EFFECTIVE_TIME,
-	     _SYSTEM_STRING( "First effective time:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write first effective time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     appointment,
-	     0,
-	     LIBPFF_ENTRY_TYPE_APPOINTMENT_LAST_EFFECTIVE_TIME,
-	     _SYSTEM_STRING( "Last effective time:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write last effective time.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-/* TODO print human readable string */
-	if( item_file_write_item_value(
-	     item_file,
-	     appointment,
-	     0,
-	     LIBPFF_ENTRY_TYPE_APPOINTMENT_BUSY_STATUS,
-	     _SYSTEM_STRING( "Busy status:\t\t\t\t" ),
-	     ITEM_FILE_FORMAT_FLAG_HEXADECIMAL,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write busy status.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
 	}
 	if( item_file_close(
 	     item_file,
@@ -10309,6 +9269,31 @@ int export_handle_export_contact(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
+	mapi_property_definitions_t property_definitions[ 23 ] = {
+		{ _SYSTEM_STRING( "File under:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_ADDRESS_FILE_UNDER, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Given name:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_GIVEN_NAME, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Initials:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_INITIALS, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Surname:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_SURNAME, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Generational abbreviation:\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_GENERATIONAL_ABBREVIATION, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Title:\t\t\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_TITLE, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Callback phone number:\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_CALLBACK_PHONE_NUMBER, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Primary phone number:\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_PRIMARY_PHONE_NUMBER, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Home phone number:\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_HOME_PHONE_NUMBER, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Mobile phone number:\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_MOBILE_PHONE_NUMBER, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Company name:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_COMPANY_NAME, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Job title:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_JOB_TITLE, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Office location:\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_OFFICE_LOCATION, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Department name:\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_DEPARTMENT_NAME, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Postal address:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_POSTAL_ADDRESS, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Country:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_COUNTRY, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Locality:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_LOCALITY, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Business phone number 1:\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_BUSINESS_PHONE_NUMBER_1, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Business phone number 2:\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_BUSINESS_PHONE_NUMBER_2, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Business fax number:\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_BUSINESS_FAX_NUMBER, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Email address 1:\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_1, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Email address 2:\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_2, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Email address 3:\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_3, LIBPFF_VALUE_TYPE_STRING, 0, NULL } };
+
 	item_file_t *item_file           = NULL;
 	system_character_t *contact_path = NULL;
 	static char *function            = "export_handle_export_contact";
@@ -10481,640 +9466,24 @@ int export_handle_export_contact(
 
 		goto on_error;
 	}
-	if( item_file_write_value_description(
+	if( export_handle_export_item_value_to_item_file(
+	     export_handle,
 	     item_file,
 	     _SYSTEM_STRING( "Contact:" ),
+	     contact,
+	     0,
+	     (mapi_property_definitions_t *) &property_definitions,
+	     23,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write string.",
+		 "%s: unable to export contact item values to item file.",
 		 function );
 
 		goto on_error;
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_ADDRESS_FILE_UNDER,
-	     _SYSTEM_STRING( "File under:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write file under.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_GIVEN_NAME,
-	     _SYSTEM_STRING( "Given name:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write given name.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_INITIALS,
-	     _SYSTEM_STRING( "Initials:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write initials.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_SURNAME,
-	     _SYSTEM_STRING( "Surname:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write surname.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_GENERATIONAL_ABBREVIATION,
-	     _SYSTEM_STRING( "Generational abbreviation:\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write generational abbreviation.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_TITLE,
-	     _SYSTEM_STRING( "Title:\t\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write title.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_CALLBACK_PHONE_NUMBER,
-	     _SYSTEM_STRING( "Callback phone number:\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write callback phone number.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_PRIMARY_PHONE_NUMBER,
-	     _SYSTEM_STRING( "Primary phone number:\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write primary phone number.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_HOME_PHONE_NUMBER,
-	     _SYSTEM_STRING( "Home phone number:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write home phone number.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_MOBILE_PHONE_NUMBER,
-	     _SYSTEM_STRING( "Mobile phone number:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write mobile phone number.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_COMPANY_NAME,
-	     _SYSTEM_STRING( "Company name:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write company name.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_JOB_TITLE,
-	     _SYSTEM_STRING( "Job title:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write job title.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_OFFICE_LOCATION,
-	     _SYSTEM_STRING( "Office location:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write office location.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_DEPARTMENT_NAME,
-	     _SYSTEM_STRING( "Department name:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write department name.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_POSTAL_ADDRESS,
-	     _SYSTEM_STRING( "Postal address:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write postal address.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_COUNTRY,
-	     _SYSTEM_STRING( "Country:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write country.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_LOCALITY,
-	     _SYSTEM_STRING( "Locality:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write locality.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_BUSINESS_PHONE_NUMBER_1,
-	     _SYSTEM_STRING( "Business phone number 1:\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write business phone number 1.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_BUSINESS_PHONE_NUMBER_2,
-	     _SYSTEM_STRING( "Business phone number 2:\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write business phone number 2.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_BUSINESS_FAX_NUMBER,
-	     _SYSTEM_STRING( "Business fax number:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write business fax number.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_1,
-	     _SYSTEM_STRING( "Email address 1:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write email address 1.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_2,
-	     _SYSTEM_STRING( "Email address 2:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write email address 2.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     contact,
-	     0,
-	     LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_3,
-	     _SYSTEM_STRING( "Email address 3:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write email address 3.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
 	}
 	result = libpff_message_get_plain_text_body_size(
 	          contact,
@@ -12895,7 +11264,6 @@ int export_handle_export_email_ftk(
 			     recipients,
 			     number_of_recipients,
 			     item_file,
-			     log_handle,
 			     error ) != 1 )
 			{
 				if( libcnotify_verbose != 0 )
@@ -14223,6 +12591,17 @@ int export_handle_export_task(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
+	mapi_property_definitions_t property_definitions[ 9 ] = {
+		{ _SYSTEM_STRING( "Email address 3:\t\t\t" ), LIBPFF_ENTRY_TYPE_CONTACT_EMAIL_ADDRESS_3, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "Start date:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_TASK_START_DATE, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Due date:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_TASK_DUE_DATE, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
+		{ _SYSTEM_STRING( "Status:\t\t\t\t\t" ), LIBPFF_ENTRY_TYPE_TASK_STATUS, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, ITEM_FILE_FORMAT_FLAG_HEXADECIMAL, NULL },
+		{ _SYSTEM_STRING( "Percentage complete:\t\t\t" ), LIBPFF_ENTRY_TYPE_TASK_PERCENTAGE_COMPLETE, LIBPFF_VALUE_TYPE_FLOATING_POINT, 0, NULL },
+		{ _SYSTEM_STRING( "Actual effort:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_TASK_ACTUAL_EFFORT, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES, NULL },
+		{ _SYSTEM_STRING( "Total effort:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_TASK_TOTAL_EFFORT, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES, NULL },
+		{ _SYSTEM_STRING( "Is complete:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_TASK_IS_COMPLETE, LIBPFF_VALUE_TYPE_BOOLEAN, 0, NULL },
+		{ _SYSTEM_STRING( "Version:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_TASK_VERSION, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, 0, NULL } };
+
 	item_file_t *item_file        = NULL;
 	system_character_t *task_path = NULL;
 	static char *function         = "export_handle_export_task";
@@ -14406,236 +12785,24 @@ int export_handle_export_task(
 
 		goto on_error;
 	}
-	if( item_file_write_value_description(
+	if( export_handle_export_item_value_to_item_file(
+	     export_handle,
 	     item_file,
 	     _SYSTEM_STRING( "Task:" ),
+	     task,
+	     0,
+	     (mapi_property_definitions_t *) &property_definitions,
+	     9,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write string.",
+		 "%s: unable to export task item values to item file.",
 		 function );
 
 		goto on_error;
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     task,
-	     0,
-	     LIBPFF_ENTRY_TYPE_TASK_START_DATE,
-	     _SYSTEM_STRING( "Start date:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write start date.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     task,
-	     0,
-	     LIBPFF_ENTRY_TYPE_TASK_DUE_DATE,
-	     _SYSTEM_STRING( "Due date:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write due date.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-/* TODO print human readable string */
-	if( item_file_write_item_value(
-	     item_file,
-	     task,
-	     0,
-	     LIBPFF_ENTRY_TYPE_TASK_STATUS,
-	     _SYSTEM_STRING( "Status:\t\t\t\t\t" ),
-	     ITEM_FILE_FORMAT_FLAG_HEXADECIMAL,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write status.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     task,
-	     0,
-	     LIBPFF_ENTRY_TYPE_TASK_PERCENTAGE_COMPLETE,
-	     _SYSTEM_STRING( "Percentage complete:\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write percentage complete.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     task,
-	     0,
-	     LIBPFF_ENTRY_TYPE_TASK_ACTUAL_EFFORT,
-	     _SYSTEM_STRING( "Actual effort:\t\t\t\t" ),
-	     ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write actual effort.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     task,
-	     0,
-	     LIBPFF_ENTRY_TYPE_TASK_TOTAL_EFFORT,
-	     _SYSTEM_STRING( "Total effort:\t\t\t\t" ),
-	     ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write total effort.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     task,
-	     0,
-	     LIBPFF_ENTRY_TYPE_TASK_IS_COMPLETE,
-	     _SYSTEM_STRING( "Is complete:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write is complete.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
-	}
-	if( item_file_write_item_value(
-	     item_file,
-	     task,
-	     0,
-	     LIBPFF_ENTRY_TYPE_TASK_VERSION,
-	     _SYSTEM_STRING( "Version:\t\t\t\t" ),
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write version.",
-		 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( error != NULL )
-		 && ( *error != NULL ) )
-		{
-			libcnotify_print_error_backtrace(
-			 *error );
-		}
-#endif
-		libcerror_error_free(
-		 error );
 	}
 	result = libpff_message_get_plain_text_body_size(
 	          task,

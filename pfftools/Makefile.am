@@ -30,6 +30,7 @@ pffexport_SOURCES = \
 	export_handle.c export_handle.h \
 	item_file.c item_file.h \
 	log_handle.c log_handle.h \
+	mapi_property_definition.h \
 	pffexport.c \
 	pffinput.c pffinput.h \
 	pfftools_libbfio.h \

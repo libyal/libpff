@@ -27,6 +27,7 @@
 
 #include "item_file.h"
 #include "log_handle.h"
+#include "mapi_property_definition.h"
 #include "pfftools_libcerror.h"
 #include "pfftools_libfdatetime.h"
 #include "pfftools_libfguid.h"
@@ -246,6 +247,18 @@ int export_handle_export_record_entry_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error );
 
+void export_handle_write_record_set_value_to_item_file(
+      item_file_t *item_file,
+      const system_character_t *description,
+      libpff_record_set_t *record_set,
+      uint32_t entry_type,
+      uint32_t value_type,
+      uint32_t format_flags,
+      int (*write_to_item_file_function)(
+             item_file_t *item_file,
+             libpff_record_entry_t *record_entry,
+             libcerror_error_t **error ) );
+
 int export_handle_export_item_values(
      export_handle_t *export_handle,
      libpff_item_t *item,
@@ -275,6 +288,13 @@ int export_handle_item_get_record_entry_by_type(
      libpff_record_set_t **record_set,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
+     libcerror_error_t **error );
+
+int export_handle_record_set_get_value_32bit_by_type(
+     export_handle_t *export_handle,
+     libpff_record_set_t *record_set,
+     uint32_t entry_type,
+     uint32_t *value_32bit,
      libcerror_error_t **error );
 
 int export_handle_item_get_value_32bit_by_type(
@@ -311,6 +331,16 @@ int export_handle_item_create_value_string_by_type(
      size_t *value_string_size,
      libcerror_error_t **error );
 
+int export_handle_export_item_value_to_item_file(
+     export_handle_t *export_handle,
+     item_file_t *item_file,
+     const system_character_t *description,
+     libpff_item_t *item,
+     int record_set_index,
+     mapi_property_definitions_t *property_definitions,
+     int number_of_property_definitions,
+     libcerror_error_t **error );
+
 /* Message item export functions
  */
 int export_handle_export_message_header(
@@ -321,46 +351,38 @@ int export_handle_export_message_header(
      log_handle_t *log_handle,
      libcerror_error_t **error );
 
+int export_handle_format_message_flags(
+     uint32_t *value_32bit,
+     libcerror_error_t **error );
+
 int export_handle_export_message_flags_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error );
 
 int export_handle_export_message_importance_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error );
 
 int export_handle_export_message_priority_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error );
 
-int export_handle_export_message_sensitivity_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
+int export_handle_export_message_sensitivity_to_item_file(
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error );
 
 int export_handle_export_message_status_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error );
 
 int export_handle_export_message_subject_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *message,
-     const system_character_t *description,
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error );
 
 int export_handle_export_message_header_to_item_file(
@@ -510,11 +532,8 @@ int export_handle_export_recipients(
      libcerror_error_t **error );
 
 int export_handle_export_recipient_type_to_item_file(
-     export_handle_t *export_handle,
-     libpff_item_t *recipients,
-     int recipient_index,
-     const system_character_t *description,
      item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
      libcerror_error_t **error );
 
 int export_handle_export_recipients_to_item_file(
@@ -522,7 +541,6 @@ int export_handle_export_recipients_to_item_file(
      libpff_item_t *recipients,
      int number_of_recipients,
      item_file_t *item_file,
-     log_handle_t *log_handle,
      libcerror_error_t **error );
 
 /* Item specific export functions

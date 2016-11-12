@@ -1513,530 +1513,36 @@ int item_file_write_value_filetime(
 	return( 1 );
 }
 
-/* Writes a specific item value to the item file
+/* Writes a specific record entry value to the item file
  * Returns 1 if successful or -1 on error
  */
-int item_file_write_item_value(
+int item_file_write_record_entry_value(
      item_file_t *item_file,
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     const system_character_t *description,
+     libpff_record_entry_t *record_entry,
      uint32_t format_flags,
      libcerror_error_t **error )
 {
-	libfdatetime_filetime_t *filetime   = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	libpff_record_set_t *record_set     = NULL;
-	system_character_t *value_string    = NULL;
-	static char *function               = "item_file_write_item_value";
-	size_t description_length           = 0;
-	size_t value_string_size            = 0;
-	uint64_t value_64bit                = 0;
-	uint32_t value_32bit                = 0;
-	uint32_t value_type                 = LIBPFF_VALUE_TYPE_UNSPECIFIED;
-	uint8_t value_boolean               = 0;
-	double value_double                 = 0.0;
-	int result                          = 0;
+	libfdatetime_filetime_t *filetime = NULL;
+	system_character_t *value_string  = NULL;
+	static char *function             = "item_file_write_record_entry_value";
+	size_t value_string_size          = 0;
+	uint64_t value_64bit              = 0;
+	uint32_t value_32bit              = 0;
+	uint32_t value_type               = 0;
+	uint8_t value_boolean             = 0;
+	double value_double               = 0.0;
+	int result                        = 0;
 
-	if( libpff_item_get_record_set_by_index(
-	     item,
-	     record_set_index,
-	     &record_set,
+	if( libpff_record_entry_get_value_type(
+	     record_entry,
+	     &value_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record set: %d from item.",
-		 function,
-		 record_set_index );
-
-		return( -1 );
-	}
-	result = libpff_record_set_get_entry_by_type(
-	          record_set,
-	          entry_type,
-	          value_type,
-	          &record_entry,
-	          0,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry from record set: %d.",
-		 function,
-		 record_set_index );
-
-		return( -1 );
-	}
-	else if( result != 0 )
-	{
-		description_length = system_string_length(
-		                      description );
-		
-		if( item_file_write_string(
-		     item_file,
-		     description,
-		     description_length,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write description string.",
-			 function );
-
-			goto on_error;
-		}
-		switch( value_type )
-		{
-			case LIBPFF_VALUE_TYPE_BOOLEAN:
-				if( libpff_record_entry_get_value_boolean(
-				     record_entry,
-				     &value_boolean,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve boolean.",
-					 function );
-
-					goto on_error;
-				}
-				if( value_boolean == 0 )
-				{
-					value_string      = _SYSTEM_STRING( "no" );
-					value_string_size = 3;
-				}
-				else
-				{
-					value_string      = _SYSTEM_STRING( "yes" );
-					value_string_size = 4;
-				}
-				if( item_file_write_string(
-				     item_file,
-				     value_string,
-				     value_string_size - 1,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write string.",
-					 function );
-
-					value_string = NULL;
-
-					goto on_error;
-				}
-				break;
-
-			case LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED:
-				if( libpff_record_entry_get_value_32bit(
-				     record_entry,
-				     &value_32bit,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve 32-bit integer.",
-					 function );
-
-					goto on_error;
-				}
-				if( ( format_flags & ITEM_FILE_FORMAT_FLAG_HEXADECIMAL ) != 0 )
-				{
-					result = item_file_write_integer_32bit_as_hexadecimal(
-					          item_file,
-					          value_32bit,
-					          error );
-				}
-				else
-				{
-					result = item_file_write_integer_32bit_as_decimal(
-					          item_file,
-					          value_32bit,
-					          error );
-				}
-				if( result != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write 32-bit integer.",
-					 function );
-
-					goto on_error;
-				}
-				if( ( format_flags & ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES ) != 0 )
-				{
-					if( value_32bit >= 1 )
-					{
-						if( value_32bit == 1 )
-						{
-							value_string      = _SYSTEM_STRING( " minute" );
-							value_string_size = 8;
-						}
-						else if( value_32bit > 1 )
-						{
-							value_string      = _SYSTEM_STRING( " minutes" );
-							value_string_size = 9;
-						}
-						if( item_file_write_string(
-						     item_file,
-						     value_string,
-						     value_string_size - 1,
-						     error ) != 1 )
-						{
-							libcerror_error_set(
-							 error,
-							 LIBCERROR_ERROR_DOMAIN_IO,
-							 LIBCERROR_IO_ERROR_WRITE_FAILED,
-							 "%s: unable to write string.",
-							 function );
-
-							value_string = NULL;
-
-							goto on_error;
-						}
-					}
-				}
-				break;
-
-			case LIBPFF_VALUE_TYPE_FLOAT_32BIT:
-			case LIBPFF_VALUE_TYPE_DOUBLE_64BIT:
-				if( libpff_record_entry_get_value_floating_point(
-				     record_entry,
-				     &value_double,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve boolean.",
-					 function );
-
-					goto on_error;
-				}
-				if( item_file_write_floating_point(
-				     item_file,
-				     value_double,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write floating point.",
-					 function );
-
-					goto on_error;
-				}
-				break;
-
-			case LIBPFF_VALUE_TYPE_FILETIME:
-				if( libpff_record_entry_get_value_filetime(
-				     record_entry,
-				     &value_64bit,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve filetime.",
-					 function );
-
-					goto on_error;
-				}
-				if( libfdatetime_filetime_initialize(
-				     &filetime,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-					 "%s: unable to create filetime.",
-					 function );
-
-					goto on_error;
-				}
-				if( libfdatetime_filetime_copy_from_64bit(
-				     filetime,
-				     value_64bit,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_MEMORY,
-					 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-					 "%s: unable to copy filetime from 64-bit value.",
-					 function );
-
-					goto on_error;
-				}
-				if( item_file_write_filetime(
-				     item_file,
-				     filetime,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write filetime.",
-					 function );
-
-					goto on_error;
-				}
-				if( libfdatetime_filetime_free(
-				     &filetime,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-					 "%s: unable to free filetime.",
-					 function );
-
-					goto on_error;
-				}
-				break;
-
-			case LIBPFF_VALUE_TYPE_STRING_ASCII:
-			case LIBPFF_VALUE_TYPE_STRING_UNICODE:
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-				result = libpff_record_entry_get_value_utf16_string_size(
-				          record_entry,
-				          &value_string_size,
-				          error );
-#else
-				result = libpff_record_entry_get_value_utf8_string_size(
-				          record_entry,
-				          &value_string_size,
-				          error );
-#endif
-				if( result != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve string size.",
-					 function );
-
-					goto on_error;
-				}
-				else if( value_string_size > 0 )
-				{
-					value_string = system_string_allocate(
-					                value_string_size );
-
-					if( value_string == NULL )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_MEMORY,
-						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-						 "%s: unable to create value string.",
-						 function );
-
-						goto on_error;
-					}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-					result = libpff_record_entry_get_value_utf16_string(
-					          record_entry,
-					          (uint16_t *) value_string,
-					          value_string_size,
-					          error );
-#else
-					result = libpff_record_entry_get_value_utf8_string(
-					          record_entry,
-					          (uint8_t *) value_string,
-					          value_string_size,
-					          error );
-#endif
-					if( result != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable to retrieve string.",
-						 function );
-
-						goto on_error;
-					}
-					if( item_file_write_string(
-					     item_file,
-					     value_string,
-					     value_string_size - 1,
-					     error ) != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_IO,
-						 LIBCERROR_IO_ERROR_WRITE_FAILED,
-						 "%s: unable to write string.",
-						 function );
-
-						goto on_error;
-					}
-					memory_free(
-					 value_string );
-
-					value_string = NULL;
-				}
-				break;
-		}
-		if( item_file_write_new_line(
-		     item_file,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to write new line.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	if( libpff_record_entry_free(
-	     &record_entry,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free record entry.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_record_set_free(
-	     &record_set,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free record set.",
-		 function );
-
-		goto on_error;
-	}
-	return( 1 );
-
-on_error:
-	if( value_string != NULL )
-	{
-		memory_free(
-		 value_string );
-	}
-	if( filetime != NULL )
-	{
-		libfdatetime_filetime_free(
-		 &filetime,
-		 NULL );
-	}
-	if( record_entry != NULL )
-	{
-		libpff_record_entry_free(
-		 &record_entry,
-		 NULL );
-	}
-	if( record_set != NULL )
-	{
-		libpff_record_set_free(
-		 &record_set,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Writes a specific record set entry value to the item file
- * Returns 1 if successful or -1 on error
- */
-int item_file_write_record_set_entry_value(
-     item_file_t *item_file,
-     libpff_record_set_t *record_set,
-     uint32_t entry_type,
-     uint32_t value_type,
-     const system_character_t *description,
-     uint32_t format_flags,
-     libcerror_error_t **error )
-{
-	libfdatetime_filetime_t *filetime   = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	system_character_t *value_string    = NULL;
-	static char *function               = "item_file_write_record_entry_value";
-	size_t description_length           = 0;
-	size_t value_string_size            = 0;
-	uint64_t value_64bit                = 0;
-	uint32_t value_32bit                = 0;
-	uint8_t value_boolean               = 0;
-	double value_double                 = 0.0;
-	int result                          = 0;
-
-	result = libpff_record_set_get_entry_by_type(
-		  record_set,
-		  entry_type,
-		  value_type,
-		  &record_entry,
-		  0,
-		  error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x%08" PRIx32 ", 0x%08" PRIx32 ".",
-		 function,
-		 entry_type,
-		 value_type );
-
-		goto on_error;
-	}
-	else if( result == 0 )
-	{
-		return( 1 );
-	}
-	description_length = system_string_length(
-	                      description );
-		
-	if( item_file_write_string(
-	     item_file,
-	     description,
-	     description_length,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to write description string.",
+		 "%s: unable to retrieve value type.",
 		 function );
 
 		goto on_error;
@@ -2097,44 +1603,35 @@ int item_file_write_record_set_entry_value(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve 32-bit integer.",
+				 "%s: unable to retrieve 32-bit integer value.",
 				 function );
 
 				goto on_error;
 			}
 			if( ( format_flags & ITEM_FILE_FORMAT_FLAG_HEXADECIMAL ) != 0 )
 			{
-				if( item_file_write_integer_32bit_as_hexadecimal(
-				     item_file,
-				     value_32bit,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write 32-bit integer.",
-					 function );
-
-					goto on_error;
-				}
+				result = item_file_write_integer_32bit_as_hexadecimal(
+				          item_file,
+				          value_32bit,
+				          error );
 			}
 			else
 			{
-				if( item_file_write_integer_32bit_as_decimal(
-				     item_file,
-				     value_32bit,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to write 32-bit integer.",
-					 function );
+				result = item_file_write_integer_32bit_as_decimal(
+				          item_file,
+				          value_32bit,
+				          error );
+			}
+			if( result != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write 32-bit integer.",
+				 function );
 
-					goto on_error;
-				}
+				goto on_error;
 			}
 			if( ( format_flags & ITEM_FILE_FORMAT_FLAG_DURATION_IN_MINUTES ) != 0 )
 			{
@@ -2182,7 +1679,7 @@ int item_file_write_record_set_entry_value(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve floating point.",
+				 "%s: unable to retrieve boolean.",
 				 function );
 
 				goto on_error;
@@ -2278,14 +1775,14 @@ int item_file_write_record_set_entry_value(
 		case LIBPFF_VALUE_TYPE_STRING_UNICODE:
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libpff_record_entry_get_value_utf16_string_size(
-				  record_entry,
-				  &value_string_size,
-				  error );
+			          record_entry,
+			          &value_string_size,
+			          error );
 #else
 			result = libpff_record_entry_get_value_utf8_string_size(
-				  record_entry,
-				  &value_string_size,
-				  error );
+			          record_entry,
+			          &value_string_size,
+			          error );
 #endif
 			if( result != 1 )
 			{
@@ -2298,10 +1795,11 @@ int item_file_write_record_set_entry_value(
 
 				goto on_error;
 			}
-			else if( value_string_size > 0 )
+			else if( ( result != 0 )
+			      && ( value_string_size > 0 ) )
 			{
 				value_string = system_string_allocate(
-						value_string_size );
+				                value_string_size );
 
 				if( value_string == NULL )
 				{
@@ -2316,16 +1814,16 @@ int item_file_write_record_set_entry_value(
 				}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 				result = libpff_record_entry_get_value_utf16_string(
-					  record_entry,
-					  (uint16_t *) value_string,
-					  value_string_size,
-					  error );
+				          record_entry,
+				          (uint16_t *) value_string,
+				          value_string_size,
+				          error );
 #else
 				result = libpff_record_entry_get_value_utf8_string(
-					  record_entry,
-					  (uint8_t *) value_string,
-					  value_string_size,
-					  error );
+				          record_entry,
+				          (uint8_t *) value_string,
+				          value_string_size,
+				          error );
 #endif
 				if( result != 1 )
 				{
@@ -2385,6 +1883,212 @@ on_error:
 	{
 		libfdatetime_filetime_free(
 		 &filetime,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Writes a specific record set value to the item file
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int item_file_write_record_set_value(
+     item_file_t *item_file,
+     const system_character_t *description,
+     libpff_record_set_t *record_set,
+     uint32_t entry_type,
+     uint32_t value_type,
+     uint32_t format_flags,
+     int (*write_to_item_file_function)(
+            item_file_t *item_file,
+            libpff_record_entry_t *record_entry,
+            libcerror_error_t **error ),
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "item_file_write_record_set_value";
+	size_t description_length           = 0;
+	uint8_t flags                       = 0;
+	int result                          = 0;
+
+	if( description == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid description.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_type == LIBPFF_VALUE_TYPE_UNSPECIFIED )
+	{
+		flags = LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE;
+	}
+	result = libpff_record_set_get_entry_by_type(
+	          record_set,
+	          entry_type,
+	          value_type,
+	          &record_entry,
+	          flags,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry from record set.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		description_length = system_string_length(
+		                      description );
+		
+		if( item_file_write_string(
+		     item_file,
+		     description,
+		     description_length,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write description string.",
+			 function );
+
+			goto on_error;
+		}
+		if( write_to_item_file_function == NULL )
+		{
+			result = item_file_write_record_entry_value(
+			          item_file,
+			          record_entry,
+			          format_flags,
+			          error );
+		}
+		else
+		{
+			result = write_to_item_file_function(
+			          item_file,
+			          record_entry,
+			          error );
+		}
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write record entry value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( 1 );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Writes a specific item value to the item file
+ * Returns 1 if successful or -1 on error
+ */
+int item_file_write_item_value(
+     item_file_t *item_file,
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     const system_character_t *description,
+     uint32_t format_flags,
+     libcerror_error_t **error )
+{
+	libpff_record_set_t *record_set = NULL;
+	static char *function           = "item_file_write_item_value";
+	uint32_t value_type             = LIBPFF_VALUE_TYPE_UNSPECIFIED;
+
+	if( libpff_item_get_record_set_by_index(
+	     item,
+	     record_set_index,
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record set: %d from item.",
+		 function,
+		 record_set_index );
+
+		goto on_error;
+	}
+	if( item_file_write_record_set_value(
+	     item_file,
+	     description,
+	     record_set,
+	     entry_type,
+	     value_type,
+	     format_flags,
+	     NULL,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write record set: %d value.",
+		 function,
+		 record_set_index );
+
+		goto on_error;
+	}
+	if( libpff_record_set_free(
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record set: %d.",
+		 function,
+		 record_set_index );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
 		 NULL );
 	}
 	return( -1 );

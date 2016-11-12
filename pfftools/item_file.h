@@ -145,20 +145,30 @@ int item_file_write_value_filetime(
      libfdatetime_filetime_t *filetime,
      libcerror_error_t **error );
 
+int item_file_write_record_entry_value(
+     item_file_t *item_file,
+     libpff_record_entry_t *record_entry,
+     uint32_t format_flags,
+     libcerror_error_t **error );
+
+int item_file_write_record_set_value(
+     item_file_t *item_file,
+     const system_character_t *description,
+     libpff_record_set_t *record_set,
+     uint32_t entry_type,
+     uint32_t value_type,
+     uint32_t format_flags,
+     int (*write_to_item_file_function)(
+            item_file_t *item_file,
+            libpff_record_entry_t *record_entry,
+            libcerror_error_t **error ),
+     libcerror_error_t **error );
+
 int item_file_write_item_value(
      item_file_t *item_file,
      libpff_item_t *item,
      int record_set_index,
      uint32_t entry_type,
-     const system_character_t *description,
-     uint32_t format_flags,
-     libcerror_error_t **error );
-
-int item_file_write_record_set_entry_value(
-     item_file_t *item_file,
-     libpff_record_set_t *record_set,
-     uint32_t entry_type,
-     uint32_t value_type,
      const system_character_t *description,
      uint32_t format_flags,
      libcerror_error_t **error );
