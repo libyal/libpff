@@ -299,7 +299,6 @@ int main(
 
 	/* TODO: add tests for libpff_index_value_compare */
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

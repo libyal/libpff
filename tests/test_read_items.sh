@@ -90,9 +90,9 @@ then
 else
 	IGNORELIST="";
 
-	if test -f "input/.libpff/ignore";
+	if test -f "input/.libpff-read-items/ignore";
 	then
-		IGNORELIST=`cat input/.libpff/ignore | sed '/^#/d'`;
+		IGNORELIST=`cat input/.libpff-read-items/ignore | sed '/^#/d'`;
 	fi
 	for TESTDIR in input/*;
 	do

@@ -1525,8 +1525,6 @@ int main(
 	 "libpff_file_free",
 	 pff_test_file_free );
 
-	/* TODO: add tests for libpff_file_signal_abort */
-
 	PFF_TEST_RUN(
 	 "libpff_file_set_ascii_codepage",
 	 pff_test_file_set_ascii_codepage );
@@ -1551,8 +1549,6 @@ int main(
 #if defined( LIBPFF_HAVE_BFIO )
 
 		/* TODO add test for libpff_file_open_file_io_handle */
-
-		/* TODO: add tests for libpff_file_open_read */
 
 #endif /* defined( LIBPFF_HAVE_BFIO ) */
 
@@ -1590,7 +1586,15 @@ int main(
 		 pff_test_file_get_ascii_codepage,
 		 file );
 
+		/* TODO: add tests for libpff_file_signal_abort */
+
+#if defined( __GNUC__ )
+
+		/* TODO: add tests for libpff_file_open_read */
+
 		/* TODO: add tests for libpff_file_read_allocation_tables */
+
+#endif /* defined( __GNUC__ ) */
 
 		/* TODO: add tests for libpff_file_is_corrupted */
 
@@ -1625,7 +1629,6 @@ int main(
 		/* TODO: add tests for libpff_file_get_number_of_recovered_items */
 
 		/* TODO: add tests for libpff_file_get_recovered_item */
-
 
 		/* Clean up
 		 */

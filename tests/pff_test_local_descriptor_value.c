@@ -447,7 +447,6 @@ int main(
 	 "libpff_local_descriptor_value_clone",
 	 pff_test_local_descriptor_value_clone );
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

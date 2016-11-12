@@ -297,7 +297,6 @@ int main(
 	 "libpff_column_definition_free",
 	 pff_test_column_definition_free );
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

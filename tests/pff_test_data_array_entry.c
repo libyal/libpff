@@ -447,7 +447,6 @@ int main(
 	 "libpff_data_array_entry_clone",
 	 pff_test_data_array_entry_clone );
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

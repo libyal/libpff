@@ -108,7 +108,6 @@ int main(
 
 	/* TODO: add tests for libpff_data_block_decrypt_data */
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

@@ -307,7 +307,6 @@ int main(
 
 	/* TODO: add tests for libpff_io_handle_read_index_node */
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

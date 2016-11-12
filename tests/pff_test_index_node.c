@@ -303,7 +303,6 @@ int main(
 
 	/* TODO: add tests for libpff_index_node_check_for_empty_block */
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

@@ -297,7 +297,6 @@ int main(
 	 "libpff_table_index_value_free",
 	 pff_test_table_index_value_free );
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

@@ -35,8 +35,6 @@
 
 #include "../libpff/libpff_record_set.h"
 
-#if defined( __GNUC__ )
-
 /* Tests the libpff_record_set_free function
  * Returns 1 if successful or 0 if not
  */
@@ -75,8 +73,6 @@ on_error:
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
-
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -111,7 +107,6 @@ int main(
 	/* TODO: add tests for libpff_record_set_get_entry_by_utf8_name */
 
 	/* TODO: add tests for libpff_record_set_get_entry_by_utf16_name */
-
 
 	return( EXIT_SUCCESS );
 

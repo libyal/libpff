@@ -112,7 +112,6 @@ int main(
 
 	/* TODO: add tests for libpff_local_descriptors_read_sub_nodes */
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

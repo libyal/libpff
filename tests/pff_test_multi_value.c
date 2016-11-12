@@ -232,6 +232,8 @@ on_error:
 	return( 0 );
 }
 
+#endif /* defined( __GNUC__ ) */
+
 /* Tests the libpff_multi_value_free function
  * Returns 1 if successful or 0 if not
  */
@@ -270,8 +272,6 @@ on_error:
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
-
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -287,9 +287,13 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
+#if defined( __GNUC__ )
+
 	PFF_TEST_RUN(
 	 "libpff_multi_value_initialize",
 	 pff_test_multi_value_initialize );
+
+#endif /* defined( __GNUC__ ) */
 
 	PFF_TEST_RUN(
 	 "libpff_multi_value_free",
@@ -318,7 +322,6 @@ int main(
 	/* TODO: add tests for libpff_multi_value_get_value_binary_data */
 
 	/* TODO: add tests for libpff_multi_value_get_value_guid */
-
 
 	return( EXIT_SUCCESS );
 

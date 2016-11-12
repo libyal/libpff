@@ -130,6 +130,7 @@ stamp-h[1-9]
 /tests/pff_test_data_array
 /tests/pff_test_data_array_entry
 /tests/pff_test_data_block
+/tests/pff_test_deflate
 /tests/pff_test_descriptors_index
 /tests/pff_test_error
 /tests/pff_test_file

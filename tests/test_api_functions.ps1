@@ -10,7 +10,7 @@ $TestPrefix = Split-Path -path ${Pwd}.Path -parent
 $TestPrefix = Split-Path -path ${TestPrefix} -leaf
 $TestPrefix = ${TestPrefix}.Substring(3)
 
-$TestFunctions = "error name_to_id_map_entry notify"
+$TestFunctions = "deflate error name_to_id_map_entry notify"
 $TestFunctionsWithInput = "support"
 
 $TestToolDirectory = "..\msvscpp\Release"

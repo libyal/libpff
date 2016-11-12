@@ -35,8 +35,6 @@
 
 #include "../libpff/libpff_record_entry.h"
 
-#if defined( __GNUC__ )
-
 /* Tests the libpff_record_entry_free function
  * Returns 1 if successful or 0 if not
  */
@@ -74,8 +72,6 @@ on_error:
 	}
 	return( 0 );
 }
-
-#endif /* defined( __GNUC__ ) */
 
 /* The main program
  */
@@ -161,7 +157,6 @@ int main(
 	/* TODO: add tests for libpff_record_entry_copy_object_identifier */
 
 	/* TODO: add tests for libpff_record_entry_get_multi_value */
-
 
 	return( EXIT_SUCCESS );
 

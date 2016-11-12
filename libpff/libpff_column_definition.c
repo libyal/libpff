@@ -63,7 +63,7 @@ int libpff_column_definition_initialize(
 	*column_definition = memory_allocate_structure(
 	                      libpff_column_definition_t );
 
-	if( column_definition == NULL )
+	if( *column_definition == NULL )
 	{
 		libcerror_error_set(
 		 error,

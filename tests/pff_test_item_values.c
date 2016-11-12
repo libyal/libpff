@@ -116,7 +116,6 @@ int main(
 
 	/* TODO: add tests for libpff_item_values_get_record_entry_by_utf16_name */
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

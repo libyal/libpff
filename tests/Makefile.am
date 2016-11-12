@@ -58,6 +58,7 @@ check_PROGRAMS = \
 	pff_test_data_array \
 	pff_test_data_array_entry \
 	pff_test_data_block \
+	pff_test_deflate \
 	pff_test_descriptors_index \
 	pff_test_error \
 	pff_test_file \
@@ -141,6 +142,17 @@ pff_test_data_block_SOURCES = \
 	pff_test_unused.h
 
 pff_test_data_block_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_deflate_SOURCES = \
+	pff_test_deflate.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_deflate_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 

@@ -178,7 +178,6 @@ int main(
 
 	/* TODO: add tests for libpff_table_read_entry_value */
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

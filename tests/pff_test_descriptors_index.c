@@ -104,7 +104,6 @@ int main(
 
 	/* TODO: add tests for libpff_descriptors_index_get_index_value_by_identifier */
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );
