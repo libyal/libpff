@@ -1,5 +1,5 @@
 /*
- * The libbfio header wrapper
+ * Python object definition of the libpff file types
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,36 +19,45 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYPFF_LIBBFIO_H )
-#define _PYPFF_LIBBFIO_H
+#if !defined( _PYPFF_FILE_TYPES_H )
+#define _PYPFF_FILE_TYPES_H
 
 #include <common.h>
+#include <types.h>
 
-/* Define HAVE_LOCAL_LIBBFIO for local use of libbfio
- */
-#if defined( HAVE_LOCAL_LIBBFIO )
+#include "pypff_libpff.h"
+#include "pypff_python.h"
 
-#include <libbfio_definitions.h>
-#include <libbfio_file.h>
-#include <libbfio_file_pool.h>
-#include <libbfio_file_range.h>
-#include <libbfio_handle.h>
-#include <libbfio_memory_range.h>
-#include <libbfio_pool.h>
-#include <libbfio_types.h>
-
-#else
-
-/* If libtool DLL support is enabled set LIBBFIO_DLL_IMPORT
- * before including libbfio.h
- */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBBFIO_DLL_IMPORT
+#if defined( __cplusplus )
+extern "C" {
 #endif
 
-#include <libbfio.h>
+typedef struct pypff_file_types pypff_file_types_t;
 
-#endif /* defined( HAVE_LOCAL_LIBBFIO ) */
+struct pypff_file_types
+{
+	/* Python object initialization
+	 */
+	PyObject_HEAD
+};
 
-#endif /* !defined( _PYPFF_LIBBFIO_H ) */
+extern PyTypeObject pypff_file_types_type_object;
+
+int pypff_file_types_init_type(
+     PyTypeObject *type_object );
+
+PyObject *pypff_file_types_new(
+           void );
+
+int pypff_file_types_init(
+     pypff_file_types_t *pypff_file_types );
+
+void pypff_file_types_free(
+      pypff_file_types_t *pypff_file_types );
+
+#if defined( __cplusplus )
+}
+#endif
+
+#endif /* !defined( _PYPFF_FILE_TYPES_H ) */
 

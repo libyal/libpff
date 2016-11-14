@@ -338,65 +338,8 @@ Notes:
 * in the descriptor index a parent can have a child with a lower identifier value
 * cannot create libpff_item_get_sub_item_by_utf8_name, only folders and messages have names
 
-20160110
-* worked on Python 3 support
-
-20160107
-* 2016 update
-
-20150714
-* worked on check signature
-
-20150106
-* 2015 update
-
-20141224
-* worked on Python 3 support
-* worked on tests
-
-20141130
-* code clean up
-
-20141120
-* code clean up
-
-20141026
-* changes for deployment
-
-20141019
-* changes for deployment
-* marked various functions as deprecated
-
-20141012
-* changed libpff_file_get_root_folder to return 0 if no root folder
-
-20141011
-* bug fix in handling multi values
-
-20141010
-* worked on MSYS-MinGW support in utility scripts
-* changes in export log output
-
-20141008
-* fix in debug output
-
-20141007
-* temporary changes to have the test pass while an issue in recovery needs to
-  be analyed
-
-20141006
-* worked on record entry API
-
-20141005
-* worked on Python-bindings
-
-20141004
-* updated dependencies and corresponding changes
-* worked on autogen.sh script
-* worked on pypff
-* update Python-bindings tests
-
 20141002
+* see `git log' for more recent change log
 * removed README.macosx
 * changes for project site move
 
