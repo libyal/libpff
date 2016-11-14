@@ -218,6 +218,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pfftools\mapi_property_definition.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pfftools\pffinput.h"
 				>
 			</File>

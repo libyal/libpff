@@ -5664,7 +5664,7 @@ int libpff_table_read_7c_column_definitions(
      uint8_t *column_definitions_data,
      size_t column_definitions_data_size,
      int number_of_column_definitions,
-     libbfio_handle_t *file_io_handle,
+     libbfio_handle_t *file_io_handle LIBPFF_ATTRIBUTE_UNUSED,
      libcdata_list_t *name_to_id_map_list,
      libcerror_error_t **error )
 {
@@ -5673,6 +5673,8 @@ int libpff_table_read_7c_column_definitions(
 	uint8_t column_definition_number              = 0;
 	int column_definition_index                   = 0;
 	int result                                    = 0;
+
+	LIBPFF_UNREFERENCED_PARAMETER( file_io_handle )
 
 	if( table == NULL )
 	{

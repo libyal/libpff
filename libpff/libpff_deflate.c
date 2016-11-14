@@ -96,7 +96,7 @@ int libpff_deflate_bit_stream_get_value(
 		bit_stream->bit_buffer      |= *value_32bit;
 		bit_stream->bit_buffer_size += 8;
 	}
-	*value_32bit = bit_stream->bit_buffer & ~( -1L << number_of_bits );
+	*value_32bit = bit_stream->bit_buffer & ~( 0xffffffffUL << number_of_bits );
 
 	bit_stream->bit_buffer     >>= number_of_bits;
 	bit_stream->bit_buffer_size -= number_of_bits;
@@ -887,7 +887,7 @@ int libpff_deflate_decode_huffman(
 
 			if( libpff_deflate_bit_stream_get_value(
 			     bit_stream,
-			     number_of_extra_bits,
+			     (uint8_t) number_of_extra_bits,
 			     &extra_bits,
 			     error ) != 1 )
 			{
@@ -921,7 +921,7 @@ int libpff_deflate_decode_huffman(
 
 			if( libpff_deflate_bit_stream_get_value(
 			     bit_stream,
-			     number_of_extra_bits,
+			     (uint8_t) number_of_extra_bits,
 			     &extra_bits,
 			     error ) != 1 )
 			{
@@ -1355,8 +1355,10 @@ int libpff_deflate_decompress(
 		 preset_dictionary_identifier );
 
 		compressed_data_offset += 4;
+		compressed_data_size   -= 4;
 	}
 	compressed_data_offset += 2;
+	compressed_data_size   -= 2;
 
 	if( compression_method != 8 )
 	{

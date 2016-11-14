@@ -303,7 +303,6 @@ int libpff_debug_property_type_value_print(
 		     value_type,
 		     value_data,
 		     value_data_size,
-		     ascii_codepage,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -473,7 +472,6 @@ int libpff_debug_name_to_id_map_value_print(
      uint32_t value_type,
      uint8_t *value_data,
      size_t value_data_size,
-     int ascii_codepage,
      libcerror_error_t **error )
 {
 	system_character_t guid_string[ 48 ];

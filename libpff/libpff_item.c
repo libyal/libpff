@@ -2342,17 +2342,10 @@ int libpff_item_get_entry_multi_value(
      uint8_t flags,
      libcerror_error_t **error )
 {
-	libpff_internal_item_t *internal_item               = NULL;
-	libpff_internal_multi_value_t *internal_multi_value = NULL;
-	libpff_record_entry_t *record_entry                 = NULL;
-	uint8_t *value_data                                 = NULL;
-	static char *function                               = "libpff_item_get_entry_multi_value";
-	size_t number_of_values                             = 0;
-	size_t value_data_size                              = 0;
-	size_t value_size                                   = 0;
-	uint32_t value_offset_iterator                      = 0;
-	uint32_t value_type                                 = 0;
-	int result                                          = 0;
+	libpff_internal_item_t *internal_item = NULL;
+	libpff_record_entry_t *record_entry   = NULL;
+	static char *function                 = "libpff_item_get_entry_multi_value";
+	int result                            = 0;
 
 	if( item == NULL )
 	{

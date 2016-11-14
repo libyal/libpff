@@ -86,14 +86,13 @@ int libpff_debug_name_to_id_map_value_print(
      uint32_t value_type,
      uint8_t *value_data,
      size_t value_data_size,
-     int ascii_codepage,
      libcerror_error_t **error );
 
 int libpff_debug_print_read_offsets(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 #if defined( __cplusplus )
 }
