@@ -373,6 +373,15 @@ int libpff_file_get_message_store(
      libpff_item_t **message_store,
      libpff_error_t **error );
 
+/* Retrieves the name to id map
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_file_get_name_to_id_map(
+     libpff_file_t *file,
+     libpff_item_t **name_to_id_map,
+     libpff_error_t **error );
+
 /* Retrieves the root folder
  * Returns 1 if successful, 0 if no such value or -1 on error
  */

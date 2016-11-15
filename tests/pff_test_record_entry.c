@@ -88,15 +88,23 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libpff_record_entry_initialize */
+
+#endif /* defined( __GNUC__ ) */
 
 	PFF_TEST_RUN(
 	 "libpff_record_entry_free",
 	 pff_test_record_entry_free );
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libpff_record_entry_string_contains_zero_bytes */
 
 	/* TODO: add tests for libpff_record_entry_clone */
+
+#endif /* defined( __GNUC__ ) */
 
 	/* TODO: add tests for libpff_record_entry_get_entry_type */
 
@@ -106,6 +114,8 @@ int main(
 
 	/* TODO: add tests for libpff_record_entry_get_value_data_size */
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libpff_record_entry_get_value_data */
 
 	/* TODO: add tests for libpff_record_entry_set_value_data */
@@ -113,6 +123,8 @@ int main(
 	/* TODO: add tests for libpff_record_entry_set_value_data_from_list */
 
 	/* TODO: add tests for libpff_record_entry_set_value_data_from_stream */
+
+#endif /* defined( __GNUC__ ) */
 
 	/* TODO: add tests for libpff_record_entry_copy_value_data */
 
@@ -134,15 +146,21 @@ int main(
 
 	/* TODO: add tests for libpff_record_entry_get_value_floating_point */
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libpff_record_entry_get_value_utf8_string_size_with_codepage */
 
 	/* TODO: add tests for libpff_record_entry_get_value_utf8_string_with_codepage */
 
 	/* TODO: add tests for libpff_record_entry_compare_value_with_utf8_string_with_codepage */
 
+#endif /* defined( __GNUC__ ) */
+
 	/* TODO: add tests for libpff_record_entry_get_value_utf8_string_size */
 
 	/* TODO: add tests for libpff_record_entry_get_value_utf8_string */
+
+#if defined( __GNUC__ )
 
 	/* TODO: add tests for libpff_record_entry_get_value_utf16_string_size_with_codepage */
 
@@ -150,11 +168,17 @@ int main(
 
 	/* TODO: add tests for libpff_record_entry_compare_value_with_utf16_string_with_codepage */
 
+#endif /* defined( __GNUC__ ) */
+
 	/* TODO: add tests for libpff_record_entry_get_value_utf16_string_size */
 
 	/* TODO: add tests for libpff_record_entry_get_value_utf16_string */
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libpff_record_entry_copy_object_identifier */
+
+#endif /* defined( __GNUC__ ) */
 
 	/* TODO: add tests for libpff_record_entry_get_multi_value */
 

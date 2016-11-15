@@ -766,7 +766,7 @@ int info_handle_message_store_fprint(
 	{
 		if( libpff_record_entry_get_value_32bit(
 		     record_entry,
-		     &valid_folder_mask,
+		     &password_checksum,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -782,7 +782,8 @@ int info_handle_message_store_fprint(
 		 info_handle->notify_stream,
 		 "\tPassword checksum:\t" );
 
-		if( password_checksum == 0 )
+		if( ( password_checksum == 0x00000000UL )
+		 || ( password_checksum == 0xffffffffUL ) )
 		{
 			fprintf(
 			 info_handle->notify_stream,

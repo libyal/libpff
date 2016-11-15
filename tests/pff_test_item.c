@@ -88,7 +88,11 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libpff_item_initialize */
+
+#endif /* defined( __GNUC__ ) */
 
 	PFF_TEST_RUN(
 	 "libpff_item_free",
@@ -96,7 +100,11 @@ int main(
 
 	/* TODO: add tests for libpff_item_clone */
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libpff_item_determine_type */
+
+#endif /* defined( __GNUC__ ) */
 
 	/* TODO: add tests for libpff_item_get_identifier */
 
@@ -135,7 +143,6 @@ int main(
 	/* TODO: add tests for libpff_item_get_sub_item */
 
 	/* TODO: add tests for libpff_item_get_sub_item_by_identifier */
-
 
 	return( EXIT_SUCCESS );
 

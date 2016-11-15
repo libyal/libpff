@@ -110,7 +110,6 @@ int main(
 
 	/* TODO: add tests for libpff_data_array_decrypt_entry_data */
 
-
 #endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );

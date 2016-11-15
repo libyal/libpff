@@ -1,6 +1,5 @@
 TODO
 * add specific entry value flag for string types?
-* fix password checksum not being returned
 * add fallback inflate implementation
 * add libpff_item_values_get_record_entry_by_type specific for string types?
 * libpff.3 update record entry; see if this can be generated from libpff.h

@@ -88,15 +88,23 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libpff_record_set_initialize */
+
+#endif /* defined( __GNUC__ ) */
 
 	PFF_TEST_RUN(
 	 "libpff_record_set_free",
 	 pff_test_record_set_free );
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libpff_record_set_clone */
 
 	/* TODO: add tests for libpff_record_set_resize */
+
+#endif /* defined( __GNUC__ ) */
 
 	/* TODO: add tests for libpff_record_set_get_number_of_entries */
 

@@ -225,6 +225,7 @@ pff_test_index_node_LDADD = \
 pff_test_index_value_SOURCES = \
 	pff_test_index_value.c \
 	pff_test_libcerror.h \
+	pff_test_libfdata.h \
 	pff_test_libpff.h \
 	pff_test_macros.h \
 	pff_test_memory.c pff_test_memory.h \

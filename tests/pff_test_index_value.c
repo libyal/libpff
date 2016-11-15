@@ -28,6 +28,7 @@
 #endif
 
 #include "pff_test_libcerror.h"
+#include "pff_test_libfdata.h"
 #include "pff_test_libpff.h"
 #include "pff_test_macros.h"
 #include "pff_test_memory.h"
@@ -270,6 +271,164 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_index_value_compare function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_index_value_compare(
+     void )
+{
+	libcerror_error_t *error                 = NULL;
+	libpff_index_value_t *first_index_value  = NULL;
+	libpff_index_value_t *second_index_value = NULL;
+	int result                               = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_index_value_initialize(
+	          &first_index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        PFF_TEST_ASSERT_IS_NOT_NULL(
+         "first_index_value",
+         first_index_value );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libpff_index_value_initialize(
+	          &second_index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        PFF_TEST_ASSERT_IS_NOT_NULL(
+         "second_index_value",
+         second_index_value );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test regular cases
+	 */
+	result = libpff_index_value_compare(
+	          first_index_value,
+	          second_index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 LIBFDATA_COMPARE_EQUAL );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test error cases
+	 */
+	result = libpff_index_value_compare(
+	          NULL,
+	          second_index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        PFF_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_index_value_compare(
+	          first_index_value,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        PFF_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_index_value_free(
+	          &second_index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "second_index_value",
+         second_index_value );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libpff_index_value_free(
+	          &first_index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "first_index_value",
+         first_index_value );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( second_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &second_index_value,
+		 NULL );
+	}
+	if( first_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &first_index_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) */
 
 /* The main program
@@ -297,7 +456,9 @@ int main(
 	 "libpff_index_value_free",
 	 pff_test_index_value_free );
 
-	/* TODO: add tests for libpff_index_value_compare */
+	PFF_TEST_RUN(
+	 "libpff_index_value_compare",
+	 pff_test_index_value_compare );
 
 #endif /* defined( __GNUC__ ) */
 

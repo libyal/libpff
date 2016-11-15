@@ -272,6 +272,133 @@ on_error:
 	return( 0 );
 }
 
+#if defined( __GNUC__ )
+
+/* Tests the libpff_multi_value_get_number_of_values function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_multi_value_get_number_of_values(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libpff_multi_value_t *multi_value = NULL;
+	int number_of_values              = 0;
+	int number_of_values_is_set       = 0;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_multi_value_initialize(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_multi_value_get_number_of_values(
+	          multi_value,
+	          &number_of_values,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	number_of_values_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_multi_value_get_number_of_values(
+	          NULL,
+	          &number_of_values,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( number_of_values_is_set != 0 )
+	{
+		result = libpff_multi_value_get_number_of_values(
+		          multi_value,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	/* Clean up
+	 */
+	result = libpff_multi_value_free(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( multi_value != NULL )
+	{
+		libpff_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -299,7 +426,13 @@ int main(
 	 "libpff_multi_value_free",
 	 pff_test_multi_value_free );
 
-	/* TODO: add tests for libpff_multi_value_get_number_of_values */
+#if defined( __GNUC__ )
+
+	PFF_TEST_RUN(
+	 "libpff_multi_value_get_number_of_values",
+	 pff_test_multi_value_get_number_of_values );
+
+#endif /* defined( __GNUC__ ) */
 
 	/* TODO: add tests for libpff_multi_value_get_value */
 

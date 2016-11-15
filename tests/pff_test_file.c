@@ -1232,19 +1232,19 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libpff_file_get_ascii_codepage functions
+/* Tests the libpff_file_signal_abort function
  * Returns 1 if successful or 0 if not
  */
-int pff_test_file_get_ascii_codepage(
+int pff_test_file_signal_abort(
      libpff_file_t *file )
 {
 	libcerror_error_t *error = NULL;
-	int codepage             = 0;
 	int result               = 0;
 
-	result = libpff_file_get_ascii_codepage(
+	/* Test regular cases
+	 */
+	result = libpff_file_signal_abort(
 	          file,
-	          &codepage,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -1258,25 +1258,7 @@ int pff_test_file_get_ascii_codepage(
 
 	/* Test error cases
 	 */
-	result = libpff_file_get_ascii_codepage(
-	          NULL,
-	          &codepage,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libpff_file_get_ascii_codepage(
-	          file,
+	result = libpff_file_signal_abort(
 	          NULL,
 	          &error );
 
@@ -1303,11 +1285,401 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libpff_file_set_ascii_codepage functions
+/* Tests the libpff_file_get_size function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_size(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error = NULL;
+	size64_t size            = 0;
+	int result               = 0;
+	int size_is_set          = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_size(
+	          file,
+	          &size,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	size_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_size(
+	          NULL,
+	          &size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( size_is_set != 0 )
+	{
+		result = libpff_file_get_size(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_content_type function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_content_type(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error = NULL;
+	uint8_t content_type     = 0;
+	int content_type_is_set  = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_content_type(
+	          file,
+	          &content_type,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	content_type_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_content_type(
+	          NULL,
+	          &content_type,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( content_type_is_set != 0 )
+	{
+		result = libpff_file_get_content_type(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_type function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_type(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error = NULL;
+	uint8_t type             = 0;
+	int result               = 0;
+	int type_is_set          = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_type(
+	          file,
+	          &type,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	type_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_type(
+	          NULL,
+	          &type,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( type_is_set != 0 )
+	{
+		result = libpff_file_get_type(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_encryption_type function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_encryption_type(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error   = NULL;
+	uint8_t encryption_type    = 0;
+	int encryption_type_is_set = 0;
+	int result                 = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_encryption_type(
+	          file,
+	          &encryption_type,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	encryption_type_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_encryption_type(
+	          NULL,
+	          &encryption_type,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( encryption_type_is_set != 0 )
+	{
+		result = libpff_file_get_encryption_type(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_ascii_codepage function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_ascii_codepage(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error  = NULL;
+	int ascii_codepage        = 0;
+	int ascii_codepage_is_set = 0;
+	int result                = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_ascii_codepage(
+	          file,
+	          &ascii_codepage,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	ascii_codepage_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_ascii_codepage(
+	          NULL,
+	          &ascii_codepage,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( ascii_codepage_is_set != 0 )
+	{
+		result = libpff_file_get_ascii_codepage(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_set_ascii_codepage function
  * Returns 1 if successful or 0 if not
  */
 int pff_test_file_set_ascii_codepage(
-     void )
+     libpff_file_t *file )
 {
 	int supported_codepages[ 15 ] = {
 		LIBPFF_CODEPAGE_ASCII,
@@ -1346,29 +1718,9 @@ int pff_test_file_set_ascii_codepage(
 		LIBPFF_CODEPAGE_KOI8_U };
 
 	libcerror_error_t *error = NULL;
-	libpff_file_t *file      = NULL;
 	int codepage             = 0;
 	int index                = 0;
 	int result               = 0;
-
-	/* Initialize test
-	 */
-	result = libpff_file_initialize(
-	          &file,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "file",
-         file );
-
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
 
 	/* Test set ASCII codepage
 	 */
@@ -1436,18 +1788,15 @@ int pff_test_file_set_ascii_codepage(
 	}
 	/* Clean up
 	 */
-	result = libpff_file_free(
-	          &file,
+	result = libpff_file_set_ascii_codepage(
+	          file,
+	          LIBPFF_CODEPAGE_WINDOWS_1252,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
 	 1 );
-
-        PFF_TEST_ASSERT_IS_NULL(
-         "file",
-         file );
 
         PFF_TEST_ASSERT_IS_NULL(
          "error",
@@ -1461,11 +1810,395 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( file != NULL )
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_root_item function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_root_item(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error = NULL;
+	libpff_item_t *root_item = 0;
+	int result               = 0;
+	int root_item_is_set     = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_root_item(
+	          file,
+	          &root_item,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	root_item_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_root_item(
+	          NULL,
+	          &root_item,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( root_item_is_set != 0 )
 	{
-		libpff_file_free(
-		 &file,
-		 NULL );
+		result = libpff_file_get_root_item(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_message_store function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_message_store(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error     = NULL;
+	libpff_item_t *message_store = 0;
+	int message_store_is_set     = 0;
+	int result                   = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_message_store(
+	          file,
+	          &message_store,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	message_store_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_message_store(
+	          NULL,
+	          &message_store,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( message_store_is_set != 0 )
+	{
+		result = libpff_file_get_message_store(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_name_to_id_map function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_name_to_id_map(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error      = NULL;
+	libpff_item_t *name_to_id_map = 0;
+	int name_to_id_map_is_set     = 0;
+	int result                    = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_name_to_id_map(
+	          file,
+	          &name_to_id_map,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	name_to_id_map_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_name_to_id_map(
+	          NULL,
+	          &name_to_id_map,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( name_to_id_map_is_set != 0 )
+	{
+		result = libpff_file_get_name_to_id_map(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_root_folder function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_root_folder(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error   = NULL;
+	libpff_item_t *root_folder = 0;
+	int result                 = 0;
+	int root_folder_is_set     = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_root_folder(
+	          file,
+	          &root_folder,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	root_folder_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_root_folder(
+	          NULL,
+	          &root_folder,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( root_folder_is_set != 0 )
+	{
+		result = libpff_file_get_root_folder(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_number_of_orphan_items function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_number_of_orphan_items(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error          = NULL;
+	int number_of_orphan_items        = 0;
+	int number_of_orphan_items_is_set = 0;
+	int result                        = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_number_of_orphan_items(
+	          file,
+	          &number_of_orphan_items,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	number_of_orphan_items_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_number_of_orphan_items(
+	          NULL,
+	          &number_of_orphan_items,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( number_of_orphan_items_is_set != 0 )
+	{
+		result = libpff_file_get_number_of_orphan_items(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
 	}
 	return( 0 );
 }
@@ -1525,10 +2258,6 @@ int main(
 	 "libpff_file_free",
 	 pff_test_file_free );
 
-	PFF_TEST_RUN(
-	 "libpff_file_set_ascii_codepage",
-	 pff_test_file_set_ascii_codepage );
-
 #if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 	if( source != NULL )
 	{
@@ -1582,11 +2311,9 @@ int main(
 	         error );
 
 		PFF_TEST_RUN_WITH_ARGS(
-		 "libpff_file_get_ascii_codepage",
-		 pff_test_file_get_ascii_codepage,
+		 "libpff_file_signal_abort",
+		 pff_test_file_signal_abort,
 		 file );
-
-		/* TODO: add tests for libpff_file_signal_abort */
 
 #if defined( __GNUC__ )
 
@@ -1600,29 +2327,66 @@ int main(
 
 		/* TODO: add tests for libpff_file_recover_items */
 
-		/* TODO: add tests for libpff_file_get_size */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_size",
+		 pff_test_file_get_size,
+		 file );
 
-		/* TODO: add tests for libpff_file_get_content_type */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_content_type",
+		 pff_test_file_get_content_type,
+		 file );
 
-		/* TODO: add tests for libpff_file_get_type */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_type",
+		 pff_test_file_get_type,
+		 file );
 
-		/* TODO: add tests for libpff_file_get_encryption_type */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_encryption_type",
+		 pff_test_file_get_encryption_type,
+		 file );
+
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_ascii_codepage",
+		 pff_test_file_get_ascii_codepage,
+		 file );
+
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_set_ascii_codepage",
+		 pff_test_file_set_ascii_codepage,
+		 file );
 
 		/* TODO: add tests for libpff_file_get_number_of_unallocated_blocks */
 
 		/* TODO: add tests for libpff_file_get_unallocated_block */
 
-		/* TODO: add tests for libpff_file_get_root_item */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_root_item",
+		 pff_test_file_get_root_item,
+		 file );
 
-		/* TODO: add tests for libpff_file_get_message_store */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_message_store",
+		 pff_test_file_get_message_store,
+		 file );
 
-		/* TODO: add tests for libpff_file_get_name_to_id_map */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_name_to_id_map",
+		 pff_test_file_get_name_to_id_map,
+		 file );
 
-		/* TODO: add tests for libpff_file_get_root_folder */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_root_folder",
+		 pff_test_file_get_root_folder,
+		 file );
 
 		/* TODO: add tests for libpff_file_get_item_by_identifier */
 
-		/* TODO: add tests for libpff_file_get_number_of_orphan_items */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_number_of_orphan_items",
+		 pff_test_file_get_number_of_orphan_items,
+		 file );
 
 		/* TODO: add tests for libpff_file_get_orphan_item */
 
