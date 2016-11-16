@@ -22,12 +22,16 @@ BUILT_SOURCES = \
 	pypff.c pypff.h \
 	pypff_codepage.c pypff_codepage.h \
 	pypff_datetime.c pypff_datetime.h \
+	pypff_encryption_types.c pypff_encryption_types.h \
 	pypff_error.c pypff_error.h \
 	pypff_file.c pypff_file.h \
+	pypff_file_content_types.c pypff_file_content_types.h \
 	pypff_file_object_io_handle.c pypff_file_object_io_handle.h \
+	pypff_file_types.c pypff_file_types.h \
 	pypff_folder.c pypff_folder.h \
 	pypff_integer.c pypff_integer.h \
 	pypff_item.c pypff_item.h \
+	pypff_item_types.c pypff_item_types.h \
 	pypff_items.c pypff_items.h \
 	pypff_libbfio.h \
 	pypff_libcerror.h \

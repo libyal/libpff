@@ -1842,6 +1842,25 @@ int pff_test_file_get_root_item(
 
 	root_item_is_set = result;
 
+	if( root_item_is_set != 0 )
+	{
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "root_item",
+		 root_item );
+
+		result = libpff_item_t_free(
+		          &root_item,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
 	/* Test error cases
 	 */
 	result = libpff_file_get_root_item(
@@ -1853,6 +1872,10 @@ int pff_test_file_get_root_item(
 	 "result",
 	 result,
 	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "root_item",
+	 root_item );
 
 	PFF_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
@@ -1873,6 +1896,10 @@ int pff_test_file_get_root_item(
 		 result,
 		 -1 );
 
+		PFF_TEST_ASSERT_IS_NULL(
+		 "root_item",
+		 root_item );
+
 		PFF_TEST_ASSERT_IS_NOT_NULL(
 		 "error",
 		 error );
@@ -1887,6 +1914,12 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
+	}
+	if( root_item != NULL )
+	{
+		libpff_item_t_free(
+		 &root_item,
+		 NULL );
 	}
 	return( 0 );
 }
@@ -1920,6 +1953,25 @@ int pff_test_file_get_message_store(
 
 	message_store_is_set = result;
 
+	if( message_store_is_set != 0 )
+	{
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "message_store",
+		 message_store );
+
+		result = libpff_item_t_free(
+		          &message_store,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
 	/* Test error cases
 	 */
 	result = libpff_file_get_message_store(
@@ -1931,6 +1983,10 @@ int pff_test_file_get_message_store(
 	 "result",
 	 result,
 	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "message_store",
+	 message_store );
 
 	PFF_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
@@ -1951,6 +2007,10 @@ int pff_test_file_get_message_store(
 		 result,
 		 -1 );
 
+		PFF_TEST_ASSERT_IS_NULL(
+		 "message_store",
+		 message_store );
+
 		PFF_TEST_ASSERT_IS_NOT_NULL(
 		 "error",
 		 error );
@@ -1965,6 +2025,12 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
+	}
+	if( message_store != NULL )
+	{
+		libpff_item_t_free(
+		 &message_store,
+		 NULL );
 	}
 	return( 0 );
 }
@@ -1998,6 +2064,25 @@ int pff_test_file_get_name_to_id_map(
 
 	name_to_id_map_is_set = result;
 
+	if( name_to_id_map_is_set != 0 )
+	{
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "name_to_id_map",
+		 name_to_id_map );
+
+		result = libpff_item_t_free(
+		          &name_to_id_map,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
 	/* Test error cases
 	 */
 	result = libpff_file_get_name_to_id_map(
@@ -2009,6 +2094,10 @@ int pff_test_file_get_name_to_id_map(
 	 "result",
 	 result,
 	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "name_to_id_map",
+	 name_to_id_map );
 
 	PFF_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
@@ -2029,6 +2118,10 @@ int pff_test_file_get_name_to_id_map(
 		 result,
 		 -1 );
 
+		PFF_TEST_ASSERT_IS_NULL(
+		 "name_to_id_map",
+		 name_to_id_map );
+
 		PFF_TEST_ASSERT_IS_NOT_NULL(
 		 "error",
 		 error );
@@ -2043,6 +2136,12 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
+	}
+	if( name_to_id_map != NULL )
+	{
+		libpff_item_t_free(
+		 &name_to_id_map,
+		 NULL );
 	}
 	return( 0 );
 }
@@ -2076,6 +2175,25 @@ int pff_test_file_get_root_folder(
 
 	root_folder_is_set = result;
 
+	if( root_folder_is_set != 0 )
+	{
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "root_folder",
+		 root_folder );
+
+		result = libpff_item_t_free(
+		          &root_folder,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
 	/* Test error cases
 	 */
 	result = libpff_file_get_root_folder(
@@ -2087,6 +2205,10 @@ int pff_test_file_get_root_folder(
 	 "result",
 	 result,
 	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "root_folder",
+	 root_folder );
 
 	PFF_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
@@ -2107,6 +2229,10 @@ int pff_test_file_get_root_folder(
 		 result,
 		 -1 );
 
+		PFF_TEST_ASSERT_IS_NULL(
+		 "root_folder",
+		 root_folder );
+
 		PFF_TEST_ASSERT_IS_NOT_NULL(
 		 "error",
 		 error );
@@ -2121,6 +2247,12 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
+	}
+	if( root_folder != NULL )
+	{
+		libpff_item_t_free(
+		 &root_folder,
+		 NULL );
 	}
 	return( 0 );
 }

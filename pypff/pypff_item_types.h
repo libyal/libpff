@@ -50,10 +50,10 @@ PyObject *pypff_item_types_new(
            void );
 
 int pypff_item_types_init(
-     pypff_item_types_t *pypff_item_types );
+     pypff_item_types_t *definitions_object );
 
 void pypff_item_types_free(
-      pypff_item_types_t *pypff_item_types );
+      pypff_item_types_t *definitions_object );
 
 #if defined( __cplusplus )
 }

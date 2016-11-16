@@ -50,10 +50,10 @@ PyObject *pypff_file_types_new(
            void );
 
 int pypff_file_types_init(
-     pypff_file_types_t *pypff_file_types );
+     pypff_file_types_t *definitions_object );
 
 void pypff_file_types_free(
-      pypff_file_types_t *pypff_file_types );
+      pypff_file_types_t *definitions_object );
 
 #if defined( __cplusplus )
 }

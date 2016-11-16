@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libpff item
+ * Python object wrapper of libpff_item_t
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -27,12 +27,12 @@
 #endif
 
 #include "pypff_error.h"
-#include "pypff_file.h"
-#include "pypff_integer.h"
+#include "pypff_folder.h"
 #include "pypff_item.h"
 #include "pypff_items.h"
 #include "pypff_libcerror.h"
 #include "pypff_libpff.h"
+#include "pypff_message.h"
 #include "pypff_python.h"
 #include "pypff_record_set.h"
 #include "pypff_record_sets.h"
@@ -40,12 +40,17 @@
 
 PyMethodDef pypff_item_object_methods[] = {
 
-	/* Functions to access the item values */
+	{ "get_identifier",
+	  (PyCFunction) pypff_item_get_identifier,
+	  METH_NOARGS,
+	  "get_identifier() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the identifier." },
 
 	{ "get_number_of_record_sets",
 	  (PyCFunction) pypff_item_get_number_of_record_sets,
 	  METH_NOARGS,
-	  "get_number_of_record_sets() -> Integer\n"
+	  "get_number_of_record_sets() -> Integer or None\n"
 	  "\n"
 	  "Retrieves the number of record sets." },
 
@@ -54,21 +59,12 @@ PyMethodDef pypff_item_object_methods[] = {
 	  METH_VARARGS | METH_KEYWORDS,
 	  "get_record_set(record_set_index) -> Object or None\n"
 	  "\n"
-	  "Retrieves a specific record set." },
-
-	{ "get_display_name",
-	  (PyCFunction) pypff_item_get_display_name,
-	  METH_NOARGS,
-	  "get_display_name() -> Unicode string or None\n"
-	  "\n"
-	  "Retrieves the display name." },
-
-	/* Functions to access the sub items */
+	  "Retrieves the record set specified by the index." },
 
 	{ "get_number_of_sub_items",
 	  (PyCFunction) pypff_item_get_number_of_sub_items,
 	  METH_NOARGS,
-	  "get_number_of_sub_items() -> Integer\n"
+	  "get_number_of_sub_items() -> Integer or None\n"
 	  "\n"
 	  "Retrieves the number of sub items." },
 
@@ -77,13 +73,19 @@ PyMethodDef pypff_item_object_methods[] = {
 	  METH_VARARGS | METH_KEYWORDS,
 	  "get_sub_item(sub_item_index) -> Object or None\n"
 	  "\n"
-	  "Retrieves a specific sub item." },
+	  "Retrieves the sub item specified by the index." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
 
 PyGetSetDef pypff_item_object_get_set_definitions[] = {
+
+	{ "identifier",
+	  (getter) pypff_item_get_identifier,
+	  (setter) 0,
+	  "The identifier.",
+	  NULL },
 
 	{ "number_of_record_sets",
 	  (getter) pypff_item_get_number_of_record_sets,
@@ -94,13 +96,7 @@ PyGetSetDef pypff_item_object_get_set_definitions[] = {
 	{ "record_sets",
 	  (getter) pypff_item_get_record_sets,
 	  (setter) 0,
-	  "The record sets",
-	  NULL },
-
-	{ "display_name",
-	  (getter) pypff_item_get_display_name,
-	  (setter) 0,
-	  "The display name.",
+	  "The record sets.",
 	  NULL },
 
 	{ "number_of_sub_items",
@@ -112,7 +108,7 @@ PyGetSetDef pypff_item_object_get_set_definitions[] = {
 	{ "sub_items",
 	  (getter) pypff_item_get_sub_items,
 	  (setter) 0,
-	  "The items",
+	  "The sub items.",
 	  NULL },
 
 	/* Sentinel */
@@ -220,7 +216,7 @@ PyTypeObject pypff_item_type_object = {
 PyObject *pypff_item_new(
            PyTypeObject *type_object,
            libpff_item_t *item,
-           pypff_file_t *file_object )
+           PyObject *parent_object )
 {
 	pypff_item_t *pypff_item = NULL;
 	static char *function    = "pypff_item_new";
@@ -257,11 +253,11 @@ PyObject *pypff_item_new(
 
 		goto on_error;
 	}
-	pypff_item->item        = item;
-	pypff_item->file_object = file_object;
+	pypff_item->item          = item;
+	pypff_item->parent_object = parent_object;
 
 	Py_IncRef(
-	 (PyObject *) pypff_item->file_object );
+	 (PyObject *) pypff_item->parent_object );
 
 	return( (PyObject *) pypff_item );
 
@@ -270,131 +266,6 @@ on_error:
 	{
 		Py_DecRef(
 		 (PyObject *) pypff_item );
-	}
-	return( NULL );
-}
-
-/* Creates a new item object with a record set
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pypff_item_new_with_record_set(
-           PyTypeObject *type_object,
-           libpff_item_t *item,
-           pypff_file_t *file_object )
-{
-	libcerror_error_t *error        = NULL;
-	libpff_record_set_t *record_set = NULL;
-	pypff_item_t *pypff_item        = NULL;
-	static char *function           = "pypff_item_new_with_record_set";
-	int number_of_record_sets       = 0;
-	int result                      = 0;
-
-	if( item == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid item.",
-		 function );
-
-		return( NULL );
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_item_get_number_of_record_sets(
-	          item,
-	          &number_of_record_sets,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve number of record sets.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		goto on_error;
-	}
-	if( number_of_record_sets != 1 )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid item - unsupported number of record sets.",
-		 function );
-
-		goto on_error;
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_item_get_record_set_by_index(
-	          item,
-	          0,
-	          &record_set,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve record set: 0.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		goto on_error;
-	}
-	pypff_item = PyObject_New(
-	              struct pypff_item,
-	              type_object );
-
-	if( pypff_item == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize item.",
-		 function );
-
-		goto on_error;
-	}
-	if( pypff_item_init(
-	     pypff_item ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize item.",
-		 function );
-
-		goto on_error;
-	}
-	pypff_item->item        = item;
-	pypff_item->record_set  = record_set;
-	pypff_item->file_object = file_object;
-
-	Py_IncRef(
-	 (PyObject *) pypff_item->file_object );
-
-	return( (PyObject *) pypff_item );
-
-on_error:
-	if( pypff_item != NULL )
-	{
-		Py_DecRef(
-		 (PyObject *) pypff_item );
-	}
-	if( record_set != NULL )
-	{
-		libpff_item_free(
-		 &record_set,
-		 NULL );
 	}
 	return( NULL );
 }
@@ -428,9 +299,10 @@ int pypff_item_init(
 void pypff_item_free(
       pypff_item_t *pypff_item )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pypff_item_free";
+	int result                  = 0;
 
 	if( pypff_item == NULL )
 	{
@@ -471,9 +343,15 @@ void pypff_item_free(
 
 		return;
 	}
-	if( libpff_item_free(
-	     &( pypff_item->item ),
-	     &error ) != 1 )
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_free(
+	          &( pypff_item->item ),
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
 	{
 		pypff_error_raise(
 		 error,
@@ -484,13 +362,72 @@ void pypff_item_free(
 		libcerror_error_free(
 		 &error );
 	}
-	if( pypff_item->file_object != NULL )
+	if( pypff_item->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_item->file_object );
+		 (PyObject *) pypff_item->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pypff_item );
+}
+
+/* Retrieves the identifier
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_item_get_identifier(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_item_get_identifier";
+	uint32_t value_32bit     = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_identifier(
+	          pypff_item->item,
+	          &value_32bit,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	integer_object = PyLong_FromUnsignedLong(
+	                  (unsigned long) value_32bit );
+
+	return( integer_object );
 }
 
 /* Retrieves the number of record sets
@@ -500,8 +437,8 @@ PyObject *pypff_item_get_number_of_record_sets(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error  = NULL;
 	PyObject *integer_object  = NULL;
+	libcerror_error_t *error  = NULL;
 	static char *function     = "pypff_item_get_number_of_record_sets";
 	int number_of_record_sets = 0;
 	int result                = 0;
@@ -539,24 +476,39 @@ PyObject *pypff_item_get_number_of_record_sets(
 
 		return( NULL );
 	}
-	integer_object = pypff_integer_unsigned_new_from_64bit(
-	                  (uint64_t) number_of_record_sets );
-
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_record_sets );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_record_sets );
+#endif
 	return( integer_object );
+}
+
+/* Retrieves the record set type object
+ * Returns a Python type object if successful or NULL on error
+ */
+PyTypeObject *pypff_item_get_record_set_type_object(
+               libpff_record_set_t *record_set PYPFF_ATTRIBUTE_UNUSED )
+{
+	PYPFF_UNREFERENCED_PARAMETER( record_set )
+
+	return( &pypff_record_set_type_object );
 }
 
 /* Retrieves a specific record set by index
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_item_get_record_set_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int record_set_index )
 {
+	PyObject *record_set_object     = NULL;
+	PyTypeObject *type_object       = NULL;
 	libcerror_error_t *error        = NULL;
 	libpff_record_set_t *record_set = NULL;
-	PyObject *record_set_object     = NULL;
 	static char *function           = "pypff_item_get_record_set_by_index";
-	uint8_t record_set_type         = 0;
 	int result                      = 0;
 
 	if( pypff_item == NULL )
@@ -570,8 +522,8 @@ PyObject *pypff_item_get_record_set_by_index(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_record_set_by_index(
-	          pypff_item->item,
+	result = libpff_item_get_record_set(
+	          ( (pypff_item_t *) pypff_item )->item,
 	          record_set_index,
 	          &record_set,
 	          &error );
@@ -592,33 +544,22 @@ PyObject *pypff_item_get_record_set_by_index(
 
 		goto on_error;
 	}
-	Py_BEGIN_ALLOW_THREADS
+	type_object = pypff_item_get_record_set_type_object(
+	               record_set );
 
-	result = libpff_item_get_type(
-	          record_set,
-	          &record_set_type,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
+	if( type_object == NULL )
 	{
-		pypff_error_raise(
-		 error,
+		PyErr_Format(
 		 PyExc_IOError,
-		 "%s: unable to retrieve record set: %d type.",
-		 function,
-		 record_set_index );
-
-		libcerror_error_free(
-		 &error );
+		 "%s: unable to retrieve record set type object.",
+		 function );
 
 		goto on_error;
 	}
-	record_set_object = pypff_item_new(
-	                     &pypff_item_type_object,
+	record_set_object = pypff_record_set_new(
+	                     type_object,
 	                     record_set,
-	                     pypff_item->file_object );
+	                     (PyObject *) pypff_item );
 
 	if( record_set_object == NULL )
 	{
@@ -634,7 +575,7 @@ PyObject *pypff_item_get_record_set_by_index(
 on_error:
 	if( record_set != NULL )
 	{
-		libpff_item_free(
+		libpff_record_set_free(
 		 &record_set,
 		 NULL );
 	}
@@ -663,24 +604,24 @@ PyObject *pypff_item_get_record_set(
 		return( NULL );
 	}
 	record_set_object = pypff_item_get_record_set_by_index(
-	                     pypff_item,
+	                     (PyObject *) pypff_item,
 	                     record_set_index );
 
 	return( record_set_object );
 }
 
-/* Retrieves an record sets sequence and iterator object for the record sets
+/* Retrieves a sequence and iterator object for the record sets
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_item_get_record_sets(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error     = NULL;
-	PyObject *record_sets_object = NULL;
-	static char *function        = "pypff_item_get_record_sets";
-	int number_of_record_sets    = 0;
-	int result                   = 0;
+	PyObject *sequence_object = NULL;
+	libcerror_error_t *error  = NULL;
+	static char *function     = "pypff_item_get_record_sets";
+	int number_of_record_sets = 0;
+	int result                = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -715,141 +656,22 @@ PyObject *pypff_item_get_record_sets(
 
 		return( NULL );
 	}
-	record_sets_object = pypff_record_sets_new(
-	                      pypff_item,
-	                      &pypff_item_get_record_set_by_index,
-	                      number_of_record_sets );
+	sequence_object = pypff_record_sets_new(
+	                   (PyObject *) pypff_item,
+	                   &pypff_item_get_record_set_by_index,
+	                   number_of_record_sets );
 
-	if( record_sets_object == NULL )
+	if( sequence_object == NULL )
 	{
-		PyErr_Format(
+		pypff_error_raise(
+		 error,
 		 PyExc_MemoryError,
-		 "%s: unable to create record sets object.",
+		 "%s: unable to create sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	return( record_sets_object );
-}
-
-/* Retrieves the display name
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pypff_item_get_display_name(
-           pypff_item_t *pypff_item,
-           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
-{
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "pypff_item_get_display_name";
-	size_t value_string_size = 0;
-	int result               = 0;
-
-	PYPFF_UNREFERENCED_PARAMETER( arguments )
-
-	if( pypff_item == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid item.",
-		 function );
-
-		return( NULL );
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_item_get_entry_value_utf8_string_size(
-	          pypff_item->item,
-	          0,
-	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
-	          &value_string_size,
-	          0,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result == -1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve display name size.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		goto on_error;
-	}
-	else if( ( result == 0 )
-	      || ( value_string_size == 0 ) )
-	{
-		Py_IncRef(
-		 Py_None );
-
-		return( Py_None );
-	}
-	value_string = (uint8_t *) PyMem_Malloc(
-				    sizeof( uint8_t ) * value_string_size );
-
-	if( value_string == NULL )
-	{
-		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to create display name.",
-		 function );
-
-		goto on_error;
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_item_get_entry_value_utf8_string(
-		  pypff_item->item,
-		  0,
-		  LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
-		  value_string,
-		  value_string_size,
-		  0,
-		  &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve display name.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		goto on_error;
-	}
-	/* Pass the string length to PyUnicode_DecodeUTF8
-	 * otherwise it makes the end of string character is part
-	 * of the string
-	 */
-	string_object = PyUnicode_DecodeUTF8(
-			 (char *) value_string,
-			 (Py_ssize_t) value_string_size - 1,
-			 errors );
-
-	PyMem_Free(
-	 value_string );
-
-	return( string_object );
-
-on_error:
-	if( value_string != NULL )
-	{
-		PyMem_Free(
-		 value_string );
-	}
-	return( NULL );
+	return( sequence_object );
 }
 
 /* Retrieves the number of sub items
@@ -859,8 +681,8 @@ PyObject *pypff_item_get_number_of_sub_items(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
 	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
 	static char *function    = "pypff_item_get_number_of_sub_items";
 	int number_of_sub_items  = 0;
 	int result               = 0;
@@ -908,18 +730,100 @@ PyObject *pypff_item_get_number_of_sub_items(
 	return( integer_object );
 }
 
+/* Retrieves the item type object
+ * Returns a Python type object if successful or NULL on error
+ */
+PyTypeObject *pypff_item_get_item_type_object(
+               libpff_item_t *item )
+{
+	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_item_get_sub_item_by_index";
+	uint8_t item_type        = 0;
+	int result               = 0;
+
+	if( item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_type(
+	          item,
+	          &item_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve item type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	switch( item_type )
+	{
+		case LIBPFF_ITEM_TYPE_ACTIVITY:
+		case LIBPFF_ITEM_TYPE_APPOINTMENT:
+		case LIBPFF_ITEM_TYPE_COMMON:
+		case LIBPFF_ITEM_TYPE_CONFIGURATION:
+		case LIBPFF_ITEM_TYPE_CONFLICT_MESSAGE:
+		case LIBPFF_ITEM_TYPE_CONTACT:
+		case LIBPFF_ITEM_TYPE_DISTRIBUTION_LIST:
+		case LIBPFF_ITEM_TYPE_DOCUMENT:
+		case LIBPFF_ITEM_TYPE_EMAIL:
+		case LIBPFF_ITEM_TYPE_EMAIL_SMIME:
+		case LIBPFF_ITEM_TYPE_FAX:
+		case LIBPFF_ITEM_TYPE_MEETING:
+		case LIBPFF_ITEM_TYPE_MMS:
+		case LIBPFF_ITEM_TYPE_NOTE:
+		case LIBPFF_ITEM_TYPE_POSTING_NOTE:
+		case LIBPFF_ITEM_TYPE_RSS_FEED:
+		case LIBPFF_ITEM_TYPE_SHARING:
+		case LIBPFF_ITEM_TYPE_SMS:
+		case LIBPFF_ITEM_TYPE_TASK:
+		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
+		case LIBPFF_ITEM_TYPE_VOICEMAIL:
+			return( &pypff_message_type_object );
+
+		case LIBPFF_ITEM_TYPE_FOLDER:
+			return( &pypff_folder_type_object );
+
+		case LIBPFF_ITEM_TYPE_ATTACHMENT:
+		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
+		case LIBPFF_ITEM_TYPE_RECIPIENTS:
+		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:
+		case LIBPFF_ITEM_TYPE_SUB_FOLDERS:
+		case LIBPFF_ITEM_TYPE_SUB_MESSAGES:
+		default:
+			break;
+	}
+	return( &pypff_item_type_object );
+}
+
 /* Retrieves a specific sub item by index
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_item_get_sub_item_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int sub_item_index )
 {
+	PyObject *item_object     = NULL;
+	PyTypeObject *type_object = NULL;
 	libcerror_error_t *error  = NULL;
 	libpff_item_t *sub_item   = NULL;
-	PyObject *sub_item_object = NULL;
 	static char *function     = "pypff_item_get_sub_item_by_index";
-	uint8_t sub_item_type     = 0;
 	int result                = 0;
 
 	if( pypff_item == NULL )
@@ -934,7 +838,7 @@ PyObject *pypff_item_get_sub_item_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_item_get_sub_item(
-	          pypff_item->item,
+	          ( (pypff_item_t *) pypff_item )->item,
 	          sub_item_index,
 	          &sub_item,
 	          &error );
@@ -955,35 +859,24 @@ PyObject *pypff_item_get_sub_item_by_index(
 
 		goto on_error;
 	}
-	Py_BEGIN_ALLOW_THREADS
+	type_object = pypff_item_get_item_type_object(
+	               sub_item );
 
-	result = libpff_item_get_type(
-	          sub_item,
-	          &sub_item_type,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
+	if( type_object == NULL )
 	{
-		pypff_error_raise(
-		 error,
+		PyErr_Format(
 		 PyExc_IOError,
-		 "%s: unable to retrieve sub item: %d type.",
-		 function,
-		 sub_item_index );
-
-		libcerror_error_free(
-		 &error );
+		 "%s: unable to retrieve item type object.",
+		 function );
 
 		goto on_error;
 	}
-	sub_item_object = pypff_item_new(
-	                   &pypff_item_type_object,
-	                   sub_item,
-	                   pypff_item->file_object );
+	item_object = pypff_item_new(
+	               type_object,
+	               sub_item,
+	               ( (pypff_item_t *) pypff_item )->parent_object );
 
-	if( sub_item_object == NULL )
+	if( item_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
@@ -992,7 +885,7 @@ PyObject *pypff_item_get_sub_item_by_index(
 
 		goto on_error;
 	}
-	return( sub_item_object );
+	return( item_object );
 
 on_error:
 	if( sub_item != NULL )
@@ -1012,7 +905,7 @@ PyObject *pypff_item_get_sub_item(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *sub_item_object   = NULL;
+	PyObject *item_object       = NULL;
 	static char *keyword_list[] = { "sub_item_index", NULL };
 	int sub_item_index          = 0;
 
@@ -1025,25 +918,25 @@ PyObject *pypff_item_get_sub_item(
 	{
 		return( NULL );
 	}
-	sub_item_object = pypff_item_get_sub_item_by_index(
-	                   pypff_item,
-	                   sub_item_index );
+	item_object = pypff_item_get_sub_item_by_index(
+	               (PyObject *) pypff_item,
+	               sub_item_index );
 
-	return( sub_item_object );
+	return( item_object );
 }
 
-/* Retrieves an items sequence and iterator object for the items
+/* Retrieves a sequence and iterator object for the sub items
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_item_get_sub_items(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error   = NULL;
-	PyObject *sub_items_object = NULL;
-	static char *function      = "pypff_item_get_sub_items";
-	int number_of_sub_items    = 0;
-	int result                 = 0;
+	PyObject *sequence_object = NULL;
+	libcerror_error_t *error  = NULL;
+	static char *function     = "pypff_item_get_sub_items";
+	int number_of_sub_items   = 0;
+	int result                = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1078,20 +971,21 @@ PyObject *pypff_item_get_sub_items(
 
 		return( NULL );
 	}
-	sub_items_object = pypff_items_new(
-	                    pypff_item,
-	                    &pypff_item_get_sub_item_by_index,
-	                    number_of_sub_items );
+	sequence_object = pypff_items_new(
+	                   (PyObject *) pypff_item,
+	                   &pypff_item_get_sub_item_by_index,
+	                   number_of_sub_items );
 
-	if( sub_items_object == NULL )
+	if( sequence_object == NULL )
 	{
-		PyErr_Format(
+		pypff_error_raise(
+		 error,
 		 PyExc_MemoryError,
-		 "%s: unable to create sub items object.",
+		 "%s: unable to create sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	return( sub_items_object );
+	return( sequence_object );
 }
 

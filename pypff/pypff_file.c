@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libpff file
+ * Python object wrapper of libpff_file_t
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -27,13 +27,15 @@
 #include <stdlib.h>
 #endif
 
-#include "pypff_error.h"
 #include "pypff_codepage.h"
+#include "pypff_error.h"
 #include "pypff_file.h"
 #include "pypff_file_object_io_handle.h"
 #include "pypff_folder.h"
 #include "pypff_integer.h"
 #include "pypff_item.h"
+#include "pypff_items.h"
+#include "pypff_libbfio.h"
 #include "pypff_libcerror.h"
 #include "pypff_libclocale.h"
 #include "pypff_libpff.h"
@@ -41,13 +43,15 @@
 #include "pypff_unused.h"
 
 #if !defined( LIBPFF_HAVE_BFIO )
+
 LIBPFF_EXTERN \
 int libpff_file_open_file_io_handle(
      libpff_file_t *file,
      libbfio_handle_t *file_io_handle,
      int access_flags,
      libpff_error_t **error );
-#endif
+
+#endif /* !defined( LIBPFF_HAVE_BFIO ) */
 
 PyMethodDef pypff_file_object_methods[] = {
 
@@ -57,8 +61,6 @@ PyMethodDef pypff_file_object_methods[] = {
 	  "signal_abort() -> None\n"
 	  "\n"
 	  "Signals the file to abort the current activity." },
-
-	/* Functions to access the file */
 
 	{ "open",
 	  (PyCFunction) pypff_file_open,
@@ -81,38 +83,48 @@ PyMethodDef pypff_file_object_methods[] = {
 	  "\n"
 	  "Closes a file." },
 
+	{ "get_size",
+	  (PyCFunction) pypff_file_get_size,
+	  METH_NOARGS,
+	  "get_size() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the size." },
+
+	{ "get_content_type",
+	  (PyCFunction) pypff_file_get_content_type,
+	  METH_NOARGS,
+	  "get_content_type() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the content type." },
+
+	{ "get_encryption_type",
+	  (PyCFunction) pypff_file_get_encryption_type,
+	  METH_NOARGS,
+	  "get_encryption_type() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the encryption type." },
+
 	{ "get_ascii_codepage",
 	  (PyCFunction) pypff_file_get_ascii_codepage,
 	  METH_NOARGS,
 	  "get_ascii_codepage() -> String\n"
 	  "\n"
-	  "Returns the codepage used for ASCII strings in the file." },
+	  "Retrieves the codepage for ASCII strings used in the file." },
 
 	{ "set_ascii_codepage",
 	  (PyCFunction) pypff_file_set_ascii_codepage,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "set_ascii_codepage(codepage) -> None\n"
 	  "\n"
-	  "Set the codepage used for ASCII strings in the file.\n"
-	  "Expects the codepage to be a String containing a Python codec definition." },
+	  "Sets the codepage for ASCII strings used in the file.\n"
+	  "Expects the codepage to be a string containing a Python codec definition." },
 
-	{ "recover_items",
-	  (PyCFunction) pypff_file_recover_items,
+	{ "get_root_item",
+	  (PyCFunction) pypff_file_get_root_item,
 	  METH_NOARGS,
-	  "recover_items() -> None\n"
+	  "get_root_item() -> Object or None\n"
 	  "\n"
-	  "Tries to recover items." },
-
-	/* Functions to access the file values */
-
-	{ "get_size",
-	  (PyCFunction) pypff_file_get_size,
-	  METH_NOARGS,
-	  "get_size() -> Integer\n"
-	  "\n"
-	  "Retrieves the size of the file." },
-
-	/* Functions to access the items */
+	  "Retrieves the root item." },
 
 	{ "get_root_folder",
 	  (PyCFunction) pypff_file_get_root_folder,
@@ -121,14 +133,19 @@ PyMethodDef pypff_file_object_methods[] = {
 	  "\n"
 	  "Retrieves the root folder." },
 
-	/* Functions to access the recovered items */
-
-	{ "get_number_of_recovered_items",
-	  (PyCFunction) pypff_file_get_number_of_recovered_items,
+	{ "get_number_of_orphan_items",
+	  (PyCFunction) pypff_file_get_number_of_orphan_items,
 	  METH_NOARGS,
-	  "get_number_of_recovered_items() -> Integer\n"
+	  "get_number_of_orphan_items() -> Integer or None\n"
 	  "\n"
-	  "Retrieves the number of recovered items." },
+	  "Retrieves the number of orphan items." },
+
+	{ "get_orphan_item",
+	  (PyCFunction) pypff_file_get_orphan_item,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_orphan_item(orphan_item_index) -> Object or None\n"
+	  "\n"
+	  "Retrieves the orphan item specified by the index." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -142,10 +159,46 @@ PyGetSetDef pypff_file_object_get_set_definitions[] = {
 	  "The size.",
 	  NULL },
 
+	{ "content_type",
+	  (getter) pypff_file_get_content_type,
+	  (setter) 0,
+	  "The content type.",
+	  NULL },
+
+	{ "encryption_type",
+	  (getter) pypff_file_get_encryption_type,
+	  (setter) 0,
+	  "The encryption type.",
+	  NULL },
+
 	{ "ascii_codepage",
 	  (getter) pypff_file_get_ascii_codepage,
 	  (setter) pypff_file_set_ascii_codepage_setter,
 	  "The codepage used for ASCII strings in the file.",
+	  NULL },
+
+	{ "root_item",
+	  (getter) pypff_file_get_root_item,
+	  (setter) 0,
+	  "The root item.",
+	  NULL },
+
+	{ "root_folder",
+	  (getter) pypff_file_get_root_folder,
+	  (setter) 0,
+	  "The root folder.",
+	  NULL },
+
+	{ "number_of_orphan_items",
+	  (getter) pypff_file_get_number_of_orphan_items,
+	  (setter) 0,
+	  "The number of orphan items.",
+	  NULL },
+
+	{ "orphan_items",
+	  (getter) pypff_file_get_orphan_items,
+	  (setter) 0,
+	  "The orphan items.",
 	  NULL },
 
 	/* Sentinel */
@@ -312,7 +365,7 @@ PyObject *pypff_file_new_open(
 	return( pypff_file );
 }
 
-/* Creates a new file object and opens it
+/* Creates a new file object and opens it using a file-like object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_file_new_open_file_object(
@@ -340,13 +393,13 @@ PyObject *pypff_file_new_open_file_object(
 int pypff_file_init(
      pypff_file_t *pypff_file )
 {
-	static char *function    = "pypff_file_init";
 	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_file_init";
 
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -378,15 +431,15 @@ int pypff_file_init(
 void pypff_file_free(
       pypff_file_t *pypff_file )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pypff_file_free";
 	int result                  = 0;
 
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -395,7 +448,7 @@ void pypff_file_free(
 	if( pypff_file->file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file - missing libpff file.",
 		 function );
 
@@ -434,7 +487,7 @@ void pypff_file_free(
 	{
 		pypff_error_raise(
 		 error,
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to free libpff file.",
 		 function );
 
@@ -453,7 +506,7 @@ PyObject *pypff_file_signal_abort(
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
-	static char *function    = "pypff_file_signal_abort";	
+	static char *function    = "pypff_file_signal_abort";
 	int result               = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
@@ -461,7 +514,7 @@ PyObject *pypff_file_signal_abort(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -504,9 +557,9 @@ PyObject *pypff_file_open(
 {
 	PyObject *string_object      = NULL;
 	libcerror_error_t *error     = NULL;
+	const char *filename_narrow  = NULL;
 	static char *function        = "pypff_file_open";
 	static char *keyword_list[]  = { "filename", "mode", NULL };
-	const char *filename_narrow  = NULL;
 	char *mode                   = NULL;
 	int result                   = 0;
 
@@ -560,7 +613,7 @@ PyObject *pypff_file_open(
 	if( result == -1 )
 	{
 		pypff_error_fetch_and_raise(
-	         PyExc_RuntimeError,
+		 PyExc_RuntimeError,
 		 "%s: unable to determine if string object is of type unicode.",
 		 function );
 
@@ -577,7 +630,7 @@ PyObject *pypff_file_open(
 
 		result = libpff_file_open_wide(
 		          pypff_file->file,
-	                  filename_wide,
+		          filename_wide,
 		          LIBPFF_OPEN_READ,
 		          &error );
 
@@ -597,16 +650,16 @@ PyObject *pypff_file_open(
 		}
 #if PY_MAJOR_VERSION >= 3
 		filename_narrow = PyBytes_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #else
 		filename_narrow = PyString_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #endif
 		Py_BEGIN_ALLOW_THREADS
 
 		result = libpff_file_open(
 		          pypff_file->file,
-	                  filename_narrow,
+		          filename_narrow,
 		          LIBPFF_OPEN_READ,
 		          &error );
 
@@ -637,17 +690,17 @@ PyObject *pypff_file_open(
 
 #if PY_MAJOR_VERSION >= 3
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyBytes_Type );
+	          string_object,
+	          (PyObject *) &PyBytes_Type );
 #else
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyString_Type );
+	          string_object,
+	          (PyObject *) &PyString_Type );
 #endif
 	if( result == -1 )
 	{
 		pypff_error_fetch_and_raise(
-	         PyExc_RuntimeError,
+		 PyExc_RuntimeError,
 		 "%s: unable to determine if string object is of type string.",
 		 function );
 
@@ -659,16 +712,16 @@ PyObject *pypff_file_open(
 
 #if PY_MAJOR_VERSION >= 3
 		filename_narrow = PyBytes_AsString(
-				   string_object );
+		                   string_object );
 #else
 		filename_narrow = PyString_AsString(
-				   string_object );
+		                   string_object );
 #endif
 		Py_BEGIN_ALLOW_THREADS
 
 		result = libpff_file_open(
 		          pypff_file->file,
-	                  filename_narrow,
+		          filename_narrow,
 		          LIBPFF_OPEN_READ,
 		          &error );
 
@@ -710,9 +763,9 @@ PyObject *pypff_file_open_file_object(
 {
 	PyObject *file_object       = NULL;
 	libcerror_error_t *error    = NULL;
-	char *mode                  = NULL;
-	static char *keyword_list[] = { "file_object", "mode", NULL };
 	static char *function       = "pypff_file_open_file_object";
+	static char *keyword_list[] = { "file_object", "mode", NULL };
+	char *mode                  = NULL;
 	int result                  = 0;
 
 	if( pypff_file == NULL )
@@ -815,7 +868,7 @@ PyObject *pypff_file_close(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -879,8 +932,8 @@ PyObject *pypff_file_get_size(
            pypff_file_t *pypff_file,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
 	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
 	static char *function    = "pypff_file_get_size";
 	size64_t size            = 0;
 	int result               = 0;
@@ -924,6 +977,118 @@ PyObject *pypff_file_get_size(
 	return( integer_object );
 }
 
+/* Retrieves the content type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_file_get_content_type(
+           pypff_file_t *pypff_file,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_file_get_content_type";
+	uint8_t content_type     = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_file_get_content_type(
+	          pypff_file->file,
+	          &content_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve content type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) content_type );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) content_type );
+#endif
+	return( integer_object );
+}
+
+/* Retrieves the encryption type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_file_get_encryption_type(
+           pypff_file_t *pypff_file,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_file_get_encryption_type";
+	uint8_t encryption_type  = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_file_get_encryption_type(
+	          pypff_file->file,
+	          &encryption_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve encryption type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) encryption_type );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) encryption_type );
+#endif
+	return( integer_object );
+}
+
 /* Retrieves the codepage used for ASCII strings in the file
  * Returns a Python object if successful or NULL on error
  */
@@ -931,11 +1096,12 @@ PyObject *pypff_file_get_ascii_codepage(
            pypff_file_t *pypff_file,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error    = NULL;
 	PyObject *string_object     = NULL;
+	libcerror_error_t *error    = NULL;
 	const char *codepage_string = NULL;
 	static char *function       = "pypff_file_get_ascii_codepage";
 	int ascii_codepage          = 0;
+	int result                  = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -948,10 +1114,16 @@ PyObject *pypff_file_get_ascii_codepage(
 
 		return( NULL );
 	}
-	if( libpff_file_get_ascii_codepage(
-	     pypff_file->file,
-	     &ascii_codepage,
-	     &error ) != 1 )
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_file_get_ascii_codepage(
+	          pypff_file->file,
+	          &ascii_codepage,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
 	{
 		pypff_error_raise(
 		 error,
@@ -1084,8 +1256,8 @@ PyObject *pypff_file_set_ascii_codepage(
            PyObject *arguments,
            PyObject *keywords )
 {
-	static char *keyword_list[] = { "codepage", NULL };
 	char *codepage_string       = NULL;
+	static char *keyword_list[] = { "codepage", NULL };
 	int result                  = 0;
 
 	if( PyArg_ParseTupleAndKeywords(
@@ -1120,8 +1292,8 @@ int pypff_file_set_ascii_codepage_setter(
      void *closure PYPFF_ATTRIBUTE_UNUSED )
 {
 	PyObject *utf8_string_object = NULL;
-	static char *function        = "pypff_file_set_ascii_codepage_setter";
 	char *codepage_string        = NULL;
+	static char *function        = "pypff_file_set_ascii_codepage_setter";
 	int result                   = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( closure )
@@ -1135,7 +1307,7 @@ int pypff_file_set_ascii_codepage_setter(
 	if( result == -1 )
 	{
 		pypff_error_fetch_and_raise(
-	         PyExc_RuntimeError,
+		 PyExc_RuntimeError,
 		 "%s: unable to determine if string object is of type unicode.",
 		 function );
 
@@ -1159,10 +1331,10 @@ int pypff_file_set_ascii_codepage_setter(
 		}
 #if PY_MAJOR_VERSION >= 3
 		codepage_string = PyBytes_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #else
 		codepage_string = PyString_AsString(
-				   utf8_string_object );
+		                   utf8_string_object );
 #endif
 		if( codepage_string == NULL )
 		{
@@ -1182,17 +1354,17 @@ int pypff_file_set_ascii_codepage_setter(
 
 #if PY_MAJOR_VERSION >= 3
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyBytes_Type );
+	          string_object,
+	          (PyObject *) &PyBytes_Type );
 #else
 	result = PyObject_IsInstance(
-		  string_object,
-		  (PyObject *) &PyString_Type );
+	          string_object,
+	          (PyObject *) &PyString_Type );
 #endif
 	if( result == -1 )
 	{
 		pypff_error_fetch_and_raise(
-	         PyExc_RuntimeError,
+		 PyExc_RuntimeError,
 		 "%s: unable to determine if string object is of type string.",
 		 function );
 
@@ -1212,8 +1384,8 @@ int pypff_file_set_ascii_codepage_setter(
 			return( -1 );
 		}
 		result = pypff_file_set_ascii_codepage_from_string(
-			  pypff_file,
-			  codepage_string );
+		          pypff_file,
+		          codepage_string );
 
 		if( result != 1 )
 		{
@@ -1229,16 +1401,30 @@ int pypff_file_set_ascii_codepage_setter(
 	return( -1 );
 }
 
-/* Tries to recover items
+/* Retrieves the root item type object
+ * Returns a Python type object if successful or NULL on error
+ */
+PyTypeObject *pypff_file_get_root_item_type_object(
+               libpff_item_t *root_item PYPFF_ATTRIBUTE_UNUSED )
+{
+	PYPFF_UNREFERENCED_PARAMETER( root_item )
+
+	return( &pypff_item_type_object );
+}
+
+/* Retrieves the root item
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_file_recover_items(
+PyObject *pypff_file_get_root_item(
            pypff_file_t *pypff_file,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	static char *function    = "pypff_file_recover_items";
-	int result               = 0;
+	PyObject *item_object     = NULL;
+	PyTypeObject *type_object = NULL;
+	libcerror_error_t *error  = NULL;
+	libpff_item_t *root_item  = NULL;
+	static char *function     = "pypff_file_get_root_item";
+	int result                = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1253,30 +1439,80 @@ PyObject *pypff_file_recover_items(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_file_recover_items(
+	result = libpff_file_get_root_item(
 	          pypff_file->file,
-	          0,
+	          &root_item,
 	          &error );
 
 	Py_END_ALLOW_THREADS
 
-	if( result != 1 )
+	if( result == -1 )
 	{
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to recover items.",
+		 "%s: unable to retrieve root item.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
 	}
-	Py_IncRef(
-	 Py_None );
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
 
-	return( Py_None );
+		return( Py_None );
+	}
+	type_object = pypff_file_get_root_item_type_object(
+	               root_item );
+
+	if( type_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to retrieve root item type object.",
+		 function );
+
+		goto on_error;
+	}
+	item_object = pypff_item_new(
+	               type_object,
+	               root_item,
+	               (PyObject *) pypff_file );
+
+	if( item_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create item object.",
+		 function );
+
+		goto on_error;
+	}
+	return( item_object );
+
+on_error:
+	if( root_item != NULL )
+	{
+		libpff_item_free(
+		 &root_item,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves the root folder type object
+ * Returns a Python type object if successful or NULL on error
+ */
+PyTypeObject *pypff_file_get_root_folder_type_object(
+               libpff_item_t *root_folder PYPFF_ATTRIBUTE_UNUSED )
+{
+	PYPFF_UNREFERENCED_PARAMETER( root_folder )
+
+	return( &pypff_folder_type_object );
 }
 
 /* Retrieves the root folder
@@ -1286,9 +1522,10 @@ PyObject *pypff_file_get_root_folder(
            pypff_file_t *pypff_file,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
+	PyObject *folder_object    = NULL;
+	PyTypeObject *type_object  = NULL;
 	libcerror_error_t *error   = NULL;
 	libpff_item_t *root_folder = NULL;
-	PyObject *folder_object    = NULL;
 	static char *function      = "pypff_file_get_root_folder";
 	int result                 = 0;
 
@@ -1317,7 +1554,7 @@ PyObject *pypff_file_get_root_folder(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve root folder item.",
+		 "%s: unable to retrieve root folder.",
 		 function );
 
 		libcerror_error_free(
@@ -1332,10 +1569,22 @@ PyObject *pypff_file_get_root_folder(
 
 		return( Py_None );
 	}
+	type_object = pypff_file_get_root_folder_type_object(
+	               root_folder );
+
+	if( type_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to retrieve root folder type object.",
+		 function );
+
+		goto on_error;
+	}
 	folder_object = pypff_item_new(
-	                 &pypff_folder_type_object,
+	                 type_object,
 	                 root_folder,
-	                 pypff_file );
+	                 (PyObject *) pypff_file );
 
 	if( folder_object == NULL )
 	{
@@ -1358,18 +1607,18 @@ on_error:
 	return( NULL );
 }
 
-/* Retrieves the number of recovered items
+/* Retrieves the number of orphan items
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_file_get_number_of_recovered_items(
+PyObject *pypff_file_get_number_of_orphan_items(
            pypff_file_t *pypff_file,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *integer_object = NULL;
-	static char *function    = "pypff_file_get_number_of_recovered_items";
-	int number_of_items      = 0;
-	int result               = 0;
+	PyObject *integer_object   = NULL;
+	libcerror_error_t *error   = NULL;
+	static char *function      = "pypff_file_get_number_of_orphan_items";
+	int number_of_orphan_items = 0;
+	int result                 = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1384,9 +1633,9 @@ PyObject *pypff_file_get_number_of_recovered_items(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_file_get_number_of_recovered_items(
+	result = libpff_file_get_number_of_orphan_items(
 	          pypff_file->file,
-	          &number_of_items,
+	          &number_of_orphan_items,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -1396,7 +1645,7 @@ PyObject *pypff_file_get_number_of_recovered_items(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve number of recover items.",
+		 "%s: unable to retrieve number of orphan items.",
 		 function );
 
 		libcerror_error_free(
@@ -1406,11 +1655,199 @@ PyObject *pypff_file_get_number_of_recovered_items(
 	}
 #if PY_MAJOR_VERSION >= 3
 	integer_object = PyLong_FromLong(
-	                  (long) number_of_items );
+	                  (long) number_of_orphan_items );
 #else
 	integer_object = PyInt_FromLong(
-	                  (long) number_of_items );
+	                  (long) number_of_orphan_items );
 #endif
 	return( integer_object );
+}
+
+/* Retrieves the item type object
+ * Returns a Python type object if successful or NULL on error
+ */
+PyTypeObject *pypff_file_get_item_type_object(
+               libpff_item_t *item PYPFF_ATTRIBUTE_UNUSED )
+{
+	PYPFF_UNREFERENCED_PARAMETER( item )
+
+	return( &pypff_item_type_object );
+}
+
+/* Retrieves a specific orphan item by index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_file_get_orphan_item_by_index(
+           PyObject *pypff_file,
+           int orphan_item_index )
+{
+	PyObject *orphan_item_object = NULL;
+	PyTypeObject *type_object    = NULL;
+	libcerror_error_t *error     = NULL;
+	libpff_item_t *orphan_item   = NULL;
+	static char *function        = "pypff_file_get_orphan_item_by_index";
+	int result                   = 0;
+
+	if( pypff_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_file_get_orphan_item(
+	          ( (pypff_file_t *) pypff_file )->file,
+	          orphan_item_index,
+	          &orphan_item,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve orphan item: %d.",
+		 function,
+		 orphan_item_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	type_object = pypff_file_get_item_type_object(
+	               orphan_item );
+
+	if( type_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to retrieve item type object.",
+		 function );
+
+		goto on_error;
+	}
+	orphan_item_object = pypff_item_new(
+	                      type_object,
+	                      orphan_item,
+	                      (PyObject *) pypff_file );
+
+	if( orphan_item_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create item object.",
+		 function );
+
+		goto on_error;
+	}
+	return( orphan_item_object );
+
+on_error:
+	if( orphan_item != NULL )
+	{
+		libpff_item_free(
+		 &orphan_item,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves a specific orphan item
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_file_get_orphan_item(
+           pypff_file_t *pypff_file,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *orphan_item_object = NULL;
+	static char *keyword_list[]  = { "orphan_item_index", NULL };
+	int orphan_item_index        = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &orphan_item_index ) == 0 )
+	{
+		return( NULL );
+	}
+	orphan_item_object = pypff_file_get_orphan_item_by_index(
+	                      (PyObject *) pypff_file,
+	                      orphan_item_index );
+
+	return( orphan_item_object );
+}
+
+/* Retrieves a sequence and iterator object for the orphan items
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_file_get_orphan_items(
+           pypff_file_t *pypff_file,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *sequence_object  = NULL;
+	libcerror_error_t *error   = NULL;
+	static char *function      = "pypff_file_get_orphan_items";
+	int number_of_orphan_items = 0;
+	int result                 = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_file_get_number_of_orphan_items(
+	          pypff_file->file,
+	          &number_of_orphan_items,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of orphan items.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	sequence_object = pypff_items_new(
+	                   (PyObject *) pypff_file,
+	                   &pypff_file_get_orphan_item_by_index,
+	                   number_of_orphan_items );
+
+	if( sequence_object == NULL )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_MemoryError,
+		 "%s: unable to create sequence object.",
+		 function );
+
+		return( NULL );
+	}
+	return( sequence_object );
 }
 

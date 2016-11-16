@@ -153,7 +153,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "UNDEFINED,",
+	     "UNDEFINED",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -167,7 +167,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "ACTIVITY,",
+	     "ACTIVITY",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -181,7 +181,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "APPOINTMENT,",
+	     "APPOINTMENT",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -195,7 +195,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "ATTACHMENT,",
+	     "ATTACHMENT",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -209,7 +209,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "ATTACHMENTS,",
+	     "ATTACHMENTS",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -223,7 +223,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "COMMON,",
+	     "COMMON",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -237,7 +237,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "CONFIGURATION,",
+	     "CONFIGURATION",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -251,7 +251,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "CONFLICT_MESSAGE,",
+	     "CONFLICT_MESSAGE",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -265,7 +265,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "CONTACT,",
+	     "CONTACT",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -279,7 +279,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "DISTRIBUTION_LIST,",
+	     "DISTRIBUTION_LIST",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -293,7 +293,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "DOCUMENT,",
+	     "DOCUMENT",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -307,7 +307,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "EMAIL,",
+	     "EMAIL",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -321,7 +321,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "EMAIL_SMIME,",
+	     "EMAIL_SMIME",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -335,7 +335,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "FAX,",
+	     "FAX",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -349,7 +349,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "FOLDER,",
+	     "FOLDER",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -363,7 +363,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "MEETING,",
+	     "MEETING",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -377,7 +377,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "MMS,",
+	     "MMS",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -391,7 +391,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "NOTE,",
+	     "NOTE",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -405,7 +405,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "POSTING_NOTE,",
+	     "POSTING_NOTE",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -419,7 +419,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "RECIPIENTS,",
+	     "RECIPIENTS",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -433,7 +433,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "RSS_FEED,",
+	     "RSS_FEED",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -447,7 +447,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "SHARING,",
+	     "SHARING",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -461,7 +461,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "SMS,",
+	     "SMS",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -475,7 +475,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "SUB_ASSOCIATED_CONTENTS,",
+	     "SUB_ASSOCIATED_CONTENTS",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -489,7 +489,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "SUB_FOLDERS,",
+	     "SUB_FOLDERS",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -503,7 +503,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "SUB_MESSAGES,",
+	     "SUB_MESSAGES",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -517,7 +517,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "TASK,",
+	     "TASK",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -531,7 +531,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "TASK_REQUEST,",
+	     "TASK_REQUEST",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -545,7 +545,7 @@ int pypff_item_types_init_type(
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "VOICEMAIL,",
+	     "VOICEMAIL",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -583,56 +583,56 @@ on_error:
 PyObject *pypff_item_types_new(
            void )
 {
-	pypff_item_types_t *pypff_item_types = NULL;
-	static char *function                = "pypff_item_types_new";
+	pypff_item_types_t *definitions_object = NULL;
+	static char *function                  = "pypff_item_types_new";
 
-	pypff_item_types = PyObject_New(
-	                    struct pypff_item_types,
-	                    &pypff_item_types_type_object );
+	definitions_object = PyObject_New(
+	                      struct pypff_item_types,
+	                      &pypff_item_types_type_object );
 
-	if( pypff_item_types == NULL )
+	if( definitions_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize item types.",
+		 "%s: unable to create new definitions object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pypff_item_types_init(
-	     pypff_item_types ) != 0 )
+	     definitions_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize item types.",
+		 "%s: unable to initialize definitions object.",
 		 function );
 
 		goto on_error;
 	}
-	return( (PyObject *) pypff_item_types );
+	return( (PyObject *) definitions_object );
 
 on_error:
-	if( pypff_item_types != NULL )
+	if( definitions_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_item_types );
+		 (PyObject *) definitions_object );
 	}
 	return( NULL );
 }
 
-/* Intializes a item types object
+/* Intializes an item types object
  * Returns 0 if successful or -1 on error
  */
 int pypff_item_types_init(
-     pypff_item_types_t *pypff_item_types )
+     pypff_item_types_t *definitions_object )
 {
 	static char *function = "pypff_item_types_init";
 
-	if( pypff_item_types == NULL )
+	if( definitions_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid item types.",
+		 "%s: invalid definitions object.",
 		 function );
 
 		return( -1 );
@@ -640,25 +640,25 @@ int pypff_item_types_init(
 	return( 0 );
 }
 
-/* Frees a item types object
+/* Frees an item types object
  */
 void pypff_item_types_free(
-      pypff_item_types_t *pypff_item_types )
+      pypff_item_types_t *definitions_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pypff_item_types_free";
 
-	if( pypff_item_types == NULL )
+	if( definitions_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid item types.",
+		 "%s: invalid definitions object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pypff_item_types );
+	           definitions_object );
 
 	if( ob_type == NULL )
 	{
@@ -679,6 +679,6 @@ void pypff_item_types_free(
 		return;
 	}
 	ob_type->tp_free(
-	 (PyObject*) pypff_item_types );
+	 (PyObject*) definitions_object );
 }
 

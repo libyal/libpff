@@ -205,56 +205,56 @@ on_error:
 PyObject *pypff_encryption_types_new(
            void )
 {
-	pypff_encryption_types_t *pypff_encryption_types = NULL;
-	static char *function                            = "pypff_encryption_types_new";
+	pypff_encryption_types_t *definitions_object = NULL;
+	static char *function                        = "pypff_encryption_types_new";
 
-	pypff_encryption_types = PyObject_New(
-	                          struct pypff_encryption_types,
-	                          &pypff_encryption_types_type_object );
+	definitions_object = PyObject_New(
+	                      struct pypff_encryption_types,
+	                      &pypff_encryption_types_type_object );
 
-	if( pypff_encryption_types == NULL )
+	if( definitions_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize encryption types.",
+		 "%s: unable to create new definitions object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pypff_encryption_types_init(
-	     pypff_encryption_types ) != 0 )
+	     definitions_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize encryption types.",
+		 "%s: unable to initialize definitions object.",
 		 function );
 
 		goto on_error;
 	}
-	return( (PyObject *) pypff_encryption_types );
+	return( (PyObject *) definitions_object );
 
 on_error:
-	if( pypff_encryption_types != NULL )
+	if( definitions_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_encryption_types );
+		 (PyObject *) definitions_object );
 	}
 	return( NULL );
 }
 
-/* Intializes a encryption types object
+/* Intializes an encryption types object
  * Returns 0 if successful or -1 on error
  */
 int pypff_encryption_types_init(
-     pypff_encryption_types_t *pypff_encryption_types )
+     pypff_encryption_types_t *definitions_object )
 {
 	static char *function = "pypff_encryption_types_init";
 
-	if( pypff_encryption_types == NULL )
+	if( definitions_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid encryption types.",
+		 "%s: invalid definitions object.",
 		 function );
 
 		return( -1 );
@@ -262,25 +262,25 @@ int pypff_encryption_types_init(
 	return( 0 );
 }
 
-/* Frees a encryption types object
+/* Frees an encryption types object
  */
 void pypff_encryption_types_free(
-      pypff_encryption_types_t *pypff_encryption_types )
+      pypff_encryption_types_t *definitions_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pypff_encryption_types_free";
 
-	if( pypff_encryption_types == NULL )
+	if( definitions_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid encryption types.",
+		 "%s: invalid definitions object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pypff_encryption_types );
+	           definitions_object );
 
 	if( ob_type == NULL )
 	{
@@ -301,6 +301,6 @@ void pypff_encryption_types_free(
 		return;
 	}
 	ob_type->tp_free(
-	 (PyObject*) pypff_encryption_types );
+	 (PyObject*) definitions_object );
 }
 

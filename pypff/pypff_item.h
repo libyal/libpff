@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libpff item
+ * Python object wrapper of libpff_item_t
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -25,8 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "pypff_file.h"
-#include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
 
@@ -46,13 +44,9 @@ struct pypff_item
 	 */
 	libpff_item_t *item;
 
-	/* The libpff record set
+	/* The parent object
 	 */
-	libpff_item_t *record_set;
-
-	/* The file object
-	 */
-	pypff_file_t *file_object;
+	PyObject *parent_object;
 };
 
 extern PyMethodDef pypff_item_object_methods[];
@@ -61,12 +55,7 @@ extern PyTypeObject pypff_item_type_object;
 PyObject *pypff_item_new(
            PyTypeObject *type_object,
            libpff_item_t *item,
-           pypff_file_t *file_object );
-
-PyObject *pypff_item_new_with_record_set(
-           PyTypeObject *type_object,
-           libpff_item_t *item,
-           pypff_file_t *file_object );
+           PyObject *parent_object );
 
 int pypff_item_init(
      pypff_item_t *pypff_item );
@@ -74,12 +63,16 @@ int pypff_item_init(
 void pypff_item_free(
       pypff_item_t *pypff_item );
 
+PyObject *pypff_item_get_identifier(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
 PyObject *pypff_item_get_number_of_record_sets(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
 PyObject *pypff_item_get_record_set_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int record_set_index );
 
 PyObject *pypff_item_get_record_set(
@@ -91,16 +84,12 @@ PyObject *pypff_item_get_record_sets(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
-PyObject *pypff_item_get_display_name(
-           pypff_item_t *pypff_item,
-           PyObject *arguments );
-
 PyObject *pypff_item_get_number_of_sub_items(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
 PyObject *pypff_item_get_sub_item_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int sub_item_index );
 
 PyObject *pypff_item_get_sub_item(

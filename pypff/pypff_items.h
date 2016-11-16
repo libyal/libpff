@@ -1,5 +1,5 @@
 /*
- * Python object definition of the items sequence and iterator
+ * Python object definition of the sequence and iterator object of items
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "pypff_item.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
 
@@ -41,14 +40,14 @@ struct pypff_items
 	 */
 	PyObject_HEAD
 
-	/* The item object
+	/* The parent object
 	 */
-	pypff_item_t *item_object;
+	PyObject *parent_object;
 
 	/* The get item by index callback function
 	 */
 	PyObject* (*get_item_by_index)(
-	             pypff_item_t *item_object,
+	             PyObject *parent_object,
 	             int item_index );
 
 	/* The (current) item index
@@ -63,9 +62,9 @@ struct pypff_items
 extern PyTypeObject pypff_items_type_object;
 
 PyObject *pypff_items_new(
-           pypff_item_t *item_object,
+           PyObject *parent_object,
            PyObject* (*get_item_by_index)(
-                        pypff_item_t *item_object,
+                        PyObject *parent_object,
                         int item_index ),
            int number_of_items );
 

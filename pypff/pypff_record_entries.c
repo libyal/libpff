@@ -1,5 +1,5 @@
 /*
- * Python object definition of the record entriess sequence and iterator
+ * Python object definition of the sequence and iterator object of record entries
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -29,9 +29,8 @@
 #include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
-#include "pypff_record_entry.h"
 #include "pypff_record_entries.h"
-#include "pypff_record_set.h"
+#include "pypff_record_entry.h"
 
 PySequenceMethods pypff_record_entries_sequence_methods = {
 	/* sq_length */
@@ -98,7 +97,7 @@ PyTypeObject pypff_record_entries_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pypff record entries sequence and iterator object",
+	"pypff internal sequence and iterator object of record entries",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -155,20 +154,20 @@ PyTypeObject pypff_record_entries_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_record_entries_new(
-           pypff_record_set_t *record_set_object,
+           PyObject *parent_object,
            PyObject* (*get_record_entry_by_index)(
-                        pypff_record_set_t *record_set_object,
+                        PyObject *parent_object,
                         int record_entry_index ),
            int number_of_record_entries )
 {
 	pypff_record_entries_t *pypff_record_entries = NULL;
 	static char *function                        = "pypff_record_entries_new";
 
-	if( record_set_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record set object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
@@ -207,12 +206,12 @@ PyObject *pypff_record_entries_new(
 
 		goto on_error;
 	}
-	pypff_record_entries->record_set_object         = record_set_object;
+	pypff_record_entries->parent_object             = parent_object;
 	pypff_record_entries->get_record_entry_by_index = get_record_entry_by_index;
 	pypff_record_entries->number_of_record_entries  = number_of_record_entries;
 
 	Py_IncRef(
-	 (PyObject *) pypff_record_entries->record_set_object );
+	 (PyObject *) pypff_record_entries->parent_object );
 
 	return( (PyObject *) pypff_record_entries );
 
@@ -244,7 +243,7 @@ int pypff_record_entries_init(
 	}
 	/* Make sure the record entries values are initialized
 	 */
-	pypff_record_entries->record_set_object         = NULL;
+	pypff_record_entries->parent_object             = NULL;
 	pypff_record_entries->get_record_entry_by_index = NULL;
 	pypff_record_entries->record_entry_index        = 0;
 	pypff_record_entries->number_of_record_entries  = 0;
@@ -290,10 +289,10 @@ void pypff_record_entries_free(
 
 		return;
 	}
-	if( pypff_record_entries->record_set_object != NULL )
+	if( pypff_record_entries->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_record_entries->record_set_object );
+		 (PyObject *) pypff_record_entries->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pypff_record_entries );
@@ -322,7 +321,7 @@ Py_ssize_t pypff_record_entries_len(
  */
 PyObject *pypff_record_entries_getitem(
            pypff_record_entries_t *pypff_record_entries,
-           Py_ssize_t record_entry_index )
+           Py_ssize_t item_index )
 {
 	PyObject *record_entry_object = NULL;
 	static char *function         = "pypff_record_entries_getitem";
@@ -354,19 +353,19 @@ PyObject *pypff_record_entries_getitem(
 
 		return( NULL );
 	}
-	if( ( record_entry_index < 0 )
-	 || ( record_entry_index >= (Py_ssize_t) pypff_record_entries->number_of_record_entries ) )
+	if( ( item_index < 0 )
+	 || ( item_index >= (Py_ssize_t) pypff_record_entries->number_of_record_entries ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid invalid record entry index value out of bounds.",
+		 "%s: invalid invalid item index value out of bounds.",
 		 function );
 
 		return( NULL );
 	}
 	record_entry_object = pypff_record_entries->get_record_entry_by_index(
-	                       pypff_record_entries->record_set_object,
-	                       (int) record_entry_index );
+	                       pypff_record_entries->parent_object,
+	                       (int) item_index );
 
 	return( record_entry_object );
 }
@@ -445,7 +444,7 @@ PyObject *pypff_record_entries_iternext(
 		return( NULL );
 	}
 	record_entry_object = pypff_record_entries->get_record_entry_by_index(
-	                       pypff_record_entries->record_set_object,
+	                       pypff_record_entries->parent_object,
 	                       pypff_record_entries->record_entry_index );
 
 	if( record_entry_object != NULL )

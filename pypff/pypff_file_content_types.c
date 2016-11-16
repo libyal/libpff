@@ -205,39 +205,39 @@ on_error:
 PyObject *pypff_file_content_types_new(
            void )
 {
-	pypff_file_content_types_t *pypff_file_content_types = NULL;
-	static char *function                                = "pypff_file_content_types_new";
+	pypff_file_content_types_t *definitions_object = NULL;
+	static char *function                          = "pypff_file_content_types_new";
 
-	pypff_file_content_types = PyObject_New(
-	                            struct pypff_file_content_types,
-	                            &pypff_file_content_types_type_object );
+	definitions_object = PyObject_New(
+	                      struct pypff_file_content_types,
+	                      &pypff_file_content_types_type_object );
 
-	if( pypff_file_content_types == NULL )
+	if( definitions_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize file content types.",
+		 "%s: unable to create new definitions object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pypff_file_content_types_init(
-	     pypff_file_content_types ) != 0 )
+	     definitions_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize file content types.",
+		 "%s: unable to initialize definitions object.",
 		 function );
 
 		goto on_error;
 	}
-	return( (PyObject *) pypff_file_content_types );
+	return( (PyObject *) definitions_object );
 
 on_error:
-	if( pypff_file_content_types != NULL )
+	if( definitions_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_file_content_types );
+		 (PyObject *) definitions_object );
 	}
 	return( NULL );
 }
@@ -246,15 +246,15 @@ on_error:
  * Returns 0 if successful or -1 on error
  */
 int pypff_file_content_types_init(
-     pypff_file_content_types_t *pypff_file_content_types )
+     pypff_file_content_types_t *definitions_object )
 {
 	static char *function = "pypff_file_content_types_init";
 
-	if( pypff_file_content_types == NULL )
+	if( definitions_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid file content types.",
+		 "%s: invalid definitions object.",
 		 function );
 
 		return( -1 );
@@ -265,22 +265,22 @@ int pypff_file_content_types_init(
 /* Frees a file content types object
  */
 void pypff_file_content_types_free(
-      pypff_file_content_types_t *pypff_file_content_types )
+      pypff_file_content_types_t *definitions_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pypff_file_content_types_free";
 
-	if( pypff_file_content_types == NULL )
+	if( definitions_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid file content types.",
+		 "%s: invalid definitions object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pypff_file_content_types );
+	           definitions_object );
 
 	if( ob_type == NULL )
 	{
@@ -301,6 +301,6 @@ void pypff_file_content_types_free(
 		return;
 	}
 	ob_type->tp_free(
-	 (PyObject*) pypff_file_content_types );
+	 (PyObject*) definitions_object );
 }
 

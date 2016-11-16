@@ -1,5 +1,5 @@
 /*
- * Python object definition of the record sets sequence and iterator
+ * Python object definition of the sequence and iterator object of record sets
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "pypff_item.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
 
@@ -41,14 +40,14 @@ struct pypff_record_sets
 	 */
 	PyObject_HEAD
 
-	/* The item object
+	/* The parent object
 	 */
-	pypff_item_t *item_object;
+	PyObject *parent_object;
 
 	/* The get record set by index callback function
 	 */
 	PyObject* (*get_record_set_by_index)(
-	             pypff_item_t *item_object,
+	             PyObject *parent_object,
 	             int record_set_index );
 
 	/* The (current) record set index
@@ -63,9 +62,9 @@ struct pypff_record_sets
 extern PyTypeObject pypff_record_sets_type_object;
 
 PyObject *pypff_record_sets_new(
-           pypff_item_t *item_object,
+           PyObject *parent_object,
            PyObject* (*get_record_set_by_index)(
-                        pypff_item_t *item_object,
+                        PyObject *parent_object,
                         int record_set_index ),
            int number_of_record_sets );
 
@@ -80,7 +79,7 @@ Py_ssize_t pypff_record_sets_len(
 
 PyObject *pypff_record_sets_getitem(
            pypff_record_sets_t *pypff_record_sets,
-           Py_ssize_t record_set_index );
+           Py_ssize_t item_index );
 
 PyObject *pypff_record_sets_iter(
            pypff_record_sets_t *pypff_record_sets );

@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libpff file
+ * Python object wrapper of libpff_file_t
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -26,7 +26,6 @@
 #include <types.h>
 
 #include "pypff_libbfio.h"
-#include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
 
@@ -95,6 +94,14 @@ PyObject *pypff_file_get_size(
            pypff_file_t *pypff_file,
            PyObject *arguments );
 
+PyObject *pypff_file_get_content_type(
+           pypff_file_t *pypff_file,
+           PyObject *arguments );
+
+PyObject *pypff_file_get_encryption_type(
+           pypff_file_t *pypff_file,
+           PyObject *arguments );
+
 PyObject *pypff_file_get_ascii_codepage(
            pypff_file_t *pypff_file,
            PyObject *arguments );
@@ -113,7 +120,7 @@ int pypff_file_set_ascii_codepage_setter(
      PyObject *string_object,
      void *closure );
 
-PyObject *pypff_file_recover_items(
+PyObject *pypff_file_get_root_item(
            pypff_file_t *pypff_file,
            PyObject *arguments );
 
@@ -121,7 +128,20 @@ PyObject *pypff_file_get_root_folder(
            pypff_file_t *pypff_file,
            PyObject *arguments );
 
-PyObject *pypff_file_get_number_of_recovered_items(
+PyObject *pypff_file_get_number_of_orphan_items(
+           pypff_file_t *pypff_file,
+           PyObject *arguments );
+
+PyObject *pypff_file_get_orphan_item_by_index(
+           PyObject *pypff_file,
+           int orphan_item_index );
+
+PyObject *pypff_file_get_orphan_item(
+           pypff_file_t *pypff_file,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pypff_file_get_orphan_items(
            pypff_file_t *pypff_file,
            PyObject *arguments );
 

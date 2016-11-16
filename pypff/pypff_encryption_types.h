@@ -50,10 +50,10 @@ PyObject *pypff_encryption_types_new(
            void );
 
 int pypff_encryption_types_init(
-     pypff_encryption_types_t *pypff_encryption_types );
+     pypff_encryption_types_t *definitions_object );
 
 void pypff_encryption_types_free(
-      pypff_encryption_types_t *pypff_encryption_types );
+      pypff_encryption_types_t *definitions_object );
 
 #if defined( __cplusplus )
 }

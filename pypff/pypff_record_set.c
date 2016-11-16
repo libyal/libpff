@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libpff record set
+ * Python object wrapper of libpff_record_set_t
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -27,8 +27,6 @@
 #endif
 
 #include "pypff_error.h"
-#include "pypff_integer.h"
-#include "pypff_item.h"
 #include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
@@ -39,21 +37,19 @@
 
 PyMethodDef pypff_record_set_object_methods[] = {
 
-	/* Functions to access the record set values */
-
-	{ "get_number_of_record_entries",
-	  (PyCFunction) pypff_record_set_get_number_of_record_entries,
+	{ "get_number_of_entries",
+	  (PyCFunction) pypff_record_set_get_number_of_entries,
 	  METH_NOARGS,
-	  "get_number_of_record_entries() -> Integer\n"
+	  "get_number_of_entries() -> Integer or None\n"
 	  "\n"
-	  "Retrieves the number of record entries." },
+	  "Retrieves the number of entries." },
 
-	{ "get_record_entry",
-	  (PyCFunction) pypff_record_set_get_record_entry,
+	{ "get_entry",
+	  (PyCFunction) pypff_record_set_get_entry,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "get_record_entry(record_entry_index) -> Object or None\n"
+	  "get_entry(entry_index) -> Object or None\n"
 	  "\n"
-	  "Retrieves a specific record entry." },
+	  "Retrieves the entry specified by the index." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -61,16 +57,16 @@ PyMethodDef pypff_record_set_object_methods[] = {
 
 PyGetSetDef pypff_record_set_object_get_set_definitions[] = {
 
-	{ "number_of_record_entries",
-	  (getter) pypff_record_set_get_number_of_record_entries,
+	{ "number_of_entries",
+	  (getter) pypff_record_set_get_number_of_entries,
 	  (setter) 0,
-	  "The number of record entries.",
+	  "The number of entries.",
 	  NULL },
 
-	{ "record_entries",
-	  (getter) pypff_record_set_get_record_entries,
+	{ "entries",
+	  (getter) pypff_record_set_get_entries,
 	  (setter) 0,
-	  "The record entries",
+	  "The entries.",
 	  NULL },
 
 	/* Sentinel */
@@ -178,7 +174,7 @@ PyTypeObject pypff_record_set_type_object = {
 PyObject *pypff_record_set_new(
            PyTypeObject *type_object,
            libpff_record_set_t *record_set,
-           pypff_item_t *item_object )
+           PyObject *parent_object )
 {
 	pypff_record_set_t *pypff_record_set = NULL;
 	static char *function                = "pypff_record_set_new";
@@ -215,11 +211,11 @@ PyObject *pypff_record_set_new(
 
 		goto on_error;
 	}
-	pypff_record_set->record_set  = record_set;
-	pypff_record_set->item_object = item_object;
+	pypff_record_set->record_set    = record_set;
+	pypff_record_set->parent_object = parent_object;
 
 	Py_IncRef(
-	 (PyObject *) pypff_record_set->item_object );
+	 (PyObject *) pypff_record_set->parent_object );
 
 	return( (PyObject *) pypff_record_set );
 
@@ -261,9 +257,10 @@ int pypff_record_set_init(
 void pypff_record_set_free(
       pypff_record_set_t *pypff_record_set )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pypff_record_set_free";
+	int result                  = 0;
 
 	if( pypff_record_set == NULL )
 	{
@@ -304,9 +301,15 @@ void pypff_record_set_free(
 
 		return;
 	}
-	if( libpff_record_set_free(
-	     &( pypff_record_set->record_set ),
-	     &error ) != 1 )
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_set_free(
+	          &( pypff_record_set->record_set ),
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
 	{
 		pypff_error_raise(
 		 error,
@@ -317,27 +320,27 @@ void pypff_record_set_free(
 		libcerror_error_free(
 		 &error );
 	}
-	if( pypff_record_set->item_object != NULL )
+	if( pypff_record_set->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_record_set->item_object );
+		 (PyObject *) pypff_record_set->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pypff_record_set );
 }
 
-/* Retrieves the number of record entries
+/* Retrieves the number of entries
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_record_set_get_number_of_record_entries(
+PyObject *pypff_record_set_get_number_of_entries(
            pypff_record_set_t *pypff_record_set,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error     = NULL;
-	PyObject *integer_object     = NULL;
-	static char *function        = "pypff_record_set_get_number_of_record_entries";
-	int number_of_record_entries = 0;
-	int result                   = 0;
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_record_set_get_number_of_entries";
+	int number_of_entries    = 0;
+	int result               = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -354,7 +357,7 @@ PyObject *pypff_record_set_get_number_of_record_entries(
 
 	result = libpff_record_set_get_number_of_entries(
 	          pypff_record_set->record_set,
-	          &number_of_record_entries,
+	          &number_of_entries,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -364,7 +367,7 @@ PyObject *pypff_record_set_get_number_of_record_entries(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve number of record entries.",
+		 "%s: unable to retrieve number of entries.",
 		 function );
 
 		libcerror_error_free(
@@ -372,24 +375,40 @@ PyObject *pypff_record_set_get_number_of_record_entries(
 
 		return( NULL );
 	}
-	integer_object = pypff_integer_unsigned_new_from_64bit(
-	                  (uint64_t) number_of_record_entries );
-
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_entries );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_entries );
+#endif
 	return( integer_object );
 }
 
-/* Retrieves a specific record entry by index
+/* Retrieves the record entry type object
+ * Returns a Python type object if successful or NULL on error
+ */
+PyTypeObject *pypff_record_set_get_record_entry_type_object(
+               libpff_record_entry_t *record_entry PYPFF_ATTRIBUTE_UNUSED )
+{
+	PYPFF_UNREFERENCED_PARAMETER( record_entry )
+
+	return( &pypff_record_entry_type_object );
+}
+
+/* Retrieves a specific entry by index
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_record_set_get_record_entry_by_index(
-           pypff_record_set_t *pypff_record_set,
-           int record_entry_index )
+PyObject *pypff_record_set_get_entry_by_index(
+           PyObject *pypff_record_set,
+           int entry_index )
 {
-	libcerror_error_t *error            = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	PyObject *record_entry_object       = NULL;
-	static char *function               = "pypff_record_set_get_record_entry_by_index";
-	int result                          = 0;
+	PyObject *entry_object       = NULL;
+	PyTypeObject *type_object    = NULL;
+	libcerror_error_t *error     = NULL;
+	libpff_record_entry_t *entry = NULL;
+	static char *function        = "pypff_record_set_get_entry_by_index";
+	int result                   = 0;
 
 	if( pypff_record_set == NULL )
 	{
@@ -402,10 +421,10 @@ PyObject *pypff_record_set_get_record_entry_by_index(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_record_set_get_entry_by_index(
-	          pypff_record_set->record_set,
-	          record_entry_index,
-	          &record_entry,
+	result = libpff_record_set_get_entry(
+	          ( (pypff_record_set_t *) pypff_record_set )->record_set,
+	          entry_index,
+	          &entry,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -415,21 +434,33 @@ PyObject *pypff_record_set_get_record_entry_by_index(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve record entry: %d.",
+		 "%s: unable to retrieve entry: %d.",
 		 function,
-		 record_entry_index );
+		 entry_index );
 
 		libcerror_error_free(
 		 &error );
 
 		goto on_error;
 	}
-	record_entry_object = pypff_record_set_new(
-	                       &pypff_record_set_type_object,
-	                       record_entry,
-	                       pypff_record_set->item_object );
+	type_object = pypff_record_set_get_record_entry_type_object(
+	               entry );
 
-	if( record_entry_object == NULL )
+	if( type_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to retrieve record entry type object.",
+		 function );
+
+		goto on_error;
+	}
+	entry_object = pypff_record_entry_new(
+	                type_object,
+	                entry,
+	                (PyObject *) pypff_record_set );
+
+	if( entry_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
@@ -438,58 +469,58 @@ PyObject *pypff_record_set_get_record_entry_by_index(
 
 		goto on_error;
 	}
-	return( record_entry_object );
+	return( entry_object );
 
 on_error:
-	if( record_entry != NULL )
+	if( entry != NULL )
 	{
-		libpff_record_set_free(
-		 &record_entry,
+		libpff_record_entry_free(
+		 &entry,
 		 NULL );
 	}
 	return( NULL );
 }
 
-/* Retrieves a specific record entry
+/* Retrieves a specific entry
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_record_set_get_record_entry(
+PyObject *pypff_record_set_get_entry(
            pypff_record_set_t *pypff_record_set,
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *record_entry_object = NULL;
-	static char *keyword_list[]   = { "record_entry_index", NULL };
-	int record_entry_index        = 0;
+	PyObject *entry_object      = NULL;
+	static char *keyword_list[] = { "entry_index", NULL };
+	int entry_index             = 0;
 
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
 	     "i",
 	     keyword_list,
-	     &record_entry_index ) == 0 )
+	     &entry_index ) == 0 )
 	{
 		return( NULL );
 	}
-	record_entry_object = pypff_record_set_get_record_entry_by_index(
-	                       pypff_record_set,
-	                       record_entry_index );
+	entry_object = pypff_record_set_get_entry_by_index(
+	                (PyObject *) pypff_record_set,
+	                entry_index );
 
-	return( record_entry_object );
+	return( entry_object );
 }
 
-/* Retrieves a record entries sequence and iterator object for the record set
+/* Retrieves a sequence and iterator object for the entries
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_record_set_get_record_entries(
+PyObject *pypff_record_set_get_entries(
            pypff_record_set_t *pypff_record_set,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error        = NULL;
-	PyObject *record_entries_object = NULL;
-	static char *function           = "pypff_record_set_get_record_entries";
-	int number_of_record_entries    = 0;
-	int result                      = 0;
+	PyObject *sequence_object = NULL;
+	libcerror_error_t *error  = NULL;
+	static char *function     = "pypff_record_set_get_entries";
+	int number_of_entries     = 0;
+	int result                = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -506,7 +537,7 @@ PyObject *pypff_record_set_get_record_entries(
 
 	result = libpff_record_set_get_number_of_entries(
 	          pypff_record_set->record_set,
-	          &number_of_record_entries,
+	          &number_of_entries,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -516,7 +547,7 @@ PyObject *pypff_record_set_get_record_entries(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve number of record entries.",
+		 "%s: unable to retrieve number of entries.",
 		 function );
 
 		libcerror_error_free(
@@ -524,20 +555,21 @@ PyObject *pypff_record_set_get_record_entries(
 
 		return( NULL );
 	}
-	record_entries_object = pypff_record_entries_new(
-	                         pypff_record_set,
-	                         &pypff_record_set_get_record_entry_by_index,
-	                         number_of_record_entries );
+	sequence_object = pypff_record_entries_new(
+	                   (PyObject *) pypff_record_set,
+	                   &pypff_record_set_get_entry_by_index,
+	                   number_of_entries );
 
-	if( record_entries_object == NULL )
+	if( sequence_object == NULL )
 	{
-		PyErr_Format(
+		pypff_error_raise(
+		 error,
 		 PyExc_MemoryError,
-		 "%s: unable to create record entries object.",
+		 "%s: unable to create sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	return( record_entries_object );
+	return( sequence_object );
 }
 

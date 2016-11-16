@@ -1,5 +1,5 @@
 /*
- * Python object definition of the record sets sequence and iterator
+ * Python object definition of the sequence and iterator object of record sets
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -26,7 +26,6 @@
 #include <stdlib.h>
 #endif
 
-#include "pypff_item.h"
 #include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
@@ -98,7 +97,7 @@ PyTypeObject pypff_record_sets_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pypff record sets sequence and iterator object",
+	"pypff internal sequence and iterator object of record sets",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -155,20 +154,20 @@ PyTypeObject pypff_record_sets_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_record_sets_new(
-           pypff_item_t *item_object,
+           PyObject *parent_object,
            PyObject* (*get_record_set_by_index)(
-                        pypff_item_t *item_object,
+                        PyObject *parent_object,
                         int record_set_index ),
            int number_of_record_sets )
 {
 	pypff_record_sets_t *pypff_record_sets = NULL;
 	static char *function                  = "pypff_record_sets_new";
 
-	if( item_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid item object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
@@ -207,12 +206,12 @@ PyObject *pypff_record_sets_new(
 
 		goto on_error;
 	}
-	pypff_record_sets->item_object             = item_object;
+	pypff_record_sets->parent_object           = parent_object;
 	pypff_record_sets->get_record_set_by_index = get_record_set_by_index;
 	pypff_record_sets->number_of_record_sets   = number_of_record_sets;
 
 	Py_IncRef(
-	 (PyObject *) pypff_record_sets->item_object );
+	 (PyObject *) pypff_record_sets->parent_object );
 
 	return( (PyObject *) pypff_record_sets );
 
@@ -244,7 +243,7 @@ int pypff_record_sets_init(
 	}
 	/* Make sure the record sets values are initialized
 	 */
-	pypff_record_sets->item_object             = NULL;
+	pypff_record_sets->parent_object           = NULL;
 	pypff_record_sets->get_record_set_by_index = NULL;
 	pypff_record_sets->record_set_index        = 0;
 	pypff_record_sets->number_of_record_sets   = 0;
@@ -290,10 +289,10 @@ void pypff_record_sets_free(
 
 		return;
 	}
-	if( pypff_record_sets->item_object != NULL )
+	if( pypff_record_sets->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_record_sets->item_object );
+		 (PyObject *) pypff_record_sets->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pypff_record_sets );
@@ -322,7 +321,7 @@ Py_ssize_t pypff_record_sets_len(
  */
 PyObject *pypff_record_sets_getitem(
            pypff_record_sets_t *pypff_record_sets,
-           Py_ssize_t record_set_index )
+           Py_ssize_t item_index )
 {
 	PyObject *record_set_object = NULL;
 	static char *function       = "pypff_record_sets_getitem";
@@ -354,19 +353,19 @@ PyObject *pypff_record_sets_getitem(
 
 		return( NULL );
 	}
-	if( ( record_set_index < 0 )
-	 || ( record_set_index >= (Py_ssize_t) pypff_record_sets->number_of_record_sets ) )
+	if( ( item_index < 0 )
+	 || ( item_index >= (Py_ssize_t) pypff_record_sets->number_of_record_sets ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid invalid record set index value out of bounds.",
+		 "%s: invalid invalid item index value out of bounds.",
 		 function );
 
 		return( NULL );
 	}
 	record_set_object = pypff_record_sets->get_record_set_by_index(
-	                     pypff_record_sets->item_object,
-	                     (int) record_set_index );
+	                     pypff_record_sets->parent_object,
+	                     (int) item_index );
 
 	return( record_set_object );
 }
@@ -445,7 +444,7 @@ PyObject *pypff_record_sets_iternext(
 		return( NULL );
 	}
 	record_set_object = pypff_record_sets->get_record_set_by_index(
-	                     pypff_record_sets->item_object,
+	                     pypff_record_sets->parent_object,
 	                     pypff_record_sets->record_set_index );
 
 	if( record_set_object != NULL )

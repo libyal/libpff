@@ -97,8 +97,8 @@ int libpff_record_set_get_entry_by_type(
 LIBPFF_EXTERN \
 int libpff_record_set_get_entry_by_utf8_name(
      libpff_record_set_t *record_set,
-     const uint8_t *utf8_name,
-     size_t utf8_name_length,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -107,8 +107,8 @@ int libpff_record_set_get_entry_by_utf8_name(
 LIBPFF_EXTERN \
 int libpff_record_set_get_entry_by_utf16_name(
      libpff_record_set_t *record_set,
-     const uint16_t *utf16_name,
-     size_t utf16_name_length,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,

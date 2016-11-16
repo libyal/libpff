@@ -1,5 +1,5 @@
 /*
- * Python object definition of the items sequence and iterator
+ * Python object definition of the sequence and iterator object of items
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -27,10 +27,10 @@
 #endif
 
 #include "pypff_item.h"
+#include "pypff_items.h"
 #include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
-#include "pypff_items.h"
 
 PySequenceMethods pypff_items_sequence_methods = {
 	/* sq_length */
@@ -97,7 +97,7 @@ PyTypeObject pypff_items_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pypff items sequence and iterator object",
+	"pypff internal sequence and iterator object of items",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -154,20 +154,20 @@ PyTypeObject pypff_items_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_items_new(
-           pypff_item_t *item_object,
+           PyObject *parent_object,
            PyObject* (*get_item_by_index)(
-                        pypff_item_t *item_object,
+                        PyObject *parent_object,
                         int item_index ),
            int number_of_items )
 {
 	pypff_items_t *pypff_items = NULL;
 	static char *function      = "pypff_items_new";
 
-	if( item_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid item object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
@@ -206,12 +206,12 @@ PyObject *pypff_items_new(
 
 		goto on_error;
 	}
-	pypff_items->item_object       = item_object;
+	pypff_items->parent_object     = parent_object;
 	pypff_items->get_item_by_index = get_item_by_index;
 	pypff_items->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pypff_items->item_object );
+	 (PyObject *) pypff_items->parent_object );
 
 	return( (PyObject *) pypff_items );
 
@@ -243,7 +243,7 @@ int pypff_items_init(
 	}
 	/* Make sure the items values are initialized
 	 */
-	pypff_items->item_object       = NULL;
+	pypff_items->parent_object     = NULL;
 	pypff_items->get_item_by_index = NULL;
 	pypff_items->item_index        = 0;
 	pypff_items->number_of_items   = 0;
@@ -289,10 +289,10 @@ void pypff_items_free(
 
 		return;
 	}
-	if( pypff_items->item_object != NULL )
+	if( pypff_items->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_items->item_object );
+		 (PyObject *) pypff_items->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pypff_items );
@@ -364,7 +364,7 @@ PyObject *pypff_items_getitem(
 		return( NULL );
 	}
 	item_object = pypff_items->get_item_by_index(
-	               pypff_items->item_object,
+	               pypff_items->parent_object,
 	               (int) item_index );
 
 	return( item_object );
@@ -444,7 +444,7 @@ PyObject *pypff_items_iternext(
 		return( NULL );
 	}
 	item_object = pypff_items->get_item_by_index(
-	               pypff_items->item_object,
+	               pypff_items->parent_object,
 	               pypff_items->item_index );
 
 	if( item_object != NULL )

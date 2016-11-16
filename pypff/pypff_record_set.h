@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libpff record set
+ * Python object wrapper of libpff_record_set_t
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -25,8 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "pypff_item.h"
-#include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
 
@@ -46,9 +44,9 @@ struct pypff_record_set
 	 */
 	libpff_record_set_t *record_set;
 
-	/* The item object
+	/* The parent object
 	 */
-	pypff_item_t *item_object;
+	PyObject *parent_object;
 };
 
 extern PyMethodDef pypff_record_set_object_methods[];
@@ -57,7 +55,7 @@ extern PyTypeObject pypff_record_set_type_object;
 PyObject *pypff_record_set_new(
            PyTypeObject *type_object,
            libpff_record_set_t *record_set,
-           pypff_item_t *item_object );
+           PyObject *parent_object );
 
 int pypff_record_set_init(
      pypff_record_set_t *pypff_record_set );
@@ -65,22 +63,24 @@ int pypff_record_set_init(
 void pypff_record_set_free(
       pypff_record_set_t *pypff_record_set );
 
-PyObject *pypff_record_set_get_number_of_record_entries(
+PyObject *pypff_record_set_get_number_of_entries(
            pypff_record_set_t *pypff_record_set,
            PyObject *arguments );
 
-PyObject *pypff_record_set_get_record_entry_by_index(
-           pypff_record_set_t *pypff_record_set,
-           int record_entry_index );
+PyObject *pypff_record_set_get_entry_by_index(
+           PyObject *pypff_record_set,
+           int entry_index );
 
-PyObject *pypff_record_set_get_record_entry(
+PyObject *pypff_record_set_get_entry(
            pypff_record_set_t *pypff_record_set,
            PyObject *arguments,
            PyObject *keywords );
 
-PyObject *pypff_record_set_get_record_entries(
+PyObject *pypff_record_set_get_entries(
            pypff_record_set_t *pypff_record_set,
            PyObject *arguments );
+
+/* TODO add pypff_record_set_get_entry_by_name */
 
 #if defined( __cplusplus )
 }

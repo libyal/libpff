@@ -714,8 +714,8 @@ int libpff_record_set_get_entry_by_type(
  */
 int libpff_record_set_get_entry_by_utf8_name(
      libpff_record_set_t *record_set,
-     const uint8_t *utf8_name,
-     size_t utf8_name_length,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -809,8 +809,8 @@ int libpff_record_set_get_entry_by_utf8_name(
 			if( internal_record_entry->name_to_id_map_entry->is_ascii_string == 0 )
 			{
 				result = libuna_utf8_string_compare_with_utf16_stream(
-				          utf8_name,
-				          utf8_name_length + 1,
+				          utf8_string,
+				          utf8_string_length + 1,
 				          internal_record_entry->name_to_id_map_entry->string_value,
 				          internal_record_entry->name_to_id_map_entry->value_size,
 				          LIBPFF_ENDIAN_LITTLE,
@@ -819,8 +819,8 @@ int libpff_record_set_get_entry_by_utf8_name(
 			else
 			{
 				result = libuna_utf8_string_compare_with_byte_stream(
-				          utf8_name,
-				          utf8_name_length + 1,
+				          utf8_string,
+				          utf8_string_length + 1,
 				          internal_record_entry->name_to_id_map_entry->string_value,
 				          internal_record_entry->name_to_id_map_entry->value_size,
 				          LIBUNA_CODEPAGE_ASCII,
@@ -832,7 +832,7 @@ int libpff_record_set_get_entry_by_utf8_name(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GENERIC,
-				 "%s: unable to compare name with name to id map entry.",
+				 "%s: unable to compare UTF-8 string with name to id map entry.",
 				 function );
 
 				return( -1 );
@@ -865,8 +865,8 @@ int libpff_record_set_get_entry_by_utf8_name(
  */
 int libpff_record_set_get_entry_by_utf16_name(
      libpff_record_set_t *record_set,
-     const uint16_t *utf16_name,
-     size_t utf16_name_length,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -960,8 +960,8 @@ int libpff_record_set_get_entry_by_utf16_name(
 			if( internal_record_entry->name_to_id_map_entry->is_ascii_string == 0 )
 			{
 				result = libuna_utf16_string_compare_with_utf16_stream(
-				          utf16_name,
-				          utf16_name_length + 1,
+				          utf16_string,
+				          utf16_string_length + 1,
 				          internal_record_entry->name_to_id_map_entry->string_value,
 				          internal_record_entry->name_to_id_map_entry->value_size,
 				          LIBPFF_ENDIAN_LITTLE,
@@ -970,8 +970,8 @@ int libpff_record_set_get_entry_by_utf16_name(
 			else
 			{
 				result = libuna_utf16_string_compare_with_byte_stream(
-				          utf16_name,
-				          utf16_name_length + 1,
+				          utf16_string,
+				          utf16_string_length + 1,
 				          internal_record_entry->name_to_id_map_entry->string_value,
 				          internal_record_entry->name_to_id_map_entry->value_size,
 				          LIBUNA_CODEPAGE_ASCII,
@@ -983,7 +983,7 @@ int libpff_record_set_get_entry_by_utf16_name(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GENERIC,
-				 "%s: unable to compare name with name to id map entry.",
+				 "%s: unable to compare UTF-16 string with name to id map entry.",
 				 function );
 
 				return( -1 );

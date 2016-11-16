@@ -1,5 +1,5 @@
 /*
- * Python object definition of the record entries sequence and iterator
+ * Python object definition of the sequence and iterator object of record entries
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -26,7 +26,6 @@
 #include <types.h>
 
 #include "pypff_libpff.h"
-#include "pypff_record_set.h"
 #include "pypff_python.h"
 
 #if defined( __cplusplus )
@@ -41,14 +40,14 @@ struct pypff_record_entries
 	 */
 	PyObject_HEAD
 
-	/* The record set object
+	/* The parent object
 	 */
-	pypff_record_set_t *record_set_object;
+	PyObject *parent_object;
 
 	/* The get record entry by index callback function
 	 */
 	PyObject* (*get_record_entry_by_index)(
-	             pypff_record_set_t *record_set_object,
+	             PyObject *parent_object,
 	             int record_entry_index );
 
 	/* The (current) record entry index
@@ -63,9 +62,9 @@ struct pypff_record_entries
 extern PyTypeObject pypff_record_entries_type_object;
 
 PyObject *pypff_record_entries_new(
-           pypff_record_set_t *record_set_object,
+           PyObject *parent_object,
            PyObject* (*get_record_entry_by_index)(
-                        pypff_record_set_t *record_set_object,
+                        PyObject *parent_object,
                         int record_entry_index ),
            int number_of_record_entries );
 
@@ -80,7 +79,7 @@ Py_ssize_t pypff_record_entries_len(
 
 PyObject *pypff_record_entries_getitem(
            pypff_record_entries_t *pypff_record_entries,
-           Py_ssize_t record_entry_index );
+           Py_ssize_t item_index );
 
 PyObject *pypff_record_entries_iter(
            pypff_record_entries_t *pypff_record_entries );
