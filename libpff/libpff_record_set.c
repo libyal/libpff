@@ -159,7 +159,7 @@ on_error:
 	if( record_entry != NULL )
 	{
 		libpff_internal_record_entry_free(
-		 &record_entry,
+		 (libpff_internal_record_entry_t **) &record_entry,
 		 NULL );
 	}
 	if( internal_record_set != NULL )
@@ -454,7 +454,7 @@ on_error:
 	if( record_entry != NULL )
 	{
 		libpff_internal_record_entry_free(
-		 &record_entry,
+		 (libpff_internal_record_entry_t **) &record_entry,
 		 NULL );
 	}
 	if( last_number_of_entries != 0 )

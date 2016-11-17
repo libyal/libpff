@@ -190,11 +190,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\tests\pff_test_libcdata.h"
+				RelativePath="..\..\tests\pff_test_libcerror.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\pff_test_libcerror.h"
+				RelativePath="..\..\tests\pff_test_libfdata.h"
 				>
 			</File>
 			<File

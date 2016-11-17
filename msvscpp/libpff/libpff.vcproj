@@ -302,6 +302,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_mapi_value.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_message.c"
 				>
 			</File>
@@ -549,6 +553,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_mapi.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_mapi_value.h"
 				>
 			</File>
 			<File

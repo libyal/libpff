@@ -71,6 +71,7 @@ libpff_la_SOURCES = \
 	libpff_local_descriptors.c libpff_local_descriptors.h \
 	libpff_local_descriptors_tree.c libpff_local_descriptors_tree.h \
 	libpff_mapi.h \
+	libpff_mapi_value.c libpff_mapi_value.h \
 	libpff_message.c libpff_message.h \
 	libpff_multi_value.c libpff_multi_value.h \
 	libpff_name_to_id_map.c libpff_name_to_id_map.h \

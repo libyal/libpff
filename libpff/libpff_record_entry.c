@@ -29,65 +29,9 @@
 #include "libpff_libcerror.h"
 #include "libpff_libuna.h"
 #include "libpff_mapi.h"
+#include "libpff_mapi_value.h"
 #include "libpff_multi_value.h"
 #include "libpff_record_entry.h"
-
-/* Function to determine if there are zero bytes in a string
- * Trailing zero bytes not included
- * Returns 1 if the buffer contains zero bytes, 0 if not or -1 on error
- */
-int libpff_record_entry_string_contains_zero_bytes(
-     uint8_t *buffer,
-     size_t buffer_size,
-     libcerror_error_t **error )
-{
-	static char *function   = "libpff_record_entry_string_contains_zero_bytes";
-	size_t buffer_iterator  = 0;
-	uint8_t zero_byte_found = 0;
-
-	if( buffer == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid buffer.",
-		 function );
-
-		return( -1 );
-	}
-	if( buffer_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid buffer size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	for( buffer_iterator = 0;
-	     buffer_iterator < buffer_size;
-	     buffer_iterator++ )
-	{
-		if( zero_byte_found == 0 )
-		{
-			if( buffer[ buffer_iterator ] == 0 )
-			{
-				zero_byte_found = 1;
-			}
-		}
-		else
-		{
-			if( buffer[ buffer_iterator ] != 0 )
-			{
-				return( 1 );
-			}
-		}
-	}
-	return( 0 );
-}
 
 /* Creates a record entry
  * Make sure the value record_entry is referencing, is set to NULL
@@ -197,13 +141,12 @@ int libpff_record_entry_free(
  * Returns 1 if successful or -1 on error
  */
 int libpff_internal_record_entry_free(
-     libpff_record_entry_t **record_entry,
+     libpff_internal_record_entry_t **internal_record_entry,
      libcerror_error_t **error )
 {
-	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_internal_record_entry_free";
+	static char *function = "libpff_internal_record_entry_free";
 
-	if( record_entry == NULL )
+	if( internal_record_entry == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -214,18 +157,17 @@ int libpff_internal_record_entry_free(
 
 		return( -1 );
 	}
-	if( *record_entry != NULL )
+	if( *internal_record_entry != NULL )
 	{
-		internal_record_entry = (libpff_internal_record_entry_t *) *record_entry;
-		*record_entry         = NULL;
-
-		if( internal_record_entry->value_data != NULL )
+		if( ( *internal_record_entry )->value_data != NULL )
 		{
 			memory_free(
-			 internal_record_entry->value_data );
+			 ( *internal_record_entry )->value_data );
 		}
 		memory_free(
-		 internal_record_entry );
+		 *internal_record_entry );
+
+		*internal_record_entry = NULL;
 	}
 	return( 1 );
 }
@@ -273,7 +215,7 @@ int libpff_record_entry_clone(
 	internal_source_record_entry = (libpff_internal_record_entry_t *) source_record_entry;
 
 	if( libpff_record_entry_initialize(
-	     destination_record_entry,
+	     (libpff_record_entry_t **) &internal_destination_record_entry,
 	     internal_source_record_entry->ascii_codepage,
 	     error ) != 1 )
 	{
@@ -286,7 +228,7 @@ int libpff_record_entry_clone(
 
 		goto on_error;
 	}
-	if( *destination_record_entry == NULL )
+	if( internal_destination_record_entry == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -297,8 +239,6 @@ int libpff_record_entry_clone(
 
 		goto on_error;
 	}
-	internal_destination_record_entry = (libpff_internal_record_entry_t *) *destination_record_entry;
-
 	if( memory_copy(
 	     &( internal_destination_record_entry->identifier ),
 	     &( internal_source_record_entry->identifier ),
@@ -348,13 +288,15 @@ int libpff_record_entry_clone(
 	internal_destination_record_entry->name_to_id_map_entry = internal_source_record_entry->name_to_id_map_entry;
 	internal_destination_record_entry->flags                = internal_source_record_entry->flags;
 
+	internal_destination_record_entry = (libpff_internal_record_entry_t *) *destination_record_entry;
+
 	return( 1 );
 
 on_error:
-	if( *destination_record_entry != NULL )
+	if( internal_destination_record_entry != NULL )
 	{
 		libpff_internal_record_entry_free(
-		 destination_record_entry,
+		 &internal_destination_record_entry,
 		 NULL );
 	}
 	return( -1 );
@@ -1645,8 +1587,6 @@ int libpff_record_entry_get_value_utf8_string_size_with_codepage(
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
 	static char *function                                 = "libpff_record_entry_get_value_utf8_string_size_with_codepage";
-	uint8_t is_ascii_string                               = 0;
-	int result                                            = 0;
 
 	if( record_entry == NULL )
 	{
@@ -1661,106 +1601,19 @@ int libpff_record_entry_get_value_utf8_string_size_with_codepage(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
-	if( utf8_string_size == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-8 string size.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( internal_record_entry->value_data == NULL )
-	 || ( internal_record_entry->value_data_size == 0 ) )
-	{
-		*utf8_string_size = 0;
-
-		return( 1 );
-	}
-	if( internal_record_entry->identifier.value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-	{
-		is_ascii_string = 1;
-	}
-	/* Codepage 1200 represents Unicode
-	 * If the codepage is 1200 find out if the string is encoded in UTF-8 or UTF-16 little-endian
-	 */
-	if( ( is_ascii_string != 0 )
-	 && ( ascii_codepage == 1200 ) )
-	{
-		result = libpff_record_entry_string_contains_zero_bytes(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-			  error );
-
-		if( result == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to determine if value data contains zero bytes.",
-			 function );
-
-			return( -1 );
-		}
-		else if( result != 0 )
-		{
-			is_ascii_string = 0;
-		}
-	}
-	/* String is in UTF-16 little-endian
-	 */
-	if( is_ascii_string == 0 )
-	{
-		result = libuna_utf8_string_size_from_utf16_stream(
-		          internal_record_entry->value_data,
-		          internal_record_entry->value_data_size,
-		          LIBUNA_ENDIAN_LITTLE,
-		          utf8_string_size,
-		          error );
-	}
-	/* Codepage 65000 represents UTF-7
-	 */
-	else if( ascii_codepage == 65000 )
-	{
-		result = libuna_utf8_string_size_from_utf7_stream(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-			  utf8_string_size,
-			  error );
-	}
-	/* Codepage 1200 or 65001 represents UTF-8
-	 */
-	else if( ( ascii_codepage == 1200 )
-	      || ( ascii_codepage == 65001 ) )
-	{
-		result = libuna_utf8_string_size_from_utf8_stream(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-			  utf8_string_size,
-			  error );
-	}
-	else
-	{
-		/* TODO currently libuna uses the same numeric values for the codepages as PFF
-		 * add a mapping function if this implementation changes
-		 */
-		result = libuna_utf8_string_size_from_byte_stream(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-			  ascii_codepage,
-			  utf8_string_size,
-			  error );
-	}
-	if( result != 1 )
+	if( libpff_mapi_value_get_data_as_utf8_string_size(
+	     internal_record_entry->identifier.value_type,
+	     internal_record_entry->value_data,
+	     internal_record_entry->value_data_size,
+	     ascii_codepage,
+	     utf8_string_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine UTF-8 string size.",
+		 "%s: unable to determine size of value data as UTF-8 string.",
 		 function );
 
 		return( -1 );
@@ -1782,8 +1635,6 @@ int libpff_record_entry_get_value_utf8_string_with_codepage(
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
 	static char *function                                 = "libpff_record_entry_get_value_utf8_string_with_codepage";
-	uint8_t is_ascii_string                               = 0;
-	int result                                            = 0;
 
 	if( record_entry == NULL )
 	{
@@ -1798,132 +1649,20 @@ int libpff_record_entry_get_value_utf8_string_with_codepage(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
-	if( utf8_string == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-8 string.",
-		 function );
-
-		return( -1 );
-	}
-	if( utf8_string_size == 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
-		 "%s: invalid UTF-8 string size value zero or less.",
-		 function );
-
-		return( -1 );
-	}
-	if( utf8_string_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid UTF-8 string size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( internal_record_entry->value_data == NULL )
-	 || ( internal_record_entry->value_data_size == 0 ) )
-	{
-		utf8_string[ 0 ] = 0;
-
-		return( 1 );
-	}
-	if( internal_record_entry->identifier.value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-	{
-		is_ascii_string = 1;
-	}
-	/* Codepage 1200 represents Unicode
-	 * If the codepage is 1200 find out if the string is encoded in UTF-8 or UTF-16 little-endian
-	 */
-	if( ( is_ascii_string != 0 )
-	 && ( ascii_codepage == 1200 ) )
-	{
-		result = libpff_record_entry_string_contains_zero_bytes(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-			  error );
-
-		if( result == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to determine if value data contains zero bytes.",
-			 function );
-
-			return( -1 );
-		}
-		else if( result != 0 )
-		{
-			is_ascii_string = 0;
-		}
-	}
-	/* String is in UTF-16 little-endian
-	 */
-	if( is_ascii_string == 0 )
-	{
-		result = libuna_utf8_string_copy_from_utf16_stream(
-		          utf8_string,
-		          utf8_string_size,
-		          internal_record_entry->value_data,
-		          internal_record_entry->value_data_size,
-		          LIBUNA_ENDIAN_LITTLE,
-		          error );
-	}
-	/* Codepage 65000 represents UTF-7
-	 */
-	else if( ascii_codepage == 65000 )
-	{
-		result = libuna_utf8_string_copy_from_utf7_stream(
-		          utf8_string,
-		          utf8_string_size,
-		          internal_record_entry->value_data,
-		          internal_record_entry->value_data_size,
-		          error );
-	}
-	/* Codepage 1200 or 65001 represents UTF-8
-	 */
-	else if( ( ascii_codepage == 1200 )
-	      || ( ascii_codepage == 65001 ) )
-	{
-		result = libuna_utf8_string_copy_from_utf8_stream(
-		          utf8_string,
-		          utf8_string_size,
-		          internal_record_entry->value_data,
-		          internal_record_entry->value_data_size,
-		          error );
-	}
-	else
-	{
-		/* TODO currently libuna uses the same numeric values for the codepages as PFF
-		 * add a mapping function if this implementation changes
-		 */
-		result = libuna_utf8_string_copy_from_byte_stream(
-		          utf8_string,
-		          utf8_string_size,
-		          internal_record_entry->value_data,
-		          internal_record_entry->value_data_size,
-		          ascii_codepage,
-		          error );
-	}
-	if( result != 1 )
+	if( libpff_mapi_value_get_data_as_utf8_string(
+	     internal_record_entry->identifier.value_type,
+	     internal_record_entry->value_data,
+	     internal_record_entry->value_data_size,
+	     ascii_codepage,
+	     utf8_string,
+	     utf8_string_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set UTF-8 string.",
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value data as UTF-8 string.",
 		 function );
 
 		return( -1 );
@@ -2007,7 +1746,7 @@ int libpff_record_entry_compare_value_with_utf8_string_with_codepage(
 	if( ( is_ascii_string != 0 )
 	 && ( ascii_codepage == 1200 ) )
 	{
-		result = libpff_record_entry_string_contains_zero_bytes(
+		result = libpff_mapi_value_data_contains_zero_bytes(
 			  internal_record_entry->value_data,
 			  internal_record_entry->value_data_size,
 			  error );
@@ -2152,8 +1891,10 @@ int libpff_record_entry_get_value_utf8_string_size(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
-	if( libpff_record_entry_get_value_utf8_string_size_with_codepage(
-	     record_entry,
+	if( libpff_mapi_value_get_data_as_utf8_string_size(
+	     internal_record_entry->identifier.value_type,
+	     internal_record_entry->value_data,
+	     internal_record_entry->value_data_size,
 	     internal_record_entry->ascii_codepage,
 	     utf8_string_size,
 	     error ) != 1 )
@@ -2162,7 +1903,7 @@ int libpff_record_entry_get_value_utf8_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine UTF-8 string size.",
+		 "%s: unable to determine size of value data as UTF-8 string.",
 		 function );
 
 		return( -1 );
@@ -2197,8 +1938,10 @@ int libpff_record_entry_get_value_utf8_string(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
-	if( libpff_record_entry_get_value_utf8_string_with_codepage(
-	     record_entry,
+	if( libpff_mapi_value_get_data_as_utf8_string(
+	     internal_record_entry->identifier.value_type,
+	     internal_record_entry->value_data,
+	     internal_record_entry->value_data_size,
 	     internal_record_entry->ascii_codepage,
 	     utf8_string,
 	     utf8_string_size,
@@ -2208,7 +1951,7 @@ int libpff_record_entry_get_value_utf8_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to set UTF-8 string.",
+		 "%s: unable to retrieve value data as UTF-8 string.",
 		 function );
 
 		return( -1 );
@@ -2228,8 +1971,6 @@ int libpff_record_entry_get_value_utf16_string_size_with_codepage(
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
 	static char *function                                 = "libpff_record_entry_get_value_utf16_string_size_with_codepage";
-	uint8_t is_ascii_string                               = 0;
-	int result                                            = 0;
 
 	if( record_entry == NULL )
 	{
@@ -2244,106 +1985,19 @@ int libpff_record_entry_get_value_utf16_string_size_with_codepage(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
-	if( utf16_string_size == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-16 string size.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( internal_record_entry->value_data == NULL )
-	 || ( internal_record_entry->value_data_size == 0 ) )
-	{
-		*utf16_string_size = 0;
-
-		return( 1 );
-	}
-	if( internal_record_entry->identifier.value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-	{
-		is_ascii_string = 1;
-	}
-	/* Codepage 1200 represents Unicode
-	 * If the codepage is 1200 find out if the string is encoded in UTF-8 or UTF-16 little-endian
-	 */
-	if( ( is_ascii_string != 0 )
-	 && ( ascii_codepage == 1200 ) )
-	{
-		result = libpff_record_entry_string_contains_zero_bytes(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-			  error );
-
-		if( result == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to determine if value data contains zero bytes.",
-			 function );
-
-			return( -1 );
-		}
-		else if( result != 0 )
-		{
-			is_ascii_string = 0;
-		}
-	}
-	/* String is in UTF-16 little-endian
-	 */
-	if( is_ascii_string == 0 )
-	{
-		result = libuna_utf16_string_size_from_utf16_stream(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-		          LIBUNA_ENDIAN_LITTLE,
-		          utf16_string_size,
-		          error );
-	}
-	/* Codepage 65000 represents UTF-7
-	 */
-	else if( ascii_codepage == 65000 )
-	{
-		result = libuna_utf16_string_size_from_utf7_stream(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-		          utf16_string_size,
-		          error );
-	}
-	/* Codepage 1200 or 65001 represents UTF-8
-	 */
-	else if( ( ascii_codepage == 1200 )
-	      || ( ascii_codepage == 65001 ) )
-	{
-		result = libuna_utf16_string_size_from_utf8(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-		          utf16_string_size,
-		          error );
-	}
-	else
-	{
-		/* TODO currently libuna uses the same numeric values for the codepages as PFF
-		 * add a mapping function if this implementation changes
-		 */
-		result = libuna_utf16_string_size_from_byte_stream(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-		          ascii_codepage,
-		          utf16_string_size,
-		          error );
-	}
-	if( result != 1 )
+	if( libpff_mapi_value_get_data_as_utf16_string_size(
+	     internal_record_entry->identifier.value_type,
+	     internal_record_entry->value_data,
+	     internal_record_entry->value_data_size,
+	     ascii_codepage,
+	     utf16_string_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine UTF-16 string size.",
+		 "%s: unable to determine size of value data as UTF-16 string.",
 		 function );
 
 		return( -1 );
@@ -2365,8 +2019,6 @@ int libpff_record_entry_get_value_utf16_string_with_codepage(
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
 	static char *function                                 = "libpff_record_entry_get_value_utf16_string_with_codepage";
-	uint8_t is_ascii_string                               = 0;
-	int result                                            = 0;
 
 	if( record_entry == NULL )
 	{
@@ -2381,132 +2033,20 @@ int libpff_record_entry_get_value_utf16_string_with_codepage(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
-	if( utf16_string == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-16 string.",
-		 function );
-
-		return( -1 );
-	}
-	if( utf16_string_size == 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
-		 "%s: invalid UTF-16 string size value zero or less.",
-		 function );
-
-		return( -1 );
-	}
-	if( utf16_string_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid UTF-16 string size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( internal_record_entry->value_data == NULL )
-	 || ( internal_record_entry->value_data_size == 0 ) )
-	{
-		utf16_string[ 0 ] = 0;
-
-		return( 1 );
-	}
-	if( internal_record_entry->identifier.value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-	{
-		is_ascii_string = 1;
-	}
-	/* Codepage 1200 represents Unicode
-	 * If the codepage is 1200 find out if the string is encoded in UTF-8 or UTF-16 little-endian
-	 */
-	if( ( is_ascii_string != 0 )
-	 && ( ascii_codepage == 1200 ) )
-	{
-		result = libpff_record_entry_string_contains_zero_bytes(
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-			  error );
-
-		if( result == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to determine if value data contains zero bytes.",
-			 function );
-
-			return( -1 );
-		}
-		else if( result != 0 )
-		{
-			is_ascii_string = 0;
-		}
-	}
-	/* String is in UTF-16 little-endian
-	 */
-	if( is_ascii_string == 0 )
-	{
-		result = libuna_utf16_string_copy_from_utf16_stream(
-		          utf16_string,
-		          utf16_string_size,
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-		          LIBUNA_ENDIAN_LITTLE,
-		          error );
-	}
-	/* Codepage 65000 represents UTF-7
-	 */
-	else if( ascii_codepage == 65000 )
-	{
-		result = libuna_utf16_string_copy_from_utf7_stream(
-		          utf16_string,
-		          utf16_string_size,
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-		          error );
-	}
-	/* Codepage 1200 or 65001 represents UTF-8
-	 */
-	else if( ( ascii_codepage == 1200 )
-	      || ( ascii_codepage == 65001 ) )
-	{
-		result = libuna_utf16_string_copy_from_utf8(
-		          utf16_string,
-		          utf16_string_size,
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-		          error );
-	}
-	else
-	{
-		/* TODO currently libuna uses the same numeric values for the codepages as PFF
-		 * add a mapping function if this implementation changes
-		 */
-		result = libuna_utf16_string_copy_from_byte_stream(
-		          utf16_string,
-		          utf16_string_size,
-			  internal_record_entry->value_data,
-			  internal_record_entry->value_data_size,
-		          ascii_codepage,
-		          error );
-	}
-	if( result != 1 )
+	if( libpff_mapi_value_get_data_as_utf16_string(
+	     internal_record_entry->identifier.value_type,
+	     internal_record_entry->value_data,
+	     internal_record_entry->value_data_size,
+	     ascii_codepage,
+	     utf16_string,
+	     utf16_string_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set UTF-16 string.",
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value data as UTF-16 string.",
 		 function );
 
 		return( -1 );
@@ -2590,7 +2130,7 @@ int libpff_record_entry_compare_value_with_utf16_string_with_codepage(
 	if( ( is_ascii_string != 0 )
 	 && ( ascii_codepage == 1200 ) )
 	{
-		result = libpff_record_entry_string_contains_zero_bytes(
+		result = libpff_mapi_value_data_contains_zero_bytes(
 			  internal_record_entry->value_data,
 			  internal_record_entry->value_data_size,
 			  error );
@@ -2735,8 +2275,10 @@ int libpff_record_entry_get_value_utf16_string_size(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
-	if( libpff_record_entry_get_value_utf16_string_size_with_codepage(
-	     record_entry,
+	if( libpff_mapi_value_get_data_as_utf16_string_size(
+	     internal_record_entry->identifier.value_type,
+	     internal_record_entry->value_data,
+	     internal_record_entry->value_data_size,
 	     internal_record_entry->ascii_codepage,
 	     utf16_string_size,
 	     error ) != 1 )
@@ -2745,7 +2287,7 @@ int libpff_record_entry_get_value_utf16_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine UTF-16 string size.",
+		 "%s: unable to determine size of value data as UTF-16 string.",
 		 function );
 
 		return( -1 );
@@ -2780,8 +2322,10 @@ int libpff_record_entry_get_value_utf16_string(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
-	if( libpff_record_entry_get_value_utf16_string_with_codepage(
-	     record_entry,
+	if( libpff_mapi_value_get_data_as_utf16_string(
+	     internal_record_entry->identifier.value_type,
+	     internal_record_entry->value_data,
+	     internal_record_entry->value_data_size,
 	     internal_record_entry->ascii_codepage,
 	     utf16_string,
 	     utf16_string_size,
@@ -2791,7 +2335,7 @@ int libpff_record_entry_get_value_utf16_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to set UTF-16 string.",
+		 "%s: unable to retrieve value data as UTF-16 string.",
 		 function );
 
 		return( -1 );

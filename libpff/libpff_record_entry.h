@@ -104,11 +104,6 @@ struct libpff_internal_record_entry
 	uint8_t flags;
 };
 
-int libpff_record_entry_string_contains_zero_bytes(
-     uint8_t *buffer,
-     size_t buffer_size,
-     libcerror_error_t **error );
-
 int libpff_record_entry_initialize(
      libpff_record_entry_t **record_entry,
      int ascii_codepage,
@@ -120,7 +115,7 @@ int libpff_record_entry_free(
      libcerror_error_t **error );
 
 int libpff_internal_record_entry_free(
-     libpff_record_entry_t **record_entry,
+     libpff_internal_record_entry_t **internal_record_entry,
      libcerror_error_t **error );
 
 int libpff_record_entry_clone(
