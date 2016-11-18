@@ -463,7 +463,7 @@ PyObject *pypff_folder_get_sub_folder_by_index(
 	sub_item_object = pypff_item_new(
 	                   &pypff_folder_type_object,
 	                   sub_item,
-	                   pypff_item->file_object );
+	                   (PyObject *) pypff_item->parent_object );
 
 	if( sub_item_object == NULL )
 	{
@@ -561,7 +561,7 @@ PyObject *pypff_folder_get_sub_folders(
 		return( NULL );
 	}
 	sub_items_object = pypff_items_new(
-	                    pypff_item,
+	                    (PyObject *) pypff_item,
 	                    &pypff_folder_get_sub_folder_by_index,
 	                    number_of_sub_folders );
 
@@ -706,7 +706,7 @@ PyObject *pypff_folder_get_sub_message_by_index(
 	sub_item_object = pypff_item_new(
 	                   &pypff_message_type_object,
 	                   sub_item,
-	                   (PyObject *) pypff_item->file_object );
+	                   (PyObject *) pypff_item->parent_object );
 
 	if( sub_item_object == NULL )
 	{
@@ -804,7 +804,7 @@ PyObject *pypff_folder_get_sub_messages(
 		return( NULL );
 	}
 	sub_items_object = pypff_items_new(
-	                    pypff_item,
+	                    (PyObject *) pypff_item,
 	                    &pypff_folder_get_sub_message_by_index,
 	                    number_of_sub_messages );
 

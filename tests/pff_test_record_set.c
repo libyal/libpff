@@ -35,6 +35,233 @@
 
 #include "../libpff/libpff_record_set.h"
 
+#if defined( __GNUC__ )
+
+/* Tests the libpff_record_set_initialize function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_record_set_initialize(
+     void )
+{
+	libcerror_error_t *error        = NULL;
+	libpff_record_set_t *record_set = NULL;
+	int result                      = 0;
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 1;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
+	/* Test regular cases
+	 */
+	result = libpff_record_set_initialize(
+	          &record_set,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        PFF_TEST_ASSERT_IS_NOT_NULL(
+         "record_set",
+         record_set );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libpff_record_set_free(
+	          &record_set,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "record_set",
+         record_set );
+
+        PFF_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test error cases
+	 */
+	result = libpff_record_set_initialize(
+	          NULL,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        PFF_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	record_set = (libpff_record_set_t *) 0x12345678UL;
+
+	result = libpff_record_set_initialize(
+	          &record_set,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        PFF_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	record_set = NULL;
+
+	result = libpff_record_set_initialize(
+	          &record_set,
+	          -1,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        PFF_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_record_set_initialize with malloc failing
+		 */
+		pff_test_malloc_attempts_before_fail = test_number;
+
+		result = libpff_record_set_initialize(
+		          &record_set,
+		          0,
+		          0,
+		          &error );
+
+		if( pff_test_malloc_attempts_before_fail != -1 )
+		{
+			pff_test_malloc_attempts_before_fail = -1;
+
+			if( record_set != NULL )
+			{
+				libpff_record_set_free(
+				 &record_set,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "record_set",
+			 record_set );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_record_set_initialize with memset failing
+		 */
+		pff_test_memset_attempts_before_fail = test_number;
+
+		result = libpff_record_set_initialize(
+		          &record_set,
+		          0,
+		          0,
+		          &error );
+
+		if( pff_test_memset_attempts_before_fail != -1 )
+		{
+			pff_test_memset_attempts_before_fail = -1;
+
+			if( record_set != NULL )
+			{
+				libpff_record_set_free(
+				 &record_set,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "record_set",
+			 record_set );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	return( 0 );
+}
+
+#endif /* defined( __GNUC__ ) */
+
 /* Tests the libpff_record_set_free function
  * Returns 1 if successful or 0 if not
  */
@@ -73,6 +300,10 @@ on_error:
 	return( 0 );
 }
 
+#if defined( __GNUC__ )
+
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -90,7 +321,9 @@ int main(
 
 #if defined( __GNUC__ )
 
-	/* TODO: add tests for libpff_record_set_initialize */
+	PFF_TEST_RUN(
+	 "libpff_record_set_initialize",
+	 pff_test_record_set_initialize );
 
 #endif /* defined( __GNUC__ ) */
 
@@ -104,8 +337,6 @@ int main(
 
 	/* TODO: add tests for libpff_record_set_resize */
 
-#endif /* defined( __GNUC__ ) */
-
 	/* TODO: add tests for libpff_record_set_get_number_of_entries */
 
 	/* TODO: add tests for libpff_record_set_get_entry_by_index */
@@ -115,6 +346,8 @@ int main(
 	/* TODO: add tests for libpff_record_set_get_entry_by_utf8_name */
 
 	/* TODO: add tests for libpff_record_set_get_entry_by_utf16_name */
+
+#endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );
 

@@ -38,6 +38,7 @@
 #include "libpff_libfmapi.h"
 #include "libpff_name_to_id_map.h"
 #include "libpff_record_entry.h"
+#include "libpff_record_set.h"
 
 #include "pff_value_data.h"
 
@@ -211,10 +212,105 @@ const char *libpff_debug_get_node_identifier_type(
 	return( "UNKNOWN" );
 }
 
+/* Prints the record set
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_debug_print_record_set(
+     libpff_record_set_t *record_set,
+     libcdata_list_t *name_to_id_map_list,
+     int debug_item_type,
+     int ascii_codepage,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_set_t *internal_record_set = NULL;
+	libpff_record_entry_t *record_entry               = NULL;
+	static char *function                             = "libpff_debug_print_record_set";
+	int entry_index                                   = 0;
+	int number_of_entries                             = 0;
+
+	if( record_set == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record set.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_set = (libpff_internal_record_set_t *) record_set;
+
+	if( libcdata_array_get_number_of_entries(
+	     internal_record_set->entries_array,
+	     &number_of_entries,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of entries.",
+		 function );
+
+		return( -1 );
+	}
+	libcnotify_printf(
+	 "Record set number of entries\t: %d\n",
+	 number_of_entries );
+
+	for( entry_index = 0;
+	     entry_index < number_of_entries;
+	     entry_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     internal_record_set->entries_array,
+		     entry_index,
+		     (intptr_t **) &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve record entry: %d.",
+			 function,
+			 entry_index );
+
+			return( -1 );
+		}
+		libcnotify_printf(
+		 "Record set entry\t\t: %d (0x%08" PRIjx ")\n",
+		 entry_index,
+		 (intptr_t) record_entry );
+
+		if( libpff_debug_print_record_entry(
+		     record_entry,
+		     name_to_id_map_list,
+		     debug_item_type,
+		     ascii_codepage,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
+			 "%s: unable to print record entry: %d .",
+			 function,
+			 entry_index );
+
+			return( -1 );
+		}
+		libcnotify_printf(
+		 "\n" );
+	}
+	return( 1 );
+}
+
 /* Prints the record entry
  * Returns 1 if successful or -1 on error
  */
-int libpff_debug_record_entry_print(
+int libpff_debug_print_record_entry(
      libpff_record_entry_t *record_entry,
      libcdata_list_t *name_to_id_map_list,
      int debug_item_type,
@@ -222,7 +318,7 @@ int libpff_debug_record_entry_print(
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_debug_record_entry_print";
+	static char *function                                 = "libpff_debug_print_record_entry";
 
 	if( record_entry == NULL )
 	{

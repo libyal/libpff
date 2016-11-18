@@ -67,6 +67,17 @@ int libpff_record_set_initialize(
 
 		return( -1 );
 	}
+	if( number_of_entries < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid number of entries value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	internal_record_set = memory_allocate_structure(
 	                       libpff_internal_record_set_t );
 
@@ -98,8 +109,6 @@ int libpff_record_set_initialize(
 
 		return( -1 );
 	}
-	internal_record_set->ascii_codepage = ascii_codepage;
-
 	if( libcdata_array_initialize(
 	     &( internal_record_set->entries_array ),
 	     number_of_entries,
@@ -120,7 +129,7 @@ int libpff_record_set_initialize(
 	{
 		if( libpff_record_entry_initialize(
 		     &record_entry,
-		     internal_record_set->ascii_codepage,
+		     ascii_codepage,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -151,6 +160,8 @@ int libpff_record_set_initialize(
 		}
 		record_entry = NULL;
 	}
+	internal_record_set->ascii_codepage = ascii_codepage;
+
 	*record_set = (libpff_record_set_t *) internal_record_set;
 
 	return( 1 );
@@ -602,6 +613,17 @@ int libpff_record_set_get_entry_by_type(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( *record_entry != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid record entry value already set.",
 		 function );
 
 		return( -1 );

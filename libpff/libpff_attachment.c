@@ -41,6 +41,7 @@
 #include "libpff_local_descriptors_tree.h"
 #include "libpff_mapi.h"
 #include "libpff_record_entry.h"
+#include "libpff_record_set.h"
 #include "libpff_types.h"
 
 /* Retrieves the attachment method
@@ -103,7 +104,7 @@ int libpff_attachment_get_attachment_method(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     attachment_method,
 		     error ) != 1 )
@@ -112,7 +113,7 @@ int libpff_attachment_get_attachment_method(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value 32-bit.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			goto on_error;
@@ -152,11 +153,11 @@ int libpff_attachment_get_type(
      libcerror_error_t **error )
 {
 	libpff_internal_item_t *internal_item = NULL;
-	uint8_t *value_data                   = NULL;
+	libpff_record_entry_t *record_entry   = NULL;
+	libpff_record_set_t *record_set       = NULL;
 	static char *function                 = "libpff_attachment_get_type";
 	uint32_t attachment_method            = 0;
 	uint32_t value_type                   = 0;
-	size_t value_data_size                = 0;
 
 	if( attachment == NULL )
 	{
@@ -205,7 +206,7 @@ int libpff_attachment_get_type(
 		 "%s: unable to retrieve attachment method.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_VALUE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_REFERENCE )
@@ -220,7 +221,7 @@ int libpff_attachment_get_type(
 		 function,
 		 attachment_method );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( attachment_method == LIBPFF_ATTACHMENT_METHOD_BY_REFERENCE )
 	{
@@ -230,13 +231,26 @@ int libpff_attachment_get_type(
 	      || ( attachment_method == LIBPFF_ATTACHMENT_METHOD_EMBEDDED_MESSAGE )
 	      || ( attachment_method == LIBPFF_ATTACHMENT_METHOD_OLE ) )
 	{
-		if( libpff_item_get_entry_value(
+		if( libpff_item_get_record_set_by_index(
 		     attachment,
 		     0,
+		     &record_set,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve record set: 0.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_set_get_entry_by_type(
+		     record_set,
 		     LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT,
-		     &value_type,
-		     &value_data,
-		     &value_data_size,
+		     0,
+		     &record_entry,
 		     LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
 		     error ) != 1 )
 		{
@@ -244,10 +258,25 @@ int libpff_attachment_get_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve entry value.",
+			 "%s: unable to retrieve record entry: 0x%04 " PRIx32 ".",
+			 function,
+			 LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_get_value_type(
+		     record_entry,
+		     &value_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value type.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( value_type == LIBPFF_VALUE_TYPE_BINARY_DATA )
 		{
@@ -273,7 +302,7 @@ int libpff_attachment_get_type(
 				 function,
 				 attachment_method );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 		else
@@ -286,10 +315,51 @@ int libpff_attachment_get_type(
 			 function,
 			 value_type );
 
-			return( -1 );
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_set_free(
+		     &record_set,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record set.",
+			 function );
+
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the attachment data size
@@ -420,7 +490,7 @@ int libpff_attachment_get_data_size(
 
 				return( -1 );
 			}
-			if( libpff_record_entry_get_value_data_size(
+			if( libpff_record_entry_get_data_size(
 			     record_entry,
 			     &value_data_size,
 			     error ) != 1 )
@@ -429,7 +499,7 @@ int libpff_attachment_get_data_size(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve record entry value data size.",
+				 "%s: unable to retrieve value data size.",
 				 function );
 
 				return( -1 );
@@ -806,12 +876,14 @@ int libpff_attachment_get_item(
 	libpff_internal_item_t *internal_item                   = NULL;
 	libpff_item_descriptor_t *embedded_item_descriptor      = NULL;
 	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
+	libpff_record_entry_t *record_entry                     = NULL;
+	libpff_record_set_t *record_set                         = NULL;
 	uint8_t *value_data                                     = NULL;
 	static char *function                                   = "libpff_attachment_get_item";
-	uint32_t value_type                                     = LIBPFF_VALUE_TYPE_OBJECT;
-	uint32_t embedded_object_item_identifier                = 0;
 	size_t value_data_size                                  = 0;
+	uint32_t embedded_object_item_identifier                = 0;
 	int number_of_sub_nodes                                 = 0;
+	int has_attachment_data                                 = 0;
 	int result                                              = 0;
 
 	if( attachment == NULL )
@@ -871,62 +943,68 @@ int libpff_attachment_get_item(
 
 		return( -1 );
 	}
-	if( libpff_item_get_entry_value(
+	if( libpff_item_get_record_set_by_index(
 	     attachment,
 	     0,
-	     LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT,
-	     &value_type,
-	     &value_data,
-	     &value_data_size,
-	     0,
+	     &record_set,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve entry value.",
+		 "%s: unable to retrieve record set: 0.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( value_data == NULL )
-	{
-		return( 0 );
-	}
-	/* The descriptor identifier is located in the local descriptors tree
-	 */
-	byte_stream_copy_to_uint32_little_endian(
-	 value_data,
-	 embedded_object_item_identifier );
-
-/* TODO add support for recovered embedded items */
-
-	result = libpff_item_tree_get_tree_node_by_identifier(
-		  internal_item->internal_file->item_tree_root_node,
-		  embedded_object_item_identifier,
-		  &embedded_item_tree_node,
-		  error );
-
-	if( result == -1 )
+	if( libpff_record_set_get_entry_by_type(
+	     record_set,
+	     LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT,
+	     0,
+	     &record_entry,
+	     LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve descriptor index value of attached item: %" PRIu32 ".",
+		 "%s: unable to retrieve record entry: 0x%04 " PRIx32 ".",
 		 function,
+		 LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT );
+
+		goto on_error;
+	}
+	if( libpff_record_entry_get_value_data(
+	     record_entry,
+	     &value_data,
+	     &value_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value data.",
+		 function );
+
+		goto on_error;
+	}
+	if( value_data != NULL )
+	{
+		/* The descriptor identifier is located in the local descriptors tree
+		 */
+		byte_stream_copy_to_uint32_little_endian(
+		 value_data,
 		 embedded_object_item_identifier );
 
-		return( -1 );
-	}
-	if( result == 0 )
-	{
-		result = libpff_item_values_get_local_descriptors_value_by_identifier(
-			  internal_item->item_values,
-			  internal_item->file_io_handle,
+/* TODO add support for recovered embedded items */
+
+		result = libpff_item_tree_get_tree_node_by_identifier(
+			  internal_item->internal_file->item_tree_root_node,
 			  embedded_object_item_identifier,
-			  &local_descriptor_value,
+			  &embedded_item_tree_node,
 			  error );
 
 		if( result == -1 )
@@ -935,155 +1013,219 @@ int libpff_attachment_get_item(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
+			 "%s: unable to retrieve descriptor index value of attached item: %" PRIu32 ".",
 			 function,
 			 embedded_object_item_identifier );
 
-			return( -1 );
+			goto on_error;
 		}
+		if( result == 0 )
+		{
+			result = libpff_item_values_get_local_descriptors_value_by_identifier(
+				  internal_item->item_values,
+				  internal_item->file_io_handle,
+				  embedded_object_item_identifier,
+				  &local_descriptor_value,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
+				 function,
+				 embedded_object_item_identifier );
+
+				goto on_error;
+			}
 /* TODO error tollerability flag an attachment as missing if result == 0 */
-		else if( result == 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing local descriptor identifier: %" PRIu32 ".",
-			 function,
-			 embedded_object_item_identifier );
+			else if( result == 0 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing local descriptor identifier: %" PRIu32 ".",
+				 function,
+				 embedded_object_item_identifier );
 
-			return( -1 );
-		}
-		if( local_descriptor_value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid local descriptor value.",
-			 function );
+				goto on_error;
+			}
+			if( local_descriptor_value == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: invalid local descriptor value.",
+				 function );
 
-			return( -1 );
-		}
+				goto on_error;
+			}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: local descriptor identifier: %" PRIu64 " (%s), data: %" PRIu64 ", local descriptors: %" PRIu64 "\n",
-			 function,
-			 local_descriptor_value->identifier,
-			 libpff_debug_get_node_identifier_type(
-			  (uint8_t) ( local_descriptor_value->identifier & 0x0000001fUL ) ),
-			 local_descriptor_value->data_identifier,
-			 local_descriptor_value->local_descriptors_identifier );
-		}
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: local descriptor identifier: %" PRIu64 " (%s), data: %" PRIu64 ", local descriptors: %" PRIu64 "\n",
+				 function,
+				 local_descriptor_value->identifier,
+				 libpff_debug_get_node_identifier_type(
+				  (uint8_t) ( local_descriptor_value->identifier & 0x0000001fUL ) ),
+				 local_descriptor_value->data_identifier,
+				 local_descriptor_value->local_descriptors_identifier );
+			}
 #endif
-		/* Make the embedded item the sub item of the attachment
-		 */
-		if( libpff_item_tree_append_identifier(
-		     internal_item->item_tree_node,
-		     embedded_object_item_identifier,
-		     local_descriptor_value->data_identifier,
-		     local_descriptor_value->local_descriptors_identifier,
-		     internal_item->item_values->recovered,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-			 "%s: unable to append attached item: %" PRIu32 " to attachment item tree node.",
-			 function,
-			 embedded_object_item_identifier );
+			/* Make the embedded item the sub item of the attachment
+			 */
+			if( libpff_item_tree_append_identifier(
+			     internal_item->item_tree_node,
+			     embedded_object_item_identifier,
+			     local_descriptor_value->data_identifier,
+			     local_descriptor_value->local_descriptors_identifier,
+			     internal_item->item_values->recovered,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append attached item: %" PRIu32 " to attachment item tree node.",
+				 function,
+				 embedded_object_item_identifier );
 
-			return( -1 );
+				goto on_error;
+			}
+			if( libcdata_tree_node_get_number_of_sub_nodes(
+			     internal_item->item_tree_node,
+			     &number_of_sub_nodes,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve number of sub nodes.",
+				 function );
+
+				goto on_error;
+			}
+			/* Only a single embedded item per attachment should exists
+			 */
+			if( number_of_sub_nodes != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid number of sub nodes value out of bounds.",
+				 function );
+
+				goto on_error;
+			}
+			if( libcdata_tree_node_get_sub_node_by_index(
+			     internal_item->item_tree_node,
+			     0,
+			     &embedded_item_tree_node,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve first sub node.",
+				 function );
+
+				goto on_error;
+			}
 		}
-		if( libcdata_tree_node_get_number_of_sub_nodes(
-		     internal_item->item_tree_node,
-		     &number_of_sub_nodes,
+		if( libcdata_tree_node_get_value(
+		     embedded_item_tree_node,
+		     (intptr_t **) &embedded_item_descriptor,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve number of sub nodes.",
+			 "%s: unable to retrieve embedded item descriptor.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
-		/* Only a single embedded item per attachment should exists
-		 */
-		if( number_of_sub_nodes != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid number of sub nodes value out of bounds.",
-			 function );
-
-			return( -1 );
-		}
-		if( libcdata_tree_node_get_sub_node_by_index(
-		     internal_item->item_tree_node,
-		     0,
-		     &embedded_item_tree_node,
+		if( libpff_item_initialize(
+		     attached_item,
+		     internal_item->file_io_handle,
+		     internal_item->internal_file,
+		     embedded_item_tree_node,
+		     embedded_item_descriptor,
+		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve first sub node.",
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create attached item.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
+		if( *attached_item == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid attached item.",
+			 function );
+
+			goto on_error;
+		}
+		has_attachment_data = 1;
 	}
-	if( libcdata_tree_node_get_value(
-	     embedded_item_tree_node,
-	     (intptr_t **) &embedded_item_descriptor,
+	if( libpff_record_entry_free(
+	     &record_entry,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve embedded item descriptor.",
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record entry.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libpff_item_initialize(
-	     attached_item,
-	     internal_item->file_io_handle,
-	     internal_item->internal_file,
-	     embedded_item_tree_node,
-	     embedded_item_descriptor,
-	     LIBPFF_ITEM_FLAGS_DEFAULT,
+	if( libpff_record_set_free(
+	     &record_set,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create attached item.",
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record set.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( *attached_item == NULL )
+	return( has_attachment_data );
+
+on_error:
+	if( record_entry != NULL )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid attached item.",
-		 function );
-
-		return( -1 );
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
 	}
-	return( 1 );
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	return( -1 );
 }
 

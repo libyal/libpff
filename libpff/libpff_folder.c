@@ -130,7 +130,7 @@ int libpff_folder_get_type(
 
 		return( 1 );
 	}
-	if( libpff_record_entry_get_value_utf8_string_size(
+	if( libpff_record_entry_get_data_as_utf8_string_size(
 	     folder,
 	     &container_class_string_size,
 	     error ) != 1 )
@@ -160,7 +160,7 @@ int libpff_folder_get_type(
 
 			goto on_error;
 		}
-		if( libpff_record_entry_get_value_utf8_string(
+		if( libpff_record_entry_get_data_as_utf8_string(
 		     folder,
 		     (uint8_t *) container_class_string,
 		     container_class_string_size,
@@ -1232,7 +1232,7 @@ int libpff_folder_get_sub_folder(
 
 			return( -1 );
 		}
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     &sub_folder_descriptor_identifier,
 		     error ) != 1 )
@@ -1241,7 +1241,7 @@ int libpff_folder_get_sub_folder(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit value of record entry.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			return( -1 );
@@ -1549,7 +1549,7 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 
 			return( -1 );
 		}
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     &sub_folder_descriptor_identifier,
 		     error ) != 1 )
@@ -1558,7 +1558,7 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit value of record entry.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			return( -1 );
@@ -1866,7 +1866,7 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 
 			return( -1 );
 		}
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     &sub_folder_descriptor_identifier,
 		     error ) != 1 )
@@ -1875,7 +1875,7 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit value of record entry.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			return( -1 );
@@ -2414,7 +2414,7 @@ int libpff_folder_get_sub_message(
 
 			return( -1 );
 		}
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     &sub_message_descriptor_identifier,
 		     error ) != 1 )
@@ -2423,7 +2423,7 @@ int libpff_folder_get_sub_message(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit value of record entry.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			return( -1 );
@@ -2730,7 +2730,7 @@ int libpff_folder_get_sub_message_by_utf8_name(
 
 			return( -1 );
 		}
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     &sub_message_descriptor_identifier,
 		     error ) != 1 )
@@ -2739,7 +2739,7 @@ int libpff_folder_get_sub_message_by_utf8_name(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit value of record entry.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			return( -1 );
@@ -3046,7 +3046,7 @@ int libpff_folder_get_sub_message_by_utf16_name(
 
 			return( -1 );
 		}
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     &sub_message_descriptor_identifier,
 		     error ) != 1 )
@@ -3055,7 +3055,7 @@ int libpff_folder_get_sub_message_by_utf16_name(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit value of record entry.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			return( -1 );
@@ -3593,7 +3593,7 @@ int libpff_folder_get_sub_associated_content(
 
 			return( -1 );
 		}
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     &sub_associated_content_descriptor_identifier,
 		     error ) != 1 )
@@ -3602,7 +3602,7 @@ int libpff_folder_get_sub_associated_content(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit value of record entry.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			return( -1 );

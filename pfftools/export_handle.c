@@ -1684,13 +1684,15 @@ int export_handle_export_item(
 		else
 		{
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-			result = libpff_message_get_utf16_class_size(
+			result = libpff_message_get_entry_value_utf16_string_size(
 			          item,
+			          LIBPFF_ENTRY_TYPE_MESSAGE_CLASS,
 			          &entry_value_string_size,
 			          error );
 #else
-			result = libpff_message_get_utf8_class_size(
+			result = libpff_message_get_entry_value_utf8_string_size(
 			          item,
+			          LIBPFF_ENTRY_TYPE_MESSAGE_CLASS,
 			          &entry_value_string_size,
 			          error );
 #endif
@@ -1734,14 +1736,16 @@ int export_handle_export_item(
 					goto on_error;
 				}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-				result = libpff_message_get_utf16_class(
+				result = libpff_message_get_entry_value_utf16_string(
 					  item,
+				          LIBPFF_ENTRY_TYPE_MESSAGE_CLASS,
 					  (uint16_t *) entry_value_string,
 					  entry_value_string_size,
 					  error );
 #else
-				result = libpff_message_get_utf8_class(
+				result = libpff_message_get_entry_value_utf8_string(
 					  item,
+				          LIBPFF_ENTRY_TYPE_MESSAGE_CLASS,
 					  (uint8_t *) entry_value_string,
 					  entry_value_string_size,
 					  error );
@@ -1877,8 +1881,8 @@ int export_handle_export_record_set_to_item_file(
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record entry: %d.",
 			 function,
 			 record_entry_index );
@@ -2186,7 +2190,7 @@ int export_handle_export_record_entry_to_item_file(
 			name_to_id_map_entry_string = NULL;
 		}
 	}
-	if( libpff_record_entry_get_value_data_size(
+	if( libpff_record_entry_get_data_size(
 	     record_entry,
 	     &value_data_size,
 	     error ) != 1 )
@@ -2200,7 +2204,23 @@ int export_handle_export_record_entry_to_item_file(
 
 		goto on_error;
 	}
-	if( value_data_size > 0 )
+	if( value_data_size == 0 )
+	{
+		if( item_file_write_new_line(
+		     item_file,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write new line.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	else
 	{
 		value_data = (uint8_t *) memory_allocate(
 		                          sizeof( uint8_t ) * value_data_size );
@@ -2216,7 +2236,7 @@ int export_handle_export_record_entry_to_item_file(
 
 			goto on_error;
 		}
-		if( libpff_record_entry_copy_value_data(
+		if( libpff_record_entry_get_data(
 		     record_entry,
 		     value_data,
 		     value_data_size,
@@ -2225,8 +2245,8 @@ int export_handle_export_record_entry_to_item_file(
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy value data.",
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retreive value data.",
 			 function );
 
 			goto on_error;
@@ -2537,8 +2557,8 @@ int export_handle_export_item_values(
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record set: %d.",
 			 function,
 			 record_set_index );
@@ -2850,7 +2870,7 @@ int export_handle_record_set_get_value_32bit_by_type(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     value_32bit,
 		     error ) != 1 )
@@ -2859,7 +2879,7 @@ int export_handle_record_set_get_value_32bit_by_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit value from record entry.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			goto on_error;
@@ -2933,7 +2953,7 @@ int export_handle_item_get_value_32bit_by_type(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     value_32bit,
 		     error ) != 1 )
@@ -2942,7 +2962,7 @@ int export_handle_item_get_value_32bit_by_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit value from record entry.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			goto on_error;
@@ -3006,7 +3026,6 @@ int export_handle_item_get_value_string_size_by_type(
 	libpff_record_entry_t *record_entry = NULL;
 	libpff_record_set_t *record_set     = NULL;
 	static char *function               = "export_handle_item_get_value_string_size_by_type";
-	uint32_t value_type                 = 0;
 	int result                          = 0;
 
 	if( value_string_size == NULL )
@@ -3049,40 +3068,13 @@ int export_handle_item_get_value_string_size_by_type(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_value_type(
-		     record_entry,
-		     &value_type,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value type.",
-			 function );
-
-			return( -1 );
-		}
-		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
-		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value type: 0x%04" PRIx32 ".",
-			 function,
-			 value_type );
-
-			return( -1 );
-		}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		if( libpff_record_entry_get_value_utf16_string_size(
+		if( libpff_record_entry_get_data_as_utf16_string_size(
 		     record_entry,
 		     value_string_size,
 		     error ) != 1 )
 #else
-		if( libpff_record_entry_get_value_utf8_string_size(
+		if( libpff_record_entry_get_data_as_utf8_string_size(
 		     record_entry,
 		     value_string_size,
 		     error ) != 1 )
@@ -3092,7 +3084,7 @@ int export_handle_item_get_value_string_size_by_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve string size from record entry.",
+			 "%s: unable to retrieve string value size.",
 			 function );
 
 			goto on_error;
@@ -3157,7 +3149,6 @@ int export_handle_item_get_value_string_by_type(
 	libpff_record_entry_t *record_entry = NULL;
 	libpff_record_set_t *record_set     = NULL;
 	static char *function               = "export_handle_item_get_value_string_by_type";
-	uint32_t value_type                 = 0;
 	int result                          = 0;
 
 	result = export_handle_item_get_record_entry_by_type(
@@ -3189,41 +3180,14 @@ int export_handle_item_get_value_string_by_type(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_value_type(
-		     record_entry,
-		     &value_type,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value type.",
-			 function );
-
-			return( -1 );
-		}
-		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
-		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value type: 0x%04" PRIx32 ".",
-			 function,
-			 value_type );
-
-			return( -1 );
-		}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		if( libpff_record_entry_get_value_utf16_string(
+		if( libpff_record_entry_get_data_as_utf16_string(
 		     record_entry,
 		     (uint16_t *) value_string,
 		     value_string_size,
 		     error ) != 1 )
 #else
-		if( libpff_record_entry_get_value_utf8_string(
+		if( libpff_record_entry_get_data_as_utf8_string(
 		     record_entry,
 		     (uint8_t *) value_string,
 		     value_string_size,
@@ -3234,7 +3198,7 @@ int export_handle_item_get_value_string_by_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve string from record entry.",
+			 "%s: unable to retrieve string value.",
 			 function );
 
 			goto on_error;
@@ -3299,7 +3263,6 @@ int export_handle_item_create_value_string_by_type(
 	libpff_record_entry_t *record_entry = NULL;
 	libpff_record_set_t *record_set     = NULL;
 	static char *function               = "export_handle_item_create_value_string_by_type";
-	uint32_t value_type                 = 0;
 	int result                          = 0;
 
 	if( value_string == NULL )
@@ -3364,40 +3327,13 @@ int export_handle_item_create_value_string_by_type(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_value_type(
-		     record_entry,
-		     &value_type,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value type.",
-			 function );
-
-			return( -1 );
-		}
-		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
-		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value type: 0x%04" PRIx32 ".",
-			 function,
-			 value_type );
-
-			return( -1 );
-		}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		if( libpff_record_entry_get_value_utf16_string_size(
+		if( libpff_record_entry_get_data_as_utf16_string_size(
 		     record_entry,
 		     value_string_size,
 		     error ) != 1 )
 #else
-		if( libpff_record_entry_get_value_utf8_string_size(
+		if( libpff_record_entry_get_data_as_utf8_string_size(
 		     record_entry,
 		     value_string_size,
 		     error ) != 1 )
@@ -3407,7 +3343,7 @@ int export_handle_item_create_value_string_by_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve string size from record entry.",
+			 "%s: unable to retrieve string value size.",
 			 function );
 
 			goto on_error;
@@ -3438,13 +3374,13 @@ int export_handle_item_create_value_string_by_type(
 			goto on_error;
 		}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		if( libpff_record_entry_get_value_utf8_string(
+		if( libpff_record_entry_get_data_as_utf8_string(
 		     record_entry,
 		     (uint16_t *) *value_string,
 		     *value_string_size,
 		     error ) != 1 )
 #else
-		if( libpff_record_entry_get_value_utf8_string(
+		if( libpff_record_entry_get_data_as_utf8_string(
 		     record_entry,
 		     (uint8_t *) *value_string,
 		     *value_string_size,
@@ -3455,7 +3391,7 @@ int export_handle_item_create_value_string_by_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve string size from record entry.",
+			 "%s: unable to retrieve string size value.",
 			 function );
 
 			goto on_error;
@@ -3676,8 +3612,8 @@ int export_handle_export_message_header(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -3734,7 +3670,7 @@ int export_handle_export_message_flags_to_item_file(
 	size_t value_string_length       = 0;
 	uint32_t value_32bit             = 0;
 
-	if( libpff_record_entry_get_value_32bit(
+	if( libpff_record_entry_get_data_as_32bit_integer(
 	     record_entry,
 	     &value_32bit,
 	     error ) != 1 )
@@ -3743,7 +3679,7 @@ int export_handle_export_message_flags_to_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 "%s: unable to retrieve 32-bit integer value.",
 		 function );
 
 		return( -1 );
@@ -4241,7 +4177,7 @@ int export_handle_export_message_importance_to_item_file(
 	uint32_t value_32bit             = 0;
 	int unknown_value                = 0;
 
-	if( libpff_record_entry_get_value_32bit(
+	if( libpff_record_entry_get_data_as_32bit_integer(
 	     record_entry,
 	     &value_32bit,
 	     error ) != 1 )
@@ -4250,7 +4186,7 @@ int export_handle_export_message_importance_to_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 "%s: unable to retrieve 32-bit integer value.",
 		 function );
 
 		return( -1 );
@@ -4338,7 +4274,7 @@ int export_handle_export_message_priority_to_item_file(
 	uint32_t value_32bit             = 0;
 	int unknown_value                = 0;
 
-	if( libpff_record_entry_get_value_32bit(
+	if( libpff_record_entry_get_data_as_32bit_integer(
 	     record_entry,
 	     &value_32bit,
 	     error ) != 1 )
@@ -4347,7 +4283,7 @@ int export_handle_export_message_priority_to_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 "%s: unable to retrieve 32-bit integer value.",
 		 function );
 
 		return( -1 );
@@ -4435,7 +4371,7 @@ int export_handle_export_message_sensitivity_to_item_file(
 	uint32_t value_32bit             = 0;
 	int unknown_value                = 0;
 
-	if( libpff_record_entry_get_value_32bit(
+	if( libpff_record_entry_get_data_as_32bit_integer(
 	     record_entry,
 	     &value_32bit,
 	     error ) != 1 )
@@ -4444,7 +4380,7 @@ int export_handle_export_message_sensitivity_to_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 "%s: unable to retrieve 32-bit integer value.",
 		 function );
 
 		return( -1 );
@@ -4534,7 +4470,7 @@ int export_handle_export_message_status_to_item_file(
 	static char *function = "export_handle_export_message_status_to_item_file";
 	uint32_t value_32bit  = 0;
 
-	if( libpff_record_entry_get_value_32bit(
+	if( libpff_record_entry_get_data_as_32bit_integer(
 	     record_entry,
 	     &value_32bit,
 	     error ) != 1 )
@@ -4543,7 +4479,7 @@ int export_handle_export_message_status_to_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 "%s: unable to retrieve 32-bit integer value.",
 		 function );
 
 		return( -1 );
@@ -4882,12 +4818,12 @@ int export_handle_export_message_subject_to_item_file(
 	int result                       = 0;
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libpff_record_entry_get_value_utf16_string_size(
+	result = libpff_record_entry_get_data_as_utf16_string_size(
 	          record_entry,
 	          &value_string_size,
 	          error );
 #else
-	result = libpff_record_entry_get_value_utf8_string_size(
+	result = libpff_record_entry_get_data_as_utf8_string_size(
 	          record_entry,
 	          &value_string_size,
 	          error );
@@ -4921,13 +4857,13 @@ int export_handle_export_message_subject_to_item_file(
 			goto on_error;
 		}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		result = libpff_record_entry_get_value_utf16_string(
+		result = libpff_record_entry_get_data_as_utf16_string(
 		          record_entry,
 		          (uint16_t *) value_string,
 		          value_string_size,
 		          error );
 #else
-		result = libpff_record_entry_get_value_utf8_string(
+		result = libpff_record_entry_get_data_as_utf8_string(
 		          record_entry,
 		          (uint8_t *) value_string,
 		          value_string_size,
@@ -4977,6 +4913,19 @@ int export_handle_export_message_subject_to_item_file(
 		 value_string );
 
 		value_string = NULL;
+	}
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
+		 function );
+
+		goto on_error;
 	}
 	return( 1 );
 
@@ -5038,6 +4987,19 @@ int export_handle_export_message_header_to_item_file(
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_WRITE_FAILED,
 		 "%s: unable to export message item values to item file.",
+		 function );
+
+		return( -1 );
+	}
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
 		 function );
 
 		return( -1 );
@@ -6075,14 +6037,14 @@ int export_handle_export_message_conversation_index(
 	}
 	if( export_handle_export_message_conversation_index_to_item_file(
 	     export_handle,
-	     message,
 	     item_file,
+	     message,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message conversation index.",
 		 function );
 
@@ -6131,23 +6093,16 @@ on_error:
  */
 int export_handle_export_message_conversation_index_to_item_file(
      export_handle_t *export_handle,
-     libpff_item_t *message,
      item_file_t *item_file,
+     libpff_item_t *message,
      libcerror_error_t **error )
 {
-	uint8_t filetime_buffer[ 8 ];
-
-	libfdatetime_filetime_t *delta_filetime = NULL;
-	libfdatetime_filetime_t *filetime       = NULL;
-	libfguid_identifier_t *guid             = NULL;
-	uint8_t *entry_value                    = NULL;
-	uint8_t *entry_value_pointer            = NULL;
-	static char *function                   = "export_handle_export_message_conversation_index_to_item_file";
-	size_t entry_value_size                 = 0;
-	uint64_t entry_value_64bit              = 0;
-	uint32_t entry_value_index              = 0;
-	int list_iterator                       = 0;
-	int result                              = 0;
+	libpff_record_entry_t *record_entry = NULL;
+	libpff_record_set_t *record_set     = NULL;
+	uint8_t *data                       = NULL;
+	static char *function               = "export_handle_export_message_conversation_index_to_item_file";
+	size_t data_size                    = 0;
+	int result                          = 0;
 
 	if( export_handle == NULL )
 	{
@@ -6160,9 +6115,27 @@ int export_handle_export_message_conversation_index_to_item_file(
 
 		return( -1 );
 	}
-	result = libpff_message_get_conversation_index_size(
-	          message,
-	          &entry_value_size,
+	if( libpff_item_get_record_set_by_index(
+	     message,
+	     0,
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record set: 0.",
+		 function );
+
+		goto on_error;
+	}
+	result = libpff_record_set_get_entry_by_type(
+	          record_set,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_INDEX,
+	          LIBPFF_VALUE_TYPE_BINARY_DATA,
+	          &record_entry,
+	          0,
 	          error );
 
 	if( result == -1 )
@@ -6171,46 +6144,158 @@ int export_handle_export_message_conversation_index_to_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve conversation index size.",
-		 function );
-
-		 goto on_error;
-	}
-	if( ( result == 0 )
-	 || ( entry_value_size == 0 ) )
-	{
-		return( 1 );
-	}
-	entry_value = (uint8_t *) memory_allocate(
-	                           sizeof( uint8_t ) * entry_value_size );
-
-	if( entry_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create entry value.",
-		 function );
+		 "%s: unable to retrieve record entry: 0x%04 " PRIx32 " 0x%04" PRIx32 ".",
+		 function,
+		 LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_INDEX,
+		 LIBPFF_VALUE_TYPE_BINARY_DATA );
 
 		goto on_error;
 	}
-	result = libpff_message_get_conversation_index(
-		  message,
-		  entry_value,
-		  entry_value_size,
-		  error );
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_data_size(
+		     record_entry,
+		     &data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value data size.",
+			 function );
 
-	if( result != 1 )
+			goto on_error;
+		}
+		data = (uint8_t *) memory_allocate(
+		                    sizeof( uint8_t ) * data_size );
+
+		if( data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_get_data(
+		     record_entry,
+		     data,
+		     data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( export_handle_export_message_conversation_index_data_to_item_file(
+		     export_handle,
+		     item_file,
+		     data,
+		     data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to export message conversation index.",
+			 function );
+
+			goto on_error;
+		}
+		memory_free(
+		 data );
+
+		data = NULL;
+	}
+	if( libpff_record_entry_free(
+	     &record_entry,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve conversation index.",
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record entry.",
 		 function );
 
 		goto on_error;
+	}
+	if( libpff_record_set_free(
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record set.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( data != NULL )
+	{
+		memory_free(
+		 data );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	if( record_set != NULL )
+	{
+		libpff_record_set_free(
+		 &record_set,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Exports the Outlook message conversation index to an item file
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_message_conversation_index_data_to_item_file(
+     export_handle_t *export_handle,
+     item_file_t *item_file,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error )
+{
+	uint8_t filetime_buffer[ 8 ];
+
+	libfdatetime_filetime_t *delta_filetime = NULL;
+	libfdatetime_filetime_t *filetime       = NULL;
+	libfguid_identifier_t *guid             = NULL;
+	static char *function                   = "export_handle_export_message_conversation_index_data_to_item_file";
+	uint64_t value_64bit                    = 0;
+	uint32_t data_offset                    = 0;
+	int list_index                          = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
 	}
 	if( item_file_write_value_description(
 	     item_file,
@@ -6226,14 +6311,14 @@ int export_handle_export_message_conversation_index_to_item_file(
 
 		goto on_error;
 	}
-	if( entry_value_size >= 22 )
+	if( data_size >= 22 )
 	{
 		/* According to MSDN the first byte is reserved
 		 * and should always be 0x01 however it makes
 		 * more sense that it's the most significant
 		 * part of the current system filetime data
 		 */
-		if( entry_value[ 0 ] == 0x01 )
+		if( data[ 0 ] == 0x01 )
 		{
 			if( libfdatetime_filetime_initialize(
 			     &filetime,
@@ -6279,12 +6364,12 @@ int export_handle_export_message_conversation_index_to_item_file(
 			 */
 			filetime_buffer[ 0 ] = 0;
 			filetime_buffer[ 1 ] = 0;
-			filetime_buffer[ 2 ] = entry_value[ 5 ];
-			filetime_buffer[ 3 ] = entry_value[ 4 ];
-			filetime_buffer[ 4 ] = entry_value[ 3 ];
-			filetime_buffer[ 5 ] = entry_value[ 2 ];
-			filetime_buffer[ 6 ] = entry_value[ 1 ];
-			filetime_buffer[ 7 ] = entry_value[ 0 ];
+			filetime_buffer[ 2 ] = data[ 5 ];
+			filetime_buffer[ 3 ] = data[ 4 ];
+			filetime_buffer[ 4 ] = data[ 3 ];
+			filetime_buffer[ 5 ] = data[ 2 ];
+			filetime_buffer[ 6 ] = data[ 1 ];
+			filetime_buffer[ 7 ] = data[ 0 ];
 
 			if( libfdatetime_filetime_copy_from_byte_stream(
 			     filetime,
@@ -6334,7 +6419,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 			 */
 			if( libfguid_identifier_copy_from_byte_stream(
 			     guid,
-			     &( entry_value[ 6 ] ),
+			     &( data[ 6 ] ),
 			     16,
 			     LIBFGUID_ENDIAN_BIG,
 			     error ) != 1 )
@@ -6403,16 +6488,16 @@ int export_handle_export_message_conversation_index_to_item_file(
 
 				goto on_error;
 			}
-			list_iterator = 1;
+			list_index = 1;
 
-			for( entry_value_index = 22;
-			     entry_value_index < entry_value_size;
-			     entry_value_index += 5 )
+			for( data_offset = 22;
+			     data_offset < data_size;
+			     data_offset += 5 )
 			{
 				if( item_file_write_value_integer_32bit_as_decimal(
 				     item_file,
 				     _SYSTEM_STRING( "Child block: " ),
-				     (uint32_t) list_iterator,
+				     (uint32_t) list_index,
 				     error ) != 1 )
 				{
 					libcerror_error_set(
@@ -6424,36 +6509,34 @@ int export_handle_export_message_conversation_index_to_item_file(
 
 					goto on_error;
 				}
-				entry_value_pointer = &( entry_value[ entry_value_index ] );
-
 				/* Use a 64-bit value to be able to shift the bits in the right position
 				 * current system time delta is in big-endian
 				 */
 				byte_stream_copy_to_uint32_little_endian(
-				 entry_value_pointer,
-				 entry_value_64bit );
+				 &( data[ data_offset ] ),
+				 value_64bit );
 
 				/* Make sure only 31-bits are set and the rest is cleared
 				 */
-				entry_value_64bit &= 0x07fffffffUL;
+				value_64bit &= 0x07fffffffUL;
 
 				/* Check if the highest bit is set
 				 */
-				if( ( entry_value[ entry_value_index ] & 0x80 ) == 0 )
+				if( ( data[ data_offset ] & 0x80 ) == 0 )
 				{
 					/* Discard the highest 15-bits and the lowest 18-bits
 					 */
-					entry_value_64bit <<= 18;
+					value_64bit <<= 18;
 				}
 				else
 				{
 					/* Discard the highest 10-bits and the lowest 23-bits
 					 */
-					entry_value_64bit <<= 23;
+					value_64bit <<= 23;
 				}
 				if( libfdatetime_filetime_copy_from_64bit(
 				     delta_filetime,
-				     entry_value_64bit,
+				     value_64bit,
 				     error ) != 1 )
 				{
 					libcerror_error_set(
@@ -6501,7 +6584,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 				if( item_file_write_value_integer_32bit_as_decimal(
 				     item_file,
 				     _SYSTEM_STRING( "\tRandom number:\t" ),
-				     (uint32_t) ( ( entry_value[ entry_value_index + 4 ] & 0xf0 ) >> 4 ),
+				     (uint32_t) ( ( data[ data_offset + 4 ] & 0xf0 ) >> 4 ),
 				     error ) != 1 )
 				{
 					libcerror_error_set(
@@ -6516,7 +6599,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 				if( item_file_write_value_integer_32bit_as_decimal(
 				     item_file,
 				     _SYSTEM_STRING( "\tSequence count:\t" ),
-				     (uint32_t) ( entry_value[ entry_value_index + 4 ] & 0x0f ),
+				     (uint32_t) ( data[ data_offset + 4 ] & 0x0f ),
 				     error ) != 1 )
 				{
 					libcerror_error_set(
@@ -6528,7 +6611,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 
 					goto on_error;
 				}
-				list_iterator++;
+				list_index++;
 			}
 			if( item_file_write_new_line(
 			     item_file,
@@ -6584,11 +6667,6 @@ int export_handle_export_message_conversation_index_to_item_file(
 
 		goto on_error;
 	}
-	memory_free(
-	 entry_value );
-
-	entry_value = NULL;
-
 	return( 1 );
 
 on_error:
@@ -6609,11 +6687,6 @@ on_error:
 		libfdatetime_filetime_free(
 		 &filetime,
 		 NULL );
-	}
-	if( entry_value != NULL )
-	{
-		memory_free(
-		 entry_value );
 	}
 	return( -1 );
 }
@@ -6650,8 +6723,9 @@ int export_handle_export_message_transport_headers(
 	}
 	/* Determine the message transport headers size
 	 */
-	result = libpff_message_get_utf8_transport_headers_size(
+	result = libpff_message_get_entry_value_utf8_string_size(
 	          message,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
 	          &message_transport_headers_size,
 	          error );
 
@@ -6815,8 +6889,9 @@ int export_handle_export_message_transport_headers_to_item_file(
 
 			goto on_error;
 		}
-		if( libpff_message_get_utf8_transport_headers(
+		if( libpff_message_get_entry_value_utf8_string(
 		     message,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
 		     entry_string,
 		     message_transport_headers_size,
 		     error ) != 1 )
@@ -8220,8 +8295,8 @@ int export_handle_export_recipients(
 				{
 					libcerror_error_set(
 					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_GENERIC,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GENERIC,
 					 "%s: unable to export recipients.",
 					 function );
 
@@ -8301,7 +8376,7 @@ int export_handle_export_recipient_type_to_item_file(
 	uint32_t value_32bit             = 0;
 	int unknown_value                = 0;
 
-	if( libpff_record_entry_get_value_32bit(
+	if( libpff_record_entry_get_data_as_32bit_integer(
 	     record_entry,
 	     &value_32bit,
 	     error ) != 1 )
@@ -8310,7 +8385,7 @@ int export_handle_export_recipient_type_to_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve retrieve 32-bit integer value.",
+		 "%s: unable to retrieve 32-bit integer value.",
 		 function );
 
 		return( -1 );
@@ -8731,8 +8806,8 @@ int export_handle_export_activity(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -9126,8 +9201,8 @@ int export_handle_export_appointment(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -9459,8 +9534,8 @@ int export_handle_export_contact(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -9880,8 +9955,8 @@ int export_handle_export_distribution_list(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -10459,8 +10534,8 @@ int export_handle_export_document(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -10889,8 +10964,9 @@ int export_handle_export_email(
 	}
 	if( export_format == EXPORT_FORMAT_FTK )
 	{
-		if( libpff_email_get_utf8_filename_size(
+		if( libpff_message_get_entry_value_utf8_string_size(
 		     email,
+		     LIBPFF_ENTRY_TYPE_EMAIL_EML_FILENAME,
 		     &email_filename_size,
 		     NULL ) == 1 )
 		{
@@ -10924,8 +11000,9 @@ int export_handle_export_email(
 
 			goto on_error;
 		}
-		if( libpff_email_get_utf8_filename(
+		if( libpff_message_get_entry_value_utf8_string(
 		     email,
+		     LIBPFF_ENTRY_TYPE_EMAIL_EML_FILENAME,
 		     email_filename,
 		     email_filename_size,
 		     NULL ) == 1 )
@@ -11187,8 +11264,8 @@ int export_handle_export_email_ftk(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -11196,14 +11273,14 @@ int export_handle_export_email_ftk(
 	}
 	if( export_handle_export_message_conversation_index_to_item_file(
 	     export_handle,
-	     email,
 	     item_file,
+	     email,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message conversation index.",
 		 function );
 
@@ -11302,8 +11379,9 @@ int export_handle_export_email_ftk(
 	}
 	/* Determine the message transport headers size
 	 */
-	result = libpff_message_get_utf8_transport_headers_size(
+	result = libpff_message_get_entry_value_utf8_string_size(
 	          email,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
 	          &message_transport_headers_size,
 	          error );
 
@@ -11599,8 +11677,8 @@ int export_handle_export_meeting(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -11951,8 +12029,8 @@ int export_handle_export_note(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -12360,8 +12438,8 @@ int export_handle_export_rss_feed(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 
@@ -12778,8 +12856,8 @@ int export_handle_export_task(
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to export message header.",
 		 function );
 

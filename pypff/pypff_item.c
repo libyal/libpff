@@ -522,7 +522,7 @@ PyObject *pypff_item_get_record_set_by_index(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_record_set(
+	result = libpff_item_get_record_set_by_index(
 	          ( (pypff_item_t *) pypff_item )->item,
 	          record_set_index,
 	          &record_set,
@@ -770,7 +770,7 @@ PyTypeObject *pypff_item_get_item_type_object(
 		libcerror_error_free(
 		 &error );
 
-		goto on_error;
+		return( NULL );
 	}
 	switch( item_type )
 	{

@@ -9184,7 +9184,7 @@ int libpff_table_read_entry_value(
 			 */
 			else if( result != 0 )
 			{
-				if( libpff_record_entry_get_value_data_size(
+				if( libpff_record_entry_get_data_size(
 				     (libpff_record_entry_t *) value_record_entry,
 				     &record_entry_value_data_size,
 				     error ) != 1 )
@@ -9193,7 +9193,7 @@ int libpff_table_read_entry_value(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve value record entry value data size.",
+					 "%s: unable to retrieve record entry value data size.",
 					 function );
 
 					goto on_error;
@@ -9699,7 +9699,7 @@ int libpff_table_read_entry_value(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-		if( libpff_debug_record_entry_print(
+		if( libpff_debug_print_record_entry(
 		     (libpff_record_entry_t *) record_entry,
 		     name_to_id_map_list,
 		     debug_item_type,

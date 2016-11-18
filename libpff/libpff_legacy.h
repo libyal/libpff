@@ -58,6 +58,39 @@ int libpff_item_get_value_type(
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
+int libpff_item_get_entry_value(
+     libpff_item_t *item,
+     int set_index,
+     uint32_t entry_type,
+     uint32_t *value_type,
+     uint8_t **value_data,
+     size_t *value_data_size,
+     uint8_t flags,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_by_utf8_name(
+     libpff_item_t *item,
+     int set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint32_t *value_type,
+     uint8_t **value_data,
+     size_t *value_data_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_by_utf16_name(
+     libpff_item_t *item,
+     int set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint32_t *value_type,
+     uint8_t **value_data,
+     size_t *value_data_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
 int libpff_item_get_entry_value_boolean(
      libpff_item_t *item,
      int set_index,
@@ -356,6 +389,154 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
      int set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_size(
+     libpff_item_t *item,
+     int set_index,
+     uint32_t entry_type,
+     size_t *binary_data_size,
+     uint8_t flags,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_size_by_utf8_name(
+     libpff_item_t *item,
+     int set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     size_t *binary_data_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
+     libpff_item_t *item,
+     int set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     size_t *binary_data_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data(
+     libpff_item_t *item,
+     int set_index,
+     uint32_t entry_type,
+     uint8_t *binary_data,
+     size_t binary_data_size,
+     uint8_t flags,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_by_utf8_name(
+     libpff_item_t *item,
+     int set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint8_t *binary_data,
+     size_t binary_data_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_by_utf16_name(
+     libpff_item_t *item,
+     int set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint8_t *binary_data,
+     size_t binary_data_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_guid(
+     libpff_item_t *item,
+     int set_index,
+     uint32_t entry_type,
+     uint8_t *guid,
+     size_t guid_size,
+     uint8_t flags,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_data_size(
+     libpff_record_entry_t *record_entry,
+     size_t *value_data_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_copy_value_data(
+     libpff_record_entry_t *record_entry,
+     uint8_t *value_data,
+     size_t value_data_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_boolean(
+     libpff_record_entry_t *record_entry,
+     uint8_t *value_boolean,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_16bit(
+     libpff_record_entry_t *record_entry,
+     uint16_t *value_16bit,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_32bit(
+     libpff_record_entry_t *record_entry,
+     uint32_t *value_32bit,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_64bit(
+     libpff_record_entry_t *record_entry,
+     uint64_t *value_64bit,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_filetime(
+     libpff_record_entry_t *record_entry,
+     uint64_t *value_64bit,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_size(
+     libpff_record_entry_t *record_entry,
+     size_t *value_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_floating_point(
+     libpff_record_entry_t *record_entry,
+     double *value_floating_point,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_utf8_string_size(
+     libpff_record_entry_t *record_entry,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_utf8_string(
+     libpff_record_entry_t *record_entry,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_utf16_string_size(
+     libpff_record_entry_t *record_entry,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_utf16_string(
+     libpff_record_entry_t *record_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      libcerror_error_t **error );

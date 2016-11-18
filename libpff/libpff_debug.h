@@ -55,7 +55,14 @@ const char *libpff_debug_get_name_to_id_map_property_type_description(
 const char *libpff_debug_get_node_identifier_type(
              uint8_t node_identifier_type );
 
-int libpff_debug_record_entry_print(
+int libpff_debug_print_record_set(
+     libpff_record_set_t *record_set,
+     libcdata_list_t *name_to_id_map_list,
+     int debug_item_type,
+     int ascii_codepage,
+     libcerror_error_t **error );
+
+int libpff_debug_print_record_entry(
      libpff_record_entry_t *record_entry,
      libcdata_list_t *name_to_id_map_list,
      int debug_item_type,

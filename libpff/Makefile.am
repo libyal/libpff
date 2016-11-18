@@ -78,6 +78,7 @@ libpff_la_SOURCES = \
 	libpff_notify.c libpff_notify.h \
 	libpff_offsets_index.c libpff_offsets_index.h \
 	libpff_record_entry.c libpff_record_entry.h \
+	libpff_record_entry_identifier.h \
 	libpff_record_set.c libpff_record_set.h \
 	libpff_recover.c libpff_recover.h \
 	libpff_reference_descriptor.c libpff_reference_descriptor.h \

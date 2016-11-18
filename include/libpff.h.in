@@ -498,166 +498,7 @@ int libpff_item_get_number_of_entries(
      uint32_t *number_of_entries,
      libpff_error_t **error );
 
-/* Retrieves the value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
- * the value type is ignored and set. The default behavior is a strict
- * matching of the value type. In this case the value type must be filled
- * with the corresponding value type
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint32_t *value_type,
-     uint8_t **value_data,
-     size_t *value_data_size,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint32_t *value_type,
-     uint8_t **value_data,
-     size_t *value_data_size,
-     libpff_error_t **error );
-
-/* Retrieves the value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint32_t *value_type,
-     uint8_t **value_data,
-     size_t *value_data_size,
-     libpff_error_t **error );
-
-/* Retrieves the size of a binary data value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_binary_data_size(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     size_t *binary_data_size,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the size of a binary data value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_binary_data_size_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     size_t *binary_data_size,
-     libpff_error_t **error );
-
-/* Retrieves the size of a binary data value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     size_t *binary_data_size,
-     libpff_error_t **error );
-
-/* Retrieves the binary data value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_binary_data(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint8_t *binary_data,
-     size_t binary_data_size,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* Retrieves the binary data value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_binary_data_by_utf8_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint8_t *utf8_entry_name,
-     size_t utf8_entry_name_length,
-     uint8_t *binary_data,
-     size_t binary_data_size,
-     libpff_error_t **error );
-
-/* Retrieves the binary data value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_binary_data_by_utf16_name(
-     libpff_item_t *item,
-     int record_set_index,
-     uint16_t *utf16_entry_name,
-     size_t utf16_entry_name_length,
-     uint8_t *binary_data,
-     size_t binary_data_size,
-     libpff_error_t **error );
-
-/* Retrieves the GUID value of a specific entry
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_value_guid(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     uint8_t *guid,
-     size_t guid_size,
-     uint8_t flags,
-     libpff_error_t **error );
-
-/* TODO add by_name functions */
+/* TODO replace libpff_item_get_entry_multi_value by libpff_record_entry_get_data_as_multi_value */
 
 /* Retrieves the multi value of a specific entry
  * Creates a new multi value
@@ -677,8 +518,6 @@ int libpff_item_get_entry_multi_value(
      libpff_multi_value_t **multi_value,
      uint8_t flags,
      libpff_error_t **error );
-
-/* TODO add by_name functions */
 
 /* Retrieves the type value
  * Determines the item type if neccessary
@@ -773,6 +612,70 @@ int libpff_item_get_value_type(
      uint32_t entry_type,
      uint32_t *value_type,
      uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * the value type is ignored and set. The default behavior is a strict
+ * matching of the value type. In this case the value type must be filled
+ * with the corresponding value type
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_set_get_entry_by_type or libpff_record_entry_get_data instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint32_t *value_type,
+     uint8_t **value_data,
+     size_t *value_data_size,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_set_get_entry_by_utf8_name instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint32_t *value_type,
+     uint8_t **value_data,
+     size_t *value_data_size,
+     libpff_error_t **error );
+
+/* Retrieves the value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_set_get_entry_by_utf16_name instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint32_t *value_type,
+     uint8_t **value_data,
+     size_t *value_data_size,
      libpff_error_t **error );
 
 /* Retrieves the boolean value of a specific entry
@@ -1378,6 +1281,137 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
      size_t utf16_string_size,
      libpff_error_t **error );
 
+/* Retrieves the size of a binary data value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_data_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_size(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     size_t *binary_data_size,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the size of a binary data value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_data_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_size_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     size_t *binary_data_size,
+     libpff_error_t **error );
+
+/* Retrieves the size of a binary data value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_data_size instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     size_t *binary_data_size,
+     libpff_error_t **error );
+
+/* Retrieves the binary data value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_data instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint8_t *binary_data,
+     size_t binary_data_size,
+     uint8_t flags,
+     libpff_error_t **error );
+
+/* Retrieves the binary data value of a specific entry for an UTF-8 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_data instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_by_utf8_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint8_t *utf8_entry_name,
+     size_t utf8_entry_name_length,
+     uint8_t *binary_data,
+     size_t binary_data_size,
+     libpff_error_t **error );
+
+/* Retrieves the binary data value of a specific entry for an UTF-16 encoded name
+ *
+ * This function deprecated use libpff_record_entry_get_data instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_binary_data_by_utf16_name(
+     libpff_item_t *item,
+     int record_set_index,
+     uint16_t *utf16_entry_name,
+     size_t utf16_entry_name_length,
+     uint8_t *binary_data,
+     size_t binary_data_size,
+     libpff_error_t **error );
+
+/* Retrieves the GUID value of a specific entry
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_guid instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_value_guid(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     uint8_t *guid,
+     size_t guid_size,
+     uint8_t flags,
+     libpff_error_t **error );
+
 /* Retrieves the size of the UTF-16 encoded item display name
  * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -1661,23 +1695,23 @@ int libpff_record_entry_get_value_type(
      uint32_t *value_type,
      libpff_error_t **error );
 
-/* Retrieves the value data size
+/* Retrieves the data size
  * Returns 1 if successful or -1 on error
  */
 LIBPFF_EXTERN \
-int libpff_record_entry_get_value_data_size(
+int libpff_record_entry_get_data_size(
      libpff_record_entry_t *record_entry,
-     size_t *value_data_size,
+     size_t *data_size,
      libpff_error_t **error );
 
-/* Copies the value data
+/* Retrieves the data
  * Returns 1 if successful or -1 on error
  */
 LIBPFF_EXTERN \
-int libpff_record_entry_copy_value_data(
+int libpff_record_entry_get_data(
      libpff_record_entry_t *record_entry,
-     uint8_t *value_data,
-     size_t value_data_size,
+     uint8_t *data,
+     size_t data_size,
      libpff_error_t **error );
 
 /* Reads value data from the current offset into a buffer
@@ -1700,9 +1734,179 @@ off64_t libpff_record_entry_seek_offset(
          int whence,
          libpff_error_t **error );
 
-/* Retrieves the 8-bit boolean value
+/* Retrieves the data as a boolean value
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_boolean(
+     libpff_record_entry_t *record_entry,
+     uint8_t *value_boolean,
+     libpff_error_t **error );
+
+/* Retrieves the data as a 16-bit integer value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_16bit_integer(
+     libpff_record_entry_t *record_entry,
+     uint16_t *value_16bit,
+     libpff_error_t **error );
+
+/* Retrieves the data as a 32-bit integer value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_32bit_integer(
+     libpff_record_entry_t *record_entry,
+     uint32_t *value_32bit,
+     libpff_error_t **error );
+
+/* Retrieves the data as a 32-bit integer value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_64bit_integer(
+     libpff_record_entry_t *record_entry,
+     uint64_t *value_64bit,
+     libpff_error_t **error );
+
+/* Retrieves the data as a 64-bit FILETIME value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_filetime(
+     libpff_record_entry_t *record_entry,
+     uint64_t *filetime,
+     libpff_error_t **error );
+
+/* Retrieves the data as a 64-bit floatingtime value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_floatingtime(
+     libpff_record_entry_t *record_entry,
+     uint64_t *floatingtime,
+     libpff_error_t **error );
+
+/* Retrieves the data as a size value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_size(
+     libpff_record_entry_t *record_entry,
+     size64_t *value_size,
+     libpff_error_t **error );
+
+/* Retrieves the data as a floating point value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_floating_point(
+     libpff_record_entry_t *record_entry,
+     double *value_floating_point,
+     libpff_error_t **error );
+
+/* Retrieves the size of the data formatted as an UTF-8 string
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_utf8_string_size(
+     libpff_record_entry_t *record_entry,
+     size_t *utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the data formatted as an UTF-8 string
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_utf8_string(
+     libpff_record_entry_t *record_entry,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the size of the data formatted as an UTF-16 string
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_utf16_string_size(
+     libpff_record_entry_t *record_entry,
+     size_t *utf16_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the data formatted as an UTF-16 string
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_utf16_string(
+     libpff_record_entry_t *record_entry,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the data as a GUID value
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_data_as_guid(
+     libpff_record_entry_t *record_entry,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libpff_error_t **error );
+
+/* Retrieves the data as a multi value
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_multi_value(
+     libpff_record_entry_t *record_entry,
+     libpff_multi_value_t **multi_value,
+     libpff_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Record entry functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the value data size
+ *
+ * This function deprecated use libpff_record_entry_get_data_size instead
+ *
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_record_entry_get_value_data_size(
+     libpff_record_entry_t *record_entry,
+     size_t *value_data_size,
+     libpff_error_t **error );
+
+/* Copies the value data
+ *
+ * This function deprecated use libpff_record_entry_get_data instead
+ *
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_record_entry_copy_value_data(
+     libpff_record_entry_t *record_entry,
+     uint8_t *value_data,
+     size_t value_data_size,
+     libpff_error_t **error );
+
+/* Retrieves the 8-bit boolean value
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_boolean instead
+ *
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_boolean(
      libpff_record_entry_t *record_entry,
@@ -1710,8 +1914,12 @@ int libpff_record_entry_get_value_boolean(
      libpff_error_t **error );
 
 /* Retrieves the 16-bit value
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_16bit_integer instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_16bit(
      libpff_record_entry_t *record_entry,
@@ -1719,8 +1927,12 @@ int libpff_record_entry_get_value_16bit(
      libpff_error_t **error );
 
 /* Retrieves the 32-bit value
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_32bit_integer instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_32bit(
      libpff_record_entry_t *record_entry,
@@ -1728,17 +1940,25 @@ int libpff_record_entry_get_value_32bit(
      libpff_error_t **error );
 
 /* Retrieves the 64-bit value
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_64bit_integer instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_64bit(
      libpff_record_entry_t *record_entry,
      uint64_t *value_64bit,
      libpff_error_t **error );
 
-/* Retrieves the 64-bit filetime value
+/* Retrieves the 64-bit FILETIME value
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_filetime instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_filetime(
      libpff_record_entry_t *record_entry,
@@ -1746,8 +1966,12 @@ int libpff_record_entry_get_value_filetime(
      libpff_error_t **error );
 
 /* Retrieves the size value
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_size instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_size(
      libpff_record_entry_t *record_entry,
@@ -1755,8 +1979,12 @@ int libpff_record_entry_get_value_size(
      libpff_error_t **error );
 
 /* Retrieves the floating point value
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_floating_point instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_floating_point(
      libpff_record_entry_t *record_entry,
@@ -1765,8 +1993,12 @@ int libpff_record_entry_get_value_floating_point(
 
 /* Retrieves the UTF-8 string size
  * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_utf8_string_size instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf8_string_size(
      libpff_record_entry_t *record_entry,
@@ -1776,8 +2008,12 @@ int libpff_record_entry_get_value_utf8_string_size(
 /* Retrieves the UTF-8 string value of a specific entry
  * The function uses a codepage if necessary, it uses the codepage set for the library
  * The size should include the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_utf8_string instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf8_string(
      libpff_record_entry_t *record_entry,
@@ -1787,8 +2023,12 @@ int libpff_record_entry_get_value_utf8_string(
 
 /* Retrieves the UTF-16 string size
  * The returned size includes the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_utf16_string_size instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf16_string_size(
      libpff_record_entry_t *record_entry,
@@ -1798,22 +2038,17 @@ int libpff_record_entry_get_value_utf16_string_size(
 /* Retrieves the UTF-16 string value of a specific entry
  * The function uses a codepage if necessary, it uses the codepage set for the library
  * The size should include the end of string character
+ *
+ * This function deprecated use libpff_record_entry_get_data_as_utf16_string instead
+ *
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_record_entry_get_value_utf16_string(
      libpff_record_entry_t *record_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     libpff_error_t **error );
-
-/* Retrieves the multi value
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_record_entry_get_multi_value(
-     libpff_record_entry_t *record_entry,
-     libpff_multi_value_t **multi_value,
      libpff_error_t **error );
 
 /* -------------------------------------------------------------------------

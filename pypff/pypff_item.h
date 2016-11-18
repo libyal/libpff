@@ -44,6 +44,10 @@ struct pypff_item
 	 */
 	libpff_item_t *item;
 
+	/* The libpff record set
+	 */
+	libpff_record_set_t *record_set;
+
 	/* The parent object
 	 */
 	PyObject *parent_object;

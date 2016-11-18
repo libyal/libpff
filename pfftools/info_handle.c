@@ -659,7 +659,7 @@ int info_handle_message_store_fprint(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     &valid_folder_mask,
 		     error ) != 1 )
@@ -668,7 +668,7 @@ int info_handle_message_store_fprint(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve valid folder mask value.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			goto on_error;
@@ -764,7 +764,7 @@ int info_handle_message_store_fprint(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_value_32bit(
+		if( libpff_record_entry_get_data_as_32bit_integer(
 		     record_entry,
 		     &password_checksum,
 		     error ) != 1 )
@@ -773,7 +773,7 @@ int info_handle_message_store_fprint(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve password checksum value.",
+			 "%s: unable to retrieve 32-bit integer value.",
 			 function );
 
 			goto on_error;

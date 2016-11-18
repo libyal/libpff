@@ -1848,7 +1848,7 @@ int pff_test_file_get_root_item(
 		 "root_item",
 		 root_item );
 
-		result = libpff_item_t_free(
+		result = libpff_item_free(
 		          &root_item,
 		          &error );
 
@@ -1917,7 +1917,7 @@ on_error:
 	}
 	if( root_item != NULL )
 	{
-		libpff_item_t_free(
+		libpff_item_free(
 		 &root_item,
 		 NULL );
 	}
@@ -1959,7 +1959,7 @@ int pff_test_file_get_message_store(
 		 "message_store",
 		 message_store );
 
-		result = libpff_item_t_free(
+		result = libpff_item_free(
 		          &message_store,
 		          &error );
 
@@ -2028,7 +2028,7 @@ on_error:
 	}
 	if( message_store != NULL )
 	{
-		libpff_item_t_free(
+		libpff_item_free(
 		 &message_store,
 		 NULL );
 	}
@@ -2070,7 +2070,7 @@ int pff_test_file_get_name_to_id_map(
 		 "name_to_id_map",
 		 name_to_id_map );
 
-		result = libpff_item_t_free(
+		result = libpff_item_free(
 		          &name_to_id_map,
 		          &error );
 
@@ -2139,7 +2139,7 @@ on_error:
 	}
 	if( name_to_id_map != NULL )
 	{
-		libpff_item_t_free(
+		libpff_item_free(
 		 &name_to_id_map,
 		 NULL );
 	}
@@ -2181,7 +2181,7 @@ int pff_test_file_get_root_folder(
 		 "root_folder",
 		 root_folder );
 
-		result = libpff_item_t_free(
+		result = libpff_item_free(
 		          &root_folder,
 		          &error );
 
@@ -2250,7 +2250,7 @@ on_error:
 	}
 	if( root_folder != NULL )
 	{
-		libpff_item_t_free(
+		libpff_item_free(
 		 &root_folder,
 		 NULL );
 	}
@@ -2308,6 +2308,84 @@ int pff_test_file_get_number_of_orphan_items(
 	if( number_of_orphan_items_is_set != 0 )
 	{
 		result = libpff_file_get_number_of_orphan_items(
+		          file,
+		          NULL,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_number_of_recovered_items function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_number_of_recovered_items(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error             = NULL;
+	int number_of_recovered_items        = 0;
+	int number_of_recovered_items_is_set = 0;
+	int result                           = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_get_number_of_recovered_items(
+	          file,
+	          &number_of_recovered_items,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	number_of_recovered_items_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libpff_file_get_number_of_recovered_items(
+	          NULL,
+	          &number_of_recovered_items,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( number_of_recovered_items_is_set != 0 )
+	{
+		result = libpff_file_get_number_of_recovered_items(
 		          file,
 		          NULL,
 		          &error );

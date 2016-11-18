@@ -32,6 +32,7 @@
 #include "libpff_mapi_value.h"
 #include "libpff_multi_value.h"
 #include "libpff_record_entry.h"
+#include "libpff_record_entry_identifier.h"
 
 /* Creates a record entry
  * Make sure the value record_entry is referencing, is set to NULL
@@ -288,7 +289,7 @@ int libpff_record_entry_clone(
 	internal_destination_record_entry->name_to_id_map_entry = internal_source_record_entry->name_to_id_map_entry;
 	internal_destination_record_entry->flags                = internal_source_record_entry->flags;
 
-	internal_destination_record_entry = (libpff_internal_record_entry_t *) *destination_record_entry;
+	*destination_record_entry = (libpff_record_entry_t *) internal_destination_record_entry;
 
 	return( 1 );
 
@@ -435,16 +436,16 @@ int libpff_record_entry_get_value_type(
 	return( 1 );
 }
 
-/* Retrieves the value data size
+/* Retrieves the data size
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_data_size(
+int libpff_record_entry_get_data_size(
      libpff_record_entry_t *record_entry,
-     size_t *value_data_size,
+     size_t *data_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_data_size";
+	static char *function                                 = "libpff_record_entry_get_data_size";
 
 	if( record_entry == NULL )
 	{
@@ -459,18 +460,18 @@ int libpff_record_entry_get_value_data_size(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
-	if( value_data_size == NULL )
+	if( data_size == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value data size.",
+		 "%s: invalid data size.",
 		 function );
 
 		return( -1 );
 	}
-	*value_data_size = internal_record_entry->value_data_size;
+	*data_size = internal_record_entry->value_data_size;
 
 	return( 1 );
 }
@@ -835,17 +836,17 @@ on_error:
 	return( -1 );
 }
 
-/* Copies the value data
+/* Retrieves the data
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_copy_value_data(
+int libpff_record_entry_get_data(
      libpff_record_entry_t *record_entry,
-     uint8_t *value_data,
-     size_t value_data_size,
+     uint8_t *data,
+     size_t data_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_copy_value_data";
+	static char *function                                 = "libpff_record_entry_get_data";
 
 	if( record_entry == NULL )
 	{
@@ -871,41 +872,41 @@ int libpff_record_entry_copy_value_data(
 
 		return( -1 );
 	}
-	if( value_data == NULL )
+	if( data == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value data.",
+		 "%s: invalid data.",
 		 function );
 
 		return( -1 );
 	}
-	if( value_data_size > (size_t) SSIZE_MAX )
+	if( data_size > (size_t) SSIZE_MAX )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid value data size value exceeds maximum.",
+		 "%s: invalid data size value exceeds maximum.",
 		 function );
 
 		return( -1 );
 	}
-	if( value_data_size < internal_record_entry->value_data_size )
+	if( data_size < internal_record_entry->value_data_size )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: invalid value data value too small.",
+		 "%s: invalid data value too small.",
 		 function );
 
 		return( -1 );
 	}
 	if( memory_copy(
-	     value_data,
+	     data,
 	     internal_record_entry->value_data,
 	     internal_record_entry->value_data_size ) == NULL )
 	{
@@ -1090,16 +1091,16 @@ off64_t libpff_record_entry_seek_offset(
 	return( offset );
 }
 
-/* Retrieves the 8-bit boolean value
+/* Retrieves the data as a boolean value
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_boolean(
+int libpff_record_entry_get_data_as_boolean(
      libpff_record_entry_t *record_entry,
      uint8_t *value_boolean,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_boolean";
+	static char *function                                 = "libpff_record_entry_get_data_as_boolean";
 
 	if( record_entry == NULL )
 	{
@@ -1114,6 +1115,17 @@ int libpff_record_entry_get_value_boolean(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_BOOLEAN )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_record_entry->value_data == NULL )
 	{
 		libcerror_error_set(
@@ -1121,6 +1133,17 @@ int libpff_record_entry_get_value_boolean(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid record entry - missing value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record_entry->value_data_size != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value data size.",
 		 function );
 
 		return( -1 );
@@ -1136,34 +1159,21 @@ int libpff_record_entry_get_value_boolean(
 
 		return( -1 );
 	}
-	/* The value data size of a boolean value is 1
-	 */
-	if( internal_record_entry->value_data_size != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported value data size.",
-		 function );
-
-		return( -1 );
-	}
 	*value_boolean = internal_record_entry->value_data[ 0 ];
 
 	return( 1 );
 }
 
-/* Retrieves the 16-bit value
+/* Retrieves the data as a 16-bit integer value
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_16bit(
+int libpff_record_entry_get_data_as_16bit_integer(
      libpff_record_entry_t *record_entry,
      uint16_t *value_16bit,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_16bit";
+	static char *function                                 = "libpff_record_entry_get_data_as_16bit_integer";
 
 	if( record_entry == NULL )
 	{
@@ -1178,6 +1188,17 @@ int libpff_record_entry_get_value_16bit(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_INTEGER_16BIT_SIGNED )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_record_entry->value_data == NULL )
 	{
 		libcerror_error_set(
@@ -1185,6 +1206,17 @@ int libpff_record_entry_get_value_16bit(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid record entry - missing value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record_entry->value_data_size != 2 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value data size.",
 		 function );
 
 		return( -1 );
@@ -1200,19 +1232,6 @@ int libpff_record_entry_get_value_16bit(
 
 		return( -1 );
 	}
-	/* The value data size of a 16-bit value is 2
-	 */
-	if( internal_record_entry->value_data_size != 2 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported value data size.",
-		 function );
-
-		return( -1 );
-	}
 	byte_stream_copy_to_uint16_little_endian(
 	 internal_record_entry->value_data,
 	 *value_16bit );
@@ -1220,16 +1239,16 @@ int libpff_record_entry_get_value_16bit(
 	return( 1 );
 }
 
-/* Retrieves the 32-bit value
+/* Retrieves the data as a 32-bit integer value
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_32bit(
+int libpff_record_entry_get_data_as_32bit_integer(
      libpff_record_entry_t *record_entry,
      uint32_t *value_32bit,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_32bit";
+	static char *function                                 = "libpff_record_entry_get_data_as_32bit_integer";
 
 	if( record_entry == NULL )
 	{
@@ -1244,6 +1263,17 @@ int libpff_record_entry_get_value_32bit(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_record_entry->value_data == NULL )
 	{
 		libcerror_error_set(
@@ -1251,6 +1281,17 @@ int libpff_record_entry_get_value_32bit(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid record entry - missing value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record_entry->value_data_size != 4 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value data size.",
 		 function );
 
 		return( -1 );
@@ -1266,19 +1307,6 @@ int libpff_record_entry_get_value_32bit(
 
 		return( -1 );
 	}
-	/* The value data size of a 32-bit value is 4
-	 */
-	if( internal_record_entry->value_data_size != 4 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported value data size.",
-		 function );
-
-		return( -1 );
-	}
 	byte_stream_copy_to_uint32_little_endian(
 	 internal_record_entry->value_data,
 	 *value_32bit );
@@ -1286,16 +1314,16 @@ int libpff_record_entry_get_value_32bit(
 	return( 1 );
 }
 
-/* Retrieves the 64-bit value
+/* Retrieves the data as a 64-bit integer value
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_64bit(
+int libpff_record_entry_get_data_as_64bit_integer(
      libpff_record_entry_t *record_entry,
      uint64_t *value_64bit,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_64bit";
+	static char *function                                 = "libpff_record_entry_get_data_as_64bit_integer";
 
 	if( record_entry == NULL )
 	{
@@ -1310,6 +1338,17 @@ int libpff_record_entry_get_value_64bit(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_INTEGER_64BIT_SIGNED )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_record_entry->value_data == NULL )
 	{
 		libcerror_error_set(
@@ -1317,6 +1356,17 @@ int libpff_record_entry_get_value_64bit(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid record entry - missing value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record_entry->value_data_size != 8 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value data size.",
 		 function );
 
 		return( -1 );
@@ -1332,19 +1382,6 @@ int libpff_record_entry_get_value_64bit(
 
 		return( -1 );
 	}
-	/* The value data size of a 64-bit value is 8
-	 */
-	if( internal_record_entry->value_data_size != 8 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported value data size.",
-		 function );
-
-		return( -1 );
-	}
 	byte_stream_copy_to_uint64_little_endian(
 	 internal_record_entry->value_data,
 	 *value_64bit );
@@ -1352,16 +1389,16 @@ int libpff_record_entry_get_value_64bit(
 	return( 1 );
 }
 
-/* Retrieves the 64-bit filetime value
+/* Retrieves the data as a 64-bit FILETIME value
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_filetime(
+int libpff_record_entry_get_data_as_filetime(
      libpff_record_entry_t *record_entry,
-     uint64_t *value_64bit,
+     uint64_t *filetime,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_filetime";
+	static char *function                                 = "libpff_record_entry_get_data_as_filetime";
 
 	if( record_entry == NULL )
 	{
@@ -1376,6 +1413,17 @@ int libpff_record_entry_get_value_filetime(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_FILETIME )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_record_entry->value_data == NULL )
 	{
 		libcerror_error_set(
@@ -1387,19 +1435,6 @@ int libpff_record_entry_get_value_filetime(
 
 		return( -1 );
 	}
-	if( value_64bit == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value 64-bit.",
-		 function );
-
-		return( -1 );
-	}
-	/* The value data size of a 64-bit value is 8
-	 */
 	if( internal_record_entry->value_data_size != 8 )
 	{
 		libcerror_error_set(
@@ -1411,23 +1446,34 @@ int libpff_record_entry_get_value_filetime(
 
 		return( -1 );
 	}
+	if( filetime == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filetime.",
+		 function );
+
+		return( -1 );
+	}
 	byte_stream_copy_to_uint64_little_endian(
 	 internal_record_entry->value_data,
-	 *value_64bit );
+	 *filetime );
 
 	return( 1 );
 }
 
-/* Retrieves the size value
+/* Retrieves the data as a 64-bit floatingtime value
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_size(
+int libpff_record_entry_get_data_as_floatingtime(
      libpff_record_entry_t *record_entry,
-     size_t *value_size,
+     uint64_t *floatingtime,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_size";
+	static char *function                                 = "libpff_record_entry_get_data_as_floatingtime";
 
 	if( record_entry == NULL )
 	{
@@ -1442,6 +1488,93 @@ int libpff_record_entry_get_value_size(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_FLOATINGTIME )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record_entry->value_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid record entry - missing value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record_entry->value_data_size != 8 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value data size.",
+		 function );
+
+		return( -1 );
+	}
+	if( floatingtime == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid floatingtime.",
+		 function );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint64_little_endian(
+	 internal_record_entry->value_data,
+	 *floatingtime );
+
+	return( 1 );
+}
+
+/* Retrieves the data as a size value
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_record_entry_get_data_as_size(
+     libpff_record_entry_t *record_entry,
+     size64_t *value_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_data_as_size";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED )
+	 && ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_INTEGER_64BIT_SIGNED ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_record_entry->value_data == NULL )
 	{
 		libcerror_error_set(
@@ -1464,8 +1597,6 @@ int libpff_record_entry_get_value_size(
 
 		return( -1 );
 	}
-	/* The value data size of a size value is 4 or 8
-	 */
 	if( ( internal_record_entry->value_data_size != 4 )
 	 && ( internal_record_entry->value_data_size != 8 ) )
 	{
@@ -1493,10 +1624,10 @@ int libpff_record_entry_get_value_size(
 	return( 1 );
 }
 
-/* Retrieves the floating point value
+/* Retrieves the data as a floating point value
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_floating_point(
+int libpff_record_entry_get_data_as_floating_point(
      libpff_record_entry_t *record_entry,
      double *value_floating_point,
      libcerror_error_t **error )
@@ -1505,7 +1636,7 @@ int libpff_record_entry_get_value_floating_point(
 	byte_stream_float32_t value_float;
 
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_floating_point";
+	static char *function                                 = "libpff_record_entry_get_data_as_floating_point";
 
 	if( record_entry == NULL )
 	{
@@ -1520,6 +1651,18 @@ int libpff_record_entry_get_value_floating_point(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_FLOAT_32BIT )
+	 && ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_DOUBLE_64BIT ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_record_entry->value_data == NULL )
 	{
 		libcerror_error_set(
@@ -1542,8 +1685,6 @@ int libpff_record_entry_get_value_floating_point(
 
 		return( -1 );
 	}
-	/* The value data size of a floating point value is 4 or 8
-	 */
 	if( ( internal_record_entry->value_data_size != 4 )
 	 && ( internal_record_entry->value_data_size != 8 ) )
 	{
@@ -1579,14 +1720,14 @@ int libpff_record_entry_get_value_floating_point(
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf8_string_size_with_codepage(
+int libpff_record_entry_get_data_as_utf8_string_size_with_codepage(
      libpff_record_entry_t *record_entry,
      int ascii_codepage,
      size_t *utf8_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf8_string_size_with_codepage";
+	static char *function                                 = "libpff_record_entry_get_data_as_utf8_string_size_with_codepage";
 
 	if( record_entry == NULL )
 	{
@@ -1626,7 +1767,7 @@ int libpff_record_entry_get_value_utf8_string_size_with_codepage(
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf8_string_with_codepage(
+int libpff_record_entry_get_data_as_utf8_string_with_codepage(
      libpff_record_entry_t *record_entry,
      int ascii_codepage,
      uint8_t *utf8_string,
@@ -1634,7 +1775,7 @@ int libpff_record_entry_get_value_utf8_string_with_codepage(
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf8_string_with_codepage";
+	static char *function                                 = "libpff_record_entry_get_data_as_utf8_string_with_codepage";
 
 	if( record_entry == NULL )
 	{
@@ -1866,17 +2007,17 @@ int libpff_record_entry_compare_value_with_utf8_string_with_codepage(
 	return( result );
 }
 
-/* Retrieves the UTF-8 string size
+/* Retrieves the data formatted as an UTF-8 string
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf8_string_size(
+int libpff_record_entry_get_data_as_utf8_string_size(
      libpff_record_entry_t *record_entry,
      size_t *utf8_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf8_string_size";
+	static char *function                                 = "libpff_record_entry_get_data_as_utf8_string_size";
 
 	if( record_entry == NULL )
 	{
@@ -1891,6 +2032,18 @@ int libpff_record_entry_get_value_utf8_string_size(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+	 && ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( libpff_mapi_value_get_data_as_utf8_string_size(
 	     internal_record_entry->identifier.value_type,
 	     internal_record_entry->value_data,
@@ -1911,19 +2064,19 @@ int libpff_record_entry_get_value_utf8_string_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string value
+/* Retrieves the data formatted as an UTF-8 string
  * The function uses a codepage if necessary, it uses the codepage set for the library
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf8_string(
+int libpff_record_entry_get_data_as_utf8_string(
      libpff_record_entry_t *record_entry,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf8_string";
+	static char *function                                 = "libpff_record_entry_get_data_as_utf8_string";
 
 	if( record_entry == NULL )
 	{
@@ -1938,6 +2091,18 @@ int libpff_record_entry_get_value_utf8_string(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+	 && ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( libpff_mapi_value_get_data_as_utf8_string(
 	     internal_record_entry->identifier.value_type,
 	     internal_record_entry->value_data,
@@ -1963,14 +2128,14 @@ int libpff_record_entry_get_value_utf8_string(
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf16_string_size_with_codepage(
+int libpff_record_entry_get_data_as_utf16_string_size_with_codepage(
      libpff_record_entry_t *record_entry,
      int ascii_codepage,
      size_t *utf16_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf16_string_size_with_codepage";
+	static char *function                                 = "libpff_record_entry_get_data_as_utf16_string_size_with_codepage";
 
 	if( record_entry == NULL )
 	{
@@ -2010,7 +2175,7 @@ int libpff_record_entry_get_value_utf16_string_size_with_codepage(
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf16_string_with_codepage(
+int libpff_record_entry_get_data_as_utf16_string_with_codepage(
      libpff_record_entry_t *record_entry,
      int ascii_codepage,
      uint16_t *utf16_string,
@@ -2018,7 +2183,7 @@ int libpff_record_entry_get_value_utf16_string_with_codepage(
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf16_string_with_codepage";
+	static char *function                                 = "libpff_record_entry_get_data_as_utf16_string_with_codepage";
 
 	if( record_entry == NULL )
 	{
@@ -2250,17 +2415,17 @@ int libpff_record_entry_compare_value_with_utf16_string_with_codepage(
 	return( result );
 }
 
-/* Retrieves the UTF-16 string size
+/* Retrieves the data formatted as an UTF-16 string
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf16_string_size(
+int libpff_record_entry_get_data_as_utf16_string_size(
      libpff_record_entry_t *record_entry,
      size_t *utf16_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf16_string_size";
+	static char *function                                 = "libpff_record_entry_get_data_as_utf16_string_size";
 
 	if( record_entry == NULL )
 	{
@@ -2275,6 +2440,18 @@ int libpff_record_entry_get_value_utf16_string_size(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+	 && ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( libpff_mapi_value_get_data_as_utf16_string_size(
 	     internal_record_entry->identifier.value_type,
 	     internal_record_entry->value_data,
@@ -2295,19 +2472,19 @@ int libpff_record_entry_get_value_utf16_string_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string value
+/* Retrieves the data formatted as an UTF-16 string
  * The function uses a codepage if necessary, it uses the codepage set for the library
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libpff_record_entry_get_value_utf16_string(
+int libpff_record_entry_get_data_as_utf16_string(
      libpff_record_entry_t *record_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      libcerror_error_t **error )
 {
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_value_utf16_string";
+	static char *function                                 = "libpff_record_entry_get_data_as_utf16_string";
 
 	if( record_entry == NULL )
 	{
@@ -2322,6 +2499,18 @@ int libpff_record_entry_get_value_utf16_string(
 	}
 	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
 
+	if( ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+	 && ( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
 	if( libpff_mapi_value_get_data_as_utf16_string(
 	     internal_record_entry->identifier.value_type,
 	     internal_record_entry->value_data,
@@ -2336,6 +2525,114 @@ int libpff_record_entry_get_value_utf16_string(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value data as UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the data as a GUID value
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_record_entry_get_data_as_guid(
+     libpff_record_entry_t *record_entry,
+     uint8_t *guid_data,
+     size_t guid_data_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_data_as_guid";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( internal_record_entry->identifier.value_type != LIBPFF_VALUE_TYPE_GUID )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: invalid record entry - unsupported value type.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record_entry->value_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid record entry - missing value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record_entry->value_data_size != 16 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value data size.",
+		 function );
+
+		return( -1 );
+	}
+	if( guid_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid GUID data.",
+		 function );
+
+		return( -1 );
+	}
+	if( guid_data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: GUID data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( guid_data_size < 16 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: GUID data size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_copy(
+	     guid_data,
+	     internal_record_entry->value_data,
+	     16 ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy value data.",
 		 function );
 
 		return( -1 );

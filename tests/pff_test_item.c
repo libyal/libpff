@@ -73,6 +73,10 @@ on_error:
 	return( 0 );
 }
 
+#if defined( __GNUC__ )
+
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -98,13 +102,11 @@ int main(
 	 "libpff_item_free",
 	 pff_test_item_free );
 
-	/* TODO: add tests for libpff_item_clone */
-
 #if defined( __GNUC__ )
 
-	/* TODO: add tests for libpff_item_determine_type */
+	/* TODO: add tests for libpff_item_clone */
 
-#endif /* defined( __GNUC__ ) */
+	/* TODO: add tests for libpff_item_determine_type */
 
 	/* TODO: add tests for libpff_item_get_identifier */
 
@@ -143,6 +145,8 @@ int main(
 	/* TODO: add tests for libpff_item_get_sub_item */
 
 	/* TODO: add tests for libpff_item_get_sub_item_by_identifier */
+
+#endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );
 

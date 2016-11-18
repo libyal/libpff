@@ -235,10 +235,10 @@ int pff_test_deflate_decompress(
 	 result,
 	 1 );
 
-	PFF_TEST_ASSERT_EQUAL_INT(
+	PFF_TEST_ASSERT_EQUAL_SIZE(
 	 "uncompressed_data_size",
 	 uncompressed_data_size,
-	 7640 );
+	 (size_t) 7640 );
 
 	/* Test error cases
 	 */

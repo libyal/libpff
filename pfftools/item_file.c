@@ -1522,16 +1522,21 @@ int item_file_write_record_entry_value(
      uint32_t format_flags,
      libcerror_error_t **error )
 {
-	libfdatetime_filetime_t *filetime = NULL;
-	system_character_t *value_string  = NULL;
-	static char *function             = "item_file_write_record_entry_value";
-	size_t value_string_size          = 0;
-	uint64_t value_64bit              = 0;
-	uint32_t value_32bit              = 0;
-	uint32_t value_type               = 0;
-	uint8_t value_boolean             = 0;
-	double value_double               = 0.0;
-	int result                        = 0;
+	libfdatetime_filetime_t *filetime         = NULL;
+	system_character_t *value_string          = NULL;
+	static char *function                     = "item_file_write_record_entry_value";
+	size_t value_string_size                  = 0;
+	uint64_t value_64bit                      = 0;
+	uint32_t value_32bit                      = 0;
+	uint32_t value_type                       = 0;
+	uint8_t value_boolean                     = 0;
+	double value_double                       = 0.0;
+	int result                                = 0;
+
+/* TODO implement
+	libfdatetime_floatingtime_t *floatingtime = NULL;
+	uint16_t value_16bit                      = 0;
+*/
 
 	if( libpff_record_entry_get_value_type(
 	     record_entry,
@@ -1550,7 +1555,7 @@ int item_file_write_record_entry_value(
 	switch( value_type )
 	{
 		case LIBPFF_VALUE_TYPE_BOOLEAN:
-			if( libpff_record_entry_get_value_boolean(
+			if( libpff_record_entry_get_data_as_boolean(
 			     record_entry,
 			     &value_boolean,
 			     error ) != 1 )
@@ -1559,7 +1564,7 @@ int item_file_write_record_entry_value(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve boolean.",
+				 "%s: unable to retrieve boolean value.",
 				 function );
 
 				goto on_error;
@@ -1593,8 +1598,52 @@ int item_file_write_record_entry_value(
 			}
 			break;
 
+/* TODO implement
+		case LIBPFF_VALUE_TYPE_INTEGER_16BIT_SIGNED:
+			if( libpff_record_entry_get_data_as_16bit(
+			     record_entry,
+			     &value_16bit,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve 16-bit integer value.",
+				 function );
+
+				goto on_error;
+			}
+			if( ( format_flags & ITEM_FILE_FORMAT_FLAG_HEXADECIMAL ) != 0 )
+			{
+				result = item_file_write_integer_16bit_as_hexadecimal(
+				          item_file,
+				          value_16bit,
+				          error );
+			}
+			else
+			{
+				result = item_file_write_integer_16bit_as_decimal(
+				          item_file,
+				          value_16bit,
+				          error );
+			}
+			if( result != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write 16-bit integer.",
+				 function );
+
+				goto on_error;
+			}
+			break;
+*/
+
 		case LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED:
-			if( libpff_record_entry_get_value_32bit(
+			if( libpff_record_entry_get_data_as_32bit_integer(
 			     record_entry,
 			     &value_32bit,
 			     error ) != 1 )
@@ -1668,9 +1717,53 @@ int item_file_write_record_entry_value(
 			}
 			break;
 
+/* TODO implement
+		case LIBPFF_VALUE_TYPE_INTEGER_64BIT_SIGNED:
+			if( libpff_record_entry_get_data_as_64bit(
+			     record_entry,
+			     &value_64bit,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve 64-bit integer value.",
+				 function );
+
+				goto on_error;
+			}
+			if( ( format_flags & ITEM_FILE_FORMAT_FLAG_HEXADECIMAL ) != 0 )
+			{
+				result = item_file_write_integer_64bit_as_hexadecimal(
+				          item_file,
+				          value_64bit,
+				          error );
+			}
+			else
+			{
+				result = item_file_write_integer_64bit_as_decimal(
+				          item_file,
+				          value_64bit,
+				          error );
+			}
+			if( result != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write 64-bit integer.",
+				 function );
+
+				goto on_error;
+			}
+			break;
+*/
+
 		case LIBPFF_VALUE_TYPE_FLOAT_32BIT:
 		case LIBPFF_VALUE_TYPE_DOUBLE_64BIT:
-			if( libpff_record_entry_get_value_floating_point(
+			if( libpff_record_entry_get_data_as_floating_point(
 			     record_entry,
 			     &value_double,
 			     error ) != 1 )
@@ -1679,7 +1772,7 @@ int item_file_write_record_entry_value(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve boolean.",
+				 "%s: unable to retrieve floating-point value.",
 				 function );
 
 				goto on_error;
@@ -1693,7 +1786,7 @@ int item_file_write_record_entry_value(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_IO,
 				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write floating point.",
+				 "%s: unable to write floating-point.",
 				 function );
 
 				goto on_error;
@@ -1701,7 +1794,7 @@ int item_file_write_record_entry_value(
 			break;
 
 		case LIBPFF_VALUE_TYPE_FILETIME:
-			if( libpff_record_entry_get_value_filetime(
+			if( libpff_record_entry_get_data_as_filetime(
 			     record_entry,
 			     &value_64bit,
 			     error ) != 1 )
@@ -1710,7 +1803,7 @@ int item_file_write_record_entry_value(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve filetime.",
+				 "%s: unable to retrieve filetime value.",
 				 function );
 
 				goto on_error;
@@ -1771,15 +1864,88 @@ int item_file_write_record_entry_value(
 			}
 			break;
 
+/* TODO implement
+		case LIBPFF_VALUE_TYPE_FLOATINGTIME:
+			if( libpff_record_entry_get_data_as_floatingtime(
+			     record_entry,
+			     &value_64bit,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve floatingtime value.",
+				 function );
+
+				goto on_error;
+			}
+			if( libfdatetime_floatingtime_initialize(
+			     &floatingtime,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create floatingtime.",
+				 function );
+
+				goto on_error;
+			}
+			if( libfdatetime_floatingtime_copy_from_64bit(
+			     floatingtime,
+			     value_64bit,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+				 "%s: unable to copy floatingtime from 64-bit value.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_floatingtime(
+			     item_file,
+			     floatingtime,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write floatingtime.",
+				 function );
+
+				goto on_error;
+			}
+			if( libfdatetime_floatingtime_free(
+			     &floatingtime,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free floatingtime.",
+				 function );
+
+				goto on_error;
+			}
+			break;
+*/
+
 		case LIBPFF_VALUE_TYPE_STRING_ASCII:
 		case LIBPFF_VALUE_TYPE_STRING_UNICODE:
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-			result = libpff_record_entry_get_value_utf16_string_size(
+			result = libpff_record_entry_get_data_as_utf16_string_size(
 			          record_entry,
 			          &value_string_size,
 			          error );
 #else
-			result = libpff_record_entry_get_value_utf8_string_size(
+			result = libpff_record_entry_get_data_as_utf8_string_size(
 			          record_entry,
 			          &value_string_size,
 			          error );
@@ -1790,7 +1956,7 @@ int item_file_write_record_entry_value(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve string size.",
+				 "%s: unable to retrieve string value size.",
 				 function );
 
 				goto on_error;
@@ -1813,13 +1979,13 @@ int item_file_write_record_entry_value(
 					goto on_error;
 				}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-				result = libpff_record_entry_get_value_utf16_string(
+				result = libpff_record_entry_get_data_as_utf16_string(
 				          record_entry,
 				          (uint16_t *) value_string,
 				          value_string_size,
 				          error );
 #else
-				result = libpff_record_entry_get_value_utf8_string(
+				result = libpff_record_entry_get_data_as_utf8_string(
 				          record_entry,
 				          (uint8_t *) value_string,
 				          value_string_size,
@@ -1831,7 +1997,7 @@ int item_file_write_record_entry_value(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve string.",
+					 "%s: unable to retrieve string value.",
 					 function );
 
 					goto on_error;
@@ -1879,6 +2045,14 @@ on_error:
 		memory_free(
 		 value_string );
 	}
+/* TODO implement
+	if( floatingtime != NULL )
+	{
+		libfdatetime_floatingtime_free(
+		 &floatingtime,
+		 NULL );
+	}
+*/
 	if( filetime != NULL )
 	{
 		libfdatetime_filetime_free(

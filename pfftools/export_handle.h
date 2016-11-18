@@ -457,8 +457,15 @@ int export_handle_export_message_conversation_index(
 
 int export_handle_export_message_conversation_index_to_item_file(
      export_handle_t *export_handle,
-     libpff_item_t *message,
      item_file_t *item_file,
+     libpff_item_t *message,
+     libcerror_error_t **error );
+
+int export_handle_export_message_conversation_index_data_to_item_file(
+     export_handle_t *export_handle,
+     item_file_t *item_file,
+     const uint8_t *data,
+     size_t data_size,
      libcerror_error_t **error );
 
 int export_handle_export_message_transport_headers(
