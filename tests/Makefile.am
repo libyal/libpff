@@ -408,6 +408,7 @@ pff_test_reference_descriptor_LDADD = \
 	@LIBCERROR_LIBADD@
 
 pff_test_support_SOURCES = \
+	pff_test_libbfio.h \
 	pff_test_libcerror.h \
 	pff_test_libclocale.h \
 	pff_test_libcsystem.h \
@@ -418,6 +419,9 @@ pff_test_support_SOURCES = \
 
 pff_test_support_LDADD = \
 	@LIBCSYSTEM_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \

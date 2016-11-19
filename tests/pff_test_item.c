@@ -116,26 +116,6 @@ int main(
 
 	/* TODO: add tests for libpff_item_get_number_of_entries */
 
-	/* TODO: add tests for libpff_item_get_entry_value */
-
-	/* TODO: add tests for libpff_item_get_entry_value_by_utf8_name */
-
-	/* TODO: add tests for libpff_item_get_entry_value_by_utf16_name */
-
-	/* TODO: add tests for libpff_item_get_entry_value_binary_data_size */
-
-	/* TODO: add tests for libpff_item_get_entry_value_binary_data_size_by_utf8_name */
-
-	/* TODO: add tests for libpff_item_get_entry_value_binary_data_size_by_utf16_name */
-
-	/* TODO: add tests for libpff_item_get_entry_value_binary_data */
-
-	/* TODO: add tests for libpff_item_get_entry_value_binary_data_by_utf8_name */
-
-	/* TODO: add tests for libpff_item_get_entry_value_binary_data_by_utf16_name */
-
-	/* TODO: add tests for libpff_item_get_entry_value_guid */
-
 	/* TODO: add tests for libpff_item_get_entry_multi_value */
 
 	/* TODO: add tests for libpff_item_get_type */

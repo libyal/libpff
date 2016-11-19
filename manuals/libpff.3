@@ -1,4 +1,4 @@
-.Dd November 18, 2016
+.Dd November 19, 2016
 .Dt libpff 3
 .Os libpff
 .Sh NAME
@@ -122,22 +122,6 @@ Item functions
 .Fn libpff_item_get_record_set_by_index "libpff_item_t *item, int record_set_index, libpff_record_set_t **record_set, libpff_error_t **error"
 .Ft int
 .Fn libpff_item_get_number_of_entries "libpff_item_t *item, uint32_t *number_of_entries, libpff_error_t **error"
-.Ft int
-.Fn libpff_item_get_entry_value "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint32_t *value_type, uint8_t **value_data, size_t *value_data_size, uint8_t flags, libpff_error_t **error"
-.Ft int
-.Fn libpff_item_get_entry_value_binary_data_size "libpff_item_t *item, int record_set_index, uint32_t entry_type, size_t *binary_data_size, uint8_t flags, libpff_error_t **error"
-.Ft int
-.Fn libpff_item_get_entry_value_binary_data_size_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t *utf8_entry_name, size_t utf8_entry_name_length, size_t *binary_data_size, libpff_error_t **error"
-.Ft int
-.Fn libpff_item_get_entry_value_binary_data_size_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t *utf16_entry_name, size_t utf16_entry_name_length, size_t *binary_data_size, libpff_error_t **error"
-.Ft int
-.Fn libpff_item_get_entry_value_binary_data "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint8_t *binary_data, size_t binary_data_size, uint8_t flags, libpff_error_t **error"
-.Ft int
-.Fn libpff_item_get_entry_value_binary_data_by_utf8_name "libpff_item_t *item, int record_set_index, uint8_t *utf8_entry_name, size_t utf8_entry_name_length, uint8_t *binary_data, size_t binary_data_size, libpff_error_t **error"
-.Ft int
-.Fn libpff_item_get_entry_value_binary_data_by_utf16_name "libpff_item_t *item, int record_set_index, uint16_t *utf16_entry_name, size_t utf16_entry_name_length, uint8_t *binary_data, size_t binary_data_size, libpff_error_t **error"
-.Ft int
-.Fn libpff_item_get_entry_value_guid "libpff_item_t *item, int record_set_index, uint32_t entry_type, uint8_t *guid, size_t guid_size, uint8_t flags, libpff_error_t **error"
 .Ft int
 .Fn libpff_item_get_entry_multi_value "libpff_item_t *item, int record_set_index, uint32_t entry_type, libpff_multi_value_t **multi_value, uint8_t flags, libpff_error_t **error"
 .Ft int
