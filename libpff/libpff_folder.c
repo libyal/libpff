@@ -273,6 +273,198 @@ on_error:
 	return( -1 );
 }
 
+/* Retrieves the size of the UTF-8 encoded name
+ * The size includes the end of string character
+ * Returns 1 if successful, 0 if value is not available or -1 on error
+ */
+int libpff_folder_get_utf8_name_size(
+     libpff_item_t *folder,
+     size_t *utf8_string_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_item_t *internal_item = NULL;
+	static char *function                 = "libpff_folder_get_utf8_name_size";
+	int result                            = 0;
+
+	if( folder == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid folder.",
+		 function );
+
+		return( -1 );
+	}
+	internal_item = (libpff_internal_item_t *) folder;
+
+	result = libpff_internal_item_get_entry_value_utf8_string_size(
+	          internal_item,
+	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
+	          internal_item->ascii_codepage,
+	          utf8_string_size,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve size of name as UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+
+/* Retrieves the UTF-8 encoded name
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if value is not available or -1 on error
+ */
+int libpff_folder_get_utf8_name(
+     libpff_item_t *folder,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_item_t *internal_item = NULL;
+	static char *function                 = "libpff_folder_get_utf8_name";
+	int result                            = 0;
+
+	if( folder == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid folder.",
+		 function );
+
+		return( -1 );
+	}
+	internal_item = (libpff_internal_item_t *) folder;
+
+	result = libpff_internal_item_get_entry_value_utf8_string(
+	          internal_item,
+	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
+	          internal_item->ascii_codepage,
+	          utf8_string,
+	          utf8_string_size,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve name as UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+
+/* Retrieves the size of the UTF-16 encoded name
+ * The size includes the end of string character
+ * Returns 1 if successful, 0 if value is not available or -1 on error
+ */
+int libpff_folder_get_utf16_name_size(
+     libpff_item_t *folder,
+     size_t *utf16_string_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_item_t *internal_item = NULL;
+	static char *function                 = "libpff_folder_get_utf16_name_size";
+	int result                            = 0;
+
+	if( folder == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid folder.",
+		 function );
+
+		return( -1 );
+	}
+	internal_item = (libpff_internal_item_t *) folder;
+
+	result = libpff_internal_item_get_entry_value_utf16_string_size(
+	          internal_item,
+	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
+	          internal_item->ascii_codepage,
+	          utf16_string_size,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve size of name as UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+
+/* Retrieves the UTF-16 encoded name
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if value is not available or -1 on error
+ */
+int libpff_folder_get_utf16_name(
+     libpff_item_t *folder,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error )
+{
+	libpff_internal_item_t *internal_item = NULL;
+	static char *function                 = "libpff_folder_get_utf16_name";
+	int result                            = 0;
+
+	if( folder == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid folder.",
+		 function );
+
+		return( -1 );
+	}
+	internal_item = (libpff_internal_item_t *) folder;
+
+	result = libpff_internal_item_get_entry_value_utf16_string(
+	          internal_item,
+	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
+	          internal_item->ascii_codepage,
+	          utf16_string,
+	          utf16_string_size,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve name as UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+
 /* Determine if the item has sub folders
  * Returns 1 if successful or -1 on error
  */
@@ -1355,17 +1547,6 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -1502,7 +1683,7 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 			}
 			result = libpff_record_entry_compare_value_with_utf8_string_with_codepage(
 			          record_entry,
-			          internal_item->internal_file->io_handle->ascii_codepage,
+			          internal_item->ascii_codepage,
 			          utf8_sub_folder_name,
 			          utf8_sub_folder_name_size,
 			          error );
@@ -1672,17 +1853,6 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -1819,7 +1989,7 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 			}
 			result = libpff_record_entry_compare_value_with_utf16_string_with_codepage(
 			          record_entry,
-			          internal_item->internal_file->io_handle->ascii_codepage,
+			          internal_item->ascii_codepage,
 			          utf16_sub_folder_name,
 			          utf16_sub_folder_name_size,
 			          error );
@@ -2536,17 +2706,6 @@ int libpff_folder_get_sub_message_by_utf8_name(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -2683,7 +2842,7 @@ int libpff_folder_get_sub_message_by_utf8_name(
 			}
 			result = libpff_record_entry_compare_value_with_utf8_string_with_codepage(
 			          record_entry,
-			          internal_item->internal_file->io_handle->ascii_codepage,
+			          internal_item->ascii_codepage,
 			          utf8_sub_message_name,
 			          utf8_sub_message_name_size,
 			          error );
@@ -2852,17 +3011,6 @@ int libpff_folder_get_sub_message_by_utf16_name(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -2999,7 +3147,7 @@ int libpff_folder_get_sub_message_by_utf16_name(
 			}
 			result = libpff_record_entry_compare_value_with_utf16_string_with_codepage(
 			          record_entry,
-			          internal_item->internal_file->io_handle->ascii_codepage,
+			          internal_item->ascii_codepage,
 			          utf16_sub_message_name,
 			          utf16_sub_message_name_size,
 			          error );

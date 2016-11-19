@@ -347,51 +347,6 @@ int libpff_record_entry_get_entry_type(
 	return( 1 );
 }
 
-/* Retrieves the name to id map entry
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-int libpff_record_entry_get_name_to_id_map_entry(
-     libpff_record_entry_t *record_entry,
-     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
-     libcerror_error_t **error )
-{
-	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_get_name_to_id_map_entry";
-
-	if( record_entry == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record entry.",
-		 function );
-
-		return( -1 );
-	}
-	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
-
-	if( name_to_id_map_entry == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid name to id map entry.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( internal_record_entry->identifier.format != LIBPFF_RECORD_ENTRY_IDENTIFIER_FORMAT_MAPI_PROPERTY )
-	 || ( internal_record_entry->name_to_id_map_entry == NULL ) )
-	{
-		return( 0 );
-	}
-	*name_to_id_map_entry = (libpff_name_to_id_map_entry_t *) internal_record_entry->name_to_id_map_entry;
-
-	return( 1 );
-}
-
 /* Retrieves the value type
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -432,6 +387,51 @@ int libpff_record_entry_get_value_type(
 		return( 0 );
 	}
 	*value_type = internal_record_entry->identifier.value_type;
+
+	return( 1 );
+}
+
+/* Retrieves the name to ID map entry
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_record_entry_get_name_to_id_map_entry(
+     libpff_record_entry_t *record_entry,
+     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
+     libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_get_name_to_id_map_entry";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( name_to_id_map_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid name to ID map entry.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( internal_record_entry->identifier.format != LIBPFF_RECORD_ENTRY_IDENTIFIER_FORMAT_MAPI_PROPERTY )
+	 || ( internal_record_entry->name_to_id_map_entry == NULL ) )
+	{
+		return( 0 );
+	}
+	*name_to_id_map_entry = (libpff_name_to_id_map_entry_t *) internal_record_entry->name_to_id_map_entry;
 
 	return( 1 );
 }
@@ -920,175 +920,6 @@ int libpff_record_entry_get_data(
 		return( -1 );
 	}
 	return( 1 );
-}
-
-/* Reads value data from the current offset into a buffer
- * Returns the number of bytes read or -1 on error
- */
-ssize_t libpff_record_entry_read_buffer(
-         libpff_record_entry_t *record_entry,
-         uint8_t *buffer,
-         size_t buffer_size,
-         libcerror_error_t **error )
-{
-	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_read_buffer";
-
-	if( record_entry == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record entry.",
-		 function );
-
-		return( -1 );
-	}
-	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
-
-	if( internal_record_entry->value_data_offset < 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid record entry - value data offset value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	if( buffer == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid buffer.",
-		 function );
-
-		return( -1 );
-	}
-	if( buffer_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid buffer size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( internal_record_entry->value_data == NULL )
-	 || ( internal_record_entry->value_data_offset >= (off64_t) internal_record_entry->value_data_size ) )
-	{
-		return( 0 );
-	}
-	if( ( buffer_size > internal_record_entry->value_data_size )
-	 || ( ( (size_t) internal_record_entry->value_data_offset + buffer_size ) > internal_record_entry->value_data_size ) )
-	{
-		buffer_size = (size_t) ( internal_record_entry->value_data_size - internal_record_entry->value_data_offset );
-	}
-	if( memory_copy(
-	     buffer,
-	     &( internal_record_entry->value_data[ internal_record_entry->value_data_offset ] ),
-	     buffer_size ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to copy value data to buffer.",
-		 function );
-
-		return( -1 );
-	}
-	internal_record_entry->value_data_offset += buffer_size;
-
-	return( (ssize_t) buffer_size );
-}
-
-/* Seeks a certain offset of the value data
- * Returns the offset if seek is successful or -1 on error
- */
-off64_t libpff_record_entry_seek_offset(
-         libpff_record_entry_t *record_entry,
-         off64_t offset,
-         int whence,
-         libcerror_error_t **error )
-{
-	libpff_internal_record_entry_t *internal_record_entry = NULL;
-	static char *function                                 = "libpff_record_entry_seek_offset";
-
-	if( record_entry == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record entry.",
-		 function );
-
-		return( -1 );
-	}
-	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
-
-	if( internal_record_entry->value_data_offset < 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid record entry - value data offset value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( whence != SEEK_CUR )
-	 && ( whence != SEEK_END )
-	 && ( whence != SEEK_SET ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported whence.",
-		 function );
-
-		return( -1 );
-	}
-	if( whence == SEEK_CUR )
-	{
-		offset += internal_record_entry->value_data_offset;
-	}
-	else if( whence == SEEK_END )
-	{
-		offset += (off64_t) internal_record_entry->value_data_size;
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: seeking offset: %" PRIi64 ".\n",
-		 function,
-		 offset );
-	}
-#endif
-	if( offset < 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: offset value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	internal_record_entry->value_data_offset = offset;
-
-	return( offset );
 }
 
 /* Retrieves the data as a boolean value
@@ -3017,5 +2848,174 @@ on_error:
 		 NULL );
 	}
 	return( -1 );
+}
+
+/* Reads value data from the current offset into a buffer
+ * Returns the number of bytes read or -1 on error
+ */
+ssize_t libpff_record_entry_read_buffer(
+         libpff_record_entry_t *record_entry,
+         uint8_t *buffer,
+         size_t buffer_size,
+         libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_read_buffer";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( internal_record_entry->value_data_offset < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid record entry - value data offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( buffer == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid buffer.",
+		 function );
+
+		return( -1 );
+	}
+	if( buffer_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid buffer size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( internal_record_entry->value_data == NULL )
+	 || ( internal_record_entry->value_data_offset >= (off64_t) internal_record_entry->value_data_size ) )
+	{
+		return( 0 );
+	}
+	if( ( buffer_size > internal_record_entry->value_data_size )
+	 || ( ( (size_t) internal_record_entry->value_data_offset + buffer_size ) > internal_record_entry->value_data_size ) )
+	{
+		buffer_size = (size_t) ( internal_record_entry->value_data_size - internal_record_entry->value_data_offset );
+	}
+	if( memory_copy(
+	     buffer,
+	     &( internal_record_entry->value_data[ internal_record_entry->value_data_offset ] ),
+	     buffer_size ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy value data to buffer.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry->value_data_offset += buffer_size;
+
+	return( (ssize_t) buffer_size );
+}
+
+/* Seeks a certain offset of the value data
+ * Returns the offset if seek is successful or -1 on error
+ */
+off64_t libpff_record_entry_seek_offset(
+         libpff_record_entry_t *record_entry,
+         off64_t offset,
+         int whence,
+         libcerror_error_t **error )
+{
+	libpff_internal_record_entry_t *internal_record_entry = NULL;
+	static char *function                                 = "libpff_record_entry_seek_offset";
+
+	if( record_entry == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry = (libpff_internal_record_entry_t *) record_entry;
+
+	if( internal_record_entry->value_data_offset < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid record entry - value data offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( whence != SEEK_CUR )
+	 && ( whence != SEEK_END )
+	 && ( whence != SEEK_SET ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported whence.",
+		 function );
+
+		return( -1 );
+	}
+	if( whence == SEEK_CUR )
+	{
+		offset += internal_record_entry->value_data_offset;
+	}
+	else if( whence == SEEK_END )
+	{
+		offset += (off64_t) internal_record_entry->value_data_size;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: seeking offset: %" PRIi64 ".\n",
+		 function,
+		 offset );
+	}
+#endif
+	if( offset < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record_entry->value_data_offset = offset;
+
+	return( offset );
 }
 

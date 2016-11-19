@@ -155,13 +155,13 @@ PyTypeObject pypff_record_entries_type_object = {
  */
 PyObject *pypff_record_entries_new(
            PyObject *parent_object,
-           PyObject* (*get_record_entry_by_index)(
+           PyObject* (*get_item_by_index)(
                         PyObject *parent_object,
-                        int record_entry_index ),
-           int number_of_record_entries )
+                        int index ),
+           int number_of_items )
 {
-	pypff_record_entries_t *pypff_record_entries = NULL;
-	static char *function                        = "pypff_record_entries_new";
+	pypff_record_entries_t *record_entries_object = NULL;
+	static char *function                         = "pypff_record_entries_new";
 
 	if( parent_object == NULL )
 	{
@@ -172,54 +172,54 @@ PyObject *pypff_record_entries_new(
 
 		return( NULL );
 	}
-	if( get_record_entry_by_index == NULL )
+	if( get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid get record entry by index function.",
+		 "%s: invalid get item by index function.",
 		 function );
 
 		return( NULL );
 	}
 	/* Make sure the record entries values are initialized
 	 */
-	pypff_record_entries = PyObject_New(
-	                        struct pypff_record_entries,
-	                        &pypff_record_entries_type_object );
+	record_entries_object = PyObject_New(
+	                         struct pypff_record_entries,
+	                         &pypff_record_entries_type_object );
 
-	if( pypff_record_entries == NULL )
+	if( record_entries_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize record entries.",
+		 "%s: unable to create record entries object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pypff_record_entries_init(
-	     pypff_record_entries ) != 0 )
+	     record_entries_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize record entries.",
+		 "%s: unable to initialize record entries object.",
 		 function );
 
 		goto on_error;
 	}
-	pypff_record_entries->parent_object             = parent_object;
-	pypff_record_entries->get_record_entry_by_index = get_record_entry_by_index;
-	pypff_record_entries->number_of_record_entries  = number_of_record_entries;
+	record_entries_object->parent_object     = parent_object;
+	record_entries_object->get_item_by_index = get_item_by_index;
+	record_entries_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pypff_record_entries->parent_object );
+	 (PyObject *) record_entries_object->parent_object );
 
-	return( (PyObject *) pypff_record_entries );
+	return( (PyObject *) record_entries_object );
 
 on_error:
-	if( pypff_record_entries != NULL )
+	if( record_entries_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_record_entries );
+		 (PyObject *) record_entries_object );
 	}
 	return( NULL );
 }
@@ -228,25 +228,25 @@ on_error:
  * Returns 0 if successful or -1 on error
  */
 int pypff_record_entries_init(
-     pypff_record_entries_t *pypff_record_entries )
+     pypff_record_entries_t *record_entries_object )
 {
 	static char *function = "pypff_record_entries_init";
 
-	if( pypff_record_entries == NULL )
+	if( record_entries_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries.",
+		 "%s: invalid record entries object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the record entries values are initialized
 	 */
-	pypff_record_entries->parent_object             = NULL;
-	pypff_record_entries->get_record_entry_by_index = NULL;
-	pypff_record_entries->record_entry_index        = 0;
-	pypff_record_entries->number_of_record_entries  = 0;
+	record_entries_object->parent_object     = NULL;
+	record_entries_object->get_item_by_index = NULL;
+	record_entries_object->current_index     = 0;
+	record_entries_object->number_of_items   = 0;
 
 	return( 0 );
 }
@@ -254,22 +254,22 @@ int pypff_record_entries_init(
 /* Frees a record entries object
  */
 void pypff_record_entries_free(
-      pypff_record_entries_t *pypff_record_entries )
+      pypff_record_entries_t *record_entries_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pypff_record_entries_free";
 
-	if( pypff_record_entries == NULL )
+	if( record_entries_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries.",
+		 "%s: invalid record entries object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pypff_record_entries );
+	           record_entries_object );
 
 	if( ob_type == NULL )
 	{
@@ -289,72 +289,72 @@ void pypff_record_entries_free(
 
 		return;
 	}
-	if( pypff_record_entries->parent_object != NULL )
+	if( record_entries_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_record_entries->parent_object );
+		 (PyObject *) record_entries_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) pypff_record_entries );
+	 (PyObject*) record_entries_object );
 }
 
 /* The record entries len() function
  */
 Py_ssize_t pypff_record_entries_len(
-            pypff_record_entries_t *pypff_record_entries )
+            pypff_record_entries_t *record_entries_object )
 {
 	static char *function = "pypff_record_entries_len";
 
-	if( pypff_record_entries == NULL )
+	if( record_entries_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries.",
+		 "%s: invalid record entries object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) pypff_record_entries->number_of_record_entries );
+	return( (Py_ssize_t) record_entries_object->number_of_items );
 }
 
 /* The record entries getitem() function
  */
 PyObject *pypff_record_entries_getitem(
-           pypff_record_entries_t *pypff_record_entries,
+           pypff_record_entries_t *record_entries_object,
            Py_ssize_t item_index )
 {
 	PyObject *record_entry_object = NULL;
 	static char *function         = "pypff_record_entries_getitem";
 
-	if( pypff_record_entries == NULL )
+	if( record_entries_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries.",
+		 "%s: invalid record entries object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_entries->get_record_entry_by_index == NULL )
+	if( record_entries_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries - missing get record entry by index function.",
+		 "%s: invalid record entries object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_entries->number_of_record_entries < 0 )
+	if( record_entries_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries - invalid number of record entries.",
+		 "%s: invalid record entries object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) pypff_record_entries->number_of_record_entries ) )
+	 || ( item_index >= (Py_ssize_t) record_entries_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -363,8 +363,8 @@ PyObject *pypff_record_entries_getitem(
 
 		return( NULL );
 	}
-	record_entry_object = pypff_record_entries->get_record_entry_by_index(
-	                       pypff_record_entries->parent_object,
+	record_entry_object = record_entries_object->get_item_by_index(
+	                       record_entries_object->parent_object,
 	                       (int) item_index );
 
 	return( record_entry_object );
@@ -373,83 +373,83 @@ PyObject *pypff_record_entries_getitem(
 /* The record entries iter() function
  */
 PyObject *pypff_record_entries_iter(
-           pypff_record_entries_t *pypff_record_entries )
+           pypff_record_entries_t *record_entries_object )
 {
 	static char *function = "pypff_record_entries_iter";
 
-	if( pypff_record_entries == NULL )
+	if( record_entries_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries.",
+		 "%s: invalid record entries object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) pypff_record_entries );
+	 (PyObject *) record_entries_object );
 
-	return( (PyObject *) pypff_record_entries );
+	return( (PyObject *) record_entries_object );
 }
 
 /* The record entries iternext() function
  */
 PyObject *pypff_record_entries_iternext(
-           pypff_record_entries_t *pypff_record_entries )
+           pypff_record_entries_t *record_entries_object )
 {
 	PyObject *record_entry_object = NULL;
 	static char *function         = "pypff_record_entries_iternext";
 
-	if( pypff_record_entries == NULL )
+	if( record_entries_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries.",
+		 "%s: invalid record entries object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_entries->get_record_entry_by_index == NULL )
+	if( record_entries_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries - missing get record entry by index function.",
+		 "%s: invalid record entries object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_entries->record_entry_index < 0 )
+	if( record_entries_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries - invalid record entry index.",
+		 "%s: invalid record entries object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_entries->number_of_record_entries < 0 )
+	if( record_entries_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record entries - invalid number of record entries.",
+		 "%s: invalid record entries object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_entries->record_entry_index >= pypff_record_entries->number_of_record_entries )
+	if( record_entries_object->current_index >= record_entries_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	record_entry_object = pypff_record_entries->get_record_entry_by_index(
-	                       pypff_record_entries->parent_object,
-	                       pypff_record_entries->record_entry_index );
+	record_entry_object = record_entries_object->get_item_by_index(
+	                       record_entries_object->parent_object,
+	                       record_entries_object->current_index );
 
 	if( record_entry_object != NULL )
 	{
-		pypff_record_entries->record_entry_index++;
+		record_entries_object->current_index++;
 	}
 	return( record_entry_object );
 }

@@ -44,106 +44,6 @@
 #include "libpff_record_set.h"
 #include "libpff_types.h"
 
-/* Retrieves the attachment method
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-int libpff_attachment_get_attachment_method(
-     libpff_internal_item_t *internal_item,
-     uint32_t *attachment_method,
-     libcerror_error_t **error )
-{
-	libpff_record_entry_t *record_entry = NULL;
-	static char *function               = "libpff_attachment_get_type";
-	int result                          = 0;
-
-	if( internal_item == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid item.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_item_values_get_record_entry_by_type(
-	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
-	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
-	          0,
-	          LIBPFF_ENTRY_TYPE_ATTACHMENT_METHOD,
-	          LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
-	          &record_entry,
-	          0,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve attachment method record entry.",
-		 function );
-
-		goto on_error;
-	}
-	else if( result != 0 )
-	{
-		if( libpff_record_entry_get_data_as_32bit_integer(
-		     record_entry,
-		     attachment_method,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit integer value.",
-			 function );
-
-			goto on_error;
-		}
-		if( libpff_record_entry_free(
-		     &record_entry,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free record entry.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	return( result );
-
-on_error:
-	if( record_entry != NULL )
-	{
-		libpff_record_entry_free(
-		 &record_entry,
-		 NULL );
-	}
-	return( -1 );
-}
-
 /* Retrieves the attachment type
  * Returns 1 if successful or -1 on error
  */
@@ -194,8 +94,9 @@ int libpff_attachment_get_type(
 
 		return( -1 );
 	}
-	if( libpff_attachment_get_attachment_method(
+	if( libpff_internal_item_get_entry_value_32bit_integer(
 	     internal_item,
+	     LIBPFF_ENTRY_TYPE_ATTACHMENT_METHOD,
 	     &attachment_method,
 	     error ) != 1 )
 	{

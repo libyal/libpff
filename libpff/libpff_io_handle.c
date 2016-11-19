@@ -252,7 +252,6 @@ int libpff_io_handle_read_file_header(
 	uint8_t *file_header         = NULL;
 	uint8_t *file_header_data    = NULL;
 	static char *function        = "libpff_io_handle_read_file_header";
-	size_t data_size             = 0;
 	size_t page_size             = 0;
 	size_t read_size             = 564;
 	ssize_t read_count           = 0;
@@ -264,6 +263,7 @@ int libpff_io_handle_read_file_header(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint8_t *value_data          = 0;
+	size_t data_size             = 0;
 	uint64_t value_64bit         = 0;
 	uint32_t value_32bit         = 0;
 	uint16_t value_16bit         = 0;
@@ -479,7 +479,6 @@ int libpff_io_handle_read_file_header(
 
 	if( data_version <= 0x000f )
 	{
-		data_size            = sizeof( pff_file_header_data_32bit_t );
 		io_handle->file_type = LIBPFF_FILE_TYPE_32BIT;
 	}
 	else if( data_version >= 0x0024 )
@@ -488,7 +487,6 @@ int libpff_io_handle_read_file_header(
 	}
 	else if( data_version >= 0x0015 )
 	{
-		data_size            = sizeof( pff_file_header_data_64bit_t );
 		io_handle->file_type = LIBPFF_FILE_TYPE_64BIT;
 	}
 	else
@@ -505,7 +503,6 @@ int libpff_io_handle_read_file_header(
 				 data_version );
 			}
 #endif
-			data_size            = sizeof( pff_file_header_data_32bit_t );
 			io_handle->file_type = LIBPFF_FILE_TYPE_32BIT;
 		}
 		else if( ( ( (pff_file_header_data_32bit_t *) file_header_data )->sentinal != 0x80 )
@@ -520,22 +517,17 @@ int libpff_io_handle_read_file_header(
 				 data_version );
 			}
 #endif
-			data_size            = sizeof( pff_file_header_data_64bit_t );
 			io_handle->file_type = LIBPFF_FILE_TYPE_64BIT;
 		}
-		else
-		{
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: unsupported data version: 0x%04" PRIx16 ".\n",
-				 function,
-				 data_version );
-			}
-#endif
-			data_size = 564;
+		else if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: unsupported data version: 0x%04" PRIx16 ".\n",
+			 function,
+			 data_version );
 		}
+#endif
 	}
 	if( ( io_handle->file_type != LIBPFF_FILE_TYPE_32BIT )
 	 && ( io_handle->file_type != LIBPFF_FILE_TYPE_64BIT )
@@ -649,6 +641,19 @@ int libpff_io_handle_read_file_header(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+		{
+			data_size = sizeof( pff_file_header_data_32bit_t );
+		}
+		else if( ( io_handle->file_type = LIBPFF_FILE_TYPE_64BIT )
+		      || ( io_handle->file_type = LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+		{
+			data_size = sizeof( pff_file_header_data_64bit_t );
+		}
+		else
+		{
+			data_size = 564;
+		}
 		libcnotify_printf(
 		 "%s: file header data:\n",
 		 function );

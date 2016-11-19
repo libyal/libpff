@@ -40,6 +40,32 @@ int libpff_folder_get_type(
      uint8_t *type,
      libcerror_error_t **error );
 
+LIBPFF_EXTERN \
+int libpff_folder_get_utf8_name_size(
+     libpff_item_t *folder,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_folder_get_utf8_name(
+     libpff_item_t *folder,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_folder_get_utf16_name_size(
+     libpff_item_t *folder,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_folder_get_utf16_name(
+     libpff_item_t *folder,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error );
+
 int libpff_folder_determine_sub_folders(
      libpff_internal_item_t *internal_item,
      libcerror_error_t **error );

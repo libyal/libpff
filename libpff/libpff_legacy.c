@@ -29,6 +29,7 @@
 #include "libpff_item_values.h"
 #include "libpff_mapi.h"
 #include "libpff_mapi_value.h"
+#include "libpff_multi_value.h"
 #include "libpff_record_entry.h"
 #include "libpff_table.h"
 #include "libpff_types.h"
@@ -5006,6 +5007,120 @@ int libpff_item_get_entry_value_guid(
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve binary data.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( result );
+}
+
+/* Retrieves the multi value of a specific entry
+ * Creates a new multi value
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_item_get_entry_multi_value(
+     libpff_item_t *item,
+     int set_index,
+     uint32_t entry_type,
+     libpff_multi_value_t **multi_value,
+     uint8_t flags,
+     libcerror_error_t **error )
+{
+	libpff_internal_item_t *internal_item = NULL;
+	libpff_record_entry_t *record_entry   = NULL;
+	static char *function                 = "libpff_item_get_entry_multi_value";
+	int result                            = 0;
+
+	if( item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item.",
+		 function );
+
+		return( -1 );
+	}
+	internal_item = (libpff_internal_item_t *) item;
+
+	if( internal_item->internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing internal file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - invalid file - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported flags: 0x%02" PRIx8 ".",
+		 function,
+		 flags );
+
+		return( -1 );
+	}
+	result = libpff_item_values_get_record_entry_by_type(
+	          internal_item->item_values,
+	          internal_item->internal_file->name_to_id_map_list,
+	          internal_item->internal_file->io_handle,
+	          internal_item->file_io_handle,
+	          internal_item->internal_file->offsets_index,
+	          set_index,
+	          entry_type,
+	          0,
+	          &record_entry,
+	          flags | LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_multi_value(
+		     record_entry,
+		     multi_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve multi value.",
 			 function );
 
 			return( -1 );

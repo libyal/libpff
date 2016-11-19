@@ -97,15 +97,15 @@ int libpff_record_entry_get_entry_type(
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
-int libpff_record_entry_get_name_to_id_map_entry(
-     libpff_record_entry_t *record_entry,
-     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
-     libcerror_error_t **error );
-
-LIBPFF_EXTERN \
 int libpff_record_entry_get_value_type(
      libpff_record_entry_t *record_entry,
      uint32_t *value_type,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_record_entry_get_name_to_id_map_entry(
+     libpff_record_entry_t *record_entry,
+     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
@@ -145,20 +145,6 @@ int libpff_record_entry_get_data(
      uint8_t *data,
      size_t data_size,
      libcerror_error_t **error );
-
-LIBPFF_EXTERN \
-ssize_t libpff_record_entry_read_buffer(
-         libpff_record_entry_t *record_entry,
-         uint8_t *buffer,
-         size_t buffer_size,
-         libcerror_error_t **error );
-
-LIBPFF_EXTERN \
-off64_t libpff_record_entry_seek_offset(
-         libpff_record_entry_t *record_entry,
-         off64_t offset,
-         int whence,
-         libcerror_error_t **error );
 
 LIBPFF_EXTERN \
 int libpff_record_entry_get_data_as_boolean(
@@ -291,6 +277,20 @@ int libpff_record_entry_get_multi_value(
      libpff_record_entry_t *record_entry,
      libpff_multi_value_t **multi_value,
      libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+ssize_t libpff_record_entry_read_buffer(
+         libpff_record_entry_t *record_entry,
+         uint8_t *buffer,
+         size_t buffer_size,
+         libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+off64_t libpff_record_entry_seek_offset(
+         libpff_record_entry_t *record_entry,
+         off64_t offset,
+         int whence,
+         libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

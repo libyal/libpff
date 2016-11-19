@@ -221,12 +221,12 @@ PyObject *pypff_folder_get_name(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
+	libcerror_error_t *error = NULL;
+	uint8_t *utf8_string     = NULL;
 	const char *errors       = NULL;
-	uint8_t *value_string    = NULL;
 	static char *function    = "pypff_folder_get_name";
-	size_t value_string_size = 0;
+	size_t utf8_string_size  = 0;
 	int result               = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
@@ -242,12 +242,9 @@ PyObject *pypff_folder_get_name(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_utf8_string_size(
+	result = libpff_folder_get_utf8_name_size(
 	          pypff_item->item,
-	          0,
-	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
-	          &value_string_size,
-	          0,
+	          &utf8_string_size,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -257,7 +254,7 @@ PyObject *pypff_folder_get_name(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve name size.",
+		 "%s: unable to retrieve size of UTF-8 name.",
 		 function );
 
 		libcerror_error_free(
@@ -266,17 +263,17 @@ PyObject *pypff_folder_get_name(
 		goto on_error;
 	}
 	else if( ( result == 0 )
-	      || ( value_string_size == 0 ) )
+	      || ( utf8_string_size == 0 ) )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	value_string = (uint8_t *) PyMem_Malloc(
-				    sizeof( uint8_t ) * value_string_size );
+	utf8_string = (uint8_t *) PyMem_Malloc(
+	                           sizeof( uint8_t ) * utf8_string_size );
 
-	if( value_string == NULL )
+	if( utf8_string == NULL )
 	{
 		PyErr_Format(
 		 PyExc_IOError,
@@ -287,13 +284,10 @@ PyObject *pypff_folder_get_name(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_item_get_entry_value_utf8_string(
+	result = libpff_folder_get_utf8_name(
 		  pypff_item->item,
-		  0,
-		  LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
-		  value_string,
-		  value_string_size,
-		  0,
+		  utf8_string,
+		  utf8_string_size,
 		  &error );
 
 	Py_END_ALLOW_THREADS
@@ -303,7 +297,7 @@ PyObject *pypff_folder_get_name(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve name.",
+		 "%s: unable to retrieve UTF-8 name.",
 		 function );
 
 		libcerror_error_free(
@@ -316,20 +310,20 @@ PyObject *pypff_folder_get_name(
 	 * of the string
 	 */
 	string_object = PyUnicode_DecodeUTF8(
-			 (char *) value_string,
-			 (Py_ssize_t) value_string_size - 1,
+			 (char *) utf8_string,
+			 (Py_ssize_t) utf8_string_size - 1,
 			 errors );
 
 	PyMem_Free(
-	 value_string );
+	 utf8_string );
 
 	return( string_object );
 
 on_error:
-	if( value_string != NULL )
+	if( utf8_string != NULL )
 	{
 		PyMem_Free(
-		 value_string );
+		 utf8_string );
 	}
 	return( NULL );
 }
@@ -394,7 +388,7 @@ PyObject *pypff_folder_get_number_of_sub_folders(
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_folder_get_sub_folder_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int sub_folder_index )
 {
 	libcerror_error_t *error  = NULL;
@@ -416,7 +410,7 @@ PyObject *pypff_folder_get_sub_folder_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_folder_get_sub_folder(
-	          pypff_item->item,
+	          ( (pypff_item_t *) pypff_item )->item,
 	          sub_folder_index,
 	          &sub_item,
 	          &error );
@@ -463,7 +457,7 @@ PyObject *pypff_folder_get_sub_folder_by_index(
 	sub_item_object = pypff_item_new(
 	                   &pypff_folder_type_object,
 	                   sub_item,
-	                   (PyObject *) pypff_item->parent_object );
+	                   (PyObject *) ( (pypff_item_t *) pypff_item )->parent_object );
 
 	if( sub_item_object == NULL )
 	{
@@ -508,7 +502,7 @@ PyObject *pypff_folder_get_sub_folder(
 		return( NULL );
 	}
 	sub_item_object = pypff_folder_get_sub_folder_by_index(
-	                   pypff_item,
+	                   (PyObject *) pypff_item,
 	                   sub_folder_index );
 
 	return( sub_item_object );
@@ -637,7 +631,7 @@ PyObject *pypff_folder_get_number_of_sub_messages(
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_folder_get_sub_message_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int sub_message_index )
 {
 	libcerror_error_t *error  = NULL;
@@ -659,7 +653,7 @@ PyObject *pypff_folder_get_sub_message_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_folder_get_sub_message(
-	          pypff_item->item,
+	          ( (pypff_item_t *) pypff_item )->item,
 	          sub_message_index,
 	          &sub_item,
 	          &error );
@@ -706,7 +700,7 @@ PyObject *pypff_folder_get_sub_message_by_index(
 	sub_item_object = pypff_item_new(
 	                   &pypff_message_type_object,
 	                   sub_item,
-	                   (PyObject *) pypff_item->parent_object );
+	                   (PyObject *) ( (pypff_item_t *) pypff_item )->parent_object );
 
 	if( sub_item_object == NULL )
 	{
@@ -751,7 +745,7 @@ PyObject *pypff_folder_get_sub_message(
 		return( NULL );
 	}
 	sub_item_object = pypff_folder_get_sub_message_by_index(
-	                   pypff_item,
+	                   (PyObject *) pypff_item,
 	                   sub_message_index );
 
 	return( sub_item_object );

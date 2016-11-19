@@ -39,6 +39,7 @@
 #include "pypff_libcerror.h"
 #include "pypff_libclocale.h"
 #include "pypff_libpff.h"
+#include "pypff_message.h"
 #include "pypff_python.h"
 #include "pypff_unused.h"
 
@@ -126,6 +127,20 @@ PyMethodDef pypff_file_object_methods[] = {
 	  "\n"
 	  "Retrieves the root item." },
 
+	{ "get_message_store",
+	  (PyCFunction) pypff_file_get_message_store,
+	  METH_NOARGS,
+	  "get_message_store() -> Object or None\n"
+	  "\n"
+	  "Retrieves the message store." },
+
+	{ "get_name_to_id_map",
+	  (PyCFunction) pypff_file_get_name_to_id_map,
+	  METH_NOARGS,
+	  "get_name_to_id_map() -> Object or None\n"
+	  "\n"
+	  "Retrieves the name to id map." },
+
 	{ "get_root_folder",
 	  (PyCFunction) pypff_file_get_root_folder,
 	  METH_NOARGS,
@@ -181,6 +196,18 @@ PyGetSetDef pypff_file_object_get_set_definitions[] = {
 	  (getter) pypff_file_get_root_item,
 	  (setter) 0,
 	  "The root item.",
+	  NULL },
+
+	{ "message_store",
+	  (getter) pypff_file_get_message_store,
+	  (setter) 0,
+	  "The message store.",
+	  NULL },
+
+	{ "name_to_id_map",
+	  (getter) pypff_file_get_name_to_id_map,
+	  (setter) 0,
+	  "The name to id map.",
 	  NULL },
 
 	{ "root_folder",
@@ -943,7 +970,7 @@ PyObject *pypff_file_get_size(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -995,7 +1022,7 @@ PyObject *pypff_file_get_content_type(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -1051,7 +1078,7 @@ PyObject *pypff_file_get_encryption_type(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -1401,14 +1428,85 @@ int pypff_file_set_ascii_codepage_setter(
 	return( -1 );
 }
 
-/* Retrieves the root item type object
+/* Retrieves the item type object
  * Returns a Python type object if successful or NULL on error
  */
-PyTypeObject *pypff_file_get_root_item_type_object(
-               libpff_item_t *root_item PYPFF_ATTRIBUTE_UNUSED )
+PyTypeObject *pypff_file_get_item_type_object(
+               libpff_item_t *item PYPFF_ATTRIBUTE_UNUSED )
 {
-	PYPFF_UNREFERENCED_PARAMETER( root_item )
+	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_file_get_item_type_object";
+	uint8_t item_type        = 0;
+	int result               = 0;
 
+	if( item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_type(
+	          item,
+	          &item_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve item type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	switch( item_type )
+	{
+		case LIBPFF_ITEM_TYPE_ACTIVITY:
+		case LIBPFF_ITEM_TYPE_APPOINTMENT:
+		case LIBPFF_ITEM_TYPE_COMMON:
+		case LIBPFF_ITEM_TYPE_CONFIGURATION:
+		case LIBPFF_ITEM_TYPE_CONFLICT_MESSAGE:
+		case LIBPFF_ITEM_TYPE_CONTACT:
+		case LIBPFF_ITEM_TYPE_DISTRIBUTION_LIST:
+		case LIBPFF_ITEM_TYPE_DOCUMENT:
+		case LIBPFF_ITEM_TYPE_EMAIL:
+		case LIBPFF_ITEM_TYPE_EMAIL_SMIME:
+		case LIBPFF_ITEM_TYPE_FAX:
+		case LIBPFF_ITEM_TYPE_MEETING:
+		case LIBPFF_ITEM_TYPE_MMS:
+		case LIBPFF_ITEM_TYPE_NOTE:
+		case LIBPFF_ITEM_TYPE_POSTING_NOTE:
+		case LIBPFF_ITEM_TYPE_RSS_FEED:
+		case LIBPFF_ITEM_TYPE_SHARING:
+		case LIBPFF_ITEM_TYPE_SMS:
+		case LIBPFF_ITEM_TYPE_TASK:
+		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
+		case LIBPFF_ITEM_TYPE_VOICEMAIL:
+			return( &pypff_message_type_object );
+
+		case LIBPFF_ITEM_TYPE_FOLDER:
+			return( &pypff_folder_type_object );
+
+		case LIBPFF_ITEM_TYPE_ATTACHMENT:
+		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
+		case LIBPFF_ITEM_TYPE_RECIPIENTS:
+		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:
+		case LIBPFF_ITEM_TYPE_SUB_FOLDERS:
+		case LIBPFF_ITEM_TYPE_SUB_MESSAGES:
+		default:
+			break;
+	}
 	return( &pypff_item_type_object );
 }
 
@@ -1431,7 +1529,7 @@ PyObject *pypff_file_get_root_item(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -1466,7 +1564,7 @@ PyObject *pypff_file_get_root_item(
 
 		return( Py_None );
 	}
-	type_object = pypff_file_get_root_item_type_object(
+	type_object = pypff_file_get_item_type_object(
 	               root_item );
 
 	if( type_object == NULL )
@@ -1504,15 +1602,188 @@ on_error:
 	return( NULL );
 }
 
-/* Retrieves the root folder type object
- * Returns a Python type object if successful or NULL on error
+/* Retrieves the message store
+ * Returns a Python object if successful or NULL on error
  */
-PyTypeObject *pypff_file_get_root_folder_type_object(
-               libpff_item_t *root_folder PYPFF_ATTRIBUTE_UNUSED )
+PyObject *pypff_file_get_message_store(
+           pypff_file_t *pypff_file,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	PYPFF_UNREFERENCED_PARAMETER( root_folder )
+	PyObject *message_store_object = NULL;
+	PyTypeObject *type_object      = NULL;
+	libcerror_error_t *error       = NULL;
+	libpff_item_t *message_store   = NULL;
+	static char *function          = "pypff_file_get_message_store";
+	int result                     = 0;
 
-	return( &pypff_folder_type_object );
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_file_get_message_store(
+	          pypff_file->file,
+	          &message_store,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve message store.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	type_object = pypff_file_get_item_type_object(
+	               message_store );
+
+	if( type_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to retrieve message store type object.",
+		 function );
+
+		goto on_error;
+	}
+	message_store_object = pypff_item_new(
+	                        type_object,
+	                        message_store,
+	                        (PyObject *) pypff_file );
+
+	if( message_store_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create message store object.",
+		 function );
+
+		goto on_error;
+	}
+	return( message_store_object );
+
+on_error:
+	if( message_store != NULL )
+	{
+		libpff_item_free(
+		 &message_store,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves the name to id map
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_file_get_name_to_id_map(
+           pypff_file_t *pypff_file,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *name_to_id_map_object = NULL;
+	PyTypeObject *type_object       = NULL;
+	libcerror_error_t *error        = NULL;
+	libpff_item_t *name_to_id_map   = NULL;
+	static char *function           = "pypff_file_get_name_to_id_map";
+	int result                      = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_file_get_name_to_id_map(
+	          pypff_file->file,
+	          &name_to_id_map,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name to id map.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	type_object = pypff_file_get_item_type_object(
+	               name_to_id_map );
+
+	if( type_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to retrieve name to id map type object.",
+		 function );
+
+		goto on_error;
+	}
+	name_to_id_map_object = pypff_item_new(
+	                         type_object,
+	                         name_to_id_map,
+	                         (PyObject *) pypff_file );
+
+	if( name_to_id_map_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create name to id map object.",
+		 function );
+
+		goto on_error;
+	}
+	return( name_to_id_map_object );
+
+on_error:
+	if( name_to_id_map != NULL )
+	{
+		libpff_item_free(
+		 &name_to_id_map,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the root folder
@@ -1534,7 +1805,7 @@ PyObject *pypff_file_get_root_folder(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -1569,7 +1840,7 @@ PyObject *pypff_file_get_root_folder(
 
 		return( Py_None );
 	}
-	type_object = pypff_file_get_root_folder_type_object(
+	type_object = pypff_file_get_item_type_object(
 	               root_folder );
 
 	if( type_object == NULL )
@@ -1625,7 +1896,7 @@ PyObject *pypff_file_get_number_of_orphan_items(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -1663,17 +1934,6 @@ PyObject *pypff_file_get_number_of_orphan_items(
 	return( integer_object );
 }
 
-/* Retrieves the item type object
- * Returns a Python type object if successful or NULL on error
- */
-PyTypeObject *pypff_file_get_item_type_object(
-               libpff_item_t *item PYPFF_ATTRIBUTE_UNUSED )
-{
-	PYPFF_UNREFERENCED_PARAMETER( item )
-
-	return( &pypff_item_type_object );
-}
-
 /* Retrieves a specific orphan item by index
  * Returns a Python object if successful or NULL on error
  */
@@ -1691,7 +1951,7 @@ PyObject *pypff_file_get_orphan_item_by_index(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
@@ -1805,7 +2065,7 @@ PyObject *pypff_file_get_orphan_items(
 	if( pypff_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 

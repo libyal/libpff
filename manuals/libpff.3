@@ -123,8 +123,6 @@ Item functions
 .Ft int
 .Fn libpff_item_get_number_of_entries "libpff_item_t *item, uint32_t *number_of_entries, libpff_error_t **error"
 .Ft int
-.Fn libpff_item_get_entry_multi_value "libpff_item_t *item, int record_set_index, uint32_t entry_type, libpff_multi_value_t **multi_value, uint8_t flags, libpff_error_t **error"
-.Ft int
 .Fn libpff_item_get_type "libpff_item_t *item, uint8_t *item_type, libpff_error_t **error"
 .Ft int
 .Fn libpff_item_get_number_of_sub_items "libpff_item_t *item, int *number_of_sub_items, libpff_error_t **error"
@@ -133,7 +131,7 @@ Item functions
 .Ft int
 .Fn libpff_item_get_sub_item_by_identifier "libpff_item_t *item, uint32_t sub_item_identifier, libpff_item_t **sub_item, libpff_error_t **error"
 .Pp
-Name to id map entry functions
+Name to ID map entry functions
 .Ft int
 .Fn libpff_name_to_id_map_entry_get_type "libpff_name_to_id_map_entry_t *name_to_id_map_entry, uint8_t *entry_type, libpff_error_t **error"
 .Ft int
@@ -169,17 +167,13 @@ Record entry functions
 .Ft int
 .Fn libpff_record_entry_get_entry_type "libpff_record_entry_t *record_entry, uint32_t *entry_type, libpff_error_t **error"
 .Ft int
-.Fn libpff_record_entry_get_name_to_id_map_entry "libpff_record_entry_t *record_entry, libpff_name_to_id_map_entry_t **name_to_id_map_entry, libpff_error_t **error"
-.Ft int
 .Fn libpff_record_entry_get_value_type "libpff_record_entry_t *record_entry, uint32_t *value_type, libpff_error_t **error"
+.Ft int
+.Fn libpff_record_entry_get_name_to_id_map_entry "libpff_record_entry_t *record_entry, libpff_name_to_id_map_entry_t **name_to_id_map_entry, libpff_error_t **error"
 .Ft int
 .Fn libpff_record_entry_get_data_size "libpff_record_entry_t *record_entry, size_t *data_size, libpff_error_t **error"
 .Ft int
 .Fn libpff_record_entry_get_data "libpff_record_entry_t *record_entry, uint8_t *data, size_t data_size, libpff_error_t **error"
-.Ft ssize_t
-.Fn libpff_record_entry_read_buffer "libpff_record_entry_t *record_entry, uint8_t *buffer, size_t buffer_size, libpff_error_t **error"
-.Ft off64_t
-.Fn libpff_record_entry_seek_offset "libpff_record_entry_t *record_entry, off64_t offset, int whence, libpff_error_t **error"
 .Ft int
 .Fn libpff_record_entry_get_data_as_boolean "libpff_record_entry_t *record_entry, uint8_t *value_boolean, libpff_error_t **error"
 .Ft int
@@ -208,6 +202,10 @@ Record entry functions
 .Fn libpff_record_entry_get_data_as_guid "libpff_record_entry_t *record_entry, uint8_t *guid_data, size_t guid_data_size, libpff_error_t **error"
 .Ft int
 .Fn libpff_record_entry_get_multi_value "libpff_record_entry_t *record_entry, libpff_multi_value_t **multi_value, libpff_error_t **error"
+.Ft ssize_t
+.Fn libpff_record_entry_read_buffer "libpff_record_entry_t *record_entry, uint8_t *buffer, size_t buffer_size, libpff_error_t **error"
+.Ft off64_t
+.Fn libpff_record_entry_seek_offset "libpff_record_entry_t *record_entry, off64_t offset, int whence, libpff_error_t **error"
 .Pp
 Multi value functions
 .Ft int
@@ -240,6 +238,14 @@ Multi value functions
 Folder functions
 .Ft int
 .Fn libpff_folder_get_type "libpff_item_t *folder, uint8_t *type, libpff_error_t **error"
+.Ft int
+.Fn libpff_folder_get_utf8_name_size "libpff_item_t *folder, size_t *utf8_string_size, libpff_error_t **error"
+.Ft int
+.Fn libpff_folder_get_utf8_name "libpff_item_t *folder, uint8_t *utf8_string, size_t utf8_string_size, libpff_error_t **error"
+.Ft int
+.Fn libpff_folder_get_utf16_name_size "libpff_item_t *folder, size_t *utf16_string_size, libpff_error_t **error"
+.Ft int
+.Fn libpff_folder_get_utf16_name "libpff_item_t *folder, uint16_t *utf16_string, size_t utf16_string_size, libpff_error_t **error"
 .Ft int
 .Fn libpff_folder_get_number_of_sub_folders "libpff_item_t *folder, int *number_of_sub_folders, libpff_error_t **error"
 .Ft int
@@ -278,6 +284,14 @@ Message functions
 .Fn libpff_message_get_entry_value_utf16_string_size "libpff_item_t *message, uint32_t entry_type, size_t *utf16_string_size, libpff_error_t **error"
 .Ft int
 .Fn libpff_message_get_entry_value_utf16_string "libpff_item_t *message, uint32_t entry_type, uint16_t *utf16_string, size_t utf16_string_size, libpff_error_t **error"
+.Ft int
+.Fn libpff_message_get_client_submit_time "libpff_item_t *message, uint64_t *filetime, libpff_error_t **error"
+.Ft int
+.Fn libpff_message_get_delivery_time "libpff_item_t *message, uint64_t *filetime, libpff_error_t **error"
+.Ft int
+.Fn libpff_message_get_creation_time "libpff_item_t *message, uint64_t *filetime, libpff_error_t **error"
+.Ft int
+.Fn libpff_message_get_modification_time "libpff_item_t *message, uint64_t *filetime, libpff_error_t **error"
 .Ft int
 .Fn libpff_message_get_number_of_attachments "libpff_item_t *message, int *number_of_attachments, libpff_error_t **error"
 .Ft int

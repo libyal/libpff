@@ -155,13 +155,13 @@ PyTypeObject pypff_record_sets_type_object = {
  */
 PyObject *pypff_record_sets_new(
            PyObject *parent_object,
-           PyObject* (*get_record_set_by_index)(
+           PyObject* (*get_item_by_index)(
                         PyObject *parent_object,
-                        int record_set_index ),
-           int number_of_record_sets )
+                        int index ),
+           int number_of_items )
 {
-	pypff_record_sets_t *pypff_record_sets = NULL;
-	static char *function                  = "pypff_record_sets_new";
+	pypff_record_sets_t *record_sets_object = NULL;
+	static char *function                   = "pypff_record_sets_new";
 
 	if( parent_object == NULL )
 	{
@@ -172,54 +172,54 @@ PyObject *pypff_record_sets_new(
 
 		return( NULL );
 	}
-	if( get_record_set_by_index == NULL )
+	if( get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid get record set by index function.",
+		 "%s: invalid get item by index function.",
 		 function );
 
 		return( NULL );
 	}
 	/* Make sure the record sets values are initialized
 	 */
-	pypff_record_sets = PyObject_New(
-	                     struct pypff_record_sets,
-	                     &pypff_record_sets_type_object );
+	record_sets_object = PyObject_New(
+	                      struct pypff_record_sets,
+	                      &pypff_record_sets_type_object );
 
-	if( pypff_record_sets == NULL )
+	if( record_sets_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize record sets.",
+		 "%s: unable to create record sets object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pypff_record_sets_init(
-	     pypff_record_sets ) != 0 )
+	     record_sets_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize record sets.",
+		 "%s: unable to initialize record sets object.",
 		 function );
 
 		goto on_error;
 	}
-	pypff_record_sets->parent_object           = parent_object;
-	pypff_record_sets->get_record_set_by_index = get_record_set_by_index;
-	pypff_record_sets->number_of_record_sets   = number_of_record_sets;
+	record_sets_object->parent_object     = parent_object;
+	record_sets_object->get_item_by_index = get_item_by_index;
+	record_sets_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pypff_record_sets->parent_object );
+	 (PyObject *) record_sets_object->parent_object );
 
-	return( (PyObject *) pypff_record_sets );
+	return( (PyObject *) record_sets_object );
 
 on_error:
-	if( pypff_record_sets != NULL )
+	if( record_sets_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_record_sets );
+		 (PyObject *) record_sets_object );
 	}
 	return( NULL );
 }
@@ -228,25 +228,25 @@ on_error:
  * Returns 0 if successful or -1 on error
  */
 int pypff_record_sets_init(
-     pypff_record_sets_t *pypff_record_sets )
+     pypff_record_sets_t *record_sets_object )
 {
 	static char *function = "pypff_record_sets_init";
 
-	if( pypff_record_sets == NULL )
+	if( record_sets_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets.",
+		 "%s: invalid record sets object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the record sets values are initialized
 	 */
-	pypff_record_sets->parent_object           = NULL;
-	pypff_record_sets->get_record_set_by_index = NULL;
-	pypff_record_sets->record_set_index        = 0;
-	pypff_record_sets->number_of_record_sets   = 0;
+	record_sets_object->parent_object     = NULL;
+	record_sets_object->get_item_by_index = NULL;
+	record_sets_object->current_index     = 0;
+	record_sets_object->number_of_items   = 0;
 
 	return( 0 );
 }
@@ -254,22 +254,22 @@ int pypff_record_sets_init(
 /* Frees a record sets object
  */
 void pypff_record_sets_free(
-      pypff_record_sets_t *pypff_record_sets )
+      pypff_record_sets_t *record_sets_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pypff_record_sets_free";
 
-	if( pypff_record_sets == NULL )
+	if( record_sets_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets.",
+		 "%s: invalid record sets object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pypff_record_sets );
+	           record_sets_object );
 
 	if( ob_type == NULL )
 	{
@@ -289,72 +289,72 @@ void pypff_record_sets_free(
 
 		return;
 	}
-	if( pypff_record_sets->parent_object != NULL )
+	if( record_sets_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_record_sets->parent_object );
+		 (PyObject *) record_sets_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) pypff_record_sets );
+	 (PyObject*) record_sets_object );
 }
 
 /* The record sets len() function
  */
 Py_ssize_t pypff_record_sets_len(
-            pypff_record_sets_t *pypff_record_sets )
+            pypff_record_sets_t *record_sets_object )
 {
 	static char *function = "pypff_record_sets_len";
 
-	if( pypff_record_sets == NULL )
+	if( record_sets_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets.",
+		 "%s: invalid record sets object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) pypff_record_sets->number_of_record_sets );
+	return( (Py_ssize_t) record_sets_object->number_of_items );
 }
 
 /* The record sets getitem() function
  */
 PyObject *pypff_record_sets_getitem(
-           pypff_record_sets_t *pypff_record_sets,
+           pypff_record_sets_t *record_sets_object,
            Py_ssize_t item_index )
 {
 	PyObject *record_set_object = NULL;
 	static char *function       = "pypff_record_sets_getitem";
 
-	if( pypff_record_sets == NULL )
+	if( record_sets_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets.",
+		 "%s: invalid record sets object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_sets->get_record_set_by_index == NULL )
+	if( record_sets_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets - missing get record set by index function.",
+		 "%s: invalid record sets object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_sets->number_of_record_sets < 0 )
+	if( record_sets_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets - invalid number of record sets.",
+		 "%s: invalid record sets object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) pypff_record_sets->number_of_record_sets ) )
+	 || ( item_index >= (Py_ssize_t) record_sets_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -363,8 +363,8 @@ PyObject *pypff_record_sets_getitem(
 
 		return( NULL );
 	}
-	record_set_object = pypff_record_sets->get_record_set_by_index(
-	                     pypff_record_sets->parent_object,
+	record_set_object = record_sets_object->get_item_by_index(
+	                     record_sets_object->parent_object,
 	                     (int) item_index );
 
 	return( record_set_object );
@@ -373,83 +373,83 @@ PyObject *pypff_record_sets_getitem(
 /* The record sets iter() function
  */
 PyObject *pypff_record_sets_iter(
-           pypff_record_sets_t *pypff_record_sets )
+           pypff_record_sets_t *record_sets_object )
 {
 	static char *function = "pypff_record_sets_iter";
 
-	if( pypff_record_sets == NULL )
+	if( record_sets_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets.",
+		 "%s: invalid record sets object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) pypff_record_sets );
+	 (PyObject *) record_sets_object );
 
-	return( (PyObject *) pypff_record_sets );
+	return( (PyObject *) record_sets_object );
 }
 
 /* The record sets iternext() function
  */
 PyObject *pypff_record_sets_iternext(
-           pypff_record_sets_t *pypff_record_sets )
+           pypff_record_sets_t *record_sets_object )
 {
 	PyObject *record_set_object = NULL;
 	static char *function       = "pypff_record_sets_iternext";
 
-	if( pypff_record_sets == NULL )
+	if( record_sets_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets.",
+		 "%s: invalid record sets object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_sets->get_record_set_by_index == NULL )
+	if( record_sets_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets - missing get record set by index function.",
+		 "%s: invalid record sets object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_sets->record_set_index < 0 )
+	if( record_sets_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets - invalid record set index.",
+		 "%s: invalid record sets object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_sets->number_of_record_sets < 0 )
+	if( record_sets_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid record sets - invalid number of record sets.",
+		 "%s: invalid record sets object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( pypff_record_sets->record_set_index >= pypff_record_sets->number_of_record_sets )
+	if( record_sets_object->current_index >= record_sets_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	record_set_object = pypff_record_sets->get_record_set_by_index(
-	                     pypff_record_sets->parent_object,
-	                     pypff_record_sets->record_set_index );
+	record_set_object = record_sets_object->get_item_by_index(
+	                     record_sets_object->parent_object,
+	                     record_sets_object->current_index );
 
 	if( record_set_object != NULL )
 	{
-		pypff_record_sets->record_set_index++;
+		record_sets_object->current_index++;
 	}
 	return( record_set_object );
 }

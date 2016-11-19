@@ -35,11 +35,6 @@
 extern "C" {
 #endif
 
-int libpff_attachment_get_attachment_method(
-     libpff_internal_item_t *internal_item,
-     uint32_t *attachment_method,
-     libcerror_error_t **error );
-
 LIBPFF_EXTERN \
 int libpff_attachment_get_type(
      libpff_item_t *attachment,

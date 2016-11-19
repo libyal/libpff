@@ -182,7 +182,7 @@ PyObject *pypff_record_set_new(
 	if( record_set == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record set.",
 		 function );
 
@@ -239,7 +239,7 @@ int pypff_record_set_init(
 	if( pypff_record_set == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record set.",
 		 function );
 
@@ -265,7 +265,7 @@ void pypff_record_set_free(
 	if( pypff_record_set == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record set.",
 		 function );
 
@@ -274,7 +274,7 @@ void pypff_record_set_free(
 	if( pypff_record_set->record_set == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record set - missing libpff record set.",
 		 function );
 
@@ -347,7 +347,7 @@ PyObject *pypff_record_set_get_number_of_entries(
 	if( pypff_record_set == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record set.",
 		 function );
 
@@ -413,7 +413,7 @@ PyObject *pypff_record_set_get_entry_by_index(
 	if( pypff_record_set == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record set.",
 		 function );
 
@@ -421,7 +421,7 @@ PyObject *pypff_record_set_get_entry_by_index(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_record_set_get_entry(
+	result = libpff_record_set_get_entry_by_index(
 	          ( (pypff_record_set_t *) pypff_record_set )->record_set,
 	          entry_index,
 	          &entry,
@@ -527,7 +527,7 @@ PyObject *pypff_record_set_get_entries(
 	if( pypff_record_set == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record set.",
 		 function );
 

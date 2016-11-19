@@ -373,7 +373,7 @@ int libpff_file_get_message_store(
      libpff_item_t **message_store,
      libpff_error_t **error );
 
-/* Retrieves the name to id map
+/* Retrieves the name to ID map
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
 LIBPFF_EXTERN \
@@ -498,27 +498,6 @@ int libpff_item_get_number_of_entries(
      uint32_t *number_of_entries,
      libpff_error_t **error );
 
-/* TODO replace libpff_item_get_entry_multi_value by libpff_record_entry_get_data_as_multi_value */
-
-/* Retrieves the multi value of a specific entry
- * Creates a new multi value
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_get_entry_multi_value(
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     libpff_multi_value_t **multi_value,
-     uint8_t flags,
-     libpff_error_t **error );
-
 /* Retrieves the type value
  * Determines the item type if neccessary
  * Returns 1 if successful or -1 on error
@@ -576,7 +555,7 @@ int libpff_item_get_number_of_sets(
      libpff_error_t **error );
 
 /* Retrieves the entry and value type of a specific entry
- * The name to id map entry is set when available
+ * The name to ID map entry is set when available
  *
  * This function deprecated use libpff_record_entry_get_entry_type instead
  *
@@ -890,7 +869,7 @@ int libpff_item_get_entry_value_64bit_by_utf16_name(
      uint64_t *entry_value,
      libpff_error_t **error );
 
-/* Retrieves the 64-bit filetime value of a specific entry
+/* Retrieves the 64-bit FILETIME value of a specific entry
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
@@ -911,7 +890,7 @@ int libpff_item_get_entry_value_filetime(
      uint8_t flags,
      libpff_error_t **error );
 
-/* Retrieves the 64-bit filetime value of a specific entry for an UTF-8 encoded name
+/* Retrieves the 64-bit FILETIME value of a specific entry for an UTF-8 encoded name
  *
  * This function deprecated use libpff_record_entry_get_value_filetime instead
  *
@@ -927,7 +906,7 @@ int libpff_item_get_entry_value_filetime_by_utf8_name(
      uint64_t *entry_value,
      libpff_error_t **error );
 
-/* Retrieves the 64-bit filetime value of a specific entry for an UTF-16 encoded name
+/* Retrieves the 64-bit FILETIME value of a specific entry for an UTF-16 encoded name
  *
  * This function deprecated use libpff_record_entry_get_value_filetime instead
  *
@@ -1412,6 +1391,28 @@ int libpff_item_get_entry_value_guid(
      uint8_t flags,
      libpff_error_t **error );
 
+/* Retrieves the multi value of a specific entry
+ * Creates a new multi value
+ *
+ * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
+ * the name to identifier mapping is ignored. The default behavior is
+ * the use the mapped entry value. In this case named properties are not
+ * retrieved.
+ *
+ * This function deprecated use libpff_record_entry_get_multi_value instead
+ *
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_get_entry_multi_value(
+     libpff_item_t *item,
+     int record_set_index,
+     uint32_t entry_type,
+     libpff_multi_value_t **multi_value,
+     uint8_t flags,
+     libpff_error_t **error );
+
 /* Retrieves the size of the UTF-16 encoded item display name
  * Size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
@@ -1491,7 +1492,7 @@ int libpff_item_get_entry_value_guid(
         libpff_item_get_entry_value_utf8_string( item, 0, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string, utf8_string_size, 0, error )
 
 /* -------------------------------------------------------------------------
- * Name to id map entry functions
+ * Name to ID map entry functions
  * ------------------------------------------------------------------------- */
 
 /* Retrieves the type
@@ -1677,15 +1678,6 @@ int libpff_record_entry_get_entry_type(
      uint32_t *entry_type,
      libpff_error_t **error );
 
-/* Retrieves the name to id map entry
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_record_entry_get_name_to_id_map_entry(
-     libpff_record_entry_t *record_entry,
-     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
-     libpff_error_t **error );
-
 /* Retrieves the value type
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -1693,6 +1685,15 @@ LIBPFF_EXTERN \
 int libpff_record_entry_get_value_type(
      libpff_record_entry_t *record_entry,
      uint32_t *value_type,
+     libpff_error_t **error );
+
+/* Retrieves the name to ID map entry
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_record_entry_get_name_to_id_map_entry(
+     libpff_record_entry_t *record_entry,
+     libpff_name_to_id_map_entry_t **name_to_id_map_entry,
      libpff_error_t **error );
 
 /* Retrieves the data size
@@ -1713,26 +1714,6 @@ int libpff_record_entry_get_data(
      uint8_t *data,
      size_t data_size,
      libpff_error_t **error );
-
-/* Reads value data from the current offset into a buffer
- * Returns the number of bytes read or -1 on error
- */
-LIBPFF_EXTERN \
-ssize_t libpff_record_entry_read_buffer(
-         libpff_record_entry_t *record_entry,
-         uint8_t *buffer,
-         size_t buffer_size,
-         libpff_error_t **error );
-
-/* Seeks a certain offset of the value data
- * Returns the offset if seek is successful or -1 on error
- */
-LIBPFF_EXTERN \
-off64_t libpff_record_entry_seek_offset(
-         libpff_record_entry_t *record_entry,
-         off64_t offset,
-         int whence,
-         libpff_error_t **error );
 
 /* Retrieves the data as a boolean value
  * Returns 1 if successful or -1 on error
@@ -1868,6 +1849,26 @@ int libpff_record_entry_get_multi_value(
      libpff_record_entry_t *record_entry,
      libpff_multi_value_t **multi_value,
      libpff_error_t **error );
+
+/* Reads value data from the current offset into a buffer
+ * Returns the number of bytes read or -1 on error
+ */
+LIBPFF_EXTERN \
+ssize_t libpff_record_entry_read_buffer(
+         libpff_record_entry_t *record_entry,
+         uint8_t *buffer,
+         size_t buffer_size,
+         libpff_error_t **error );
+
+/* Seeks a certain offset of the value data
+ * Returns the offset if seek is successful or -1 on error
+ */
+LIBPFF_EXTERN \
+off64_t libpff_record_entry_seek_offset(
+         libpff_record_entry_t *record_entry,
+         off64_t offset,
+         int whence,
+         libpff_error_t **error );
 
 /* -------------------------------------------------------------------------
  * Record entry functions - deprecated
@@ -2205,6 +2206,48 @@ int libpff_folder_get_type(
      uint8_t *type,
      libpff_error_t **error );
 
+/* Retrieves the size of the UTF-8 encoded name
+ * The size includes the end of string character
+ * Returns 1 if successful, 0 if value is not available or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_folder_get_utf8_name_size(
+     libpff_item_t *folder,
+     size_t *utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-8 encoded name
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if value is not available or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_folder_get_utf8_name(
+     libpff_item_t *folder,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the size of the UTF-16 encoded name
+ * The size includes the end of string character
+ * Returns 1 if successful, 0 if value is not available or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_folder_get_utf16_name_size(
+     libpff_item_t *folder,
+     size_t *utf16_string_size,
+     libpff_error_t **error );
+
+/* Retrieves the UTF-16 encoded name
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if value is not available or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_folder_get_utf16_name(
+     libpff_item_t *folder,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libpff_error_t **error );
+
 /* Retrieves the number of sub folders from a folder
  * Returns 1 if successful or -1 on error
  */
@@ -2349,36 +2392,6 @@ int libpff_folder_get_unknowns(
      libpff_error_t **error );
 
 /* -------------------------------------------------------------------------
- * Folder functions - deprecated
- * ------------------------------------------------------------------------- */
-
-/* Retrieves the size of the UTF-16 encoded folder name
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_folder_get_utf16_name_size( folder, utf16_string_size, error ) \
-	libpff_item_get_entry_value_utf16_string_size( folder, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf16_string_size, 0, error )
-
-/* Retrieves the UTF-16 encoded folder name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_folder_get_utf16_name( folder, utf16_string, utf16_string_size, error ) \
-	libpff_item_get_entry_value_utf16_string( folder, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf16_string, utf16_string_size, 0, error )
-
-/* Retrieves the size of the UTF-8 encoded folder name
- * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_folder_get_utf8_name_size( folder, utf8_string_size, error ) \
-	libpff_item_get_entry_value_utf8_string_size( folder, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string_size, 0, error )
-
-/* Retrieves the UTF-8 encoded folder name
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_folder_get_utf8_name( folder, utf8_string, utf8_string_size, error ) \
-	libpff_item_get_entry_value_utf8_string( folder, 0, LIBPFF_ENTRY_TYPE_DISPLAY_NAME, utf8_string, utf8_string_size, 0, error )
-
-/* -------------------------------------------------------------------------
  * Message store functions - deprecated
  * ------------------------------------------------------------------------- */
 
@@ -2398,7 +2411,7 @@ int libpff_folder_get_unknowns(
  * Message functions
  * ------------------------------------------------------------------------- */
 
-/* Retrieves the UTF-8 string size of a specific entry from the referenced message item
+/* Retrieves the UTF-8 string size of a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -2409,7 +2422,7 @@ int libpff_message_get_entry_value_utf8_string_size(
      size_t *utf8_string_size,
      libpff_error_t **error );
 
-/* Retrieves the UTF-8 string value of a specific entry from the referenced message item
+/* Retrieves the UTF-8 string value of a specific entry
  * The function uses a codepage if necessary, it tries to read PidTagMessageCodepage
  * if not available it uses the codepage set for the library
  * The size should include the end of string character
@@ -2423,7 +2436,7 @@ int libpff_message_get_entry_value_utf8_string(
      size_t utf8_string_size,
      libpff_error_t **error );
 
-/* Retrieves the UTF-16 string size of a specific entry from the referenced message item
+/* Retrieves the UTF-16 string size of a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -2434,7 +2447,7 @@ int libpff_message_get_entry_value_utf16_string_size(
      size_t *utf16_string_size,
      libpff_error_t **error );
 
-/* Retrieves the UTF-16 string value of a specific entry from the referenced message item
+/* Retrieves the UTF-16 string value of a specific entry
  * The function uses a codepage if necessary, it tries to read PidTagMessageCodepage
  * if not available it uses the codepage set for the library
  * The size should include the end of string character
@@ -2446,6 +2459,46 @@ int libpff_message_get_entry_value_utf16_string(
      uint32_t entry_type,
      uint16_t *utf16_string,
      size_t utf16_string_size,
+     libpff_error_t **error );
+
+/* TODO add convenience functions for subject */
+/* TODO add convenience functions for conversation_topic */
+/* TODO add convenience functions for sender_name */
+
+/* Retrieves the 64-bit FILETIME value containing message client submit time
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_message_get_client_submit_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit FILETIME value containing message delivery time
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_message_get_delivery_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit FILETIME value containing message creation time
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_message_get_creation_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libpff_error_t **error );
+
+/* Retrieves the 64-bit FILETIME value containing message modification time
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+LIBPFF_EXTERN \
+int libpff_message_get_modification_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
      libpff_error_t **error );
 
 /* Retrieves the number of attachment from a message item
@@ -2801,30 +2854,6 @@ int libpff_message_get_html_body(
  */
 #define libpff_message_get_utf16_received_by_email_address( message, utf16_string, utf16_string_size, error ) \
 	libpff_message_get_entry_value_utf16_string( message, LIBPFF_ENTRY_TYPE_MESSAGE_RECEIVED_BY_EMAIL_ADDRESS, utf16_string, utf16_string_size, error )
-
-/* Retrieves the message client submit time
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_client_submit_time( message, client_submit_time, error ) \
-	libpff_item_get_entry_value_filetime( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME, client_submit_time, 0, error )
-
-/* Retrieves the message delivery time
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_delivery_time( message, delivery_time, error ) \
-	libpff_item_get_entry_value_filetime( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_DELIVERY_TIME, delivery_time, 0, error )
-
-/* Retrieves the message creation time
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_creation_time( message, creation_time, error ) \
-	libpff_item_get_entry_value_filetime( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME, creation_time, 0, error )
-
-/* Retrieves the message modification time
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-#define libpff_message_get_modification_time( message, modification_time, error ) \
-	libpff_item_get_entry_value_filetime( message, 0, LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME, modification_time, 0, error )
 
 /* Retrieves the size of the UTF-8 encoded message transport headers
  * Size includes the end of string character

@@ -6907,12 +6907,10 @@ int libpff_table_read_ac_column_definitions(
 	libpff_data_block_t *column_definitions_data_block       = NULL;
 	libpff_local_descriptor_value_t *local_descriptor_value  = NULL;
 	pff_table_column_definition_ac_t *column_definition_data = NULL;
-	uint8_t *column_definitions_data                         = NULL;
 	static char *function                                    = "libpff_table_read_ac_column_definitions";
 	off64_t column_definition_data_block_offset              = 0;
 	size_t column_definition_data_offset                     = 0;
 	size_t column_definition_data_size                       = 0;
-	size_t column_definitions_data_size                      = 0;
 	uint32_t record_entry_values_table_descriptor            = 0;
 	uint16_t column_definition_number                        = 0;
 	int column_definition_index                              = 0;
@@ -7078,9 +7076,6 @@ int libpff_table_read_ac_column_definitions(
 
 		goto on_error;
 	}
-	column_definitions_data      = column_definitions_data_block->data;
-	column_definitions_data_size = column_definitions_data_block->uncompressed_data_size;
-
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -7088,14 +7083,14 @@ int libpff_table_read_ac_column_definitions(
 		 "%s: ac column definitions:\n",
 		 function );
 		libcnotify_print_data(
-		 column_definitions_data,
-		 column_definitions_data_size,
+		 column_definitions_data_block->data,
+		 column_definitions_data_block->uncompressed_data_size,
 		 0 );
 	}
 #endif
 	column_definition_data_size = (size_t) number_of_column_definitions * sizeof( pff_table_column_definition_ac_t );
 
-	if( column_definition_data_size != (size_t) column_definitions_data_size )
+	if( column_definition_data_size != (size_t) column_definitions_data_block->uncompressed_data_size )
 	{
 		libcerror_error_set(
 		 error,

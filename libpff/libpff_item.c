@@ -40,7 +40,6 @@
 #include "libpff_libfdata.h"
 #include "libpff_libfmapi.h"
 #include "libpff_mapi.h"
-#include "libpff_multi_value.h"
 #include "libpff_record_entry.h"
 #include "libpff_table.h"
 #include "libpff_types.h"
@@ -91,6 +90,28 @@ int libpff_item_initialize(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid item descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -158,6 +179,7 @@ int libpff_item_initialize(
 	internal_item->type           = LIBPFF_ITEM_TYPE_UNDEFINED;
 	internal_item->file_io_handle = file_io_handle;
 	internal_item->internal_file  = internal_file;
+	internal_item->ascii_codepage = internal_file->io_handle->ascii_codepage;
 	internal_item->flags          = flags;
 
 	if( ( flags & LIBPFF_ITEM_FLAG_MANAGED_ITEM_TREE_NODE ) == 0 )
@@ -459,17 +481,6 @@ int libpff_item_determine_type(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type != LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		return( 1 );
@@ -493,8 +504,9 @@ int libpff_item_determine_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry.",
-		 function );
+		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
+		 function,
+		 LIBPFF_ENTRY_TYPE_MESSAGE_CLASS );
 
 		goto on_error;
 	}
@@ -535,7 +547,7 @@ int libpff_item_determine_type(
 		}
 		if( libpff_record_entry_get_data_as_utf8_string_size_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     &item_type_string_size,
 		     error ) != 1 )
 		{
@@ -543,7 +555,7 @@ int libpff_item_determine_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve record entry UTF-8 string size.",
+			 "%s: unable to retrieve UTF-8 string size.",
 			 function );
 
 			goto on_error;
@@ -566,7 +578,7 @@ int libpff_item_determine_type(
 			}
 			if( libpff_record_entry_get_data_as_utf8_string_with_codepage(
 			     record_entry,
-			     internal_item->internal_file->io_handle->ascii_codepage,
+			     internal_item->ascii_codepage,
 			     (uint8_t *) item_type_string,
 			     item_type_string_size,
 			     error ) != 1 )
@@ -1237,30 +1249,20 @@ int libpff_item_get_number_of_entries(
 	return( 1 );
 }
 
-/* Retrieves the multi value of a specific entry
- * Creates a new multi value
- *
- * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
- * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
- * retrieved.
- *
+/* Retrieves a 32-bit integer value
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
-int libpff_item_get_entry_multi_value(
-     libpff_item_t *item,
-     int set_index,
+int libpff_internal_item_get_entry_value_32bit_integer(
+     libpff_internal_item_t *internal_item,
      uint32_t entry_type,
-     libpff_multi_value_t **multi_value,
-     uint8_t flags,
+     uint32_t *value_32bit,
      libcerror_error_t **error )
 {
-	libpff_internal_item_t *internal_item = NULL;
-	libpff_record_entry_t *record_entry   = NULL;
-	static char *function                 = "libpff_item_get_entry_multi_value";
-	int result                            = 0;
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "libpff_internal_item_get_entry_value_32bit_integer";
+	int result                          = 0;
 
-	if( item == NULL )
+	if( internal_item == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -1271,8 +1273,215 @@ int libpff_item_get_entry_multi_value(
 
 		return( -1 );
 	}
-	internal_item = (libpff_internal_item_t *) item;
+	if( internal_item->internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing internal file.",
+		 function );
 
+		return( -1 );
+	}
+	result = libpff_item_values_get_record_entry_by_type(
+	          internal_item->item_values,
+	          internal_item->internal_file->name_to_id_map_list,
+	          internal_item->internal_file->io_handle,
+	          internal_item->file_io_handle,
+	          internal_item->internal_file->offsets_index,
+	          0,
+	          entry_type,
+	          LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
+	          &record_entry,
+	          0,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x04" PRIx32 " 0x%04" PRIx32 ".",
+		 function,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_data_as_32bit_integer(
+		     record_entry,
+		     value_32bit,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve 32-bit integer value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves a 64-bit FILETIME entry value
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_internal_item_get_entry_value_filetime(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     uint64_t *filetime,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "libpff_internal_item_get_entry_value_filetime";
+	int result                          = 0;
+
+	if( internal_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing internal file.",
+		 function );
+
+		return( -1 );
+	}
+	result = libpff_item_values_get_record_entry_by_type(
+	          internal_item->item_values,
+	          internal_item->internal_file->name_to_id_map_list,
+	          internal_item->internal_file->io_handle,
+	          internal_item->file_io_handle,
+	          internal_item->internal_file->offsets_index,
+	          0,
+	          entry_type,
+	          LIBPFF_VALUE_TYPE_FILETIME,
+	          &record_entry,
+	          0,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x04" PRIx32 " 0x%04" PRIx32 ".",
+		 function,
+		 entry_type,
+		 LIBPFF_VALUE_TYPE_FILETIME );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_data_as_filetime(
+		     record_entry,
+		     filetime,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve filetime value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves the UTF-8 string size of a specific entry
+ * The size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_internal_item_get_entry_value_utf8_string_size(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     int ascii_codepage,
+     size_t *utf8_string_size,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "libpff_internal_item_get_entry_value_utf8_string_size";
+	uint32_t value_type                 = 0;
+	int result                          = 0;
+
+	if( internal_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_item->internal_file == NULL )
 	{
 		libcerror_error_set(
@@ -1295,15 +1504,148 @@ int libpff_item_get_entry_multi_value(
 
 		return( -1 );
 	}
-	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
+	result = libpff_item_values_get_record_entry_by_type(
+	          internal_item->item_values,
+	          internal_item->internal_file->name_to_id_map_list,
+	          internal_item->internal_file->io_handle,
+	          internal_item->file_io_handle,
+	          internal_item->internal_file->offsets_index,
+	          0,
+	          entry_type,
+	          0,
+	          &record_entry,
+	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags: 0x%02" PRIx8 ".",
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
 		 function,
-		 flags );
+		 entry_type );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_type(
+		     record_entry,
+		     &value_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value type.",
+			 function );
+
+			goto on_error;
+		}
+		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value type: 0x%04" PRIx32 ".",
+			 function,
+			 value_type );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_get_data_as_utf8_string_size_with_codepage(
+		     record_entry,
+		     ascii_codepage,
+		     utf8_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-8 string size.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves the UTF-8 string value of a specific entry
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_internal_item_get_entry_value_utf8_string(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     int ascii_codepage,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "libpff_internal_item_get_entry_value_utf8_string";
+	uint32_t value_type                 = 0;
+	int result                          = 0;
+
+	if( internal_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing internal file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - invalid file - missing IO handle.",
+		 function );
 
 		return( -1 );
 	}
@@ -1313,11 +1655,11 @@ int libpff_item_get_entry_multi_value(
 	          internal_item->internal_file->io_handle,
 	          internal_item->file_io_handle,
 	          internal_item->internal_file->offsets_index,
-	          set_index,
+	          0,
 	          entry_type,
 	          0,
 	          &record_entry,
-	          flags | LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
 	          error );
 
 	if( result == -1 )
@@ -1326,32 +1668,372 @@ int libpff_item_get_entry_multi_value(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry.",
-		 function );
+		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
+		 function,
+		 entry_type );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_multi_value(
+		if( libpff_record_entry_get_value_type(
 		     record_entry,
-		     multi_value,
+		     &value_type,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve multi value.",
+			 "%s: unable to retrieve value type.",
 			 function );
 
-			return( -1 );
+			goto on_error;
+		}
+		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value type: 0x%04" PRIx32 ".",
+			 function,
+			 value_type );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_get_data_as_utf8_string_with_codepage(
+		     record_entry,
+		     ascii_codepage,
+		     utf8_string,
+		     utf8_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy record entry to UTF-8 string.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
 		}
 	}
 	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
 }
 
-/* TODO add by_name functions */
+/* Retrieves the UTF-16 string size of a specific entry
+ * The size includes the end of string character
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_internal_item_get_entry_value_utf16_string_size(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     int ascii_codepage,
+     size_t *utf16_string_size,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "libpff_internal_item_get_entry_value_utf16_string_size";
+	uint32_t value_type                 = 0;
+	int result                          = 0;
+
+	if( internal_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing internal file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - invalid file - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	result = libpff_item_values_get_record_entry_by_type(
+	          internal_item->item_values,
+	          internal_item->internal_file->name_to_id_map_list,
+	          internal_item->internal_file->io_handle,
+	          internal_item->file_io_handle,
+	          internal_item->internal_file->offsets_index,
+	          0,
+	          entry_type,
+	          0,
+	          &record_entry,
+	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
+		 function,
+		 entry_type );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_type(
+		     record_entry,
+		     &value_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value type.",
+			 function );
+
+			goto on_error;
+		}
+		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value type: 0x%04" PRIx32 ".",
+			 function,
+			 value_type );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_get_data_as_utf16_string_size_with_codepage(
+		     record_entry,
+		     ascii_codepage,
+		     utf16_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-16 string size.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Retrieves the UTF-16 string value of a specific entry
+ * The function uses a codepage if necessary, it uses the codepage set for the library
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_internal_item_get_entry_value_utf16_string(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     int ascii_codepage,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     libcerror_error_t **error )
+{
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "libpff_internal_item_get_entry_value_utf16_string";
+	uint32_t value_type                 = 0;
+	int result                          = 0;
+
+	if( internal_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing internal file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->internal_file->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - invalid file - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	result = libpff_item_values_get_record_entry_by_type(
+	          internal_item->item_values,
+	          internal_item->internal_file->name_to_id_map_list,
+	          internal_item->internal_file->io_handle,
+	          internal_item->file_io_handle,
+	          internal_item->internal_file->offsets_index,
+	          0,
+	          entry_type,
+	          0,
+	          &record_entry,
+	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
+		 function,
+		 entry_type );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( libpff_record_entry_get_value_type(
+		     record_entry,
+		     &value_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value type.",
+			 function );
+
+			goto on_error;
+		}
+		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
+		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value type: 0x%04" PRIx32 ".",
+			 function,
+			 value_type );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_get_data_as_utf16_string_with_codepage(
+		     record_entry,
+		     ascii_codepage,
+		     utf16_string,
+		     utf16_string_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy record entry to UTF-16 string.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
+}
 
 /* Retrieves the embedded object data
  * Returns 1 if successful or -1 on error

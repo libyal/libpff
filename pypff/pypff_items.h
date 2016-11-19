@@ -48,11 +48,11 @@ struct pypff_items
 	 */
 	PyObject* (*get_item_by_index)(
 	             PyObject *parent_object,
-	             int item_index );
+	             int index );
 
-	/* The (current) item index
+	/* The current index
 	 */
-	int item_index;
+	int current_index;
 
 	/* The number of items
 	 */
@@ -65,27 +65,27 @@ PyObject *pypff_items_new(
            PyObject *parent_object,
            PyObject* (*get_item_by_index)(
                         PyObject *parent_object,
-                        int item_index ),
+                        int index ),
            int number_of_items );
 
 int pypff_items_init(
-     pypff_items_t *pypff_items );
+     pypff_items_t *items_object );
 
 void pypff_items_free(
-      pypff_items_t *pypff_items );
+      pypff_items_t *items_object );
 
 Py_ssize_t pypff_items_len(
-            pypff_items_t *pypff_items );
+            pypff_items_t *items_object );
 
 PyObject *pypff_items_getitem(
-           pypff_items_t *pypff_items,
+           pypff_items_t *items_object,
            Py_ssize_t item_index );
 
 PyObject *pypff_items_iter(
-           pypff_items_t *pypff_items );
+           pypff_items_t *items_object );
 
 PyObject *pypff_items_iternext(
-           pypff_items_t *pypff_items );
+           pypff_items_t *items_object );
 
 #if defined( __cplusplus )
 }

@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libpff record entry
+ * Python object wrapper of libpff_record_entry_t
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -25,10 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
-#include "pypff_record_set.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -46,9 +44,9 @@ struct pypff_record_entry
 	 */
 	libpff_record_entry_t *record_entry;
 
-	/* The record set object
+	/* The parent object
 	 */
-	pypff_record_set_t *record_set_object;
+	PyObject *parent_object;
 };
 
 extern PyMethodDef pypff_record_entry_object_methods[];
@@ -57,7 +55,7 @@ extern PyTypeObject pypff_record_entry_type_object;
 PyObject *pypff_record_entry_new(
            PyTypeObject *type_object,
            libpff_record_entry_t *record_entry,
-           pypff_record_set_t *record_set_object );
+           PyObject *parent_object );
 
 int pypff_record_entry_init(
      pypff_record_entry_t *pypff_record_entry );
@@ -73,15 +71,31 @@ PyObject *pypff_record_entry_get_value_type(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments );
 
-PyObject *pypff_record_entry_get_value_data(
+PyObject *pypff_record_entry_get_data(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments );
 
-PyObject *pypff_record_entry_get_value_data_as_integer(
+PyObject *pypff_record_entry_get_data_as_boolean(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments );
 
-PyObject *pypff_record_entry_get_value_data_as_string(
+PyObject *pypff_record_entry_get_data_as_integer(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments );
+
+PyObject *pypff_record_entry_get_data_as_datetime(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments );
+
+PyObject *pypff_record_entry_get_data_as_size(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments );
+
+PyObject *pypff_record_entry_get_data_as_floating_point(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments );
+
+PyObject *pypff_record_entry_get_data_as_string(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments );
 

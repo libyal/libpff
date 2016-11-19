@@ -416,229 +416,7 @@ on_error:
 	return( -1 );
 }
 
-/* Retrieves the message string codepage
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-int libpff_internal_message_get_message_codepage(
-     libpff_internal_item_t *internal_item,
-     uint32_t *message_codepage,
-     libcerror_error_t **error )
-{
-	libpff_record_entry_t *record_entry = NULL;
-	static char *function               = "libpff_message_get_message_codepage";
-	int result                          = 0;
-
-	if( internal_item == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid item.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( message_codepage == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid message codepage.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_item_values_get_record_entry_by_type(
-	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
-	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
-	          LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
-	          &record_entry,
-	          0,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve message codepage record entry.",
-		 function );
-
-		goto on_error;
-	}
-	else if( result != 0 )
-	{
-		if( libpff_record_entry_get_data_as_32bit_integer(
-		     record_entry,
-		     message_codepage,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit integer value.",
-			 function );
-
-			goto on_error;
-		}
-		if( libpff_record_entry_free(
-		     &record_entry,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free record entry.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	return( result );
-
-on_error:
-	if( record_entry != NULL )
-	{
-		libpff_record_entry_free(
-		 &record_entry,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Retrieves the message body string codepage
- * Returns 1 if successful, 0 if no such value or -1 on error
- */
-int libpff_internal_message_get_message_body_codepage(
-     libpff_internal_item_t *internal_item,
-     uint32_t *message_body_codepage,
-     libcerror_error_t **error )
-{
-	libpff_record_entry_t *record_entry = NULL;
-	static char *function               = "libpff_message_get_message_body_codepage";
-	int result                          = 0;
-
-	if( internal_item == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid item.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( message_body_codepage == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid message body codepage.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_item_values_get_record_entry_by_type(
-	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
-	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
-	          0,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_BODY_CODEPAGE,
-	          LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
-	          &record_entry,
-	          0,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve message codepage record entry.",
-		 function );
-
-		goto on_error;
-	}
-	else if( result != 0 )
-	{
-		if( libpff_record_entry_get_data_as_32bit_integer(
-		     record_entry,
-		     message_body_codepage,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve 32-bit integer value.",
-			 function );
-
-			goto on_error;
-		}
-		if( libpff_record_entry_free(
-		     &record_entry,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free record entry.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	return( result );
-
-on_error:
-	if( record_entry != NULL )
-	{
-		libpff_record_entry_free(
-		 &record_entry,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Retrieves the UTF-8 string size of a specific entry from the referenced message item
+/* Retrieves the UTF-8 string size of a specific entry
  * The size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -649,10 +427,7 @@ int libpff_message_get_entry_value_utf8_string_size(
      libcerror_error_t **error )
 {
 	libpff_internal_item_t *internal_item = NULL;
-	libpff_record_entry_t *record_entry   = NULL;
 	static char *function                 = "libpff_message_get_entry_value_utf8_string_size";
-	uint32_t ascii_codepage               = 0;
-	uint32_t value_type                   = 0;
 	int result                            = 0;
 
 	if( message == NULL )
@@ -668,39 +443,33 @@ int libpff_message_get_entry_value_utf8_string_size(
 	}
 	internal_item = (libpff_internal_item_t *) message;
 
-	if( internal_item->internal_file == NULL )
+	if( internal_item->message_codepage == 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
+		if( libpff_internal_item_get_entry_value_32bit_integer(
+		     internal_item,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+		     &( internal_item->message_codepage ),
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the message codepage.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+		if( internal_item->message_codepage == 0 )
+		{
+			internal_item->message_codepage = internal_item->ascii_codepage;
+		}
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_item_values_get_record_entry_by_type(
-	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
-	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
-	          0,
+	result = libpff_internal_item_get_entry_value_utf8_string_size(
+	          internal_item,
 	          entry_type,
-	          0,
-	          &record_entry,
-	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          internal_item->message_codepage,
+	          utf8_string_size,
 	          error );
 
 	if( result == -1 )
@@ -709,84 +478,15 @@ int libpff_message_get_entry_value_utf8_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry.",
+		 "%s: unable to retrieve UTF-8 string size.",
 		 function );
 
 		return( -1 );
 	}
-	else if( result != 0 )
-	{
-		if( libpff_record_entry_get_value_type(
-		     record_entry,
-		     &value_type,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value type.",
-			 function );
-
-			return( -1 );
-		}
-		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
-		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value type: 0x%04" PRIx32 ".",
-			 function,
-			 value_type );
-
-			return( -1 );
-		}
-		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-		{
-			result = libpff_internal_message_get_message_codepage(
-				  internal_item,
-				  &ascii_codepage,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve the message codepage.",
-				 function );
-
-				return( -1 );
-			}
-			else if( result == 0 )
-			{
-				ascii_codepage = (uint32_t) internal_item->internal_file->io_handle->ascii_codepage;
-			}
-			result = 1;
-		}
-		if( libpff_record_entry_get_data_as_utf8_string_size_with_codepage(
-		     record_entry,
-		     ascii_codepage,
-		     utf8_string_size,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve record entry UTF-8 string size.",
-			 function );
-
-			return( -1 );
-		}
-	}
 	return( result );
 }
 
-/* Retrieves the UTF-8 string value of a specific entry from the referenced message item
+/* Retrieves the UTF-8 string value of a specific entry
  * The function uses a codepage if necessary, it uses the codepage set for the library
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -798,10 +498,7 @@ int libpff_message_get_entry_value_utf8_string(
      libcerror_error_t **error )
 {
 	libpff_internal_item_t *internal_item = NULL;
-	libpff_record_entry_t *record_entry   = NULL;
 	static char *function                 = "libpff_message_get_entry_value_utf8_string";
-	uint32_t ascii_codepage               = 0;
-	uint32_t value_type                   = 0;
 	int result                            = 0;
 
 	if( message == NULL )
@@ -817,39 +514,34 @@ int libpff_message_get_entry_value_utf8_string(
 	}
 	internal_item = (libpff_internal_item_t *) message;
 
-	if( internal_item->internal_file == NULL )
+	if( internal_item->message_codepage == 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
+		if( libpff_internal_item_get_entry_value_32bit_integer(
+		     internal_item,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+		     &( internal_item->message_codepage ),
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the message codepage.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+		if( internal_item->message_codepage == 0 )
+		{
+			internal_item->message_codepage = internal_item->ascii_codepage;
+		}
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_item_values_get_record_entry_by_type(
-	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
-	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
-	          0,
+	result = libpff_internal_item_get_entry_value_utf8_string(
+	          internal_item,
 	          entry_type,
-	          0,
-	          &record_entry,
-	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          internal_item->message_codepage,
+	          utf8_string,
+	          utf8_string_size,
 	          error );
 
 	if( result == -1 )
@@ -858,85 +550,15 @@ int libpff_message_get_entry_value_utf8_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry.",
+		 "%s: unable to retrieve UTF-8 string.",
 		 function );
 
 		return( -1 );
 	}
-	else if( result != 0 )
-	{
-		if( libpff_record_entry_get_value_type(
-		     record_entry,
-		     &value_type,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value type.",
-			 function );
-
-			return( -1 );
-		}
-		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
-		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value type: 0x%04" PRIx32 ".",
-			 function,
-			 value_type );
-
-			return( -1 );
-		}
-		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-		{
-			result = libpff_internal_message_get_message_codepage(
-				  internal_item,
-				  &ascii_codepage,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve the message codepage.",
-				 function );
-
-				return( -1 );
-			}
-			else if( result == 0 )
-			{
-				ascii_codepage = (uint32_t) internal_item->internal_file->io_handle->ascii_codepage;
-			}
-			result = 1;
-		}
-		if( libpff_record_entry_get_data_as_utf8_string_with_codepage(
-		     record_entry,
-		     ascii_codepage,
-		     utf8_string,
-		     utf8_string_size,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy record entry to UTF-8 string.",
-			 function );
-
-			return( -1 );
-		}
-	}
 	return( result );
 }
 
-/* Retrieves the UTF-16 string size of a specific entry from the referenced message item
+/* Retrieves the UTF-16 string size of a specific entry
  * The size includes the end of string character
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -947,10 +569,7 @@ int libpff_message_get_entry_value_utf16_string_size(
      libcerror_error_t **error )
 {
 	libpff_internal_item_t *internal_item = NULL;
-	libpff_record_entry_t *record_entry   = NULL;
 	static char *function                 = "libpff_message_get_entry_value_utf16_string_size";
-	uint32_t ascii_codepage               = 0;
-	uint32_t value_type                   = 0;
 	int result                            = 0;
 
 	if( message == NULL )
@@ -966,39 +585,33 @@ int libpff_message_get_entry_value_utf16_string_size(
 	}
 	internal_item = (libpff_internal_item_t *) message;
 
-	if( internal_item->internal_file == NULL )
+	if( internal_item->message_codepage == 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
+		if( libpff_internal_item_get_entry_value_32bit_integer(
+		     internal_item,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+		     &( internal_item->message_codepage ),
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the message codepage.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+		if( internal_item->message_codepage == 0 )
+		{
+			internal_item->message_codepage = internal_item->ascii_codepage;
+		}
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_item_values_get_record_entry_by_type(
-	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
-	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
-	          0,
+	result = libpff_internal_item_get_entry_value_utf16_string_size(
+	          internal_item,
 	          entry_type,
-	          0,
-	          &record_entry,
-	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          internal_item->message_codepage,
+	          utf16_string_size,
 	          error );
 
 	if( result == -1 )
@@ -1007,84 +620,15 @@ int libpff_message_get_entry_value_utf16_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry.",
+		 "%s: unable to retrieve UTF-16 string size.",
 		 function );
 
 		return( -1 );
 	}
-	else if( result != 0 )
-	{
-		if( libpff_record_entry_get_value_type(
-		     record_entry,
-		     &value_type,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value type.",
-			 function );
-
-			return( -1 );
-		}
-		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
-		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value type: 0x%04" PRIx32 ".",
-			 function,
-			 value_type );
-
-			return( -1 );
-		}
-		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-		{
-			result = libpff_internal_message_get_message_codepage(
-				  internal_item,
-				  &ascii_codepage,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve the message codepage.",
-				 function );
-
-				return( -1 );
-			}
-			else if( result == 0 )
-			{
-				ascii_codepage = (uint32_t) internal_item->internal_file->io_handle->ascii_codepage;
-			}
-			result = 1;
-		}
-		if( libpff_record_entry_get_data_as_utf16_string_size_with_codepage(
-		     record_entry,
-		     ascii_codepage,
-		     utf16_string_size,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve record entry UTF-16 string size.",
-			 function );
-
-			return( -1 );
-		}
-	}
 	return( result );
 }
 
-/* Retrieves the UTF-16 string value of a specific entry from the referenced message item
+/* Retrieves the UTF-16 string value of a specific entry
  * The function uses a codepage if necessary, it uses the codepage set for the library
  * Returns 1 if successful, 0 if no such value or -1 on error
  */
@@ -1096,10 +640,7 @@ int libpff_message_get_entry_value_utf16_string(
      libcerror_error_t **error )
 {
 	libpff_internal_item_t *internal_item = NULL;
-	libpff_record_entry_t *record_entry   = NULL;
 	static char *function                 = "libpff_message_get_entry_value_utf16_string";
-	uint32_t ascii_codepage               = 0;
-	uint32_t value_type                   = 0;
 	int result                            = 0;
 
 	if( message == NULL )
@@ -1115,39 +656,34 @@ int libpff_message_get_entry_value_utf16_string(
 	}
 	internal_item = (libpff_internal_item_t *) message;
 
-	if( internal_item->internal_file == NULL )
+	if( internal_item->message_codepage == 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
+		if( libpff_internal_item_get_entry_value_32bit_integer(
+		     internal_item,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+		     &( internal_item->message_codepage ),
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the message codepage.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+		if( internal_item->message_codepage == 0 )
+		{
+			internal_item->message_codepage = internal_item->ascii_codepage;
+		}
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_item_values_get_record_entry_by_type(
-	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
-	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
-	          0,
+	result = libpff_internal_item_get_entry_value_utf16_string(
+	          internal_item,
 	          entry_type,
-	          0,
-	          &record_entry,
-	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          internal_item->message_codepage,
+	          utf16_string,
+	          utf16_string_size,
 	          error );
 
 	if( result == -1 )
@@ -1156,80 +692,134 @@ int libpff_message_get_entry_value_utf16_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry.",
+		 "%s: unable to retrieve UTF-16 string.",
 		 function );
 
 		return( -1 );
 	}
-	else if( result != 0 )
+	return( result );
+}
+
+/* Retrieves the 64-bit FILETIME value containing message client submit time
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_message_get_client_submit_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_message_get_client_submit_time";
+	int result            = 0;
+
+	result = libpff_internal_item_get_entry_value_filetime(
+	          (libpff_internal_item_t *) message,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME,
+	          filetime,
+	          error );
+
+	if( result == -1 )
 	{
-		if( libpff_record_entry_get_value_type(
-		     record_entry,
-		     &value_type,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value type.",
-			 function );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve client submit time.",
+		 function );
 
-			return( -1 );
-		}
-		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
-		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value type: 0x%04" PRIx32 ".",
-			 function,
-			 value_type );
+		return( -1 );
+	}
+	return( result );
+}
 
-			return( -1 );
-		}
-		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-		{
-			result = libpff_internal_message_get_message_codepage(
-				  internal_item,
-				  &ascii_codepage,
-				  error );
+/* Retrieves the 64-bit FILETIME value containing message delivery time
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_message_get_delivery_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_message_get_delivery_time";
+	int result            = 0;
 
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve the message codepage.",
-				 function );
+	result = libpff_internal_item_get_entry_value_filetime(
+	          (libpff_internal_item_t *) message,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_DELIVERY_TIME,
+	          filetime,
+	          error );
 
-				return( -1 );
-			}
-			else if( result == 0 )
-			{
-				ascii_codepage = (uint32_t) internal_item->internal_file->io_handle->ascii_codepage;
-			}
-			result = 1;
-		}
-		if( libpff_record_entry_get_data_as_utf16_string_with_codepage(
-		     record_entry,
-		     ascii_codepage,
-		     utf16_string,
-		     utf16_string_size,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy record entry to UTF-16 string.",
-			 function );
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve delivery time.",
+		 function );
 
-			return( -1 );
-		}
+		return( -1 );
+	}
+	return( result );
+}
+
+/* Retrieves the 64-bit FILETIME value containing message creation time
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_message_get_creation_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_message_get_creation_time";
+	int result            = 0;
+
+	result = libpff_internal_item_get_entry_value_filetime(
+	          (libpff_internal_item_t *) message,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
+	          filetime,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve creation time.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+
+/* Retrieves the 64-bit FILETIME value containing message modification time
+ * Returns 1 if successful, 0 if no such value or -1 on error
+ */
+int libpff_message_get_modification_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_message_get_modification_time";
+	int result            = 0;
+
+	result = libpff_internal_item_get_entry_value_filetime(
+	          (libpff_internal_item_t *) message,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME,
+	          filetime,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve modification time.",
+		 function );
+
+		return( -1 );
 	}
 	return( result );
 }
@@ -1761,17 +1351,6 @@ int libpff_message_get_attachment(
 	}
 	internal_item = (libpff_internal_item_t *) message;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid message - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_values == NULL )
 	{
 		libcerror_error_set(
@@ -1953,17 +1532,6 @@ int libpff_message_get_attachments(
 	}
 	internal_item = (libpff_internal_item_t *) message;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid message - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_values == NULL )
 	{
 		libcerror_error_set(
@@ -2315,17 +1883,6 @@ int libpff_message_get_recipients(
 	}
 	internal_item = (libpff_internal_item_t *) message;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid message - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_values == NULL )
 	{
 		libcerror_error_set(
@@ -2495,10 +2052,9 @@ int libpff_message_get_plain_text_body_size(
 	libpff_internal_item_t *internal_item = NULL;
 	libpff_record_entry_t *record_entry   = NULL;
 	static char *function                 = "libpff_message_get_plain_text_body_size";
-	uint32_t ascii_codepage               = 0;
 	uint32_t message_codepage             = 0;
-	uint32_t message_body_codepage        = 0;
 	uint32_t value_type                   = 0;
+	int ascii_codepage                    = 0;
 	int result                            = 0;
 
 	if( message == NULL )
@@ -2525,17 +2081,6 @@ int libpff_message_get_plain_text_body_size(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( size == NULL )
 	{
 		libcerror_error_set(
@@ -2546,6 +2091,50 @@ int libpff_message_get_plain_text_body_size(
 		 function );
 
 		return( -1 );
+	}
+	if( internal_item->message_codepage == 0 )
+	{
+		if( libpff_internal_item_get_entry_value_32bit_integer(
+		     internal_item,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+		     &( internal_item->message_codepage ),
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the message codepage.",
+			 function );
+
+			goto on_error;
+		}
+		if( internal_item->message_codepage == 0 )
+		{
+			internal_item->message_codepage = internal_item->ascii_codepage;
+		}
+	}
+	if( internal_item->message_body_codepage == 0 )
+	{
+		if( libpff_internal_item_get_entry_value_32bit_integer(
+		     internal_item,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_BODY_CODEPAGE,
+		     &( internal_item->message_body_codepage ),
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the message body codepage.",
+			 function );
+
+			goto on_error;
+		}
+		if( internal_item->message_body_codepage == 0 )
+		{
+			internal_item->message_body_codepage = internal_item->message_codepage;
+		}
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
@@ -2569,7 +2158,7 @@ int libpff_message_get_plain_text_body_size(
 		 "%s: unable to retrieve record entry.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -2585,7 +2174,7 @@ int libpff_message_get_plain_text_body_size(
 			 "%s: unable to retrieve value type.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
 		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE )
@@ -2599,69 +2188,28 @@ int libpff_message_get_plain_text_body_size(
 			 function,
 			 value_type );
 
-			return( -1 );
-		}
-		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-		{
-			if( libpff_internal_message_get_message_body_codepage(
-			     internal_item,
-			     &message_body_codepage,
-			     error ) == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve the message body codepage.",
-				 function );
-
-				return( -1 );
-			}
-			if( libpff_internal_message_get_message_codepage(
-			     internal_item,
-			     &message_codepage,
-			     error ) == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve the message codepage.",
-				 function );
-
-				return( -1 );
-			}
-/* TODO ignore the message body codepage for now
-			if( message_body_codepage != 0 )
-			{
-				ascii_codepage = message_body_codepage;
-			}
-			else if( message_codepage != 0 )
-*/
-			if( message_body_codepage != 0 )
-			{
-				ascii_codepage = message_codepage;
-			}
-			else
-			{
-				ascii_codepage = (uint32_t) internal_item->internal_file->io_handle->ascii_codepage;
-			}
+			goto on_error;
 		}
 		if( ( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		 || ( value_type == LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
 		{
+/* TODO ignore the message body codepage for now */
+			ascii_codepage = internal_item->message_codepage;
+
 			if( libpff_record_entry_get_data_as_utf8_string_size_with_codepage(
 			     record_entry,
 			     ascii_codepage,
 			     size,
 			     error ) != 1 )
 			{
+				message_codepage = internal_item->message_codepage;
+
 				/* Sometimes the message codepage is not available
 				 */
-				if( ( message_codepage == message_body_codepage )
+				if( ( message_codepage == internal_item->message_body_codepage )
 				 || ( message_codepage == 0 ) )
 				{
-					message_codepage = internal_item->internal_file->io_handle->ascii_codepage;
+					message_codepage = internal_item->ascii_codepage;
 				}
 				/* Sometimes the message body codepade is not the one used to encode
 				 * the message body, so try the message codepage as well
@@ -2680,7 +2228,7 @@ int libpff_message_get_plain_text_body_size(
 					 "%s: unable to determine message body size.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 				libcerror_error_free(
 				 error );
@@ -2700,14 +2248,36 @@ int libpff_message_get_plain_text_body_size(
 				 "%s: unable to retrieve binary data size.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			/* Add the end of string character
 			 */
 			*size += 1;
 		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the plain text message body
@@ -2727,10 +2297,9 @@ int libpff_message_get_plain_text_body(
 	libpff_record_entry_t *record_entry   = NULL;
 	static char *function                 = "libpff_message_get_plain_text_body";
 	size_t value_data_size                = 0;
-	uint32_t ascii_codepage               = 0;
 	uint32_t message_codepage             = 0;
-	uint32_t message_body_codepage        = 0;
 	uint32_t value_type                   = 0;
+	int ascii_codepage                    = 0;
 	int result                            = 0;
 
 	if( message == NULL )
@@ -2757,17 +2326,6 @@ int libpff_message_get_plain_text_body(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( message_body == NULL )
 	{
 		libcerror_error_set(
@@ -2778,6 +2336,50 @@ int libpff_message_get_plain_text_body(
 		 function );
 
 		return( -1 );
+	}
+	if( internal_item->message_codepage == 0 )
+	{
+		if( libpff_internal_item_get_entry_value_32bit_integer(
+		     internal_item,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_CODEPAGE,
+		     &( internal_item->message_codepage ),
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the message codepage.",
+			 function );
+
+			goto on_error;
+		}
+		if( internal_item->message_codepage == 0 )
+		{
+			internal_item->message_codepage = internal_item->ascii_codepage;
+		}
+	}
+	if( internal_item->message_body_codepage == 0 )
+	{
+		if( libpff_internal_item_get_entry_value_32bit_integer(
+		     internal_item,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_BODY_CODEPAGE,
+		     &( internal_item->message_body_codepage ),
+		     error ) == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the message body codepage.",
+			 function );
+
+			goto on_error;
+		}
+		if( internal_item->message_body_codepage == 0 )
+		{
+			internal_item->message_body_codepage = internal_item->message_codepage;
+		}
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
@@ -2801,7 +2403,7 @@ int libpff_message_get_plain_text_body(
 		 "%s: unable to retrieve record entry.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -2817,7 +2419,7 @@ int libpff_message_get_plain_text_body(
 			 "%s: unable to retrieve value type.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
 		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE )
@@ -2831,57 +2433,14 @@ int libpff_message_get_plain_text_body(
 			 function,
 			 value_type );
 
-			return( -1 );
-		}
-		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
-		{
-			if( libpff_internal_message_get_message_codepage(
-			     internal_item,
-			     &message_body_codepage,
-			     error ) == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve the message body codepage.",
-				 function );
-
-				return( -1 );
-			}
-			if( libpff_internal_message_get_message_codepage(
-			     internal_item,
-			     &message_codepage,
-			     error ) == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve the message codepage.",
-				 function );
-
-				return( -1 );
-			}
-/* TODO ignore the message body codepage for now
-			if( message_body_codepage != 0 )
-			{
-				ascii_codepage = message_body_codepage;
-			}
-			else if( message_codepage != 0 )
-*/
-			if( message_codepage != 0 )
-			{
-				ascii_codepage = message_codepage;
-			}
-			else
-			{
-				ascii_codepage = (uint32_t) internal_item->internal_file->io_handle->ascii_codepage;
-			}
+			goto on_error;
 		}
 		if( ( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		 || ( value_type == LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
 		{
+/* TODO ignore the message body codepage for now */
+			ascii_codepage = internal_item->message_codepage;
+
 			if( libpff_record_entry_get_data_as_utf8_string_with_codepage(
 			     record_entry,
 			     ascii_codepage,
@@ -2889,12 +2448,14 @@ int libpff_message_get_plain_text_body(
 			     size,
 			     error ) != 1 )
 			{
+				message_codepage = internal_item->message_codepage;
+
 				/* Sometimes the message codepage is not available
 				 */
-				if( ( message_codepage == message_body_codepage )
+				if( ( message_codepage == internal_item->message_body_codepage )
 				 || ( message_codepage == 0 ) )
 				{
-					message_codepage = internal_item->internal_file->io_handle->ascii_codepage;
+					message_codepage = internal_item->ascii_codepage;
 				}
 				/* Sometimes the message body codepade is not the one used to encode
 				 * the message body, so try the message codepage as well
@@ -2914,7 +2475,7 @@ int libpff_message_get_plain_text_body(
 					 "%s: unable to set message body.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 				libcerror_error_free(
 				 error );
@@ -2934,7 +2495,7 @@ int libpff_message_get_plain_text_body(
 				 "%s: unable to retrieve binary data size.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( size < value_data_size )
 			{
@@ -2945,7 +2506,7 @@ int libpff_message_get_plain_text_body(
 				 "%s: message body too small.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( libpff_record_entry_get_data(
 			     record_entry,
@@ -2960,14 +2521,36 @@ int libpff_message_get_plain_text_body(
 				 "%s: unable to retrieve binary data.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			/* Add the end of string character
 			 */
 			message_body[ value_data_size ] = 0;
 		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the RTF message body size
@@ -3043,7 +2626,7 @@ int libpff_message_get_rtf_body_size(
 		 "%s: unable to retrieve record entry.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -3060,7 +2643,7 @@ int libpff_message_get_rtf_body_size(
 			 "%s: unable to retrieve value data.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libfmapi_lzfu_get_uncompressed_data_size(
 		     value_data,
@@ -3075,10 +2658,32 @@ int libpff_message_get_rtf_body_size(
 			 "%s: unable to determine uncompressed value data size.",
 			 function );
 
-			return( -1 );
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
 		}
 	}
 	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the RTF message body
@@ -3156,7 +2761,7 @@ int libpff_message_get_rtf_body(
 		 "%s: unable to retrieve record entry.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -3173,7 +2778,7 @@ int libpff_message_get_rtf_body(
 			 "%s: unable to retrieve value data.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libfmapi_lzfu_decompress(
 		     message_body,
@@ -3189,10 +2794,32 @@ int libpff_message_get_rtf_body(
 			 "%s: unable to decompress value data.",
 			 function );
 
-			return( -1 );
+			goto on_error;
+		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
 		}
 	}
 	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the HTML message body size
@@ -3268,7 +2895,7 @@ int libpff_message_get_html_body_size(
 		 "%s: unable to retrieve record entry.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -3284,7 +2911,7 @@ int libpff_message_get_html_body_size(
 			 "%s: unable to retrieve value type.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
 		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE )
@@ -3298,7 +2925,7 @@ int libpff_message_get_html_body_size(
 			 function,
 			 value_type );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libpff_record_entry_get_value_data(
 		     record_entry,
@@ -3313,7 +2940,7 @@ int libpff_message_get_html_body_size(
 			 "%s: unable to retrieve value data.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( value_data == NULL )
 		{
@@ -3324,7 +2951,7 @@ int libpff_message_get_html_body_size(
 			 "%s: missing value data.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		{
@@ -3354,8 +2981,30 @@ int libpff_message_get_html_body_size(
 				*size += 1;
 			}
 		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the HTML message body
@@ -3433,7 +3082,7 @@ int libpff_message_get_html_body(
 		 "%s: unable to retrieve record entry.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -3449,7 +3098,7 @@ int libpff_message_get_html_body(
 			 "%s: unable to retrieve value type.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
 		 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE )
@@ -3463,7 +3112,7 @@ int libpff_message_get_html_body(
 			 function,
 			 value_type );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libpff_record_entry_get_value_data(
 		     record_entry,
@@ -3478,7 +3127,7 @@ int libpff_message_get_html_body(
 			 "%s: unable to retrieve value data.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( value_data == NULL )
 		{
@@ -3489,7 +3138,7 @@ int libpff_message_get_html_body(
 			 "%s: missing value data.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( size < value_data_size )
 		{
@@ -3500,7 +3149,7 @@ int libpff_message_get_html_body(
 			 "%s: message body too small.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_copy(
 		     message_body,
@@ -3514,7 +3163,7 @@ int libpff_message_get_html_body(
 			 "%s: unable to copy value data to message body .",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( value_type == LIBPFF_VALUE_TYPE_STRING_ASCII )
 		{
@@ -3529,7 +3178,7 @@ int libpff_message_get_html_body(
 					 "%s: message body too small.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 				message_body[ value_data_size ] = 0;
 			}
@@ -3548,7 +3197,7 @@ int libpff_message_get_html_body(
 					 "%s: message body too small.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 				message_body[ value_data_size     ] = 0;
 				message_body[ value_data_size + 1 ] = 0;
@@ -3567,12 +3216,34 @@ int libpff_message_get_html_body(
 					 "%s: message body too small.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 				message_body[ value_data_size ] = 0;
 			}
 		}
+		if( libpff_record_entry_free(
+		     &record_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record entry.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	return( result );
+
+on_error:
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( -1 );
 }
 

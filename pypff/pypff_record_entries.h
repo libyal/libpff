@@ -44,48 +44,48 @@ struct pypff_record_entries
 	 */
 	PyObject *parent_object;
 
-	/* The get record entry by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_record_entry_by_index)(
+	PyObject* (*get_item_by_index)(
 	             PyObject *parent_object,
-	             int record_entry_index );
+	             int index );
 
-	/* The (current) record entry index
+	/* The current index
 	 */
-	int record_entry_index;
+	int current_index;
 
-	/* The number of record entries
+	/* The number of items
 	 */
-	int number_of_record_entries;
+	int number_of_items;
 };
 
 extern PyTypeObject pypff_record_entries_type_object;
 
 PyObject *pypff_record_entries_new(
            PyObject *parent_object,
-           PyObject* (*get_record_entry_by_index)(
+           PyObject* (*get_item_by_index)(
                         PyObject *parent_object,
-                        int record_entry_index ),
-           int number_of_record_entries );
+                        int index ),
+           int number_of_items );
 
 int pypff_record_entries_init(
-     pypff_record_entries_t *pypff_record_entries );
+     pypff_record_entries_t *record_entries_object );
 
 void pypff_record_entries_free(
-      pypff_record_entries_t *pypff_record_entries );
+      pypff_record_entries_t *record_entries_object );
 
 Py_ssize_t pypff_record_entries_len(
-            pypff_record_entries_t *pypff_record_entries );
+            pypff_record_entries_t *record_entries_object );
 
 PyObject *pypff_record_entries_getitem(
-           pypff_record_entries_t *pypff_record_entries,
+           pypff_record_entries_t *record_entries_object,
            Py_ssize_t item_index );
 
 PyObject *pypff_record_entries_iter(
-           pypff_record_entries_t *pypff_record_entries );
+           pypff_record_entries_t *record_entries_object );
 
 PyObject *pypff_record_entries_iternext(
-           pypff_record_entries_t *pypff_record_entries );
+           pypff_record_entries_t *record_entries_object );
 
 #if defined( __cplusplus )
 }

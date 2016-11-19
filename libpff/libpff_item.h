@@ -34,7 +34,6 @@
 #include "libpff_libcdata.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
-#include "libpff_multi_value.h"
 #include "libpff_types.h"
 
 #if defined( __cplusplus )
@@ -74,6 +73,18 @@ struct libpff_internal_item
 	/* The item values
 	 */
         libpff_item_values_t *item_values;
+
+	/* The ASCII codepage
+	 */
+	int ascii_codepage;
+
+	/* The message codepage
+	 */
+	uint32_t message_codepage;
+
+	/* The message body codepage
+	 */
+	uint32_t message_body_codepage;
 
 	/* Sub item tree nodes
 	 */
@@ -137,15 +148,46 @@ int libpff_item_get_number_of_entries(
      uint32_t *number_of_entries,
      libcerror_error_t **error );
 
-/* TODO replace libpff_item_get_entry_multi_value by libpff_record_entry_get_data_as_multi_value */
-
-LIBPFF_EXTERN \
-int libpff_item_get_entry_multi_value(
-     libpff_item_t *item,
-     int set_index,
+int libpff_internal_item_get_entry_value_32bit_integer(
+     libpff_internal_item_t *internal_item,
      uint32_t entry_type,
-     libpff_multi_value_t **multi_value,
-     uint8_t flags,
+     uint32_t *value_32bit,
+     libcerror_error_t **error );
+
+int libpff_internal_item_get_entry_value_filetime(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     uint64_t *filetime,
+     libcerror_error_t **error );
+
+int libpff_internal_item_get_entry_value_utf8_string_size(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     int ascii_codepage,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+int libpff_internal_item_get_entry_value_utf8_string(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     int ascii_codepage,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+int libpff_internal_item_get_entry_value_utf16_string_size(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     int ascii_codepage,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+int libpff_internal_item_get_entry_value_utf16_string(
+     libpff_internal_item_t *internal_item,
+     uint32_t entry_type,
+     int ascii_codepage,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      libcerror_error_t **error );
 
 int libpff_internal_item_get_embedded_object_data(

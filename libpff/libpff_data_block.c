@@ -420,10 +420,12 @@ int libpff_data_block_read(
 	uint32_t data_block_increment_size    = 0;
 	uint32_t data_block_footer_size       = 0;
 	uint32_t maximum_data_block_size      = 0;
-	uint32_t maximum_data_block_data_size = 0;
 	uint32_t stored_checksum              = 0;
 	uint16_t data_block_signature         = 0;
 
+#if defined( HAVE_VERBOSE_OUTPUT )
+	uint32_t maximum_data_block_data_size = 0;
+#endif
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint32_t value_32bit                  = 0;
 	uint16_t value_16bit                  = 0;
@@ -509,8 +511,9 @@ int libpff_data_block_read(
 /* TODO: this value is currently assumed based on the 512 x 8 = 4k page */
 			maximum_data_block_size   = 65536;
 		}
+#if defined( HAVE_VERBOSE_OUTPUT )
 		maximum_data_block_data_size = maximum_data_block_size - data_block_footer_size;
-
+#endif
 		data_block_data_size = (uint32_t) data_size / data_block_increment_size;
 
 		if( ( (uint32_t) data_size % data_block_increment_size ) != 0 )

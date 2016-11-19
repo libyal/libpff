@@ -80,8 +80,6 @@ PyObject *pypff_record_set_get_entries(
            pypff_record_set_t *pypff_record_set,
            PyObject *arguments );
 
-/* TODO add pypff_record_set_get_entry_by_name */
-
 #if defined( __cplusplus )
 }
 #endif

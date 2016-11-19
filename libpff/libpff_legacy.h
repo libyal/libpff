@@ -461,6 +461,15 @@ int libpff_item_get_entry_value_guid(
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
+int libpff_item_get_entry_multi_value(
+     libpff_item_t *item,
+     int set_index,
+     uint32_t entry_type,
+     libpff_multi_value_t **multi_value,
+     uint8_t flags,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
 int libpff_record_entry_get_value_data_size(
      libpff_record_entry_t *record_entry,
      size_t *value_data_size,

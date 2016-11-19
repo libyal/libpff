@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libpff record entry
+ * Python object wrapper of libpff_record_entry_t
  *
  * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -26,61 +26,85 @@
 #include <stdlib.h>
 #endif
 
+#include "pypff_datetime.h"
 #include "pypff_error.h"
 #include "pypff_integer.h"
 #include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_python.h"
-#include "pypff_unused.h"
 #include "pypff_record_entry.h"
-#include "pypff_record_set.h"
+#include "pypff_unused.h"
 
 PyMethodDef pypff_record_entry_object_methods[] = {
-
-	/* Functions to access the record entry values */
 
 	{ "get_entry_type",
 	  (PyCFunction) pypff_record_entry_get_entry_type,
 	  METH_NOARGS,
-	  "get_entry_type() -> Integer\n"
+	  "get_entry_type() -> Integer or None\n"
 	  "\n"
 	  "Retrieves the entry type." },
 
 	{ "get_value_type",
 	  (PyCFunction) pypff_record_entry_get_value_type,
 	  METH_NOARGS,
-	  "get_value_type() -> Integer\n"
+	  "get_value_type() -> Integer or None\n"
 	  "\n"
 	  "Retrieves the value type." },
 
-	{ "get_value_data",
-	  (PyCFunction) pypff_record_entry_get_value_data,
+	{ "get_data",
+	  (PyCFunction) pypff_record_entry_get_data,
 	  METH_NOARGS,
-	  "get_value_data -> String or None\n"
+	  "get_data() -> Binary string or None\n"
 	  "\n"
-	  "Retrieves the value data as a binary string." },
+	  "Retrieves the data." },
 
-	/* TODO get_value_data_as_boolean */
-
-	{ "get_value_data_as_integer",
-	  (PyCFunction) pypff_record_entry_get_value_data_as_integer,
+	{ "get_data_as_boolean",
+	  (PyCFunction) pypff_record_entry_get_data_as_boolean,
 	  METH_NOARGS,
-	  "get_value_data_as_integer -> Integer\n"
+	  "get_data_as_boolean() -> Integer or None\n"
 	  "\n"
-	  "Retrieves the value data as an integer ." },
+	  "Retrieves the data as a boolean." },
 
-	{ "get_value_data_as_string",
-	  (PyCFunction) pypff_record_entry_get_value_data_as_string,
+	{ "get_data_as_integer",
+	  (PyCFunction) pypff_record_entry_get_data_as_integer,
 	  METH_NOARGS,
-	  "get_value_data_as_string -> Unicode string or None\n"
+	  "get_data_as_integer() -> Integer or None\n"
 	  "\n"
-	  "Retrieves the value data as a string." },
+	  "Retrieves the data as an integer." },
+
+	{ "get_data_as_datetime",
+	  (PyCFunction) pypff_record_entry_get_data_as_datetime,
+	  METH_NOARGS,
+	  "get_data_as_datetime() -> Datetime or None\n"
+	  "\n"
+	  "Retrieves the data as a datetime object." },
+
+	{ "get_data_as_size",
+	  (PyCFunction) pypff_record_entry_get_data_as_size,
+	  METH_NOARGS,
+	  "get_data_as_size() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the data as size." },
+
+	{ "get_data_as_floating_point",
+	  (PyCFunction) pypff_record_entry_get_data_as_floating_point,
+	  METH_NOARGS,
+	  "get_data_as_floating_point() -> Float or None\n"
+	  "\n"
+	  "Retrieves the data as a floating point." },
+
+	{ "get_data_as_string",
+	  (PyCFunction) pypff_record_entry_get_data_as_string,
+	  METH_NOARGS,
+	  "get_data_as_string() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the data as a string." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
 
-PyGetSetDef pypff_record_entry_object_get_entry_definitions[] = {
+PyGetSetDef pypff_record_entry_object_get_set_definitions[] = {
 
 	{ "entry_type",
 	  (getter) pypff_record_entry_get_entry_type,
@@ -94,22 +118,46 @@ PyGetSetDef pypff_record_entry_object_get_entry_definitions[] = {
 	  "The value type.",
 	  NULL },
 
-	{ "value_data",
-	  (getter) pypff_record_entry_get_value_data,
+	{ "data",
+	  (getter) pypff_record_entry_get_data,
 	  (setter) 0,
-	  "The value data.",
+	  "The data.",
 	  NULL },
 
-	{ "value_data_as_integer",
-	  (getter) pypff_record_entry_get_value_data_as_integer,
+	{ "data_as_boolean",
+	  (getter) pypff_record_entry_get_data_as_boolean,
 	  (setter) 0,
-	  "The value data represented as an integer.",
+	  "The data as a boolean.",
 	  NULL },
 
-	{ "value_data_as_string",
-	  (getter) pypff_record_entry_get_value_data_as_string,
+	{ "data_as_integer",
+	  (getter) pypff_record_entry_get_data_as_integer,
 	  (setter) 0,
-	  "The value data represented as a string.",
+	  "The data as an integer.",
+	  NULL },
+
+	{ "data_as_datetime",
+	  (getter) pypff_record_entry_get_data_as_datetime,
+	  (setter) 0,
+	  "The data as a datetime object.",
+	  NULL },
+
+	{ "data_as_size",
+	  (getter) pypff_record_entry_get_data_as_size,
+	  (setter) 0,
+	  "The data as size.",
+	  NULL },
+
+	{ "data_as_floating_point",
+	  (getter) pypff_record_entry_get_data_as_floating_point,
+	  (setter) 0,
+	  "The data as a floating point.",
+	  NULL },
+
+	{ "data_as_string",
+	  (getter) pypff_record_entry_get_data_as_string,
+	  (setter) 0,
+	  "The data as a string.",
 	  NULL },
 
 	/* Sentinel */
@@ -176,7 +224,7 @@ PyTypeObject pypff_record_entry_type_object = {
 	/* tp_members */
 	0,
 	/* tp_getset */
-	pypff_record_entry_object_get_entry_definitions,
+	pypff_record_entry_object_get_set_definitions,
 	/* tp_base */
 	0,
 	/* tp_dict */
@@ -217,7 +265,7 @@ PyTypeObject pypff_record_entry_type_object = {
 PyObject *pypff_record_entry_new(
            PyTypeObject *type_object,
            libpff_record_entry_t *record_entry,
-           pypff_record_set_t *record_set_object )
+           PyObject *parent_object )
 {
 	pypff_record_entry_t *pypff_record_entry = NULL;
 	static char *function                    = "pypff_record_entry_new";
@@ -225,7 +273,7 @@ PyObject *pypff_record_entry_new(
 	if( record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record entry.",
 		 function );
 
@@ -254,11 +302,11 @@ PyObject *pypff_record_entry_new(
 
 		goto on_error;
 	}
-	pypff_record_entry->record_entry      = record_entry;
-	pypff_record_entry->record_set_object = record_set_object;
+	pypff_record_entry->record_entry  = record_entry;
+	pypff_record_entry->parent_object = parent_object;
 
 	Py_IncRef(
-	 (PyObject *) pypff_record_entry->record_set_object );
+	 (PyObject *) pypff_record_entry->parent_object );
 
 	return( (PyObject *) pypff_record_entry );
 
@@ -282,7 +330,7 @@ int pypff_record_entry_init(
 	if( pypff_record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record entry.",
 		 function );
 
@@ -300,14 +348,15 @@ int pypff_record_entry_init(
 void pypff_record_entry_free(
       pypff_record_entry_t *pypff_record_entry )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pypff_record_entry_free";
+	int result                  = 0;
 
 	if( pypff_record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record entry.",
 		 function );
 
@@ -316,7 +365,7 @@ void pypff_record_entry_free(
 	if( pypff_record_entry->record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record entry - missing libpff record entry.",
 		 function );
 
@@ -343,9 +392,15 @@ void pypff_record_entry_free(
 
 		return;
 	}
-	if( libpff_record_entry_free(
-	     &( pypff_record_entry->record_entry ),
-	     &error ) != 1 )
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_free(
+	          &( pypff_record_entry->record_entry ),
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
 	{
 		pypff_error_raise(
 		 error,
@@ -356,10 +411,10 @@ void pypff_record_entry_free(
 		libcerror_error_free(
 		 &error );
 	}
-	if( pypff_record_entry->record_set_object != NULL )
+	if( pypff_record_entry->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pypff_record_entry->record_set_object );
+		 (PyObject *) pypff_record_entry->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pypff_record_entry );
@@ -372,10 +427,10 @@ PyObject *pypff_record_entry_get_entry_type(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
 	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
 	static char *function    = "pypff_record_entry_get_entry_type";
-	uint32_t entry_type      = 0;
+	uint32_t value_32bit     = 0;
 	int result               = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
@@ -383,7 +438,7 @@ PyObject *pypff_record_entry_get_entry_type(
 	if( pypff_record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record entry.",
 		 function );
 
@@ -393,12 +448,12 @@ PyObject *pypff_record_entry_get_entry_type(
 
 	result = libpff_record_entry_get_entry_type(
 	          pypff_record_entry->record_entry,
-	          &entry_type,
+	          &value_32bit,
 	          &error );
 
 	Py_END_ALLOW_THREADS
 
-	if( result != 1 )
+	if( result == -1 )
 	{
 		pypff_error_raise(
 		 error,
@@ -411,8 +466,15 @@ PyObject *pypff_record_entry_get_entry_type(
 
 		return( NULL );
 	}
-	integer_object = pypff_integer_unsigned_new_from_64bit(
-	                  (uint64_t) entry_type );
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	integer_object = PyLong_FromUnsignedLong(
+	                  (unsigned long) value_32bit );
 
 	return( integer_object );
 }
@@ -424,10 +486,10 @@ PyObject *pypff_record_entry_get_value_type(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
 	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
 	static char *function    = "pypff_record_entry_get_value_type";
-	uint32_t value_type      = 0;
+	uint32_t value_32bit     = 0;
 	int result               = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
@@ -435,7 +497,7 @@ PyObject *pypff_record_entry_get_value_type(
 	if( pypff_record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record entry.",
 		 function );
 
@@ -445,12 +507,12 @@ PyObject *pypff_record_entry_get_value_type(
 
 	result = libpff_record_entry_get_value_type(
 	          pypff_record_entry->record_entry,
-	          &value_type,
+	          &value_32bit,
 	          &error );
 
 	Py_END_ALLOW_THREADS
 
-	if( result != 1 )
+	if( result == -1 )
 	{
 		pypff_error_raise(
 		 error,
@@ -463,24 +525,31 @@ PyObject *pypff_record_entry_get_value_type(
 
 		return( NULL );
 	}
-	integer_object = pypff_integer_unsigned_new_from_64bit(
-	                  (uint64_t) value_type );
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	integer_object = PyLong_FromUnsignedLong(
+	                  (unsigned long) value_32bit );
 
 	return( integer_object );
 }
 
-/* Retrieves the value data
+/* Retrieves the data
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_record_entry_get_value_data(
+PyObject *pypff_record_entry_get_data(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
+	PyObject *bytes_object   = NULL;
 	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	uint8_t *value_data      = NULL;
-	static char *function    = "pypff_record_entry_get_value_data";
-	size_t value_data_size   = 0;
+	char *data               = NULL;
+	static char *function    = "pypff_record_entry_get_data";
+	size_t data_size         = 0;
 	int result               = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
@@ -488,17 +557,17 @@ PyObject *pypff_record_entry_get_value_data(
 	if( pypff_record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid value.",
+		 PyExc_ValueError,
+		 "%s: invalid record entry.",
 		 function );
 
 		return( NULL );
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_record_entry_get_value_data_size(
+	result = libpff_record_entry_get_data_size(
 	          pypff_record_entry->record_entry,
-	          &value_data_size,
+	          &data_size,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -508,7 +577,7 @@ PyObject *pypff_record_entry_get_value_data(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve value data size.",
+		 "%s: unable to retrieve data size.",
 		 function );
 
 		libcerror_error_free(
@@ -517,32 +586,32 @@ PyObject *pypff_record_entry_get_value_data(
 		goto on_error;
 	}
 	else if( ( result == 0 )
-	      || ( value_data_size == 0 ) )
+	      || ( data_size == 0 ) )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	value_data = (uint8_t *) PyMem_Malloc(
-	                          sizeof( uint8_t ) * value_data_size );
+	data = (char *) PyMem_Malloc(
+	                 sizeof( char ) * data_size );
 
-	if( value_data == NULL )
+	if( data == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to create value data.",
+		 PyExc_MemoryError,
+		 "%s: unable to create data.",
 		 function );
 
 		goto on_error;
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_record_entry_copy_value_data(
-		  pypff_record_entry->record_entry,
-		  value_data,
-		  value_data_size,
-		  &error );
+	result = libpff_record_entry_get_data(
+	          pypff_record_entry->record_entry,
+	          (uint8_t *) data,
+	          data_size,
+	          &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -551,7 +620,7 @@ PyObject *pypff_record_entry_get_value_data(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve value data.",
+		 "%s: unable to retrieve data.",
 		 function );
 
 		libcerror_error_free(
@@ -559,41 +628,109 @@ PyObject *pypff_record_entry_get_value_data(
 
 		goto on_error;
 	}
+	/* This is a binary string so include the full size
+	 */
 #if PY_MAJOR_VERSION >= 3
-	string_object = PyBytes_FromStringAndSize(
-			 (char *) value_data,
-			 (Py_ssize_t) value_data_size );
+	bytes_object = PyBytes_FromStringAndSize(
+	                data,
+	                (Py_ssize_t) data_size );
 #else
-	string_object = PyString_FromStringAndSize(
-			 (char *) value_data,
-			 (Py_ssize_t) value_data_size );
+	bytes_object = PyString_FromStringAndSize(
+	                data,
+	                (Py_ssize_t) data_size );
 #endif
-	PyMem_Free(
-	 value_data );
+	if( bytes_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to convert data into Bytes object.",
+		 function );
 
-	return( string_object );
+		goto on_error;
+	}
+	PyMem_Free(
+	 data );
+
+	return( bytes_object );
 
 on_error:
-	if( value_data != NULL )
+	if( data != NULL )
 	{
 		PyMem_Free(
-		 value_data );
+		 data );
 	}
 	return( NULL );
 }
 
-/* Retrieves the value data represented as an integer
+/* Retrieves the data as a boolean value
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_record_entry_get_value_data_as_integer(
+PyObject *pypff_record_entry_get_data_as_boolean(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_record_entry_get_data_as_boolean";
+	uint8_t value_boolean    = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_record_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_data_as_boolean(
+	          pypff_record_entry->record_entry,
+	          &value_boolean,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve boolean value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	if( value_boolean != 0x00 )
+	{
+		Py_IncRef(
+		 Py_True );
+
+		return( Py_True );
+	}
+	Py_IncRef(
+	 Py_False );
+
+	return( Py_False );
+}
+
+/* Retrieves the data as an integer value
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_record_entry_get_data_as_integer(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
 	PyObject *integer_object = NULL;
-	static char *function    = "pypff_record_entry_get_value_data_as_integer";
+	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_record_entry_get_data_as_integer";
 	uint64_t value_64bit     = 0;
-	int64_t integer_value    = 0;
 	uint32_t value_32bit     = 0;
 	uint32_t value_type      = 0;
 	uint16_t value_16bit     = 0;
@@ -604,8 +741,8 @@ PyObject *pypff_record_entry_get_value_data_as_integer(
 	if( pypff_record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid value.",
+		 PyExc_ValueError,
+		 "%s: invalid record entry.",
 		 function );
 
 		return( NULL );
@@ -637,49 +774,82 @@ PyObject *pypff_record_entry_get_value_data_as_integer(
 		case LIBPFF_VALUE_TYPE_INTEGER_16BIT_SIGNED:
 			Py_BEGIN_ALLOW_THREADS
 
-			result = libpff_record_entry_get_value_16bit(
-				  pypff_record_entry->record_entry,
-				  &value_16bit,
-				  &error );
+			result = libpff_record_entry_get_data_as_16bit_integer(
+			          pypff_record_entry->record_entry,
+			          &value_16bit,
+			          &error );
 
 			Py_END_ALLOW_THREADS
 
-			/* Interpret the 16-bit value as signed
-			 */
-			integer_value = (int16_t) value_16bit;
-
+#if PY_MAJOR_VERSION >= 3
+			integer_object = PyLong_FromLong(
+			                  (long) ( (int16_t) value_16bit ) );
+#else
+			integer_object = PyInt_FromLong(
+			                  (long) ( (int16_t) value_16bit ) );
+#endif
 			break;
 
 		case LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED:
 			Py_BEGIN_ALLOW_THREADS
 
-			result = libpff_record_entry_get_value_32bit(
-				  pypff_record_entry->record_entry,
-				  &value_32bit,
-				  &error );
+			result = libpff_record_entry_get_data_as_32bit_integer(
+			          pypff_record_entry->record_entry,
+			          &value_32bit,
+			          &error );
 
 			Py_END_ALLOW_THREADS
 
-			/* Interpret the 32-bit value as signed
-			 */
-			integer_value = (int32_t) value_32bit;
-
+#if PY_MAJOR_VERSION >= 3
+			integer_object = PyLong_FromLong(
+			                  (long) ( (int32_t) value_32bit ) );
+#else
+			integer_object = PyInt_FromLong(
+			                  (long) ( (int32_t) value_32bit ) );
+#endif
 			break;
 
 		case LIBPFF_VALUE_TYPE_INTEGER_64BIT_SIGNED:
 			Py_BEGIN_ALLOW_THREADS
 
-			result = libpff_record_entry_get_value_64bit(
-				  pypff_record_entry->record_entry,
-				  &value_64bit,
-				  &error );
+			result = libpff_record_entry_get_data_as_64bit_integer(
+			          pypff_record_entry->record_entry,
+			          &value_64bit,
+			          &error );
 
 			Py_END_ALLOW_THREADS
 
-			/* Interpret the 64-bit value as signed
-			 */
-			integer_value = (int64_t) value_64bit;
+			integer_object = pypff_integer_signed_new_from_64bit(
+			                  (int64_t) value_64bit );
 
+			break;
+
+		case LIBPFF_VALUE_TYPE_FILETIME:
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data_as_filetime(
+			          pypff_record_entry->record_entry,
+			          &value_64bit,
+			          &error );
+
+			Py_END_ALLOW_THREADS
+
+			integer_object = pypff_integer_unsigned_new_from_64bit(
+			                  value_64bit );
+			break;
+
+		case LIBPFF_VALUE_TYPE_FLOATINGTIME:
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data_as_floatingtime(
+			          pypff_record_entry->record_entry,
+			          &value_64bit,
+			          &error );
+
+			Py_END_ALLOW_THREADS
+
+			integer_object = pypff_integer_unsigned_new_from_64bit(
+			                  value_64bit );
 			break;
 
 		default:
@@ -703,35 +873,30 @@ PyObject *pypff_record_entry_get_value_data_as_integer(
 
 		return( NULL );
 	}
-	integer_object = pypff_integer_signed_new_from_64bit(
-	                  integer_value );
-
 	return( integer_object );
 }
 
-/* Retrieves the value data represented as a string
+/* Retrieves the data as an datetime value
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pypff_record_entry_get_value_data_as_string(
+PyObject *pypff_record_entry_get_data_as_datetime(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "pypff_record_entry_get_value_data_as_string";
-	size_t value_string_size = 0;
-	uint32_t value_type      = 0;
-	int result               = 0;
+	PyObject *datetime_object = NULL;
+	libcerror_error_t *error  = NULL;
+	static char *function     = "pypff_record_entry_get_data_as_datetime";
+	uint64_t value_64bit      = 0;
+	uint32_t value_type       = 0;
+	int result                = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
 	if( pypff_record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid value.",
+		 PyExc_ValueError,
+		 "%s: invalid record entry.",
 		 function );
 
 		return( NULL );
@@ -758,21 +923,195 @@ PyObject *pypff_record_entry_get_value_data_as_string(
 
 		return( NULL );
 	}
-	if( ( value_type != LIBPFF_VALUE_TYPE_STRING_ASCII )
-	 && ( value_type != LIBPFF_VALUE_TYPE_STRING_UNICODE ) )
+	switch( value_type )
+	{
+		case LIBPFF_VALUE_TYPE_FILETIME:
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data_as_filetime(
+			          pypff_record_entry->record_entry,
+			          &value_64bit,
+			          &error );
+
+			Py_END_ALLOW_THREADS
+
+			datetime_object = pypff_datetime_new_from_filetime(
+			                   value_64bit );
+			break;
+
+		case LIBPFF_VALUE_TYPE_FLOATINGTIME:
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data_as_floatingtime(
+			          pypff_record_entry->record_entry,
+			          &value_64bit,
+			          &error );
+
+			Py_END_ALLOW_THREADS
+
+			datetime_object = pypff_datetime_new_from_floatingtime(
+			                   value_64bit );
+			break;
+
+		default:
+			PyErr_Format(
+			 PyExc_IOError,
+			 "%s: value is not an datetime type.",
+			 function );
+
+			return( NULL );
+	}
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve datetime value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	return( datetime_object );
+}
+
+/* Retrieves the data as size
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_record_entry_get_data_as_size(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_record_entry_get_data_as_size";
+	size64_t data_as_size    = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_record_entry == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: value is not a string type.",
+		 PyExc_ValueError,
+		 "%s: invalid record entry.",
 		 function );
 
 		return( NULL );
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_record_entry_get_value_utf8_string_size(
+	result = libpff_record_entry_get_data_as_size(
 	          pypff_record_entry->record_entry,
-	          &value_string_size,
+	          &data_as_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: failed to retrieve data as size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pypff_integer_unsigned_new_from_64bit(
+	                  (uint64_t) data_as_size );
+
+	return( integer_object );
+}
+
+/* Retrieves the data as an floating-point value
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_record_entry_get_data_as_floating_point(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *float_object      = NULL;
+	libcerror_error_t *error    = NULL;
+	static char *function       = "pypff_record_entry_get_data_as_floating_point";
+	double floating_point_value = 0;
+	int result                  = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_record_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_data_as_floating_point(
+	          pypff_record_entry->record_entry,
+	          &floating_point_value,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve data as floating-point value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	float_object = PyFloat_FromDouble(
+	                floating_point_value );
+
+	return( float_object );
+}
+
+/* Retrieves the data as a string
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_record_entry_get_data_as_string(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *string_object  = NULL;
+	libcerror_error_t *error = NULL;
+	const char *errors       = NULL;
+	static char *function    = "pypff_value_get_data_as_string";
+	char *utf8_string        = NULL;
+	size_t utf8_string_size  = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_record_entry == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_data_as_utf8_string_size(
+	          pypff_record_entry->record_entry,
+	          &utf8_string_size,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -782,7 +1121,7 @@ PyObject *pypff_record_entry_get_value_data_as_string(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve value string size.",
+		 "%s: unable to determine size of data as UTF-8 string.",
 		 function );
 
 		libcerror_error_free(
@@ -791,32 +1130,32 @@ PyObject *pypff_record_entry_get_value_data_as_string(
 		goto on_error;
 	}
 	else if( ( result == 0 )
-	      || ( value_string_size == 0 ) )
+	      || ( utf8_string_size == 0 ) )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	value_string = (uint8_t *) PyMem_Malloc(
-	                            sizeof( uint8_t ) * value_string_size );
+	utf8_string = (char *) PyMem_Malloc(
+	                        sizeof( char ) * utf8_string_size );
 
-	if( value_string == NULL )
+	if( utf8_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to create value string.",
+		 PyExc_MemoryError,
+		 "%s: unable to create UTF-8 string.",
 		 function );
 
 		goto on_error;
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_record_entry_get_value_utf8_string(
-		  pypff_record_entry->record_entry,
-		  value_string,
-		  value_string_size,
-		  &error );
+	result = libpff_record_entry_get_data_as_utf8_string(
+	          pypff_record_entry->record_entry,
+	          (uint8_t *) utf8_string,
+	          utf8_string_size,
+	          &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -825,7 +1164,7 @@ PyObject *pypff_record_entry_get_value_data_as_string(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve value string.",
+		 "%s: unable to retrieve data as UTF-8 string.",
 		 function );
 
 		libcerror_error_free(
@@ -833,25 +1172,33 @@ PyObject *pypff_record_entry_get_value_data_as_string(
 
 		goto on_error;
 	}
-	/* Pass the string length to PyUnicode_DecodeUTF8
-	 * otherwise it makes the end of string character is part
-	 * of the string
+	/* Pass the string length to PyUnicode_DecodeUTF8 otherwise it makes
+	 * the end of string character is part of the string
 	 */
 	string_object = PyUnicode_DecodeUTF8(
-			 (char *) value_string,
-			 (Py_ssize_t) value_string_size - 1,
-			 errors );
+	                 utf8_string,
+	                 (Py_ssize_t) utf8_string_size - 1,
+	                 errors );
 
+	if( string_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to convert UTF-8 string into Unicode object.",
+		 function );
+
+		goto on_error;
+	}
 	PyMem_Free(
-	 value_string );
+	 utf8_string );
 
 	return( string_object );
 
 on_error:
-	if( value_string != NULL )
+	if( utf8_string != NULL )
 	{
 		PyMem_Free(
-		 value_string );
+		 utf8_string );
 	}
 	return( NULL );
 }

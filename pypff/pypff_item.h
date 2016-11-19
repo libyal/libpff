@@ -88,6 +88,10 @@ PyObject *pypff_item_get_record_sets(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
+PyObject *pypff_item_get_number_of_entries(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
 PyObject *pypff_item_get_number_of_sub_items(
            pypff_item_t *pypff_item,
            PyObject *arguments );

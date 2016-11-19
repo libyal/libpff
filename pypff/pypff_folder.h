@@ -47,7 +47,7 @@ PyObject *pypff_folder_get_number_of_sub_folders(
            PyObject *arguments );
 
 PyObject *pypff_folder_get_sub_folder_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int sub_folder_index );
 
 PyObject *pypff_folder_get_sub_folder(
@@ -64,7 +64,7 @@ PyObject *pypff_folder_get_number_of_sub_messages(
            PyObject *arguments );
 
 PyObject *pypff_folder_get_sub_message_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int sub_message_index );
 
 PyObject *pypff_folder_get_sub_message(

@@ -124,6 +124,14 @@ PyObject *pypff_file_get_root_item(
            pypff_file_t *pypff_file,
            PyObject *arguments );
 
+PyObject *pypff_file_get_message_store(
+           pypff_file_t *pypff_file,
+           PyObject *arguments );
+
+PyObject *pypff_file_get_name_to_id_map(
+           pypff_file_t *pypff_file,
+           PyObject *arguments );
+
 PyObject *pypff_file_get_root_folder(
            pypff_file_t *pypff_file,
            PyObject *arguments );

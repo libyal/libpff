@@ -44,48 +44,48 @@ struct pypff_record_sets
 	 */
 	PyObject *parent_object;
 
-	/* The get record set by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_record_set_by_index)(
+	PyObject* (*get_item_by_index)(
 	             PyObject *parent_object,
-	             int record_set_index );
+	             int index );
 
-	/* The (current) record set index
+	/* The current index
 	 */
-	int record_set_index;
+	int current_index;
 
-	/* The number of record sets
+	/* The number of items
 	 */
-	int number_of_record_sets;
+	int number_of_items;
 };
 
 extern PyTypeObject pypff_record_sets_type_object;
 
 PyObject *pypff_record_sets_new(
            PyObject *parent_object,
-           PyObject* (*get_record_set_by_index)(
+           PyObject* (*get_item_by_index)(
                         PyObject *parent_object,
-                        int record_set_index ),
-           int number_of_record_sets );
+                        int index ),
+           int number_of_items );
 
 int pypff_record_sets_init(
-     pypff_record_sets_t *pypff_record_sets );
+     pypff_record_sets_t *record_sets_object );
 
 void pypff_record_sets_free(
-      pypff_record_sets_t *pypff_record_sets );
+      pypff_record_sets_t *record_sets_object );
 
 Py_ssize_t pypff_record_sets_len(
-            pypff_record_sets_t *pypff_record_sets );
+            pypff_record_sets_t *record_sets_object );
 
 PyObject *pypff_record_sets_getitem(
-           pypff_record_sets_t *pypff_record_sets,
+           pypff_record_sets_t *record_sets_object,
            Py_ssize_t item_index );
 
 PyObject *pypff_record_sets_iter(
-           pypff_record_sets_t *pypff_record_sets );
+           pypff_record_sets_t *record_sets_object );
 
 PyObject *pypff_record_sets_iternext(
-           pypff_record_sets_t *pypff_record_sets );
+           pypff_record_sets_t *record_sets_object );
 
 #if defined( __cplusplus )
 }

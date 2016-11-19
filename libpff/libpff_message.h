@@ -45,26 +45,16 @@ int libpff_message_initialize_sub_item_recipients(
      libpff_local_descriptor_value_t *local_descriptor_value,
      libcerror_error_t **error );
 
-int libpff_internal_message_get_message_codepage(
-     libpff_internal_item_t *internal_item,
-     uint32_t *message_codepage,
-     libcerror_error_t **error );
-
-int libpff_internal_message_get_message_body_codepage(
-     libpff_internal_item_t *internal_item,
-     uint32_t *message_body_codepage,
-     libcerror_error_t **error );
-
 LIBPFF_EXTERN \
 int libpff_message_get_entry_value_utf8_string_size(
-     libpff_item_t *item,
+     libpff_item_t *message,
      uint32_t entry_type,
      size_t *utf8_string_size,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
 int libpff_message_get_entry_value_utf8_string(
-     libpff_item_t *item,
+     libpff_item_t *message,
      uint32_t entry_type,
      uint8_t *utf8_string,
      size_t utf8_string_size,
@@ -72,17 +62,41 @@ int libpff_message_get_entry_value_utf8_string(
 
 LIBPFF_EXTERN \
 int libpff_message_get_entry_value_utf16_string_size(
-     libpff_item_t *item,
+     libpff_item_t *message,
      uint32_t entry_type,
      size_t *utf16_string_size,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
 int libpff_message_get_entry_value_utf16_string(
-     libpff_item_t *item,
+     libpff_item_t *message,
      uint32_t entry_type,
      uint16_t *utf16_string,
      size_t utf16_string_size,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_message_get_client_submit_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_message_get_delivery_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_message_get_creation_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_message_get_modification_time(
+     libpff_item_t *message,
+     uint64_t *filetime,
      libcerror_error_t **error );
 
 int libpff_message_determine_attachment(

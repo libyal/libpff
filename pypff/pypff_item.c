@@ -61,6 +61,13 @@ PyMethodDef pypff_item_object_methods[] = {
 	  "\n"
 	  "Retrieves the record set specified by the index." },
 
+	{ "get_number_of_entries",
+	  (PyCFunction) pypff_item_get_number_of_entries,
+	  METH_NOARGS,
+	  "get_number_of_entries() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the number of entries." },
+
 	{ "get_number_of_sub_items",
 	  (PyCFunction) pypff_item_get_number_of_sub_items,
 	  METH_NOARGS,
@@ -97,6 +104,12 @@ PyGetSetDef pypff_item_object_get_set_definitions[] = {
 	  (getter) pypff_item_get_record_sets,
 	  (setter) 0,
 	  "The record sets.",
+	  NULL },
+
+	{ "number_of_entries",
+	  (getter) pypff_item_get_number_of_entries,
+	  (setter) 0,
+	  "The number of entries.",
 	  NULL },
 
 	{ "number_of_sub_items",
@@ -224,7 +237,7 @@ PyObject *pypff_item_new(
 	if( item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
@@ -281,7 +294,7 @@ int pypff_item_init(
 	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
@@ -307,7 +320,7 @@ void pypff_item_free(
 	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
@@ -316,7 +329,7 @@ void pypff_item_free(
 	if( pypff_item->item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item - missing libpff item.",
 		 function );
 
@@ -389,7 +402,7 @@ PyObject *pypff_item_get_identifier(
 	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
@@ -448,7 +461,7 @@ PyObject *pypff_item_get_number_of_record_sets(
 	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
@@ -514,7 +527,7 @@ PyObject *pypff_item_get_record_set_by_index(
 	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
@@ -628,7 +641,7 @@ PyObject *pypff_item_get_record_sets(
 	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
@@ -674,6 +687,65 @@ PyObject *pypff_item_get_record_sets(
 	return( sequence_object );
 }
 
+/* Retrieves the number of entries
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_item_get_number_of_entries(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object = NULL;
+	libcerror_error_t *error = NULL;
+	static char *function    = "pypff_item_get_number_of_entries";
+	uint32_t value_32bit     = 0;
+	int result               = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_number_of_entries(
+	          pypff_item->item,
+	          &value_32bit,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of entries.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	integer_object = PyLong_FromUnsignedLong(
+	                  (unsigned long) value_32bit );
+
+	return( integer_object );
+}
+
 /* Retrieves the number of sub items
  * Returns a Python object if successful or NULL on error
  */
@@ -692,7 +764,7 @@ PyObject *pypff_item_get_number_of_sub_items(
 	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
@@ -829,7 +901,7 @@ PyObject *pypff_item_get_sub_item_by_index(
 	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
@@ -943,7 +1015,7 @@ PyObject *pypff_item_get_sub_items(
 	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid item.",
 		 function );
 
