@@ -20,7 +20,7 @@
  */
 
 #if !defined( _LIBPFF_INDEX_TREE_H )
-#define _LIBPFF_PAGE_INDEX_H
+#define _LIBPFF_INDEX_TREE_H
 
 #include <common.h>
 #include <types.h>

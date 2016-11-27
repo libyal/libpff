@@ -20,7 +20,7 @@
  */
 
 #if !defined( _LIBPFF_LOCAL_DESCRIPTORS_TREE_H )
-#define _LIBPFF_LOCAL_DESCRIPTORS_H
+#define _LIBPFF_LOCAL_DESCRIPTORS_TREE_H
 
 #include <common.h>
 #include <types.h>
