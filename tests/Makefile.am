@@ -17,7 +17,6 @@ AM_CPPFLAGS = \
 	@LIBFGUID_CPPFLAGS@ \
 	@LIBFWNT_CPPFLAGS@ \
 	@LIBFMAPI_CPPFLAGS@ \
-	@LIBCSYSTEM_CPPFLAGS@ \
 	@ZLIB_CPPFLAGS@ \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBPFF_DLL_IMPORT@
@@ -148,11 +147,13 @@ pff_test_data_block_LDADD = \
 pff_test_deflate_SOURCES = \
 	pff_test_deflate.c \
 	pff_test_libcerror.h \
+	pff_test_libcnotify.h \
 	pff_test_libpff.h \
 	pff_test_macros.h \
 	pff_test_unused.h
 
 pff_test_deflate_LDADD = \
+	@LIBCNOTIFY_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
@@ -179,16 +180,16 @@ pff_test_error_LDADD = \
 
 pff_test_file_SOURCES = \
 	pff_test_file.c \
+	pff_test_getopt.c pff_test_getopt.h \
 	pff_test_libcerror.h \
 	pff_test_libclocale.h \
-	pff_test_libcsystem.h \
+	pff_test_libcnotify.h \
 	pff_test_libpff.h \
 	pff_test_libuna.h \
 	pff_test_macros.h \
 	pff_test_memory.c pff_test_memory.h
 
 pff_test_file_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
@@ -408,17 +409,17 @@ pff_test_reference_descriptor_LDADD = \
 	@LIBCERROR_LIBADD@
 
 pff_test_support_SOURCES = \
+	pff_test_getopt.c pff_test_getopt.h \
 	pff_test_libbfio.h \
 	pff_test_libcerror.h \
 	pff_test_libclocale.h \
-	pff_test_libcsystem.h \
+	pff_test_libcnotify.h \
 	pff_test_libpff.h \
 	pff_test_libuna.h \
 	pff_test_macros.h \
 	pff_test_support.c
 
 pff_test_support_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
 	@LIBCPATH_LIBADD@ \
 	@LIBCFILE_LIBADD@ \

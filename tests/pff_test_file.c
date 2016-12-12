@@ -30,9 +30,9 @@
 #include <stdlib.h>
 #endif
 
+#include "pff_test_getopt.h"
 #include "pff_test_libcerror.h"
 #include "pff_test_libclocale.h"
-#include "pff_test_libcsystem.h"
 #include "pff_test_libpff.h"
 #include "pff_test_libuna.h"
 #include "pff_test_macros.h"
@@ -2431,7 +2431,7 @@ int main(
 	system_integer_t option    = 0;
 	int result                 = 0;
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = pff_test_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "" ) ) ) != (system_integer_t) -1 )

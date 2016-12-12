@@ -116,8 +116,6 @@ int main(
 
 	/* TODO: add tests for libpff_item_get_number_of_entries */
 
-	/* TODO: add tests for libpff_item_get_entry_multi_value */
-
 	/* TODO: add tests for libpff_item_get_type */
 
 	/* TODO: add tests for libpff_item_get_number_of_sub_items */

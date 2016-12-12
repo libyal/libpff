@@ -27,11 +27,11 @@
 /* If Cygwin libtool DLL support is enabled set LIBPFF_DLL_IMPORT
  * before including libpff.h
  */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
+#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBPFF_DLL_IMPORT
 #endif
 
 #include <libpff.h>
 
-#endif
+#endif /* !defined( _PFFTOOLS_LIBPFF_H ) */
 
