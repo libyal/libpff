@@ -645,8 +645,8 @@ int libpff_io_handle_read_file_header(
 		{
 			data_size = sizeof( pff_file_header_data_32bit_t );
 		}
-		else if( ( io_handle->file_type = LIBPFF_FILE_TYPE_64BIT )
-		      || ( io_handle->file_type = LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+		else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+		      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 		{
 			data_size = sizeof( pff_file_header_data_64bit_t );
 		}
@@ -1169,6 +1169,23 @@ int libpff_io_handle_read_file_header(
 	{
 		page_size = 512;
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: file type\t\t\t\t: %" PRIu8 "\n",
+		 function,
+		 io_handle->file_type );
+
+		libcnotify_printf(
+		 "%s: page size\t\t\t\t: %" PRIzd "\n",
+		 function,
+		 page_size );
+
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif
 /* TODO free and clone function ? */
 	if( libfdata_vector_initialize(
 	     &( io_handle->index_nodes_vector ),
