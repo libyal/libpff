@@ -1950,7 +1950,7 @@ int libpff_item_get_entry_value_filetime(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_data_as_64bit_integer(
+		if( libpff_record_entry_get_data_as_filetime(
 		     record_entry,
 		     entry_value,
 		     error ) != 1 )
@@ -2035,7 +2035,7 @@ int libpff_item_get_entry_value_filetime_by_utf8_name(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_data_as_64bit_integer(
+		if( libpff_record_entry_get_data_as_filetime(
 		     record_entry,
 		     entry_value,
 		     error ) != 1 )
@@ -2120,7 +2120,7 @@ int libpff_item_get_entry_value_filetime_by_utf16_name(
 	}
 	else if( result != 0 )
 	{
-		if( libpff_record_entry_get_data_as_64bit_integer(
+		if( libpff_record_entry_get_data_as_filetime(
 		     record_entry,
 		     entry_value,
 		     error ) != 1 )
