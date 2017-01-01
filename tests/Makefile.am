@@ -23,8 +23,7 @@ AM_CPPFLAGS = \
 
 if HAVE_PYTHON_TESTS
 TESTS_PYPFF = \
-	test_python_functions.sh \
-	test_pypff_set_ascii_codepage.sh
+	test_python_functions.sh
 endif
 
 TESTS = \
@@ -36,14 +35,12 @@ TESTS = \
 	$(TESTS_PYPFF)
 
 check_SCRIPTS = \
-	pypff_test_get_version.py \
-	pypff_test_open_close.py \
-	pypff_test_set_ascii_codepage.py \
+	pypff_test_file.py \
+	pypff_test_support.py \
 	test_api_functions.sh \
 	test_api_types.sh \
 	test_pffexport.sh \
 	test_pffinfo.sh \
-	test_pypff_set_ascii_codepage.sh \
 	test_python_functions.sh \
 	test_read_items.sh \
 	test_runner.sh

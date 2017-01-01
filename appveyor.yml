@@ -11,11 +11,11 @@ configuration:
 
 install:
 - cmd: git clone https://github.com/libyal/libyal.git && move libyal ..\
+- ps: .\synczlib.ps1
 
 before_build:
 - cmd: xcopy /q /s C:\projects\libpff C:\cygwin\home\appveyor\
 - cmd: xcopy /q /s C:\projects\libpff C:\msys64\home\appveyor\
-- ps: .\synczlib.ps1
 
 build_script:
 - ps: .\synclibs.ps1
