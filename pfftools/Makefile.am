@@ -17,7 +17,6 @@ AM_CPPFLAGS = \
 	@LIBFVALUE_CPPFLAGS@ \
 	@LIBFWNT_CPPFLAGS@ \
 	@LIBFMAPI_CPPFLAGS@ \
-	@LIBCSYSTEM_CPPFLAGS@ \
 	@LIBPFF_DLL_IMPORT@
 
 AM_LDFLAGS = @STATIC_LDFLAGS@
@@ -33,6 +32,8 @@ pffexport_SOURCES = \
 	mapi_property_definition.h \
 	pffexport.c \
 	pffinput.c pffinput.h \
+	pfftools_getopt.c pfftools_getopt.h \
+	pfftools_i18n.h \
 	pfftools_libbfio.h \
 	pfftools_libcerror.h \
 	pfftools_libclocale.h \
@@ -40,7 +41,6 @@ pffexport_SOURCES = \
 	pfftools_libcfile.h \
 	pfftools_libcpath.h \
 	pfftools_libcsplit.h \
-	pfftools_libcsystem.h \
 	pfftools_libfcache.h \
 	pfftools_libfdata.h \
 	pfftools_libfdatetime.h \
@@ -50,10 +50,11 @@ pffexport_SOURCES = \
 	pfftools_libfwnt.h \
 	pfftools_libpff.h \
 	pfftools_libuna.h \
-	pffoutput.c pffoutput.h
+	pfftools_output.c pfftools_output.h \
+	pfftools_signal.c pfftools_signal.h \
+	pfftools_unused.h
 
 pffexport_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBFMAPI_LIBADD@ \
 	@LIBFVALUE_LIBADD@ \
 	@LIBFWNT_LIBADD@ \
@@ -74,11 +75,12 @@ pffinfo_SOURCES = \
 	info_handle.c info_handle.h \
 	pffinfo.c \
 	pffinput.c pffinput.h \
+	pfftools_getopt.c pfftools_getopt.h \
+	pfftools_i18n.h \
 	pfftools_libbfio.h \
 	pfftools_libcerror.h \
 	pfftools_libclocale.h \
 	pfftools_libcnotify.h \
-	pfftools_libcsystem.h \
 	pfftools_libfcache.h \
 	pfftools_libfdata.h \
 	pfftools_libfdatetime.h \
@@ -87,10 +89,11 @@ pffinfo_SOURCES = \
 	pfftools_libfwnt.h \
 	pfftools_libpff.h \
 	pfftools_libuna.h \
-	pffoutput.c pffoutput.h
+	pfftools_output.c pfftools_output.h \
+	pfftools_signal.c pfftools_signal.h \
+	pfftools_unused.h
 
 pffinfo_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBCPATH_LIBADD@ \
 	@LIBCFILE_LIBADD@ \
 	@LIBUNA_LIBADD@ \

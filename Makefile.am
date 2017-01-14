@@ -21,7 +21,6 @@ SUBDIRS = \
 	libfwnt \
 	libfmapi \
 	libpff \
-	libcsystem \
 	pfftools \
 	jpff \
 	pypff \
@@ -132,7 +131,6 @@ splint:
 	(cd $(srcdir)/libfwnt && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfmapi && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libpff && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcsystem && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/pfftools && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/pypff && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) splint $(AM_MAKEFLAGS))

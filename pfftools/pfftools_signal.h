@@ -1,5 +1,5 @@
 /*
- * Common output functions for the pfftools
+ * Signal handling functions
  *
  * Copyright (C) 2008-2017, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,31 +19,54 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PFFOUTPUT_H )
-#define _PFFOUTPUT_H
+#if !defined( _PFFTOOLS_SIGNAL_H )
+#define _PFFTOOLS_SIGNAL_H
 
 #include <common.h>
-#include <file_stream.h>
 #include <types.h>
+
+#include "pfftools_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-void pffoutput_copyright_fprint(
-      FILE *stream );
+#if !defined( HAVE_SIGNAL_H ) && !defined( WINAPI )
+#error missing signal functions
+#endif
 
-void pffoutput_version_fprint(
-      FILE *stream,
-      const char *program );
+#if defined( WINAPI )
+typedef unsigned long pfftools_signal_t;
 
-void pffoutput_version_detailed_fprint(
-      FILE *stream,
-      const char *program );
+#else
+typedef int pfftools_signal_t;
+
+#endif /* defined( WINAPI ) */
+
+#if defined( WINAPI )
+
+BOOL WINAPI pfftools_signal_handler(
+             pfftools_signal_t signal );
+
+#if defined( _MSC_VER )
+
+void pfftools_signal_initialize_memory_debug(
+      void );
+
+#endif /* defined( _MSC_VER ) */
+
+#endif /* defined( WINAPI ) */
+
+int pfftools_signal_attach(
+     void (*signal_handler)( pfftools_signal_t ),
+     libcerror_error_t **error );
+
+int pfftools_signal_detach(
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _PFFOUTPUT_H ) */
+#endif /* !defined( _PFFTOOLS_SIGNAL_H ) */
 

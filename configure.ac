@@ -112,17 +112,8 @@ AX_ZLIB_CHECK_UNCOMPRESS
 dnl Check for library function support
 AX_LIBPFF_CHECK_LOCAL
 
-dnl Check for enabling libcsystem for cross-platform C generic system functions
-AX_LIBCSYSTEM_CHECK_ENABLE
-
-dnl Check if pfftools should be build as static executables
-AX_COMMON_CHECK_ENABLE_STATIC_EXECUTABLES
-
-dnl Check if libpff should be build with verbose output
-AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
-
-dnl Check if libpff should be build with debug output
-AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
+dnl Check for pfftools function support
+AX_PFFTOOLS_CHECK_LOCAL
 
 dnl Check if libpff java bindings (jpff) should be build
 AX_JAVA_CHECK_ENABLE
@@ -187,13 +178,6 @@ AS_IF(
   [BuildRequires:])
  ])
 
-AS_IF(
- [test "x$ac_cv_libcsystem" = xyes],
- [AC_SUBST(
-  [libpff_tools_spec_build_requires],
-  [BuildRequires:])
- ])
-
 dnl Set the date for the dpkg files
 AC_SUBST(
  [DPKG_DATE],
@@ -231,7 +215,6 @@ AC_CONFIG_FILES([libfvalue/Makefile])
 AC_CONFIG_FILES([libfwnt/Makefile])
 AC_CONFIG_FILES([libfmapi/Makefile])
 AC_CONFIG_FILES([libpff/Makefile])
-AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([pfftools/Makefile])
 AC_CONFIG_FILES([jpff/Makefile])
 AC_CONFIG_FILES([pypff/Makefile])
@@ -281,7 +264,6 @@ Building:
    libfwnt support:                          $ac_cv_libfwnt
    libfmapi support:                         $ac_cv_libfmapi
    DEFLATE compression support:              $ac_cv_uncompress
-   libcsystem support:                       $ac_cv_libcsystem
 
 Features:
    Multi-threading support:                  $ac_cv_libcthreads_multi_threading

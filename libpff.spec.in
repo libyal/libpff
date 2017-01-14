@@ -24,8 +24,7 @@ Header files and libraries for developing applications for libpff.
 %package tools
 Summary: Several tools for reading Personal Folder Files (OST, PAB and PST)
 Group: Applications/System
-Requires: libpff = %{version}-%{release} @ax_libcsystem_spec_requires@
-@libpff_tools_spec_build_requires@ @ax_libcsystem_spec_build_requires@
+Requires: libpff = %{version}-%{release}
 
 %description tools
 Several tools for reading Personal Folder Files (OST, PAB and PST)

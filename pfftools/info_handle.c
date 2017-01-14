@@ -30,7 +30,6 @@
 #include "pffinput.h"
 #include "pfftools_libcerror.h"
 #include "pfftools_libclocale.h"
-#include "pfftools_libcsystem.h"
 #include "pfftools_libpff.h"
 
 #define INFO_HANDLE_NOTIFY_STREAM	stdout

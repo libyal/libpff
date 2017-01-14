@@ -37,13 +37,15 @@
 #include "export_handle.h"
 #include "log_handle.h"
 #include "pffinput.h"
-#include "pffoutput.h"
+#include "pfftools_getopt.h"
 #include "pfftools_libcerror.h"
 #include "pfftools_libclocale.h"
 #include "pfftools_libcnotify.h"
 #include "pfftools_libcpath.h"
-#include "pfftools_libcsystem.h"
 #include "pfftools_libpff.h"
+#include "pfftools_output.h"
+#include "pfftools_signal.h"
+#include "pfftools_unused.h"
 
 export_handle_t *pffexport_export_handle = NULL;
 libpff_file_t *pffexport_file            = NULL;
@@ -93,12 +95,12 @@ void usage_fprint(
 /* Signal handler for pffexport
  */
 void pffexport_signal_handler(
-      libcsystem_signal_t signal LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      pfftools_signal_t signal PFFTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function   = "pffexport_signal_handler";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( signal )
+	PFFTOOLS_UNREFERENCED_PARAMETER( signal )
 
 	pffexport_abort = 1;
 
@@ -136,8 +138,13 @@ void pffexport_signal_handler(
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
-	if( libcsystem_file_io_close(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+	if( _close(
 	     0 ) != 0 )
+#else
+	if( close(
+	     0 ) != 0 )
+#endif
 	{
 		libcnotify_printf(
 		 "%s: unable to close stdin.\n",
@@ -186,13 +193,13 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_initialize(
+	if( pfftools_output_initialize(
 	     _IONBF,
 	     &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to initialize system values.\n" );
+		 "Unable to initialize output settings.\n" );
 
 		goto on_error;
 	}
@@ -200,7 +207,7 @@ int main( int argc, char * const argv[] )
 	 stdout,
 	 program );
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = pfftools_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "c:df:hl:m:qt:vV" ) ) ) != (system_integer_t) -1 )
@@ -510,7 +517,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_signal_attach(
+	if( pfftools_signal_attach(
 	     pffexport_signal_handler,
 	     &error ) != 1 )
 	{
@@ -567,7 +574,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_signal_detach(
+	if( pfftools_signal_detach(
 	     &error ) != 1 )
 	{
 		fprintf(
