@@ -25,10 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include "pypff_file.h"
 #include "pypff_item.h"
-#include "pypff_libcerror.h"
-#include "pypff_libpff.h"
 #include "pypff_python.h"
 
 #if defined( __cplusplus )
@@ -102,9 +99,8 @@ PyObject *pypff_message_get_number_of_attachments(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
-/* TODO create attachment item
 PyObject *pypff_message_get_attachment_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int attachment_index );
 
 PyObject *pypff_message_get_attachment(
@@ -115,7 +111,6 @@ PyObject *pypff_message_get_attachment(
 PyObject *pypff_message_get_attachments(
            pypff_item_t *pypff_item,
            PyObject *arguments );
-*/
 
 #if defined( __cplusplus )
 }

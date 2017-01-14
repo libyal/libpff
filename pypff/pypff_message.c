@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #endif
 
+#include "pypff_attachment.h"
 #include "pypff_datetime.h"
 #include "pypff_error.h"
 #include "pypff_integer.h"
@@ -155,14 +156,12 @@ PyMethodDef pypff_message_object_methods[] = {
 	  "\n"
 	  "Retrieves the number of attachments." },
 
-/* TODO create attachment item
 	{ "get_attachment",
 	  (PyCFunction) pypff_message_get_attachment,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "get_attachment(attachment_index) -> Object or None\n"
 	  "\n"
 	  "Retrieves a specific attachment." },
-*/
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -244,13 +243,11 @@ PyGetSetDef pypff_message_object_get_set_definitions[] = {
 	  "The number of attachments.",
 	  NULL },
 
-/* TODO create attachment item
 	{ "attachments",
 	  (getter) pypff_message_get_attachments,
 	  (setter) 0,
 	  "The attachments",
 	  NULL },
-*/
 
 	/* Sentinel */
 	{ NULL, NULL, NULL, NULL, NULL }
@@ -1654,8 +1651,8 @@ PyObject *pypff_message_get_number_of_attachments(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error  = NULL;
 	PyObject *integer_object  = NULL;
+	libcerror_error_t *error  = NULL;
 	static char *function     = "pypff_message_get_number_of_attachments";
 	int number_of_attachments = 0;
 	int result                = 0;
@@ -1703,14 +1700,11 @@ PyObject *pypff_message_get_number_of_attachments(
 	return( integer_object );
 }
 
-/* TODO create attachment item */
-#ifdef TODO
-
 /* Retrieves a specific attachment by index
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_message_get_attachment_by_index(
-           pypff_item_t *pypff_item,
+           PyObject *pypff_item,
            int attachment_index )
 {
 	libcerror_error_t *error  = NULL;
@@ -1732,7 +1726,7 @@ PyObject *pypff_message_get_attachment_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_attachment(
-	          pypff_item->item,
+	          ( (pypff_item_t *) pypff_item )->item,
 	          attachment_index,
 	          &sub_item,
 	          &error );
@@ -1779,7 +1773,7 @@ PyObject *pypff_message_get_attachment_by_index(
 	sub_item_object = pypff_item_new(
 	                   &pypff_message_type_object,
 	                   sub_item,
-	                   pypff_item->file_object );
+	                   (PyObject *) ( (pypff_item_t *) pypff_item )->parent_object );
 
 	if( sub_item_object == NULL )
 	{
@@ -1824,7 +1818,7 @@ PyObject *pypff_message_get_attachment(
 		return( NULL );
 	}
 	sub_item_object = pypff_message_get_attachment_by_index(
-	                   pypff_item,
+	                   (PyObject *) pypff_item,
 	                   attachment_index );
 
 	return( sub_item_object );
@@ -1837,8 +1831,8 @@ PyObject *pypff_message_get_attachments(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error   = NULL;
 	PyObject *sub_items_object = NULL;
+	libcerror_error_t *error   = NULL;
 	static char *function      = "pypff_message_get_attachments";
 	int number_of_attachments  = 0;
 	int result                 = 0;
@@ -1877,7 +1871,7 @@ PyObject *pypff_message_get_attachments(
 		return( NULL );
 	}
 	sub_items_object = pypff_items_new(
-	                    pypff_item,
+	                    (PyObject *) pypff_item,
 	                    &pypff_message_get_attachment_by_index,
 	                    number_of_attachments );
 
@@ -1892,6 +1886,4 @@ PyObject *pypff_message_get_attachments(
 	}
 	return( sub_items_object );
 }
-
-#endif
 

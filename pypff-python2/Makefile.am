@@ -20,6 +20,7 @@ am_pypff_la_rpath = -rpath $(pyexecdir2)
 
 BUILT_SOURCES = \
 	pypff.c pypff.h \
+	pypff_attachment.c pypff_attachment.h \
 	pypff_codepage.c pypff_codepage.h \
 	pypff_datetime.c pypff_datetime.h \
 	pypff_encryption_types.c pypff_encryption_types.h \

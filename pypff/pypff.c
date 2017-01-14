@@ -28,6 +28,7 @@
 #endif
 
 #include "pypff.h"
+#include "pypff_attachment.h"
 #include "pypff_error.h"
 #include "pypff_file.h"
 #include "pypff_file_object_io_handle.h"
@@ -461,6 +462,7 @@ PyMODINIT_FUNC initpypff(
 #endif
 {
 	PyObject *module                         = NULL;
+	PyTypeObject *attachment_type_object     = NULL;
 	PyTypeObject *file_type_object           = NULL;
 	PyTypeObject *folder_type_object         = NULL;
 	PyTypeObject *item_type_object           = NULL;
@@ -523,25 +525,6 @@ PyMODINIT_FUNC initpypff(
 	 module,
 	 "file",
 	 (PyObject *) file_type_object );
-
-	/* Setup the folder type object
-	 */
-	pypff_folder_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pypff_folder_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pypff_folder_type_object );
-
-	folder_type_object = &pypff_folder_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "folder",
-	 (PyObject *) folder_type_object );
 
 	/* Setup the item type object
 	 */
@@ -675,6 +658,44 @@ PyMODINIT_FUNC initpypff(
 	 module,
 	"_record_sets",
 	(PyObject *) record_sets_type_object );
+
+	/* Setup the attachment type object
+	 */
+	pypff_attachment_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pypff_attachment_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pypff_attachment_type_object );
+
+	attachment_type_object = &pypff_attachment_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "attachment",
+	 (PyObject *) attachment_type_object );
+
+	/* Setup the folder type object
+	 */
+	pypff_folder_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pypff_folder_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pypff_folder_type_object );
+
+	folder_type_object = &pypff_folder_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "folder",
+	 (PyObject *) folder_type_object );
 
 	PyGILState_Release(
 	 gil_state );
