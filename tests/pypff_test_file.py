@@ -30,6 +30,12 @@ import pypff
 class FileTypeTests(unittest.TestCase):
   """Tests the file type."""
 
+  def test_signal_abort(self):
+    """Tests the signal_abort function."""
+    pff_file = pypff.file()
+
+    pff_file.signal_abort()
+
   def test_open(self):
     """Tests the open function."""
     if not unittest.source:
@@ -61,8 +67,7 @@ class FileTypeTests(unittest.TestCase):
 
     pff_file.open_file_object(file_object)
 
-    # TODO: change MemoryError into IOError
-    with self.assertRaises(MemoryError):
+    with self.assertRaises(IOError):
       pff_file.open_file_object(file_object)
 
     pff_file.close()

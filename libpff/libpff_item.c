@@ -1250,7 +1250,7 @@ int libpff_item_get_number_of_entries(
 }
 
 /* Retrieves a 32-bit integer value
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_internal_item_get_entry_value_32bit_integer(
      libpff_internal_item_t *internal_item,
@@ -1353,7 +1353,7 @@ on_error:
 }
 
 /* Retrieves a 64-bit FILETIME entry value
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_internal_item_get_entry_value_filetime(
      libpff_internal_item_t *internal_item,
@@ -1457,7 +1457,7 @@ on_error:
 
 /* Retrieves the UTF-8 string size of a specific entry
  * The size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_internal_item_get_entry_value_utf8_string_size(
      libpff_internal_item_t *internal_item,
@@ -1601,7 +1601,7 @@ on_error:
 
 /* Retrieves the UTF-8 string value of a specific entry
  * The function uses a codepage if necessary, it uses the codepage set for the library
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_internal_item_get_entry_value_utf8_string(
      libpff_internal_item_t *internal_item,
@@ -1747,7 +1747,7 @@ on_error:
 
 /* Retrieves the UTF-16 string size of a specific entry
  * The size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_internal_item_get_entry_value_utf16_string_size(
      libpff_internal_item_t *internal_item,
@@ -1891,7 +1891,7 @@ on_error:
 
 /* Retrieves the UTF-16 string value of a specific entry
  * The function uses a codepage if necessary, it uses the codepage set for the library
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_internal_item_get_entry_value_utf16_string(
      libpff_internal_item_t *internal_item,

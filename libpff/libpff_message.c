@@ -418,7 +418,7 @@ on_error:
 
 /* Retrieves the UTF-8 string size of a specific entry
  * The size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_entry_value_utf8_string_size(
      libpff_item_t *message,
@@ -488,7 +488,7 @@ int libpff_message_get_entry_value_utf8_string_size(
 
 /* Retrieves the UTF-8 string value of a specific entry
  * The function uses a codepage if necessary, it uses the codepage set for the library
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_entry_value_utf8_string(
      libpff_item_t *message,
@@ -560,7 +560,7 @@ int libpff_message_get_entry_value_utf8_string(
 
 /* Retrieves the UTF-16 string size of a specific entry
  * The size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_entry_value_utf16_string_size(
      libpff_item_t *message,
@@ -630,7 +630,7 @@ int libpff_message_get_entry_value_utf16_string_size(
 
 /* Retrieves the UTF-16 string value of a specific entry
  * The function uses a codepage if necessary, it uses the codepage set for the library
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_entry_value_utf16_string(
      libpff_item_t *message,
@@ -701,7 +701,7 @@ int libpff_message_get_entry_value_utf16_string(
 }
 
 /* Retrieves the 64-bit FILETIME value containing message client submit time
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_client_submit_time(
      libpff_item_t *message,
@@ -732,7 +732,7 @@ int libpff_message_get_client_submit_time(
 }
 
 /* Retrieves the 64-bit FILETIME value containing message delivery time
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_delivery_time(
      libpff_item_t *message,
@@ -763,7 +763,7 @@ int libpff_message_get_delivery_time(
 }
 
 /* Retrieves the 64-bit FILETIME value containing message creation time
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_creation_time(
      libpff_item_t *message,
@@ -794,7 +794,7 @@ int libpff_message_get_creation_time(
 }
 
 /* Retrieves the 64-bit FILETIME value containing message modification time
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_modification_time(
      libpff_item_t *message,
@@ -1508,7 +1508,7 @@ int libpff_message_get_attachment(
 }
 
 /* Retrieves the attachments from a message item
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_attachments(
      libpff_item_t *message,
@@ -1859,7 +1859,7 @@ int libpff_message_determine_recipients(
 }
 
 /* Retrieves the recipients from a message item
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_recipients(
      libpff_item_t *message,
@@ -2042,7 +2042,7 @@ on_error:
 
 /* Retrieves the plain text message body size
  * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_plain_text_body_size(
      libpff_item_t *message,
@@ -2285,7 +2285,7 @@ on_error:
  * The function uses a codepage if necessary, it tries to read PidTagInternetCodepage first,
  * after that PidTagMessageCodepage and if not available it uses the codepage set for the library
  * Size should include the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_plain_text_body(
      libpff_item_t *message,
@@ -2555,7 +2555,7 @@ on_error:
 
 /* Retrieves the RTF message body size
  * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_rtf_body_size(
      libpff_item_t *message,
@@ -2689,7 +2689,7 @@ on_error:
 /* Retrieves the RTF message body
  * The body is encoded in UTF-8
  * Size should include the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_rtf_body(
      libpff_item_t *message,
@@ -2824,7 +2824,7 @@ on_error:
 
 /* Retrieves the HTML message body size
  * Size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_html_body_size(
      libpff_item_t *message,
@@ -3009,7 +3009,7 @@ on_error:
 
 /* Retrieves the HTML message body
  * Size should include the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_message_get_html_body(
      libpff_item_t *message,

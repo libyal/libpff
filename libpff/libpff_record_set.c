@@ -576,7 +576,7 @@ int libpff_record_set_get_entry_by_index(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_record_set_get_entry_by_type(
      libpff_record_set_t *record_set,
@@ -732,7 +732,7 @@ int libpff_record_set_get_entry_by_type(
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_record_set_get_entry_by_utf8_name(
      libpff_record_set_t *record_set,
@@ -883,7 +883,7 @@ int libpff_record_set_get_entry_by_utf8_name(
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_record_set_get_entry_by_utf16_name(
      libpff_record_set_t *record_set,

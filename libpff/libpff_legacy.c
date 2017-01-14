@@ -521,7 +521,7 @@ int libpff_item_get_entry_value(
 }
 
 /* Retrieves the value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_by_utf8_name(
      libpff_item_t *item,
@@ -656,7 +656,7 @@ int libpff_item_get_entry_value_by_utf8_name(
 }
 
 /* Retrieves the value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_by_utf16_name(
      libpff_item_t *item,
@@ -797,7 +797,7 @@ int libpff_item_get_entry_value_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_boolean(
      libpff_item_t *item,
@@ -881,7 +881,7 @@ int libpff_item_get_entry_value_boolean(
 }
 
 /* Retrieves the boolean value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_boolean_by_utf8_name(
      libpff_item_t *item,
@@ -966,7 +966,7 @@ int libpff_item_get_entry_value_boolean_by_utf8_name(
 }
 
 /* Retrieves the boolean value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_boolean_by_utf16_name(
      libpff_item_t *item,
@@ -1057,7 +1057,7 @@ int libpff_item_get_entry_value_boolean_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_16bit(
      libpff_item_t *item,
@@ -1153,7 +1153,7 @@ int libpff_item_get_entry_value_16bit(
 }
 
 /* Retrieves the 16-bit value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_16bit_by_utf8_name(
      libpff_item_t *item,
@@ -1238,7 +1238,7 @@ int libpff_item_get_entry_value_16bit_by_utf8_name(
 }
 
 /* Retrieves the 16-bit value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_16bit_by_utf16_name(
      libpff_item_t *item,
@@ -1329,7 +1329,7 @@ int libpff_item_get_entry_value_16bit_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_32bit(
      libpff_item_t *item,
@@ -1425,7 +1425,7 @@ int libpff_item_get_entry_value_32bit(
 }
 
 /* Retrieves the 32-bit value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_32bit_by_utf8_name(
      libpff_item_t *item,
@@ -1510,7 +1510,7 @@ int libpff_item_get_entry_value_32bit_by_utf8_name(
 }
 
 /* Retrieves the 32-bit value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_32bit_by_utf16_name(
      libpff_item_t *item,
@@ -1601,7 +1601,7 @@ int libpff_item_get_entry_value_32bit_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_64bit(
      libpff_item_t *item,
@@ -1697,7 +1697,7 @@ int libpff_item_get_entry_value_64bit(
 }
 
 /* Retrieves the 64-bit value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_64bit_by_utf8_name(
      libpff_item_t *item,
@@ -1782,7 +1782,7 @@ int libpff_item_get_entry_value_64bit_by_utf8_name(
 }
 
 /* Retrieves the 64-bit value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_64bit_by_utf16_name(
      libpff_item_t *item,
@@ -1873,7 +1873,7 @@ int libpff_item_get_entry_value_64bit_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_filetime(
      libpff_item_t *item,
@@ -1969,7 +1969,7 @@ int libpff_item_get_entry_value_filetime(
 }
 
 /* Retrieves the 64-bit filetime value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_filetime_by_utf8_name(
      libpff_item_t *item,
@@ -2054,7 +2054,7 @@ int libpff_item_get_entry_value_filetime_by_utf8_name(
 }
 
 /* Retrieves the 64-bit filetime value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_filetime_by_utf16_name(
      libpff_item_t *item,
@@ -2145,7 +2145,7 @@ int libpff_item_get_entry_value_filetime_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_size(
      libpff_item_t *item,
@@ -2282,7 +2282,7 @@ int libpff_item_get_entry_value_size(
 }
 
 /* Retrieves the size value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_size_by_utf8_name(
      libpff_item_t *item,
@@ -2389,7 +2389,7 @@ int libpff_item_get_entry_value_size_by_utf8_name(
 }
 
 /* Retrieves the size value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_size_by_utf16_name(
      libpff_item_t *item,
@@ -2502,7 +2502,7 @@ int libpff_item_get_entry_value_size_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_floating_point(
      libpff_item_t *item,
@@ -2626,7 +2626,7 @@ int libpff_item_get_entry_value_floating_point(
 }
 
 /* Retrieves the floating point value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_floating_point_by_utf8_name(
      libpff_item_t *item,
@@ -2731,7 +2731,7 @@ int libpff_item_get_entry_value_floating_point_by_utf8_name(
 }
 
 /* Retrieves the floating point value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_floating_point_by_utf16_name(
      libpff_item_t *item,
@@ -2843,7 +2843,7 @@ int libpff_item_get_entry_value_floating_point_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf8_string_size(
      libpff_item_t *item,
@@ -2980,7 +2980,7 @@ int libpff_item_get_entry_value_utf8_string_size(
 
 /* Retrieves the UTF-8 string size of a specific entry for an UTF-8 encoded name
  * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf8_string_size_by_utf8_name(
      libpff_item_t *item,
@@ -3097,7 +3097,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf8_name(
 }
 
 /* Retrieves the UTF-8 string size of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
      libpff_item_t *item,
@@ -3221,7 +3221,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf8_string(
      libpff_item_t *item,
@@ -3360,7 +3360,7 @@ int libpff_item_get_entry_value_utf8_string(
 
 /* Retrieves the UTF-8 string value of a specific entry for an UTF-8 encoded name
  * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf8_string_by_utf8_name(
      libpff_item_t *item,
@@ -3480,7 +3480,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf8_name(
 
 /* Retrieves the UTF-8 string value of a specific entry for an UTF-16 encoded name
  * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf8_string_by_utf16_name(
      libpff_item_t *item,
@@ -3606,7 +3606,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf16_string_size(
      libpff_item_t *item,
@@ -3743,7 +3743,7 @@ int libpff_item_get_entry_value_utf16_string_size(
 
 /* Retrieves the UTF-16 string size of a specific entry for an UTF-8 encoded name
  * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf16_string_size_by_utf8_name(
      libpff_item_t *item,
@@ -3860,7 +3860,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf8_name(
 }
 
 /* Retrieves the UTF-16 string size of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
      libpff_item_t *item,
@@ -3984,7 +3984,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf16_string(
      libpff_item_t *item,
@@ -4123,7 +4123,7 @@ int libpff_item_get_entry_value_utf16_string(
 
 /* Retrieves the UTF-16 string value of a specific entry for an UTF-8 encoded name
  * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf16_string_by_utf8_name(
      libpff_item_t *item,
@@ -4243,7 +4243,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf8_name(
 
 /* Retrieves the UTF-16 string value of a specific entry for an UTF-16 encoded name
  * The returned size includes the end of string character
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_utf16_string_by_utf16_name(
      libpff_item_t *item,
@@ -4368,7 +4368,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_binary_data_size(
      libpff_item_t *item,
@@ -4464,7 +4464,7 @@ int libpff_item_get_entry_value_binary_data_size(
 }
 
 /* Retrieves the size of a binary data value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_binary_data_size_by_utf8_name(
      libpff_item_t *item,
@@ -4549,7 +4549,7 @@ int libpff_item_get_entry_value_binary_data_size_by_utf8_name(
 }
 
 /* Retrieves the size of a binary data value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
      libpff_item_t *item,
@@ -4640,7 +4640,7 @@ int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_binary_data(
      libpff_item_t *item,
@@ -4738,7 +4738,7 @@ int libpff_item_get_entry_value_binary_data(
 }
 
 /* Retrieves the binary data value of a specific entry for an UTF-8 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_binary_data_by_utf8_name(
      libpff_item_t *item,
@@ -4825,7 +4825,7 @@ int libpff_item_get_entry_value_binary_data_by_utf8_name(
 }
 
 /* Retrieves the binary data value of a specific entry for an UTF-16 encoded name
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_binary_data_by_utf16_name(
      libpff_item_t *item,
@@ -4918,7 +4918,7 @@ int libpff_item_get_entry_value_binary_data_by_utf16_name(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_value_guid(
      libpff_item_t *item,
@@ -5023,7 +5023,7 @@ int libpff_item_get_entry_value_guid(
  * the use the mapped entry value. In this case named properties are not
  * retrieved.
  *
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_item_get_entry_multi_value(
      libpff_item_t *item,

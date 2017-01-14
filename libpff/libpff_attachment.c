@@ -264,7 +264,7 @@ on_error:
 }
 
 /* Retrieves the attachment data size
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_attachment_get_data_size(
      libpff_item_t *attachment,
@@ -704,7 +704,7 @@ off64_t libpff_attachment_data_seek_offset(
 }
 
 /* Retrieves the attachment data file IO handle
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_attachment_get_data_file_io_handle(
      libpff_item_t *attachment,
@@ -766,7 +766,7 @@ on_error:
 }
 
 /* Retrieves the attachment item
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_attachment_get_item(
      libpff_item_t *attachment,

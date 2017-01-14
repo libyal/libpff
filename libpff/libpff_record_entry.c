@@ -304,7 +304,7 @@ on_error:
 }
 
 /* Retrieves the entry type
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_record_entry_get_entry_type(
      libpff_record_entry_t *record_entry,
@@ -348,7 +348,7 @@ int libpff_record_entry_get_entry_type(
 }
 
 /* Retrieves the value type
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_record_entry_get_value_type(
      libpff_record_entry_t *record_entry,
@@ -392,7 +392,7 @@ int libpff_record_entry_get_value_type(
 }
 
 /* Retrieves the name to ID map entry
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_record_entry_get_name_to_id_map_entry(
      libpff_record_entry_t *record_entry,
@@ -2550,7 +2550,7 @@ int libpff_record_entry_copy_object_identifier(
 }
 
 /* Retrieves the multi value
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_record_entry_get_multi_value(
      libpff_record_entry_t *record_entry,

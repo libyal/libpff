@@ -1,7 +1,7 @@
 /*
  * Python object wrapper of libpff_file_t
  *
- * Copyright (C) 2008-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -824,6 +824,16 @@ PyObject *pypff_file_open_file_object(
 		 mode );
 
 		return( NULL );
+	}
+	if( pypff_file->file_io_handle != NULL )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: invalid file - file IO handle already set.",
+		 function );
+
+		goto on_error;
 	}
 	if( pypff_file_object_initialize(
 	     &( pypff_file->file_io_handle ),

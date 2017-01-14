@@ -1469,7 +1469,7 @@ int libpff_file_recover_items(
 }
 
 /* Retrieves the file size
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_file_get_size(
      libpff_file_t *file,
@@ -1514,13 +1514,17 @@ int libpff_file_get_size(
 
 		return( -1 );
 	}
+	if( internal_file->file_io_handle == NULL )
+	{
+		return( 0 );
+	}
 	*size = internal_file->io_handle->file_size;
 
 	return( 1 );
 }
 
 /* Retrieves the content type
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_file_get_content_type(
      libpff_file_t *file,
@@ -1554,13 +1558,17 @@ int libpff_file_get_content_type(
 
 		return( -1 );
 	}
+	if( internal_file->file_io_handle == NULL )
+	{
+		return( 0 );
+	}
 	*content_type = (uint8_t) internal_file->content_type;
 
 	return( 1 );
 }
 
 /* Retrieves the file type
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_file_get_type(
      libpff_file_t *file,
@@ -1605,13 +1613,17 @@ int libpff_file_get_type(
 
 		return( -1 );
 	}
+	if( internal_file->file_io_handle == NULL )
+	{
+		return( 0 );
+	}
 	*type = internal_file->io_handle->file_type;
 
 	return( 1 );
 }
 
 /* Retrieves the encryption type
- * Returns 1 if successful or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_file_get_encryption_type(
      libpff_file_t *file,
@@ -1655,6 +1667,10 @@ int libpff_file_get_encryption_type(
 		 function );
 
 		return( -1 );
+	}
+	if( internal_file->file_io_handle == NULL )
+	{
+		return( 0 );
 	}
 	*encryption_type = internal_file->io_handle->encryption_type;
 
@@ -2065,7 +2081,7 @@ int libpff_file_get_root_item(
 }
 
 /* Retrieves the message store
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_file_get_message_store(
      libpff_file_t *file,
@@ -2170,7 +2186,7 @@ int libpff_file_get_message_store(
 }
 
 /* Retrieves the name to id map
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_file_get_name_to_id_map(
      libpff_file_t *file,
@@ -2275,7 +2291,7 @@ int libpff_file_get_name_to_id_map(
 }
 
 /* Retrieves the root folder
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_file_get_root_folder(
      libpff_file_t *file,
@@ -2361,7 +2377,7 @@ int libpff_file_get_root_folder(
 }
 
 /* Retrieves an item for a specific identifier
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_file_get_item_by_identifier(
      libpff_file_t *file,

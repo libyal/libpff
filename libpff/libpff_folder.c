@@ -2115,7 +2115,7 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 }
 
 /* Retrieves the sub folders from a folder
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_folder_get_sub_folders(
      libpff_item_t *folder,
@@ -3272,7 +3272,7 @@ int libpff_folder_get_sub_message_by_utf16_name(
 }
 
 /* Retrieves the sub messages from a folder
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_folder_get_sub_messages(
      libpff_item_t *folder,
@@ -3819,7 +3819,7 @@ int libpff_folder_get_sub_associated_content(
 }
 
 /* Retrieves the sub associated contents from a folder
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_folder_get_sub_associated_contents(
      libpff_item_t *folder,
@@ -4043,7 +4043,7 @@ on_error:
 }
 
 /* Retrieves the unknowns from a folder
- * Returns 1 if successful, 0 if no such value or -1 on error
+ * Returns 1 if successful, 0 if not available or -1 on error
  */
 int libpff_folder_get_unknowns(
      libpff_item_t *folder,
