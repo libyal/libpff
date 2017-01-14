@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #endif
 
+#include "pypff_attachment.h"
 #include "pypff_codepage.h"
 #include "pypff_error.h"
 #include "pypff_file.h"
@@ -1442,7 +1443,7 @@ int pypff_file_set_ascii_codepage_setter(
  * Returns a Python type object if successful or NULL on error
  */
 PyTypeObject *pypff_file_get_item_type_object(
-               libpff_item_t *item PYPFF_ATTRIBUTE_UNUSED )
+               libpff_item_t *item )
 {
 	libcerror_error_t *error = NULL;
 	static char *function    = "pypff_file_get_item_type_object";
@@ -1505,10 +1506,12 @@ PyTypeObject *pypff_file_get_item_type_object(
 		case LIBPFF_ITEM_TYPE_VOICEMAIL:
 			return( &pypff_message_type_object );
 
+		case LIBPFF_ITEM_TYPE_ATTACHMENT:
+			return( &pypff_attachment_type_object );
+
 		case LIBPFF_ITEM_TYPE_FOLDER:
 			return( &pypff_folder_type_object );
 
-		case LIBPFF_ITEM_TYPE_ATTACHMENT:
 		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
 		case LIBPFF_ITEM_TYPE_RECIPIENTS:
 		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:

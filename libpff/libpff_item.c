@@ -504,7 +504,7 @@ int libpff_item_determine_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 ".",
 		 function,
 		 LIBPFF_ENTRY_TYPE_MESSAGE_CLASS );
 
@@ -1303,7 +1303,7 @@ int libpff_internal_item_get_entry_value_32bit_integer(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x04" PRIx32 " 0x%04" PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 " 0x%04" PRIx32 ".",
 		 function,
 		 entry_type,
 		 LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED );
@@ -1406,7 +1406,7 @@ int libpff_internal_item_get_entry_value_filetime(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x04" PRIx32 " 0x%04" PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 " 0x%04" PRIx32 ".",
 		 function,
 		 entry_type,
 		 LIBPFF_VALUE_TYPE_FILETIME );
@@ -1523,7 +1523,7 @@ int libpff_internal_item_get_entry_value_utf8_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 ".",
 		 function,
 		 entry_type );
 
@@ -1668,7 +1668,7 @@ int libpff_internal_item_get_entry_value_utf8_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 ".",
 		 function,
 		 entry_type );
 
@@ -1813,7 +1813,7 @@ int libpff_internal_item_get_entry_value_utf16_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 ".",
 		 function,
 		 entry_type );
 
@@ -1958,7 +1958,7 @@ int libpff_internal_item_get_entry_value_utf16_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x04" PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 ".",
 		 function,
 		 entry_type );
 

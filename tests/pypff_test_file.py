@@ -141,6 +141,116 @@ class FileTypeTests(unittest.TestCase):
       with self.assertRaises(RuntimeError):
         pff_file.set_ascii_codepage(codepage)
 
+  # TODO: add tests for get_root_item.
+
+  def test_get_message_store(self):
+    """Tests the get_message_store function."""
+    pff_file = pypff.file()
+
+    with self.assertRaises(IOError):
+      pff_file.get_message_store()
+
+    with self.assertRaises(IOError):
+      pff_file.message_store
+
+    if not unittest.source:
+      return
+
+    pff_file = pypff.file()
+    pff_file.open(unittest.source)
+
+    pff_file.get_message_store()
+
+    _ = pff_file.message_store
+
+    pff_file.close()
+
+  def test_get_name_to_id_map(self):
+    """Tests the get_name_to_id_map function."""
+    pff_file = pypff.file()
+
+    with self.assertRaises(IOError):
+      pff_file.get_name_to_id_map()
+
+    with self.assertRaises(IOError):
+      pff_file.name_to_id_map
+
+    if not unittest.source:
+      return
+
+    pff_file = pypff.file()
+    pff_file.open(unittest.source)
+
+    pff_file.get_name_to_id_map()
+
+    _ = pff_file.name_to_id_map
+
+    pff_file.close()
+
+  def test_get_root_folder(self):
+    """Tests the get_root_folder function."""
+    pff_file = pypff.file()
+
+    with self.assertRaises(IOError):
+      pff_file.get_root_folder()
+
+    with self.assertRaises(IOError):
+      pff_file.root_folder
+
+    if not unittest.source:
+      return
+
+    pff_file = pypff.file()
+    pff_file.open(unittest.source)
+
+    pff_file.get_root_folder()
+
+    _ = pff_file.root_folder
+
+    pff_file.close()
+
+  def test_get_number_of_orphan_items(self):
+    """Tests the get_number_of_orphan_items function."""
+    pff_file = pypff.file()
+
+    with self.assertRaises(IOError):
+      pff_file.get_number_of_orphan_items()
+
+    with self.assertRaises(IOError):
+      pff_file.number_of_orphan_items
+
+    if not unittest.source:
+      return
+
+    pff_file = pypff.file()
+    pff_file.open(unittest.source)
+
+    number_of_items = pff_file.get_number_of_orphan_items()
+    self.assertIsNotNone(number_of_items)
+
+    self.assertIsNotNone(pff_file.number_of_orphan_items)
+
+    pff_file.close()
+
+  def test_get_orphan_item(self):
+    """Tests the get_orphan_item function."""
+    pff_file = pypff.file()
+
+    with self.assertRaises(IOError):
+      pff_file.get_orphan_item(0)
+
+    if not unittest.source:
+      return
+
+    pff_file = pypff.file()
+    pff_file.open(unittest.source)
+
+    if pff_file.number_of_orphan_items > 0:
+      item = pff_file.get_orphan_item(0)
+      self.assertIsNotNone(item)
+
+    pff_file.close()
+
 
 if __name__ == "__main__":
   argument_parser = argparse.ArgumentParser()

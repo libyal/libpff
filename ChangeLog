@@ -1,4 +1,13 @@
 TODO
+* pypff fix get_root_item
+
+IOError: pypff_file_get_item_type_object: unable to retrieve item type.
+libpff_table_read: invalid table: 0 - missing data identifier.
+libpff_item_values_read: unable to read table.
+libpff_item_values_get_record_entry_by_type: unable to read item values.
+libpff_item_determine_type: unable to retrieve record entry: 0x001a.
+libpff_item_get_type: unable to determine item type.
+
 * refactor libpff_message_get_entry_value_utf8_string to match naming schema
 * add specific entry value flag for string types?
 * add fallback inflate implementation

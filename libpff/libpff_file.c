@@ -2012,6 +2012,17 @@ int libpff_file_get_root_item(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_file->item_tree_root_node == NULL )
 	{
 		libcerror_error_set(
@@ -2107,6 +2118,17 @@ int libpff_file_get_message_store(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( message_store == NULL )
 	{
 		libcerror_error_set(
@@ -2212,6 +2234,17 @@ int libpff_file_get_name_to_id_map(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( name_to_id_map == NULL )
 	{
 		libcerror_error_set(
@@ -2315,6 +2348,17 @@ int libpff_file_get_root_folder(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( root_folder == NULL )
 	{
 		libcerror_error_set(
@@ -2404,6 +2448,17 @@ int libpff_file_get_item_by_identifier(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_file->item_tree_root_node == NULL )
 	{
 		libcerror_error_set(
@@ -2529,6 +2584,17 @@ int libpff_file_get_number_of_orphan_items(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libcdata_list_get_number_of_elements(
 	     internal_file->orphan_item_list,
 	     number_of_orphan_items,
@@ -2573,13 +2639,13 @@ int libpff_file_get_orphan_item(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
-	if( internal_file->orphan_item_list == NULL )
+	if( internal_file->file_io_handle == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file - missing orphan item list.",
+		 "%s: invalid file - missing file IO handle.",
 		 function );
 
 		return( -1 );
@@ -2670,6 +2736,17 @@ int libpff_file_get_number_of_recovered_items(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libcdata_list_get_number_of_elements(
 	     internal_file->recovered_item_list,
 	     number_of_recovered_items,
@@ -2714,6 +2791,17 @@ int libpff_file_get_recovered_item(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( recovered_item == NULL )
 	{
 		libcerror_error_set(
