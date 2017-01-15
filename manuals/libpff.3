@@ -1,4 +1,4 @@
-.Dd January  1, 2017
+.Dd January 15, 2017
 .Dt libpff 3
 .Os libpff
 .Sh NAME
@@ -235,7 +235,7 @@ Multi value functions
 .Ft int
 .Fn libpff_multi_value_get_value_guid "libpff_multi_value_t *multi_value, int value_index, uint8_t *guid, size_t size, libpff_error_t **error"
 .Pp
-Folder functions
+Folder item functions
 .Ft int
 .Fn libpff_folder_get_type "libpff_item_t *folder, uint8_t *type, libpff_error_t **error"
 .Ft int
@@ -275,7 +275,7 @@ Folder functions
 .Ft int
 .Fn libpff_folder_get_unknowns "libpff_item_t *folder, libpff_item_t **unknowns, libpff_error_t **error"
 .Pp
-Message functions
+Message item functions
 .Ft int
 .Fn libpff_message_get_entry_value_utf8_string_size "libpff_item_t *message, uint32_t entry_type, size_t *utf8_string_size, libpff_error_t **error"
 .Ft int
@@ -313,7 +313,7 @@ Message functions
 .Ft int
 .Fn libpff_message_get_html_body "libpff_item_t *message, uint8_t *message_body, size_t size, libpff_error_t **error"
 .Pp
-Attachment functions
+Attachment item functions
 .Ft int
 .Fn libpff_attachment_get_type "libpff_item_t *attachment, int *attachment_type, libpff_error_t **error"
 .Ft int

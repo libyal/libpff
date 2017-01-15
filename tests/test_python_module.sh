@@ -1,7 +1,7 @@
 #!/bin/bash
-# Python module functions testing script
+# Tests Python module functions and types.
 #
-# Version: 20161105
+# Version: 20170115
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;

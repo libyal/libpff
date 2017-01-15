@@ -126,6 +126,7 @@ stamp-h[1-9]
 /pfftools/pffinfo
 /tests/input
 /tests/pff_test_attached_file_io_handle
+/tests/pff_test_attachment
 /tests/pff_test_column_definition
 /tests/pff_test_data_array
 /tests/pff_test_data_array_entry
@@ -134,6 +135,7 @@ stamp-h[1-9]
 /tests/pff_test_descriptors_index
 /tests/pff_test_error
 /tests/pff_test_file
+/tests/pff_test_folder
 /tests/pff_test_index
 /tests/pff_test_index_node
 /tests/pff_test_index_value
@@ -144,6 +146,7 @@ stamp-h[1-9]
 /tests/pff_test_local_descriptor_node
 /tests/pff_test_local_descriptors
 /tests/pff_test_local_descriptor_value
+/tests/pff_test_message
 /tests/pff_test_multi_value
 /tests/pff_test_name_to_id_map_entry
 /tests/pff_test_notify

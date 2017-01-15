@@ -1,7 +1,7 @@
 #!/bin/bash
-# Library API functions testing script
+# Tests C library functions and types.
 #
-# Version: 20161110
+# Version: 20170115
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -11,20 +11,20 @@ TEST_PREFIX=`dirname ${PWD}`;
 TEST_PREFIX=`basename ${TEST_PREFIX} | sed 's/^lib\([^-]*\).*$/\1/'`;
 
 TEST_PROFILE="lib${TEST_PREFIX}";
-TEST_FUNCTIONS="deflate error name_to_id_map_entry notify";
-TEST_FUNCTIONS_WITH_INPUT="support";
+LIBRARY_TESTS="attached_file_io_handle column_definition data_array data_array_entry data_block descriptors_index error index index_node index_value io_handle item item_descriptor item_values local_descriptor_node local_descriptor_value local_descriptors multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_index_value";
+LIBRARY_TESTS_WITH_INPUT="file support";
 OPTION_SETS="";
 
 TEST_TOOL_DIRECTORY=".";
 INPUT_DIRECTORY="input";
 INPUT_GLOB="*";
 
-test_api_function()
+run_test()
 {
-	local TEST_FUNCTION=$1;
+	local TEST_NAME=$1;
 
-	local TEST_DESCRIPTION="Testing API functions: ${TEST_FUNCTION}";
-	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_FUNCTION}";
+	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
+	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
@@ -38,12 +38,12 @@ test_api_function()
 	return ${RESULT};
 }
 
-test_api_function_with_input()
+run_test_with_input()
 {
-	local TEST_FUNCTION=$1;
+	local TEST_NAME=$1;
 
-	local TEST_DESCRIPTION="Testing API functions: ${TEST_FUNCTION}";
-	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_FUNCTION}";
+	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
+	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
@@ -79,9 +79,9 @@ source ${TEST_RUNNER};
 
 RESULT=${EXIT_IGNORE};
 
-for TEST_FUNCTION in ${TEST_FUNCTIONS};
+for TEST_NAME in ${LIBRARY_TESTS};
 do
-	test_api_function "${TEST_FUNCTION}";
+	run_test "${TEST_NAME}";
 	RESULT=$?;
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -95,14 +95,14 @@ then
 	exit ${RESULT};
 fi
 
-for TEST_FUNCTION in ${TEST_FUNCTIONS_WITH_INPUT};
+for TEST_NAME in ${LIBRARY_TESTS_WITH_INPUT};
 do
 	if test -d ${INPUT_DIRECTORY};
 	then
-		test_api_function_with_input "${TEST_FUNCTION}";
+		run_test_with_input "${TEST_NAME}";
 		RESULT=$?;
 	else
-		test_api_function "${TEST_FUNCTION}";
+		run_test "${TEST_NAME}";
 		RESULT=$?;
 	fi
 

@@ -23,12 +23,11 @@ AM_CPPFLAGS = \
 
 if HAVE_PYTHON_TESTS
 TESTS_PYPFF = \
-	test_python_functions.sh
+	test_python_module.sh
 endif
 
 TESTS = \
-	test_api_functions.sh \
-	test_api_types.sh \
+	test_library.sh \
 	test_read_items.sh \
 	test_pffinfo.sh \
 	test_pffexport.sh \
@@ -37,11 +36,10 @@ TESTS = \
 check_SCRIPTS = \
 	pypff_test_file.py \
 	pypff_test_support.py \
-	test_api_functions.sh \
-	test_api_types.sh \
+	test_library.sh \
 	test_pffexport.sh \
 	test_pffinfo.sh \
-	test_python_functions.sh \
+	test_python_module.sh \
 	test_read_items.sh \
 	test_runner.sh
 
@@ -50,6 +48,7 @@ EXTRA_DIST = \
 
 check_PROGRAMS = \
 	pff_test_attached_file_io_handle \
+	pff_test_attachment \
 	pff_test_column_definition \
 	pff_test_data_array \
 	pff_test_data_array_entry \
@@ -58,6 +57,7 @@ check_PROGRAMS = \
 	pff_test_descriptors_index \
 	pff_test_error \
 	pff_test_file \
+	pff_test_folder \
 	pff_test_index \
 	pff_test_index_node \
 	pff_test_index_value \
@@ -68,6 +68,7 @@ check_PROGRAMS = \
 	pff_test_local_descriptor_node \
 	pff_test_local_descriptor_value \
 	pff_test_local_descriptors \
+	pff_test_message \
 	pff_test_multi_value \
 	pff_test_name_to_id_map_entry \
 	pff_test_notify \
@@ -90,6 +91,17 @@ pff_test_attached_file_io_handle_SOURCES = \
 	pff_test_unused.h
 
 pff_test_attached_file_io_handle_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_attachment_SOURCES = \
+	pff_test_attachment.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_attachment_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
@@ -195,6 +207,17 @@ pff_test_file_LDADD = \
 	@LIBCTHREADS_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	@PTHREAD_LIBADD@
+
+pff_test_folder_SOURCES = \
+	pff_test_folder.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_folder_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
 
 pff_test_index_SOURCES = \
 	pff_test_index.c \
@@ -314,6 +337,17 @@ pff_test_local_descriptors_SOURCES = \
 	pff_test_unused.h
 
 pff_test_local_descriptors_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_message_SOURCES = \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_message.c \
+	pff_test_unused.h
+
+pff_test_message_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
