@@ -414,7 +414,7 @@ int libpff_file_get_number_of_orphan_items(
  * Returns 1 if successful or -1 on error
  */
 LIBPFF_EXTERN \
-int libpff_file_get_orphan_item(
+int libpff_file_get_orphan_item_by_index(
      libpff_file_t *file,
      int orphan_item_index,
      libpff_item_t **orphan_item,
@@ -432,6 +432,38 @@ int libpff_file_get_number_of_recovered_items(
 /* Retrieves a specific recovered item
  * Returns 1 if successful or -1 on error
  */
+LIBPFF_EXTERN \
+int libpff_file_get_recovered_item_by_index(
+     libpff_file_t *file,
+     int recovered_item_index,
+     libpff_item_t **recovered_item,
+     libpff_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * File functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves a specific orphan item
+ *
+ * This function deprecated use libpff_file_get_orphan_item_by_index instead
+ *
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_file_get_orphan_item(
+     libpff_file_t *file,
+     int orphan_item_index,
+     libpff_item_t **orphan_item,
+     libpff_error_t **error );
+
+/* Retrieves a specific recovered item
+ *
+ * This function deprecated use libpff_file_get_recovered_item_by_index instead
+ *
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_DEPRECATED \
 LIBPFF_EXTERN \
 int libpff_file_get_recovered_item(
      libpff_file_t *file,
@@ -2194,7 +2226,7 @@ int libpff_multi_value_get_value_guid(
      libpff_error_t **error );
 
 /* -------------------------------------------------------------------------
- * Folder functions
+ * Folder item functions
  * ------------------------------------------------------------------------- */
 
 /* Retrieves the folder type
@@ -2408,7 +2440,7 @@ int libpff_folder_get_unknowns(
 	libpff_item_get_entry_value_32bit( message_store, 0, LIBPFF_ENTRY_TYPE_MESSAGE_STORE_PASSWORD_CHECKSUM, password_checksum, 0, error )
 
 /* -------------------------------------------------------------------------
- * Message functions
+ * Message item functions
  * ------------------------------------------------------------------------- */
 
 /* Retrieves the UTF-8 string size of a specific entry
@@ -3786,7 +3818,7 @@ int libpff_message_get_html_body(
 	libpff_message_get_entry_value_utf16_string( email, LIBPFF_ENTRY_TYPE_EMAIL_EML_FILENAME, utf16_string, utf16_string_size, error )
 
 /* -------------------------------------------------------------------------
- * Attachment functions
+ * Attachment item functions
  * ------------------------------------------------------------------------- */
 
 /* Retrieves the attachment type

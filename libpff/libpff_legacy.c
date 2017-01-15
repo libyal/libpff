@@ -34,6 +34,206 @@
 #include "libpff_table.h"
 #include "libpff_types.h"
 
+/* Retrieves a specific orphan item
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_file_get_orphan_item(
+     libpff_file_t *file,
+     int orphan_item_index,
+     libpff_item_t **orphan_item,
+     libcerror_error_t **error )
+{
+	libcdata_tree_node_t *orphan_item_tree_node      = NULL;
+	libpff_internal_file_t *internal_file            = NULL;
+	libpff_item_descriptor_t *orphan_item_descriptor = NULL;
+	static char *function                            = "libpff_file_get_orphan_item";
+
+	if( file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libpff_internal_file_t *) file;
+
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( orphan_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid orphan item.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_list_get_value_by_index(
+	     internal_file->orphan_item_list,
+	     orphan_item_index,
+	     (intptr_t **) &orphan_item_tree_node,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve orphan item tree node: %d.",
+		 function,
+		 orphan_item_index );
+
+		return( -1 );
+	}
+	if( libcdata_tree_node_get_value(
+	     orphan_item_tree_node,
+	     (intptr_t **) &orphan_item_descriptor,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve orphan item descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_item_initialize(
+	     orphan_item,
+	     internal_file->file_io_handle,
+	     internal_file,
+	     orphan_item_tree_node,
+	     orphan_item_descriptor,
+	     LIBPFF_ITEM_FLAGS_DEFAULT,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create orphan item.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific recovered item
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_file_get_recovered_item(
+     libpff_file_t *file,
+     int recovered_item_index,
+     libpff_item_t **recovered_item,
+     libcerror_error_t **error )
+{
+	libcdata_tree_node_t *recovered_item_tree_node      = NULL;
+	libpff_internal_file_t *internal_file               = NULL;
+	libpff_item_descriptor_t *recovered_item_descriptor = NULL;
+	static char *function                               = "libpff_file_get_recovered_item";
+
+	if( file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libpff_internal_file_t *) file;
+
+	if( internal_file->file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( recovered_item == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid recovered item.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_list_get_value_by_index(
+	     internal_file->recovered_item_list,
+	     recovered_item_index,
+	     (intptr_t **) &recovered_item_tree_node,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve recovered item tree node: %d.",
+		 function,
+		 recovered_item_index );
+
+		return( -1 );
+	}
+	if( libcdata_tree_node_get_value(
+	     recovered_item_tree_node,
+	     (intptr_t **) &recovered_item_descriptor,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve recovered item descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_item_initialize(
+	     recovered_item,
+	     internal_file->file_io_handle,
+	     internal_file,
+	     recovered_item_tree_node,
+	     recovered_item_descriptor,
+	     LIBPFF_ITEM_FLAGS_DEFAULT,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create recovered item.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the number of sets values
  * Returns 1 if successful or -1 on error
  */

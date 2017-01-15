@@ -1,5 +1,5 @@
 /*
- * Python object definition of the folder type libpff item
+ * Python object wrapper of libpff_item_t type LIBPFF_ITEM_TYPE_FOLDER
  *
  * Copyright (C) 2008-2017, Joachim Metz <joachim.metz@gmail.com>
  *

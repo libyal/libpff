@@ -33,6 +33,20 @@ extern "C" {
 #endif
 
 LIBPFF_EXTERN \
+int libpff_file_get_orphan_item(
+     libpff_file_t *file,
+     int orphan_item_index,
+     libpff_item_t **orphan_item,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_file_get_recovered_item(
+     libpff_file_t *file,
+     int recovered_item_index,
+     libpff_item_t **recovered_item,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
 int libpff_item_get_number_of_sets(
      libpff_item_t *item,
      uint32_t *number_of_sets,

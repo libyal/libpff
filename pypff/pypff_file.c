@@ -1972,7 +1972,7 @@ PyObject *pypff_file_get_orphan_item_by_index(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_file_get_orphan_item(
+	result = libpff_file_get_orphan_item_by_index(
 	          ( (pypff_file_t *) pypff_file )->file,
 	          orphan_item_index,
 	          &orphan_item,

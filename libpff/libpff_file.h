@@ -267,7 +267,7 @@ int libpff_file_get_number_of_orphan_items(
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
-int libpff_file_get_orphan_item(
+int libpff_file_get_orphan_item_by_index(
      libpff_file_t *file,
      int orphan_item_index,
      libpff_item_t **orphan_item,
@@ -280,7 +280,7 @@ int libpff_file_get_number_of_recovered_items(
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
-int libpff_file_get_recovered_item(
+int libpff_file_get_recovered_item_by_index(
      libpff_file_t *file,
      int recovered_item_index,
      libpff_item_t **recovered_item,

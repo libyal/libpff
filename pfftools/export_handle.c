@@ -14320,7 +14320,7 @@ int export_handle_export_orphan_items(
 			{
 				return( -1 );
 			}
-			if( libpff_file_get_orphan_item(
+			if( libpff_file_get_orphan_item_by_index(
 			     file,
 			     orphan_item_iterator,
 			     &pff_orphan_item,
@@ -14516,7 +14516,7 @@ int export_handle_export_recovered_items(
 			{
 				return( -1 );
 			}
-			if( libpff_file_get_recovered_item(
+			if( libpff_file_get_recovered_item_by_index(
 			     file,
 			     recovered_item_iterator,
 			     &pff_recovered_item,

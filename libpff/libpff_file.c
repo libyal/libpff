@@ -2615,7 +2615,7 @@ int libpff_file_get_number_of_orphan_items(
 /* Retrieves a specific orphan item
  * Returns 1 if successful or -1 on error
  */
-int libpff_file_get_orphan_item(
+int libpff_file_get_orphan_item_by_index(
      libpff_file_t *file,
      int orphan_item_index,
      libpff_item_t **orphan_item,
@@ -2624,7 +2624,7 @@ int libpff_file_get_orphan_item(
 	libcdata_tree_node_t *orphan_item_tree_node      = NULL;
 	libpff_internal_file_t *internal_file            = NULL;
 	libpff_item_descriptor_t *orphan_item_descriptor = NULL;
-	static char *function                            = "libpff_file_get_orphan_item";
+	static char *function                            = "libpff_file_get_orphan_item_by_index";
 
 	if( file == NULL )
 	{
@@ -2767,7 +2767,7 @@ int libpff_file_get_number_of_recovered_items(
 /* Retrieves a specific recovered item
  * Returns 1 if successful or -1 on error
  */
-int libpff_file_get_recovered_item(
+int libpff_file_get_recovered_item_by_index(
      libpff_file_t *file,
      int recovered_item_index,
      libpff_item_t **recovered_item,
@@ -2776,7 +2776,7 @@ int libpff_file_get_recovered_item(
 	libcdata_tree_node_t *recovered_item_tree_node      = NULL;
 	libpff_internal_file_t *internal_file               = NULL;
 	libpff_item_descriptor_t *recovered_item_descriptor = NULL;
-	static char *function                               = "libpff_file_get_recovered_item";
+	static char *function                               = "libpff_file_get_recovered_item_by_index";
 
 	if( file == NULL )
 	{

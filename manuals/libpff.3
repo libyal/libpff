@@ -95,11 +95,11 @@ File functions
 .Ft int
 .Fn libpff_file_get_number_of_orphan_items "libpff_file_t *file, int *number_of_orphan_items, libpff_error_t **error"
 .Ft int
-.Fn libpff_file_get_orphan_item "libpff_file_t *file, int orphan_item_index, libpff_item_t **orphan_item, libpff_error_t **error"
+.Fn libpff_file_get_orphan_item_by_index "libpff_file_t *file, int orphan_item_index, libpff_item_t **orphan_item, libpff_error_t **error"
 .Ft int
 .Fn libpff_file_get_number_of_recovered_items "libpff_file_t *file, int *number_of_recovered_items, libpff_error_t **error"
 .Ft int
-.Fn libpff_file_get_recovered_item "libpff_file_t *file, int recovered_item_index, libpff_item_t **recovered_item, libpff_error_t **error"
+.Fn libpff_file_get_recovered_item_by_index "libpff_file_t *file, int recovered_item_index, libpff_item_t **recovered_item, libpff_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
