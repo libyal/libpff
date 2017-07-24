@@ -37,13 +37,12 @@ DPKG_FILES = \
 	dpkg/compat \
 	dpkg/control \
 	dpkg/copyright \
-	dpkg/copyright.in \
 	dpkg/rules \
-	dpkg/libpff.docs \
-	dpkg/libpff-dev.docs \
-	dpkg/libpff-python.docs \
-	dpkg/libpff-python3.docs \
-	dpkg/libpff-tools.docs \
+	dpkg/libpff.install \
+	dpkg/libpff-dev.install \
+	dpkg/libpff-python.install \
+	dpkg/libpff-python3.install \
+	dpkg/libpff-tools.install \
 	dpkg/source/format
 
 GETTEXT_FILES = \

@@ -1,23 +1,24 @@
 Source: libpff
-Section: libs
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
-Build-Depends: debhelper (>= 7), autotools-dev, zlib1g-dev, python-all-dev, python3-all-dev
+Build-Depends: debhelper (>= 9), dh-autoreconf, pkg-config, zlib1g-dev, python-dev, python3-dev
 Standards-Version: 3.9.5
-Homepage: https://github.com/libyal/libpff/
+Section: libs
+Homepage: https://github.com/libyal/libpff
 
 Package: libpff
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: libpff-dbg
-Description: Library to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format. PFF is used in PAB (Personal Address Book), PST (Personal Storage Table) and OST (Offline Storage Table) files.
- libpff is a library to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format. PFF is used in PAB (Personal Address Book), PST (Personal Storage Table) and OST (Offline Storage Table) files.
+Description: Library to access the Personal Folder File (OST, PAB and PST) format
+ libpff is a library to access the Personal Folder File (OST, PAB and PST) format.
 
 Package: libpff-dbg
 Architecture: any
 Section: debug
 Depends: libpff (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libpff
+ Debugging symbols for libpff.
 
 Package: libpff-dev
 Section: libdevel
@@ -31,7 +32,14 @@ Section: utils
 Architecture: any
 Depends: libpff (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Several tools for reading Personal Folder Files (OST, PAB and PST)
- Several tools for reading Personal Folder Files (OST, PAB and PST)
+ Several tools for reading Personal Folder Files (OST, PAB and PST).
+
+Package: libpff-tools-dbg
+Section: debug
+Architecture: any
+Depends: libpff-tools (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libpff-tools
+ Debugging symbols for libpff-tools.
 
 Package: libpff-python
 Section: python
