@@ -18,6 +18,7 @@ MSVSCPP_FILES = \
 	libpff/libpff.vcproj \
 	libuna/libuna.vcproj \
 	pff_test_attached_file_io_handle/pff_test_attached_file_io_handle.vcproj \
+	pff_test_attachment/pff_test_attachment.vcproj \
 	pff_test_column_definition/pff_test_column_definition.vcproj \
 	pff_test_data_array/pff_test_data_array.vcproj \
 	pff_test_data_array_entry/pff_test_data_array_entry.vcproj \
@@ -26,6 +27,7 @@ MSVSCPP_FILES = \
 	pff_test_descriptors_index/pff_test_descriptors_index.vcproj \
 	pff_test_error/pff_test_error.vcproj \
 	pff_test_file/pff_test_file.vcproj \
+	pff_test_folder/pff_test_folder.vcproj \
 	pff_test_index/pff_test_index.vcproj \
 	pff_test_index_node/pff_test_index_node.vcproj \
 	pff_test_index_value/pff_test_index_value.vcproj \
@@ -36,6 +38,7 @@ MSVSCPP_FILES = \
 	pff_test_local_descriptor_node/pff_test_local_descriptor_node.vcproj \
 	pff_test_local_descriptor_value/pff_test_local_descriptor_value.vcproj \
 	pff_test_local_descriptors/pff_test_local_descriptors.vcproj \
+	pff_test_message/pff_test_message.vcproj \
 	pff_test_multi_value/pff_test_multi_value.vcproj \
 	pff_test_name_to_id_map_entry/pff_test_name_to_id_map_entry.vcproj \
 	pff_test_notify/pff_test_notify.vcproj \
