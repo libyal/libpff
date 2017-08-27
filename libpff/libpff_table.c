@@ -662,7 +662,7 @@ on_error:
 	if( record_set != NULL )
 	{
 		libpff_internal_record_set_free(
-		 &record_set,
+		 (libpff_internal_record_set_t **) &record_set,
 		 NULL );
 	}
 	if( last_number_of_entries != number_of_entries )

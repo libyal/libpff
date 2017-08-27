@@ -2525,13 +2525,13 @@ int main(
 		 pff_test_file_signal_abort,
 		 file );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 		/* TODO: add tests for libpff_file_open_read */
 
 		/* TODO: add tests for libpff_file_read_allocation_tables */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 		/* TODO: add tests for libpff_file_is_corrupted */
 

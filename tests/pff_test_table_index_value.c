@@ -35,7 +35,7 @@
 
 #include "../libpff/libpff_table_index_value.h"
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 /* Tests the libpff_table_index_value_initialize function
  * Returns 1 if successful or 0 if not
@@ -270,7 +270,7 @@ on_error:
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -287,7 +287,7 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	PFF_TEST_RUN(
 	 "libpff_table_index_value_initialize",
@@ -297,7 +297,7 @@ int main(
 	 "libpff_table_index_value_free",
 	 pff_test_table_index_value_free );
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

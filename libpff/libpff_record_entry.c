@@ -653,6 +653,7 @@ int libpff_record_entry_set_value_data_from_list(
 	     &value_data_stream,
 	     value_data_list,
 	     value_data_cache,
+	     LIBPFF_DESCRIPTOR_DATA_STREAM_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

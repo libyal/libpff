@@ -35,7 +35,7 @@
 
 #include "../libpff/libpff_record_entry.h"
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 /* Tests the libpff_record_entry_initialize function
  * Returns 1 if successful or 0 if not
@@ -73,8 +73,8 @@ int pff_test_record_entry_initialize(
          "error",
          error );
 
-	result = libpff_record_entry_free(
-	          &record_entry,
+	result = libpff_internal_record_entry_free(
+	          (libpff_internal_record_entry_t **) &record_entry,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -151,8 +151,8 @@ int pff_test_record_entry_initialize(
 
 			if( record_entry != NULL )
 			{
-				libpff_record_entry_free(
-				 &record_entry,
+				libpff_internal_record_entry_free(
+				 (libpff_internal_record_entry_t **) &record_entry,
 				 NULL );
 			}
 		}
@@ -194,8 +194,8 @@ int pff_test_record_entry_initialize(
 
 			if( record_entry != NULL )
 			{
-				libpff_record_entry_free(
-				 &record_entry,
+				libpff_internal_record_entry_free(
+				 (libpff_internal_record_entry_t **) &record_entry,
 				 NULL );
 			}
 		}
@@ -230,14 +230,14 @@ on_error:
 	}
 	if( record_entry != NULL )
 	{
-		libpff_record_entry_free(
-		 &record_entry,
+		libpff_internal_record_entry_free(
+		 (libpff_internal_record_entry_t **) &record_entry,
 		 NULL );
 	}
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* Tests the libpff_record_entry_free function
  * Returns 1 if successful or 0 if not
@@ -277,9 +277,9 @@ on_error:
 	return( 0 );
 }
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -296,19 +296,19 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	PFF_TEST_RUN(
 	 "libpff_record_entry_initialize",
 	 pff_test_record_entry_initialize );
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	PFF_TEST_RUN(
 	 "libpff_record_entry_free",
 	 pff_test_record_entry_free );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	/* TODO: add tests for libpff_record_entry_clone */
 
@@ -376,7 +376,7 @@ int main(
 
 	/* TODO: add tests for libpff_record_entry_get_multi_value */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

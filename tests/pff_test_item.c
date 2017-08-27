@@ -73,9 +73,9 @@ on_error:
 	return( 0 );
 }
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -92,17 +92,17 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	/* TODO: add tests for libpff_item_initialize */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	PFF_TEST_RUN(
 	 "libpff_item_free",
 	 pff_test_item_free );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	/* TODO: add tests for libpff_item_clone */
 
@@ -124,7 +124,7 @@ int main(
 
 	/* TODO: add tests for libpff_item_get_sub_item_by_identifier */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

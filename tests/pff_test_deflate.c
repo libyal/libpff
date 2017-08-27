@@ -207,7 +207,7 @@ uint8_t pff_test_deflate_compressed_byte_stream[ 2627 ] = {
 	0x7d, 0x8a, 0x87, 0xf9, 0x9d, 0x74, 0x33, 0x0e, 0x79, 0xc5, 0xf8, 0x73, 0xcd, 0xff, 0x00, 0x30,
 	0x4a, 0x56, 0xa4 };
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 /* Tests the libpff_deflate_decompress function
  * Returns 1 if successful or 0 if not
@@ -324,7 +324,7 @@ on_error:
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -350,7 +350,7 @@ int main(
 	 NULL );
 #endif
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	/* TODO add tests for libpff_deflate_bit_stream_get_value */
 
@@ -366,7 +366,7 @@ int main(
 	 "libpff_deflate_decompress",
 	 pff_test_deflate_decompress );
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

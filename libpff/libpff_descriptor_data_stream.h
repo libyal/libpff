@@ -48,6 +48,10 @@ struct libpff_descriptor_data_stream_data_handle
 	/* The descriptor data cache
 	 */
 	libfcache_cache_t *descriptor_data_cache;
+
+	/* The flags
+	 */
+	uint8_t flags;
 };
 
 int libpff_descriptor_data_stream_data_handle_initialize(
@@ -86,6 +90,7 @@ int libpff_descriptor_data_stream_initialize(
      libfdata_stream_t **descriptor_data_stream,
      libfdata_list_t *descriptor_data_list,
      libfcache_cache_t *descriptor_data_cache,
+     uint8_t flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

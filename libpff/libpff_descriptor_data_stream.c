@@ -24,6 +24,7 @@
 #include <types.h>
 
 #include "libpff_data_block.h"
+#include "libpff_definitions.h"
 #include "libpff_descriptor_data_stream.h"
 #include "libpff_libcerror.h"
 #include "libpff_libfcache.h"
@@ -111,6 +112,7 @@ int libpff_descriptor_data_stream_data_handle_free(
      libcerror_error_t **error )
 {
 	static char *function = "libpff_descriptor_data_stream_data_handle_free";
+	int result            = 1;
 
 	if( data_handle == NULL )
 	{
@@ -125,13 +127,47 @@ int libpff_descriptor_data_stream_data_handle_free(
 	}
 	if( *data_handle != NULL )
 	{
-/* TODO free list and cache ? */
+		if( ( *data_handle )->flags == LIBPFF_DESCRIPTOR_DATA_STREAM_DATA_HANDLE_FLAG_MANAGED )
+		{
+			if( ( *data_handle )->descriptor_data_cache != NULL )
+			{
+				if( libfcache_cache_free(
+				     &( ( *data_handle )->descriptor_data_cache ),
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to free descriptor data cache.",
+					 function );
+
+					result = -1;
+				}
+			}
+			if( ( *data_handle )->descriptor_data_list != NULL )
+			{
+				if( libfdata_list_free(
+				     &( ( *data_handle )->descriptor_data_list ),
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to free descriptor data list.",
+					 function );
+
+					result = -1;
+				}
+			}
+		}
 		memory_free(
 		 *data_handle );
 
 		*data_handle = NULL;
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Clones (duplicates) the data handle
@@ -405,6 +441,7 @@ int libpff_descriptor_data_stream_initialize(
      libfdata_stream_t **descriptor_data_stream,
      libfdata_list_t *descriptor_data_list,
      libfcache_cache_t *descriptor_data_cache,
+     uint8_t flags,
      libcerror_error_t **error )
 {
 	libpff_descriptor_data_stream_data_handle_t *data_handle = NULL;
@@ -556,6 +593,7 @@ int libpff_descriptor_data_stream_initialize(
 	}
 	data_handle->descriptor_data_list  = descriptor_data_list;
 	data_handle->descriptor_data_cache = descriptor_data_cache;
+	data_handle->flags                 = flags;
 
 	return( 1 );
 

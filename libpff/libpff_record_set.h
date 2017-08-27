@@ -59,7 +59,7 @@ int libpff_record_set_free(
      libcerror_error_t **error );
 
 int libpff_internal_record_set_free(
-     libpff_record_set_t **record_set,
+     libpff_internal_record_set_t **internal_record_set,
      libcerror_error_t **error );
 
 int libpff_record_set_clone(

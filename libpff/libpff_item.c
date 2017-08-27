@@ -2121,6 +2121,7 @@ int libpff_internal_item_get_embedded_object_data(
 	     &( internal_item->embedded_object_data_stream ),
 	     embedded_object_data_list,
 	     embedded_object_data_cache,
+	     LIBPFF_DESCRIPTOR_DATA_STREAM_DATA_HANDLE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

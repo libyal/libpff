@@ -48,13 +48,13 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	/* TODO: add tests for libpff_message_initialize_sub_item_attachments */
 
 	/* TODO: add tests for libpff_message_initialize_sub_item_recipients */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	/* TODO: add tests for libpff_message_get_entry_value_utf8_string_size */
 
@@ -72,13 +72,13 @@ int main(
 
 	/* TODO: add tests for libpff_message_get_modification_time */
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	/* TODO: add tests for libpff_message_determine_attachment */
 
 	/* TODO: add tests for libpff_message_determine_attachments */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	/* TODO: add tests for libpff_message_get_number_of_attachments */
 
@@ -86,11 +86,11 @@ int main(
 
 	/* TODO: add tests for libpff_message_get_attachments */
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	/* TODO: add tests for libpff_message_determine_recipients */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	/* TODO: add tests for libpff_message_get_recipients */
 

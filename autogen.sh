@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script to generate ./configure using the autotools
 #
-# Version: 20170723
+# Version: 20170724
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -53,17 +53,10 @@ AUTORECONF="${BINDIR}/autoreconf";
 LIBTOOLIZE="${BINDIR}/libtoolize";
 PKGCONFIG="${BINDIR}/pkg-config";
 
-if test "${OSTYPE}" != "msys" && ! test -x "${PKGCONFIG}";
-then
-	echo "Unable to find: pkg-config";
-
-	exit ${EXIT_FAILURE};
-fi
-
 if test "${OSTYPE}" = "msys";
 then
-	# Work-around autopoint failing to detect gettext version
-	# using func_trace which is not available on MSYS by writing
+	# Work-around for autopoint failing to detect gettext version
+	# using func_trace (which is not available) on MSYS by writing
 	# the gettext version to intl/VERSION.
 	if ! test -d intl;
 	then
@@ -72,6 +65,12 @@ then
 	GETTEXT_VERSION=`gettext --version | head -n1 | sed 's/^.* //'`;
 
 	echo "gettext-${GETTEXT_VERSION}" > intl/VERSION;
+
+elif ! test -x "${PKGCONFIG}";
+then
+	echo "Unable to find: pkg-config";
+
+	exit ${EXIT_FAILURE};
 fi
 
 if test -x "${AUTORECONF}";

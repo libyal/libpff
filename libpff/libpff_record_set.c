@@ -219,14 +219,13 @@ int libpff_record_set_free(
  * Returns 1 if successful or -1 on error
  */
 int libpff_internal_record_set_free(
-     libpff_record_set_t **record_set,
+     libpff_internal_record_set_t **internal_record_set,
      libcerror_error_t **error )
 {
-	libpff_internal_record_set_t *internal_record_set = NULL;
-	static char *function                             = "libpff_internal_record_set_free";
-	int result                                        = 1;
+	static char *function = "libpff_internal_record_set_free";
+	int result            = 1;
 
-	if( record_set == NULL )
+	if( internal_record_set == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -237,13 +236,10 @@ int libpff_internal_record_set_free(
 
 		return( -1 );
 	}
-	if( *record_set != NULL )
+	if( *internal_record_set != NULL )
 	{
-		internal_record_set = (libpff_internal_record_set_t *) *record_set;
-		*record_set         = NULL;
-
 		if( libcdata_array_free(
-		     &( internal_record_set->entries_array ),
+		     &( ( *internal_record_set )->entries_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_internal_record_entry_free,
 		     error ) != 1 )
 		{
@@ -257,7 +253,9 @@ int libpff_internal_record_set_free(
 			result = -1;
 		}
 		memory_free(
-		 internal_record_set );
+		 *internal_record_set );
+
+		*internal_record_set = NULL;
 	}
 	return( result );
 }
@@ -360,7 +358,7 @@ on_error:
 	if( internal_destination_record_set != NULL )
 	{
 		libpff_internal_record_set_free(
-		 (libpff_record_set_t **) &internal_destination_record_set,
+		 &internal_destination_record_set,
 		 NULL );
 	}
 	return( -1 );

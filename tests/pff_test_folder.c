@@ -58,7 +58,7 @@ int main(
 
 	/* TODO: add tests for libpff_folder_get_utf16_name */
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	/* TODO: add tests for libpff_folder_determine_sub_folders */
 
@@ -68,7 +68,7 @@ int main(
 
 	/* TODO: add tests for libpff_folder_determine_unknowns */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	/* TODO: add tests for libpff_folder_get_number_of_sub_folders */
 

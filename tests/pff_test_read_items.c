@@ -64,7 +64,7 @@ int pff_test_read_items(
 		 stderr,
 		 "Unable to retrieve display name size.\n" );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libpff_item_get_number_of_sub_items(
 	     item,
@@ -75,7 +75,7 @@ int pff_test_read_items(
 		 stderr,
 		 "Unable to retrieve number of sub items.\n" );
 
-		return( -1 );
+		goto on_error;
 	}
 	for( sub_item_index = 0;
 	     sub_item_index < number_of_sub_items;
@@ -193,6 +193,16 @@ int main( int argc, char * const argv[] )
 
 			goto on_error;
 		}
+		if( libpff_item_free(
+		     &item,
+		     &error ) != 1 )
+		{
+			fprintf(
+			 stderr,
+			 "Unable to free item.\n" );
+
+			goto on_error;
+		}
 		if( libpff_file_recover_items(
 		     file,
 		     0,
@@ -250,6 +260,12 @@ on_error:
 		 stderr );
 		libpff_error_free(
 		 &error );
+	}
+	if( item != NULL )
+	{
+		libpff_item_free(
+		 &item,
+		 NULL );
 	}
 	if( file != NULL )
 	{
