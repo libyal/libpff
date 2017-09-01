@@ -64,13 +64,13 @@ int pff_test_data_array_entry_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "data_array_entry",
-         data_array_entry );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "data_array_entry",
+	 data_array_entry );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_data_array_entry_free(
 	          &data_array_entry,
@@ -81,13 +81,13 @@ int pff_test_data_array_entry_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "data_array_entry",
-         data_array_entry );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "data_array_entry",
+	 data_array_entry );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -100,9 +100,9 @@ int pff_test_data_array_entry_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -118,9 +118,9 @@ int pff_test_data_array_entry_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -252,9 +252,9 @@ int pff_test_data_array_entry_free(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -292,13 +292,13 @@ int pff_test_data_array_entry_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "source_data_array_entry",
-         source_data_array_entry );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "source_data_array_entry",
+	 source_data_array_entry );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test regular cases
 	 */
@@ -312,13 +312,13 @@ int pff_test_data_array_entry_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "destination_data_array_entry",
-         destination_data_array_entry );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "destination_data_array_entry",
+	 destination_data_array_entry );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_data_array_entry_free(
 	          &destination_data_array_entry,
@@ -329,13 +329,13 @@ int pff_test_data_array_entry_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "destination_data_array_entry",
-         destination_data_array_entry );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "destination_data_array_entry",
+	 destination_data_array_entry );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_data_array_entry_clone(
 	          &destination_data_array_entry,
@@ -347,13 +347,13 @@ int pff_test_data_array_entry_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "destination_data_array_entry",
-         destination_data_array_entry );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "destination_data_array_entry",
+	 destination_data_array_entry );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -367,9 +367,9 @@ int pff_test_data_array_entry_clone(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -385,13 +385,13 @@ int pff_test_data_array_entry_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "source_data_array_entry",
-         source_data_array_entry );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "source_data_array_entry",
+	 source_data_array_entry );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
 

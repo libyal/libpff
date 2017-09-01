@@ -57,9 +57,9 @@ int pff_test_data_array_free(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

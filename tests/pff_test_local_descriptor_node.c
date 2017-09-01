@@ -64,13 +64,13 @@ int pff_test_local_descriptor_node_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "local_descriptor_node",
-         local_descriptor_node );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "local_descriptor_node",
+	 local_descriptor_node );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_local_descriptor_node_free(
 	          &local_descriptor_node,
@@ -81,13 +81,13 @@ int pff_test_local_descriptor_node_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "local_descriptor_node",
-         local_descriptor_node );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "local_descriptor_node",
+	 local_descriptor_node );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -100,9 +100,9 @@ int pff_test_local_descriptor_node_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -118,9 +118,9 @@ int pff_test_local_descriptor_node_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -252,9 +252,9 @@ int pff_test_local_descriptor_node_free(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

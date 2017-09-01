@@ -64,13 +64,13 @@ int pff_test_column_definition_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "column_definition",
-         column_definition );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "column_definition",
+	 column_definition );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_column_definition_free(
 	          &column_definition,
@@ -81,13 +81,13 @@ int pff_test_column_definition_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "column_definition",
-         column_definition );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "column_definition",
+	 column_definition );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -100,9 +100,9 @@ int pff_test_column_definition_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -118,9 +118,9 @@ int pff_test_column_definition_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -252,9 +252,9 @@ int pff_test_column_definition_free(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

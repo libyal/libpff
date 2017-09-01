@@ -64,13 +64,13 @@ int pff_test_local_descriptor_value_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "local_descriptor_value",
-         local_descriptor_value );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "local_descriptor_value",
+	 local_descriptor_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_local_descriptor_value_free(
 	          &local_descriptor_value,
@@ -81,13 +81,13 @@ int pff_test_local_descriptor_value_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "local_descriptor_value",
-         local_descriptor_value );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "local_descriptor_value",
+	 local_descriptor_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -100,9 +100,9 @@ int pff_test_local_descriptor_value_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -118,9 +118,9 @@ int pff_test_local_descriptor_value_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -252,9 +252,9 @@ int pff_test_local_descriptor_value_free(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -292,13 +292,13 @@ int pff_test_local_descriptor_value_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "source_local_descriptor_value",
-         source_local_descriptor_value );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "source_local_descriptor_value",
+	 source_local_descriptor_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test regular cases
 	 */
@@ -312,13 +312,13 @@ int pff_test_local_descriptor_value_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "destination_local_descriptor_value",
-         destination_local_descriptor_value );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "destination_local_descriptor_value",
+	 destination_local_descriptor_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_local_descriptor_value_free(
 	          &destination_local_descriptor_value,
@@ -329,13 +329,13 @@ int pff_test_local_descriptor_value_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "destination_local_descriptor_value",
-         destination_local_descriptor_value );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "destination_local_descriptor_value",
+	 destination_local_descriptor_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_local_descriptor_value_clone(
 	          &destination_local_descriptor_value,
@@ -347,13 +347,13 @@ int pff_test_local_descriptor_value_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "destination_local_descriptor_value",
-         destination_local_descriptor_value );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "destination_local_descriptor_value",
+	 destination_local_descriptor_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -367,9 +367,9 @@ int pff_test_local_descriptor_value_clone(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -385,13 +385,13 @@ int pff_test_local_descriptor_value_clone(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "source_local_descriptor_value",
-         source_local_descriptor_value );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "source_local_descriptor_value",
+	 source_local_descriptor_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
 

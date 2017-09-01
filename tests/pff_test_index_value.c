@@ -65,13 +65,13 @@ int pff_test_index_value_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "index_value",
-         index_value );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "index_value",
+	 index_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_index_value_free(
 	          &index_value,
@@ -82,13 +82,13 @@ int pff_test_index_value_initialize(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "index_value",
-         index_value );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "index_value",
+	 index_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -101,9 +101,9 @@ int pff_test_index_value_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -119,9 +119,9 @@ int pff_test_index_value_initialize(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -253,9 +253,9 @@ int pff_test_index_value_free(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -293,13 +293,13 @@ int pff_test_index_value_compare(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "first_index_value",
-         first_index_value );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "first_index_value",
+	 first_index_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_index_value_initialize(
 	          &second_index_value,
@@ -310,13 +310,13 @@ int pff_test_index_value_compare(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "second_index_value",
-         second_index_value );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "second_index_value",
+	 second_index_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test regular cases
 	 */
@@ -330,9 +330,9 @@ int pff_test_index_value_compare(
 	 result,
 	 LIBFDATA_COMPARE_EQUAL );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -346,9 +346,9 @@ int pff_test_index_value_compare(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -363,9 +363,9 @@ int pff_test_index_value_compare(
 	 result,
 	 -1 );
 
-        PFF_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -381,13 +381,13 @@ int pff_test_index_value_compare(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "second_index_value",
-         second_index_value );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "second_index_value",
+	 second_index_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libpff_index_value_free(
 	          &first_index_value,
@@ -398,13 +398,13 @@ int pff_test_index_value_compare(
 	 result,
 	 1 );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "first_index_value",
-         first_index_value );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "first_index_value",
+	 first_index_value );
 
-        PFF_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
 
