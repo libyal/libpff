@@ -1,3 +1,7 @@
+dnl Checks for required headers and functions
+dnl
+dnl Version: 20170917
+
 dnl Function to detect if libpff dependencies are available
 AC_DEFUN([AX_LIBPFF_CHECK_LOCAL],
   [dnl Check for internationalization functions in libpff/libpff_i18n.c 
@@ -37,6 +41,16 @@ AC_DEFUN([AX_PFFTOOLS_CHECK_LOCAL],
    [AC_MSG_FAILURE(
      [Missing function: close],
      [1])
+  ])
+
+  dnl Headers included in pfftools/log_handle.c
+  AC_CHECK_HEADERS([stdarg.h varargs.h])
+
+  AS_IF(
+    [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
+    [AC_MSG_FAILURE(
+      [Missing headers: stdarg.h and varargs.h],
+      [1])
   ])
 
   dnl Check if tools should be build as static executables
