@@ -1,6 +1,6 @@
 # Script that synchronizes zlib.
 #
-# Version: 20170114
+# Version: 20171105
 
 Function DownloadFile($Url, $Destination)
 {
@@ -49,6 +49,8 @@ If (Test-Path ${ExtractedPath})
 	Remove-Item -Path ${ExtractedPath} -Force -Recurse
 }
 ExtractZip -Filename ${Filename}
+
+Remove-Item -Path ${Filename} -Force
 
 If (Test-Path ${DestinationPath})
 {
