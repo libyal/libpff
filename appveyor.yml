@@ -46,6 +46,8 @@ install:
     C:\cygwin64\setup-x86_64.exe -qgnNdO -l C:\cygwin64\var\cache\setup -R c:\cygwin64 -s http://cygwin.mirror.constant.com -P zlib-devel -P python2-devel -P python3-devel )
 - cmd: if [%TARGET%]==[mingw] (
     C:\MinGW\bin\mingw-get install libz-dev )
+- cmd: if [%TARGET%]==[mingw-w64] (
+    C:\msys64\usr\bin\pacman -S --noconfirm --needed msys/zlib-devel )
 
 build_script:
 - ps: .\synclibs.ps1

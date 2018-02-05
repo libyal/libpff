@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libpff],
- [20171129],
+ [20180205],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -105,7 +105,7 @@ AX_LIBFWNT_CHECK_ENABLE
 dnl Check if libfmapi or required headers and functions are available
 AX_LIBFMAPI_CHECK_ENABLE
 
-dnl Check for zlib compression support
+dnl Check if zlib or required headers and functions are available
 AX_ZLIB_CHECK_ENABLE
 AX_ZLIB_CHECK_UNCOMPRESS
 

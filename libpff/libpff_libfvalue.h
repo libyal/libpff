@@ -1,7 +1,7 @@
 /*
  * The libfvalue header wrapper
  *
- * Copyright (C) 2008-2017, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -32,12 +32,15 @@
 #include <libfvalue_definitions.h>
 #include <libfvalue_floating_point.h>
 #include <libfvalue_integer.h>
-#include <libfvalue_split_string.h>
+#include <libfvalue_split_utf16_string.h>
+#include <libfvalue_split_utf8_string.h>
 #include <libfvalue_string.h>
 #include <libfvalue_table.h>
 #include <libfvalue_types.h>
 #include <libfvalue_value.h>
 #include <libfvalue_value_type.h>
+#include <libfvalue_utf16_string.h>
+#include <libfvalue_utf8_string.h>
 
 #else
 
@@ -50,7 +53,7 @@
 
 #include <libfvalue.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBFVALUE ) */
 
-#endif
+#endif /* !defined( _LIBPFF_LIBFVALUE_H ) */
 
