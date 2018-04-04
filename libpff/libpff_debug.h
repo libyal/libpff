@@ -28,6 +28,7 @@
 
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
+#include "libpff_libcdata.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_types.h"
