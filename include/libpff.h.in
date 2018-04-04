@@ -1041,7 +1041,7 @@ int libpff_item_get_entry_value_floating_point_by_utf8_name(
      int record_set_index,
      uint8_t *utf8_entry_name,
      size_t utf8_entry_name_length,
-     uint64_t *entry_value,
+     double *entry_value,
      libpff_error_t **error );
 
 /* Retrieves the floating point value of a specific entry for an UTF-16 encoded name
@@ -1057,7 +1057,7 @@ int libpff_item_get_entry_value_floating_point_by_utf16_name(
      int record_set_index,
      uint16_t *utf16_entry_name,
      size_t utf16_entry_name_length,
-     uint64_t *entry_value,
+     double *entry_value,
      libpff_error_t **error );
 
 /* Retrieves the UTF-8 string size of a specific entry
