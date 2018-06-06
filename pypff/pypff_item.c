@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #endif
 
+#include "pypff_attachment.h"
 #include "pypff_error.h"
 #include "pypff_folder.h"
 #include "pypff_item.h"
@@ -75,12 +76,36 @@ PyMethodDef pypff_item_object_methods[] = {
 	  "\n"
 	  "Retrieves the number of sub items." },
 
+	{ "get_recipients",
+	  (PyCFunction) pypff_item_get_recipients,
+	  METH_NOARGS,
+	  "get_recipients() -> Object or None\n"
+	  "\n"
+	  "Loads recipients." },
+
 	{ "get_sub_item",
 	  (PyCFunction) pypff_item_get_sub_item,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "get_sub_item(sub_item_index) -> Object or None\n"
 	  "\n"
 	  "Retrieves the sub item specified by the index." },
+
+	/* Functions to access the attachments */
+
+	{ "get_number_of_attachments",
+	  (PyCFunction) pypff_message_get_number_of_attachments,
+	  METH_NOARGS,
+	  "get_number_of_attachments() -> Integer\n"
+	  "\n"
+	  "Retrieves the number of attachments." },
+
+	{ "get_attachment",
+	  (PyCFunction) pypff_message_get_attachment,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_attachment(attachment_index) -> Object or None\n"
+	  "\n"
+	  "Retrieves a specific attachment." },
+
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -122,6 +147,18 @@ PyGetSetDef pypff_item_object_get_set_definitions[] = {
 	  (getter) pypff_item_get_sub_items,
 	  (setter) 0,
 	  "The sub items.",
+	  NULL },
+
+	{ "number_of_attachments",
+	  (getter) pypff_message_get_number_of_attachments,
+	  (setter) 0,
+	  "The number of attachments.",
+	  NULL },
+
+	{ "attachments",
+	  (getter) pypff_message_get_attachments,
+	  (setter) 0,
+	  "The attachments",
 	  NULL },
 
 	/* Sentinel */
@@ -809,7 +846,7 @@ PyTypeObject *pypff_item_get_item_type_object(
                libpff_item_t *item )
 {
 	libcerror_error_t *error = NULL;
-	static char *function    = "pypff_item_get_sub_item_by_index";
+	static char *function    = "pypff_item_get_item_type_object";
 	uint8_t item_type        = 0;
 	int result               = 0;
 
@@ -873,6 +910,7 @@ PyTypeObject *pypff_item_get_item_type_object(
 			return( &pypff_folder_type_object );
 
 		case LIBPFF_ITEM_TYPE_ATTACHMENT:
+			return( &pypff_attachment_type_object );
 		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
 		case LIBPFF_ITEM_TYPE_RECIPIENTS:
 		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:
@@ -936,6 +974,7 @@ PyObject *pypff_item_get_sub_item_by_index(
 
 	if( type_object == NULL )
 	{
+
 		PyErr_Format(
 		 PyExc_IOError,
 		 "%s: unable to retrieve item type object.",
@@ -1060,4 +1099,321 @@ PyObject *pypff_item_get_sub_items(
 	}
 	return( sequence_object );
 }
+
+PyObject *pypff_item_get_recipients(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	static char *function    = "pypff_item_get_recipients";
+	PyTypeObject *type_object = NULL;
+    PyObject *res = NULL;
+    int result;
+    libpff_item_t *recipients = NULL;
+	libcerror_error_t *error   = NULL;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_recipients(
+              pypff_item->item,
+              &recipients,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve recipients.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+
+	type_object = pypff_item_get_item_type_object(recipients);
+
+	if( type_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to retrieve root item type object.",
+		 function );
+
+		goto on_error;
+	}
+	res = pypff_item_new(
+	               type_object,
+	               recipients,
+	               (PyObject *) pypff_item );
+
+	if( res == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create item object.",
+		 function );
+
+		goto on_error;
+	}
+	return( res );
+
+on_error:
+	if( recipients != NULL )
+	{
+		libpff_item_free(
+		 &recipients,
+		 NULL );
+	}
+    return ( NULL );
+}
+
+/* Retrieves the number of attachments
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_number_of_attachments(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *integer_object  = NULL;
+	libcerror_error_t *error  = NULL;
+	static char *function     = "pypff_message_get_number_of_attachments";
+	int number_of_attachments = 0;
+	int result                = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_number_of_attachments(
+	          pypff_item->item,
+	          &number_of_attachments,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of attachments.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_attachments );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_attachments );
+#endif
+	return( integer_object );
+}
+
+/* Retrieves a specific attachment by index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_attachment_by_index(
+           PyObject *pypff_item,
+           int attachment_index )
+{
+	libcerror_error_t *error  = NULL;
+	libpff_item_t *sub_item   = NULL;
+	PyObject *sub_item_object = NULL;
+	static char *function     = "pypff_message_get_attachment_by_index";
+	uint8_t sub_item_type     = 0;
+	int result                = 0;
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_attachment(
+	          ( (pypff_item_t *) pypff_item )->item,
+	          attachment_index,
+	          &sub_item,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve attachment: %d.",
+		 function,
+		 attachment_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_type(
+	          sub_item,
+	          &sub_item_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve attachment: %d type.",
+		 function,
+		 attachment_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	sub_item_object = pypff_item_new(
+	                   &pypff_attachment_type_object,
+	                   sub_item,
+	                   (PyObject *) ( (pypff_item_t *) pypff_item )->parent_object );
+
+	if( sub_item_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create attachment object.",
+		 function );
+
+		goto on_error;
+	}
+	return( sub_item_object );
+
+on_error:
+	if( sub_item != NULL )
+	{
+		libpff_item_free(
+		 &sub_item,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves a specific attachment
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_attachment(
+           pypff_item_t *pypff_item,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *sub_item_object   = NULL;
+	static char *keyword_list[] = { "attachment_index", NULL };
+	int attachment_index        = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &attachment_index ) == 0 )
+	{
+		return( NULL );
+	}
+	sub_item_object = pypff_message_get_attachment_by_index(
+	                   (PyObject *) pypff_item,
+	                   attachment_index );
+
+	return( sub_item_object );
+}
+
+/* Retrieves an items sequence and iterator object for the attachments
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_attachments(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *sub_items_object = NULL;
+	libcerror_error_t *error   = NULL;
+	static char *function      = "pypff_message_get_attachments";
+	int number_of_attachments  = 0;
+	int result                 = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_number_of_attachments(
+	          pypff_item->item,
+	          &number_of_attachments,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of attachments.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	sub_items_object = pypff_items_new(
+	                    (PyObject *) pypff_item,
+	                    &pypff_message_get_attachment_by_index,
+	                    number_of_attachments );
+
+	if( sub_items_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create sub items object.",
+		 function );
+
+		return( NULL );
+	}
+	return( sub_items_object );
+}
+
 

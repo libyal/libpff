@@ -96,6 +96,10 @@ PyObject *pypff_item_get_number_of_sub_items(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
+PyObject *pypff_item_get_recipients(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
 PyObject *pypff_item_get_sub_item_by_index(
            PyObject *pypff_item,
            int sub_item_index );
@@ -108,6 +112,24 @@ PyObject *pypff_item_get_sub_item(
 PyObject *pypff_item_get_sub_items(
            pypff_item_t *pypff_item,
            PyObject *arguments );
+
+PyObject *pypff_message_get_number_of_attachments(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_attachment_by_index(
+           PyObject *pypff_item,
+           int attachment_index );
+
+PyObject *pypff_message_get_attachment(
+           pypff_item_t *pypff_item,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pypff_message_get_attachments(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
 
 #if defined( __cplusplus )
 }
