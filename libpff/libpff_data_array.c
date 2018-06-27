@@ -361,6 +361,7 @@ int libpff_data_array_read_entries(
 	libpff_data_block_t *data_block             = NULL;
 	libpff_index_value_t *offset_index_value    = NULL;
 	static char *function                       = "libpff_data_array_read_entries";
+	size_t array_entry_data_size                = 0;
 	uint64_t array_entry_identifier             = 0;
 	uint32_t calculated_total_data_size         = 0;
 	uint32_t sub_total_data_size                = 0;
@@ -416,13 +417,14 @@ int libpff_data_array_read_entries(
 
 		return( -1 );
 	}
-	if( array_data_size > (size_t) SSIZE_MAX )
+	if( ( array_data_size < sizeof( pff_array_t ) )
+	 || ( array_data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid array data size value exceeds maximum.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid array data size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -506,8 +508,39 @@ int libpff_data_array_read_entries(
 
 		goto on_error;
 	}
+	if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+	{
+		array_entry_data_size = 4;
+	}
+	else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+	      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	{
+		array_entry_data_size = 8;
+	}
+	if( ( (size_t) number_of_array_entries * array_entry_data_size )  > array_data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid number of array entries value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
 	if( data_array->data_size == 0 )
 	{
+		if( (size_t) *total_data_size > array_data_size )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid array total data size value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
 		data_array->data_size = *total_data_size;
 	}
 	if( libcdata_array_get_number_of_entries(
@@ -562,23 +595,20 @@ int libpff_data_array_read_entries(
 	     array_entry_index < number_of_array_entries;
 	     array_entry_index++ )
 	{
-		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+		if( array_entry_data_size == 4 )
 		{
 			byte_stream_copy_to_uint32_little_endian(
 			 array_data,
 			 array_entry_identifier );
-
-			array_data += 4;
 		}
-		else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-		      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+		else if( array_entry_data_size == 8 )
 		{
 			byte_stream_copy_to_uint64_little_endian(
 			 array_data,
 			 array_entry_identifier );
-
-			array_data += 8;
 		}
+		array_data += array_entry_data_size;
+
 /* TODO handle multiple recovered offset index values */
 		if( libpff_offsets_index_get_index_value_by_identifier(
 		     offsets_index,
