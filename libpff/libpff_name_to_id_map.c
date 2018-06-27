@@ -578,7 +578,7 @@ on_error:
 int libpff_name_to_id_map_entry_read(
      libpff_name_to_id_map_entry_t *name_to_id_map_entry,
      uint8_t *name_to_id_map_entry_data,
-     size_t name_to_id_map_entry_data_size LIBPFF_ATTRIBUTE_UNUSED,
+     size_t name_to_id_map_entry_data_size,
      uint8_t *name_to_id_map_class_identifiers_data,
      size_t name_to_id_map_class_identifiers_data_size,
      uint8_t *name_to_id_map_strings_data,
@@ -598,8 +598,6 @@ int libpff_name_to_id_map_entry_read(
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint32_t name_to_id_map_entry_index                                   = 0;
 #endif
-
-	LIBPFF_UNREFERENCED_PARAMETER( name_to_id_map_entry_data_size )
 
 	if( name_to_id_map_entry == NULL )
 	{
@@ -625,6 +623,18 @@ int libpff_name_to_id_map_entry_read(
 
 		return( -1 );
 	}
+	if( ( name_to_id_map_entry_data_size < sizeof( pff_name_to_id_map_entry_t ) )
+	 || ( name_to_id_map_entry_data_size > (size_t) SSIZE_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid name to id map entry data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	if( name_to_id_map_class_identifiers_data == NULL )
 	{
 		libcerror_error_set(
@@ -636,6 +646,30 @@ int libpff_name_to_id_map_entry_read(
 
 		return( -1 );
 	}
+	if( ( name_to_id_map_class_identifiers_data_size < 16 )
+	 || ( name_to_id_map_class_identifiers_data_size > (size_t) SSIZE_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid name to id map class identifiers data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: name to id map entry data:\n",
+		 function );
+		libcnotify_print_data(
+		 name_to_id_map_entry_data,
+		 name_to_id_map_entry_data_size,
+		 0 );
+	}
+#endif
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (pff_name_to_id_map_entry_t *) name_to_id_map_entry_data )->entry_value,
 	 name_to_id_map_entry_value );
@@ -654,7 +688,7 @@ int libpff_name_to_id_map_entry_read(
 	{
 		name_to_id_map_class_identifier_index = (uint16_t) ( ( name_to_id_map_entry_type / 2 ) - 3 );
 
-		if( (size_t) ( name_to_id_map_class_identifier_index * 16 ) > name_to_id_map_class_identifiers_data_size )
+		if( (size_t) name_to_id_map_class_identifier_index >= ( ( name_to_id_map_class_identifiers_data_size - 16 ) / 16 ) )
 		{
 			libcerror_error_set(
 			 error,
@@ -742,12 +776,18 @@ int libpff_name_to_id_map_entry_read(
 		 name_to_id_map_entry_number,
 		 internal_name_to_id_map_entry->identifier );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 	/* The lowest bit of the name to id map entry type signifies
 	 * that the name to id map entry value refers to the name to id map string table or the item values
 	 */
-	if( ( name_to_id_map_entry_type & 0x0001 ) != 0 )
+	if( ( name_to_id_map_entry_type & 0x0001 ) == 0 )
+	{
+		internal_name_to_id_map_entry->type          = LIBPFF_NAME_TO_ID_MAP_ENTRY_TYPE_NUMERIC;
+		internal_name_to_id_map_entry->numeric_value = name_to_id_map_entry_value;
+		internal_name_to_id_map_entry->value_size    = 4;
+	}
+	else
 	{
 		if( internal_name_to_id_map_entry->string_value != NULL )
 		{
@@ -773,7 +813,7 @@ int libpff_name_to_id_map_entry_read(
 
 			goto on_error;
 		}
-		if( ( name_to_id_map_strings_data_size == 0 )
+		if( ( name_to_id_map_strings_data_size < 4 )
 		 || ( name_to_id_map_strings_data_size > (size_t) SSIZE_MAX ) )
 		{
 			libcerror_error_set(
@@ -785,13 +825,13 @@ int libpff_name_to_id_map_entry_read(
 
 			goto on_error;
 		}
-		if( name_to_id_map_entry_value > name_to_id_map_strings_data_size )
+		if( name_to_id_map_entry_value >= ( name_to_id_map_strings_data_size - 4 ) )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid name to id map entry value exceeds strings data size.",
+			 "%s: invalid name to id map entry value out of bounds.",
 			 function );
 
 			goto on_error;
@@ -806,7 +846,22 @@ int libpff_name_to_id_map_entry_read(
 
 		internal_name_to_id_map_entry->type = LIBPFF_NAME_TO_ID_MAP_ENTRY_TYPE_STRING;
 
-		if( (size_t) name_to_id_map_string_size <= ( name_to_id_map_strings_data_size - name_to_id_map_entry_value ) )
+		if( (size_t) name_to_id_map_string_size > ( name_to_id_map_strings_data_size - ( name_to_id_map_entry_value + 4 ) ) )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: invalid name to id map string size value out of bounds.\n",
+				 function );
+			}
+#endif
+			/* Since the string does not contain an end-of-string character and the size
+			 * does not contain a sane value mark the name to ID map entry as corrupted.
+			 */
+			internal_name_to_id_map_entry->flags |= LIBPFF_NAME_TO_ID_MAP_ENTRY_FLAG_IS_CORRUPTED;
+		}
+		else
 		{
 			result = libpff_value_type_string_contains_zero_bytes(
 				  name_to_id_map_string_data,
@@ -981,27 +1036,6 @@ int libpff_name_to_id_map_entry_read(
 			}
 #endif
 		}
-		else
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: invalid name to id map string size value out of bounds.\n",
-				 function );
-			}
-#endif
-			/* Since the string does not contain an end-of-string character and the size
-			 * does not contain a sane value mark the name to ID map entry as corrupted.
-			 */
-			internal_name_to_id_map_entry->flags |= LIBPFF_NAME_TO_ID_MAP_ENTRY_FLAG_IS_CORRUPTED;
-		}
-	}
-	else
-	{
-		internal_name_to_id_map_entry->type          = LIBPFF_NAME_TO_ID_MAP_ENTRY_TYPE_NUMERIC;
-		internal_name_to_id_map_entry->numeric_value = name_to_id_map_entry_value;
-		internal_name_to_id_map_entry->value_size    = 4;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
