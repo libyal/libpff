@@ -8049,14 +8049,16 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 		}
 		values_array_data_offset = (size_t) values_array_entry_number * (size_t) values_array_entry_size;
 
-		if( values_array_data_offset >= *values_array_data_size )
+		if( ( values_array_data_offset >= *values_array_data_size )
+		 || ( values_array_entry_size > ( *values_array_data_size - values_array_data_offset ) ) )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: invalid values array entry number value out of bounds.",
-			         function );
+				 "%s: invalid values array entry number: %" PRIu32 " value out of bounds.\n",
+			         function,
+				 values_array_entry_number );
 			}
 #endif
 			return( 0 );
