@@ -3373,7 +3373,7 @@ int export_handle_item_create_value_string_by_type(
 			goto on_error;
 		}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		if( libpff_record_entry_get_data_as_utf8_string(
+		if( libpff_record_entry_get_data_as_utf16_string(
 		     record_entry,
 		     (uint16_t *) *value_string,
 		     *value_string_size,
