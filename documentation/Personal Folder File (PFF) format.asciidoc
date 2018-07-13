@@ -1394,7 +1394,734 @@ The table block is variable of size and consists of:
 
 ==== Table block header
 
-[yellow-background]*TODO: migrate remainder of documentation*
+The table block header is 16 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The table block index offset
+| 2 | 1 | 0xec | Signature
+| 3 | 1 | | The table type (or client signature) +
+See section: <<table_types,The table types>>
+| 4 | 4 | | The table value reference
+| 8 | 4 | | [yellow-background]*Unknown (Fill level array)* +
+[yellow-background]*(8 x 4 bits entry)*
+|===
+
+Only the first table block in a table array contains a table header.
+
+According to `[MS-PST]` the fill level array only applies to the 8 first table
+blocks of the table array. The table block header of 2nd to 8th table array
+entries is 2 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The table index offset
+|===
+
+This header is repeated every table array entry not needed to contain a fill
+level array.
+
+The table header of the 9th table array entry is 66 bytes of size and consists
+of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The table index offset
+| 2 | 64 | | [yellow-background]*Unknown (Fill level array)* +
+[yellow-background]*(128 x 4 bits entry)*
+|===
+
+This header is repeated every 128 table array entries, e.g. in table array
+entry 137.
+
+According to `[MS-PST]` the fill level array entries for non existing table
+array entries should be set to 0.
+
+==== [[table_types]]The table types
+
+The following table types are currently known.
+
+[cols="1,1,5",options="header"]
+|===
+| Table type | Description | Features
+| 0x6c | 6c table | Has GUID record entry identifiers +
+Has table specific table header +
+Has b5 table header +
+Has a GUID table values array +
+| 0x7c | 7c table | (Table context) +
+Has MAPI property (based) record entry identifiers +
+Has table specific table header +
+Has b5 table header +
+Has column definitions array +
+Has a table values array
+| 0x8c | 8c table | Has MAPI property (based) record entry identifiers +
+Has b5 table header
+| 0x9c | 9c table | Has GUID record entry identifiers +
+Has table specific table header +
+Has b5 table header +
+| 0xa5 | a5 table | Has MAPI property (based) record entry identifiers
+| 0xac | ac table | Has MAPI property (based) record entry identifiers +
+Has table specific table header +
+Has b5 table header +
+Has column definitions array +
+Has a table values array
+| 0xb5 | b5 table header | (B-Tree on heap)
+| 0xbc | bc table | (Property context) +
+Has MAPI property (based) record entry identifiers +
+Has b5 table header
+| 0xcc | cc table | [yellow-background]*Unknown*
+|===
+
+==== The table fill level
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x0 | FILL_LEVEL_EMPTY | value >= 3584 bytes free or non-existent data block
+| 0x1 | FILL_LEVEL_1 | 2560 >= value > 3584 bytes free
+| 0x2 | FILL_LEVEL_2 | 2048 >= value > 2560 bytes free
+| 0x3 | FILL_LEVEL_3 | 1792 >= value > 2048 bytes free
+| 0x4 | FILL_LEVEL_4 | 1536 >= value > 1792 bytes free
+| 0x5 | FILL_LEVEL_5 | 1280 >= value > 1536 bytes free
+| 0x6 | FILL_LEVEL_6 | 1024 >= value > 1280 bytes free
+| 0x7 | FILL_LEVEL_7 | 786 >= value > 1024 bytes free
+| 0x8 | FILL_LEVEL_8 | 512 >= value > 786 bytes free
+| 0x9 | FILL_LEVEL_9 | 256 >= value > 512 bytes free
+| 0xa | FILL_LEVEL_10 | 128 >= value > 256 bytes free
+| 0xb | FILL_LEVEL_11 | 64 >= value > 128 bytes free
+| 0xc | FILL_LEVEL_12 | 32 >= value > 64 bytes free
+| 0xd | FILL_LEVEL_13 | 16 >= value > 32 bytes free
+| 0xe | FILL_LEVEL_14 | 8 >= value > 16 bytes free
+| 0xf | FILL_LEVEL_FULL | value < 8 bytes free
+|===
+
+==== The table block index
+
+The table block index is variable of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The number of index offsets
+| 2 | 2 | | The number of unused offsets items
+| 4 | (number of items + 1) x 2 | | Array of index offsets +
+An index offset contains the offset of the table block value. The index offset is relative to the start of the table block.
+|===
+
+Note that:
+
+* the first index offsets is referred to as number 1;
+* the index offsets are stored in order;
+* the last index offset does not have to match the table block index offset;
+* the number of index offsets can be 0.
+
+=== The table value reference
+
+The table value reference is formatted in different ways, it can point to data
+either in within the table block or in some other block.
+
+==== 32-bit and 64-bit table value reference
+
+The table value reference is 32-bit of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0.0  | 5 bits | | The value reference type +
+See section: <<node_identifier_types,Node identifier types>>
+| 0.5 | 11 bits | | The value reference index
+| 2.0  | 16 bits | | The value reference array index
+|===
+
+* internal table value references have the all the low order 4 bits zero e.g. 0x0020, the value needs to be right shifted by 5 bits, e.g. 0x0001. This value is the first entry in the the table index (starts at 1), so it points to a table index value offset e.g. 12 (0xc). for internal table values references the high order 16 bits are used to indicate which table array entry should be used, e.g. a high order value of 1 points to the second table array entry;
+* external table value references have some of the low order 4 bits set ([yellow-background]*and the value reference array index is 0*). They are descriptor list identifiers that refer to another location of data.
+
+[yellow-background]*TODO: Check with [MS-PST] p 56*
+
+==== 64-bit 4k page table value reference
+
+The table value reference is 32-bit of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0.0  | 5 bits | | The value reference type +
+See section: <<node_identifier_types,Node identifier types>>
+| 0.5 | 14 bits | | The value reference index
+| 2.3  | 13 bits | | The value reference array index
+|===
+
+==== Internal table value reference
+
+An internal table value reference refers to the first table index value pair
+that contain the table values descriptor.
+
+The internal table value reference for:
+
+[cols="1,5",options="header"]
+|===
+| Table type | Use of internal table value reference
+| 0x6c | points to table specific 6c table header
+| 0x7c | points to table specific 7c table header
+| 0x8c | points to b5 table header
+| 0x9c | points to table specific 9c table header
+| 0xa5 | points to record entries
+| 0xac | points to table specific ac table header
+| 0xbc | points to b5 table header
+|===
+
+=== The b5 table header
+
+The b5 table header is used in all table types except the a5 table. It contains
+information how the record entries are formatted. It consists of 8 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 1 | 0xb5 | Table header type
+| 1 | 1 | | The size of the record entry identifier +
+Either 2, 4, 8 or 16
+| 2 | 1 | | The size of the record entry value +
+0 > value >= 32
+| 3 | 1 | | The level of record entries
+| 4 | 4 | | record entries reference
+|===
+
+The record entry index reference refers to the table index value pair that
+points to record entries. If the record entries reference is zero there are no
+record entries.
+
+The level of the record entries is used to distribute the record entries over
+multiple table values. Intermediate level record entries are variable of size
+and consist of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | record entry identifier (key)
+| ... | 4 | | record entries sub reference
+|===
+
+Where leaf level record entries are variable of size and consist of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | record entry identifier (key)
+| ... | 4 | | record entry data
+|===
+
+The size of an individual record entry is the combination of the record entry
+identifier and value size.
+
+The b5 table header values differs for different tables:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Table type | record entry identifier size | record entry value size | record entry size
+| 0x6c | 16 | 2 | 18
+| 0x7c | 4 | 2 | 6
+| 0x7c | 4 | 4 | 8
+| 0x8c | 8 | 4 | 12
+| 0x9c | 16 | 4 | 20
+| 0xac | 4 | 4 | 8
+| 0xbc | 2 | 6 | 8
+|===
+
+The individual table sections provide more information about the values in the
+record entries.
+
+=== The 6c table
+
+The bc table has table values that contain:
+
+* a b5 table header
+* a 6c table header
+* record entries that contain contain GUID descriptor values and the value array information
+* value array (table) entries that contain the item value information
+
+==== The 6c table header
+
+The 6c table header consists of 8 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The b5 table header index reference
+| 4 | 4 | | Values array entries index reference
+|===
+
+==== The b5 table header entry
+
+The 6c table uses the b5 table header with a record entry identifier size of 16
+and a record entry value size of 2. The record entries reference refers to the
+record entries. If the record entries reference is zero there are no record
+entries.
+
+==== The record entries
+
+A b5 table header with a record entry identifier size of 16 and a record entry
+value size of 2 refers to a specific type of record entry. This type of record
+entry consists of 18 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 16 | | A GUID
+| 16 | 2 | | [yellow-background]*Unknown* +
+[yellow-background]*First part of the value in PRQ_ID_SECURE4*
+|===
+
+=== The 7c table
+
+The bc table has table values that contain:
+
+* a b5 table header
+* a 7c table header
+** 7c column definitions that contain the item type information
+* record entries that contain the value array information
+* value array (table) entries that contain the item value information
+
+==== The 7c table header
+
+The 7c table header consists of 22 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 1 | 0x7c | Table header type
+| 1 | 1 | | The number of column definitions
+| 2 | 2 | | values array entry end offset 32-bit values +
+End offset of the 4 or 8 byte values
+| 4 | 2 | | values array entry end offset 16-bit values +
+End offset of the 2 byte values
+| 6 | 2 | | values array entry end offset 8-bit values +
+End offset of the 1 byte values
+| 8 | 2 | | values array entry end offset cell existence block +
+[yellow-background]*(The values array entry size)*
+| 10 | 4 | | The b5 table header index reference
+| 14 | 4 | | Values array entries index reference
+| 18 | 4 | | [yellow-background]*Unknown (hidIndex)* +
+Deprecated according to [MS-PST] and should be set to 0
+|===
+
+If the b5 header table index reference is zero the table should not contain any
+record entries. If the value array entries index reference is zero the table
+does not contain any value array entries.
+
+The record entries contain references to the table value array entries. So if
+the table contains no values the value array should be empty.
+
+In some tables the b5 table header index reference contains a references to a
+b5 table header with an empty record entries reference. The value array entries
+index reference in the 7c table header is also empty.
+
+It is possible for the table to have table header entries but no values array
+entries. [yellow-background]*The reverse is unknown.*
+
+==== The 7c column definition
+
+The remaining data in the 7c table header contains multiple column definitions.
+The column definitions describe the format of the data in the values array
+entries. The 7c column definition consist of 8 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The record entry value type
+| 2 | 2 | | The record entry type
+| 4 | 2 | | The values array entry offset
+| 6 | 1 | | The values array entry size
+| 7 | 1 | | The values array entry number +
+(0 represents the first entry) +
+[yellow-background]*Cell existence bitmap index*
+|===
+
+If the table contains values array entries the values array entry offset
+contains the offset of the value in the value array (table) entries.
+
+In case of a value reference the actual value is found by reading the value
+size number of bytes from the value array entries at the specified value array
+entries offset. A value array entries offset of 0 points to the beginning of
+the value array entries.
+
+==== The b5 table header entry
+
+The 7c table uses the b5 table header with a record entry identifier size of 4
+and a record entry value size of 2 or 4. The record entries reference refers to
+the record entries. If the record entries reference is zero there are no record
+entries.
+
+==== The record entries
+
+===== The record entries branch
+
+The record entries branch has a record entries level value of 1 (and probably
+higher). The initial tables entries level is specified in the b5 table header.
+A record entry branch consists of 8 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | The first value in the lower level record entry array
+| 4 | 4 | | The value reference of the lower level record entry array
+|===
+
+The record entry branch contains a reference to lower level record entries.
+
+===== The record entries leaf
+
+The record entries leaf has a record entries level value of 0. The initial
+tables entries level is specified in the b5 table header.
+
+A b5 table header with a record entry identifier size of 4 and a record entry
+value size of 2 refers to a record entry consists of 6 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The first value in the value array
+| 4 | 2 | | Value array number
+|===
+
+A b5 table header with a record entry identifier size of 4 and a record entry
+value size of 4 refers to a record entry consists of 8 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The first value in the value array
+| 4 | 4 | | Value array number
+|===
+
+==== The values array entries
+
+The values array entries contain item entries values. The 7c header entries
+define the format of the entry/value data within an array entry. The value size
+and value array entries offset in the 7c header entries refer to the item value
+in the value arrays.
+
+The value array consist of multiple values of different sizes.
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | The 4 and 8 byte values
+| ... | ... | | The 2 byte values
+| ... | ... | | The 1 byte values
+| ... | ... | | The cell existence block bitmap +
+Every bit represent if a value (or column) exists
+|===
+
+For record entry value types that fit into the specified size the record entry
+value is used directly, i.e. 32-bit, like Integer 32-bit signed (0x0003) or
+64-bit, like Filetime (0x0040). Otherwise, the record entry value is a value
+reference, which is either a descriptor list identifier, or a table index
+reference. If the record entry value is 0 the value is empty. Unlike the bc
+table the 7c table does store values smaller than 32-bit in lesser number of
+bytes.
+
+If a values array reference is an external reference and the values array is
+stored in a data array there is additional padding at the end of the last value
+array in a certain data array block. If the data in the data array is assumed
+continuous this causes a misalignment for the value array in the next data
+array block. The value array entry identifier in the record entries can be used
+to realign.
+
+=== The 8c table
+
+The 8c table has table values that contain:
+
+* a b5 table header
+* record entries that contain identifier to descriptor mappings
+
+==== The b5 table header entry
+
+The 8c table uses the b5 table header with a record entry identifier size of 8
+and a record entry value size of 4. The record entries reference refers to the
+record entries. If the record entries reference is zero there are no record
+entries.
+
+==== The record entries
+
+A b5 table header with a record entry identifier size of 16 and a record entry
+value size of 2 refers to a specific type of record entry. This type of record
+entry consists of 18 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 8 | | [yellow-background]*Unknown (Identifier)* +
+[yellow-background]*Similar to the value in PRQ_ID_SECURE4*
+| 8 | 4 | | Descriptor identifier +
+[yellow-background]*with the last 4 bits masked as zero*
+|===
+
+=== The 9c table
+
+The 9c table has table values that contain:
+
+* a b5 table header
+* a 9c table header
+* record entries that contain GUID descriptor values
+
+==== The 9c table header
+
+The ac table header consists of 4 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | b5 table header index reference
+|===
+
+==== The b5 table header entry
+
+The 9c table uses the b5 table header with a record entry identifier size of 16
+and a record entry value size of 4. The record entries reference refers to the
+record entries. If the record entries reference is zero there are no record
+entries.
+
+==== The record entries
+
+A b5 table header with a record entry identifier size of 16 and a record entry
+value size of 4 refers to a specific type of record entry. This type of record
+entry consists of 20 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 16 | | A GUID
+| 16 | 4 | | A descriptor identifier
+|===
+
+=== The a5 table
+
+The a5 table has table values that contain:
+
+* record entries that contain record entry values
+
+The a5 table is used by the ac column definitions as an array of record entry
+values.
+
+The internal table value reference for the a5 table is 0.
+
+If the a5 table is empty it signifies NULL values;
+
+=== The ac table
+
+The ac table has table values that contain:
+
+* a b5 table header
+* a ac table header
+* ac column definitions that contain the item type information
+** a5 tables containing the actual record entry values
+* record entries that contain the value array information
+* value array (table) entries that contain the item value information
+
+==== The ac table header
+
+The ac table header consists of 40 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 1 | "\xac" | Table header type
+| 1 | 1 | | [yellow-background]*Unknown (Empty value)*
+| 2 | 2 | | values array entry end offset 32-bit values +
+End offset of the 4 or 8 byte values
+| 4 | 2 | | values array entry end offset 16-bit values +
+End offset of the 2 byte values
+| 6 | 2 | | values array entry end offset 8-bit values +
+End offset of the 1 byte values
+| 8 | 2 | | values array entry end offset cell existence block +
+[yellow-background]*(The values array entry size)*
+| 10 | 4 | | B5 table header index reference
+| 14 | 4 | | Values array entry reference
+| 18 | 4 | | [yellow-background]*Unknown (Empty value)*
+| 22 | 2 | | Number of column definitions
+| 24 | 4 | | column definitions reference
+| 28 | 8 | | [yellow-background]*Unknown (Empty value)*
+| 36 | 4 | | [yellow-background]*Unknown value (Weak CRC?)*
+|===
+
+==== The ac column definition
+
+The column definitions reference refers to the ac column definitions. The
+column definitions describe the format of the data in the values array entries.
+The ac column definition consist of 16 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The record entry value type
+| 2 | 2 | | The record entry type
+| 4 | 2 | | The values array entry offset
+| 6 | 2 | | The values array entry size
+| 8 | 2 | | The values array entry number +
+(0 represents the first entry)
+| 10 | 2 | | [yellow-background]*Unknown (Empty value)*
+| 12 | 4 | | The descriptor identifier of the record entry values table (a5 table)
+|===
+
+If the table contains values array entries the values array entry offset
+contains the offset of the value in the value array (table) entries.
+
+In case of a value reference the actual value is found by reading the value
+size number of bytes from the value array entries at the specified value array
+entries offset. A value array entries offset of 0 points to the beginning of
+the value array entries.
+
+==== The b5 table header entry
+
+The ac table uses the b5 table header with a record entry identifier size of 4
+and a record entry value size of 4. The record entries reference refers to the
+record entries. If the record entries reference is zero there are no record
+entries.
+
+[yellow-background]*It might be that the 4 + 2 variant like for the 7c table is
+also possible for the ac table.*
+
+==== The record entries
+
+===== The record entries branch
+
+The record entries branch has a record entries level value of 1
+([yellow-background]*and probably higher*). The initial tables entries level is
+specified in the b5 table header. A record entry branch consists of 8 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The first value in the lower level record entry array
+| 4 | 4 | | The value reference of the lower level record entry array
+|===
+
+The record entry branch contains a reference to lower level record entries.
+
+The record entries leaf
+The record entries leaf has a record entries level value of 0. The initial
+tables entries level is specified in the b5 table header.
+
+A b5 table header with a record entry identifier size of 4 and a record entry
+value size of 4 refers to a specific type of record entry. This type of record
+entry consists of 8 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The first value in the value array
+| 4 | 4 | | Value array number
+|===
+
+==== The values array entries
+
+The values array entries contain item entries values. The ac header entries
+define the format of the entry/value data within an array entry. The value size
+and value array entries offset in the ac header entries refer to the item value
+in the value arrays.
+
+The value array consist of multiple values of different sizes.
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | The 4 and 8 byte values
+| ... | ... | | The 2 byte values
+| ... | ... | | The 1 byte values
+| ... | ... | | The cell existence block bitmap +
+Every bit represent if a value (or column) exists
+|===
+
+For record entry value types that fit into the specified size the record entry
+value is used directly, i.e. 32-bit, like Integer 32-bit signed (0x0003) or
+64-bit, like Filetime (0x0040). Otherwise, the record entry value is a value
+reference, which is either a descriptor list identifier, or a table index
+reference. If the record entry value is 0 the value is empty. Unlike the bc
+table the ac table does store values smaller than 32-bit in lesser number of
+bytes.
+
+Some column definitions have a descriptor identifier of the record entry values
+table. This descriptor identifier refers to an a5 table which contains an array
+of record entry values. In this case the value in the values array actually
+contains an item index of the a5 table.
+
+If a values array reference is an external reference and the values array is
+stored in a data array there is additional padding at the end of the last value
+array in a certain data array block. If the data in the data array is assumed
+continuous this causes a misalignment for the value array in the next data
+array block. The value array entry identifier in the record entries can be used
+to realign.
+
+=== The bc table
+
+The bc table has table values that contain:
+
+* a b5 table header
+* record entries that contain the item type/value information
+* record entry value data
+
+==== The b5 table header entry
+
+The bc table uses the b5 table header with a record entry identifier size of 2
+and a record entry value size of 6. The record entries reference refers to the
+record entries. If the record entries reference is zero there are no record
+entries.
+
+==== The record entries
+
+===== The record entries branch
+
+The record entries branch has a record entries level value of 1 (and probably
+higher). The initial tables entries level is specified in the b5 table header.
+A record entry branch consists of 6 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The first value in the lower level record entry array
+| 2 | 4 | | The value reference of the lower level record entry array
+|===
+
+The record entry branch contains a reference to lower level record entries.
+
+===== The record entries leaf
+
+The record entries leaf has a record entries level value of 0. The initial
+tables entries level is specified in the b5 table header.
+
+The record entries in the bc table contain item entries. This type of record
+entry consists of 8 bytes:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The record entry type
+| 2 | 2 | | The record entry value type
+| 4 | 4 | | The record entry value or value reference
+|===
+
+For record entry value types that fit into 32-bit, like Integer 16-bit signed
+(0x0002), Integer 32-bit signed (0x0003), Boolean (0x000b), the record entry
+value is used directly. Otherwise, the record entry value is a value reference,
+which is either a descriptor list identifier, or a table index reference. If
+the record entry value is 0 the value is empty.
+
+=== The cc table
+
+[yellow-background]*According to `[MS-PST]` there should be a cc table, however
+it is undocumented and has not yet been spotted in the wild.*
+
+=== The item and item value types
+
+The item and item value types are defined in the MAPI definitions document.
+
+The item types are also referred to as the MAPI Property Names/Identifiers
+(PR_) or columns by scanpst. The item value types are also referred to as the
+MAPI Property (Data) Types (PT).
 
 == The PFF items
 
@@ -1456,7 +2183,7 @@ The message store is a bc table which can contain:
 The message store contains several entry identifiers of Outlook special
 folders. These are:
 
-[cols="1,1,5",options="header"]
+[cols="1,5",options="header"]
 |===
 | Folder | Entry identifier property
 | Outbox folder | PidTagIpmOutboxEntryId +
