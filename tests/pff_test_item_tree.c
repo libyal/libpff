@@ -223,6 +223,7 @@ int pff_test_item_tree_create_node(
 	          index_tree_cache,
 	          orphan_node_list,
 	          &root_folder_item_tree_node,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -282,6 +283,8 @@ int main(
 	PFF_TEST_RUN(
 	 "libpff_item_tree_create_node",
 	 pff_test_item_tree_create_node );
+
+	/* TODO: add tests for libpff_item_tree_create_leaf_node */
 
 	/* TODO: add tests for libpff_item_tree_get_identifier */
 

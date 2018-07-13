@@ -578,7 +578,7 @@ int libpff_index_node_read_data(
 					 value_64bit );
 				}
 				libcnotify_printf(
-				 "%s: entry: %03" PRIu16 " local descriptors identifier\t\t: 0x%08" PRIx64 " (%" PRIu64 ")\n",
+				 "%s: entry: %03" PRIu16 " local descriptors identifier\t: 0x%08" PRIx64 " (%" PRIu64 ")\n",
 				 function,
 				 entry_index,
 				 value_64bit,
@@ -598,7 +598,7 @@ int libpff_index_node_read_data(
 					 value_32bit );
 				}
 				libcnotify_printf(
-				 "%s: entry: %03" PRIu16 " parent identifier\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+				 "%s: entry: %03" PRIu16 " parent identifier\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 				 function,
 				 entry_index,
 				 value_32bit,
@@ -639,7 +639,7 @@ int libpff_index_node_read_data(
 						 value_64bit );
 					}
 					libcnotify_printf(
-					 "%s: entry: %03" PRIu16 " back pointer\t\t\t\t: 0x%08" PRIx64 "\n",
+					 "%s: entry: %03" PRIu16 " back pointer\t\t\t: 0x%08" PRIx64 "\n",
 					 function,
 					 entry_index,
 					 value_64bit );
@@ -677,7 +677,7 @@ int libpff_index_node_read_data(
 					}
 				}
 				libcnotify_printf(
-				 "%s: entry: %03" PRIu16 " file offset\t\t\t\t: 0x%08" PRIx64 " (%" PRIu64 ")\n",
+				 "%s: entry: %03" PRIu16 " file offset\t\t\t: 0x%08" PRIx64 " (%" PRIu64 ")\n",
 				 function,
 				 entry_index,
 				 value_64bit,
@@ -912,22 +912,22 @@ int libpff_index_node_read_footer_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: number of entries\t\t\t\t: %" PRIu16 "\n",
+		 "%s: number of entries\t\t\t: %" PRIu16 "\n",
 		 function,
 		 index_node->number_of_entries );
 
 		libcnotify_printf(
-		 "%s: maximum number of entries\t\t\t: %" PRIu16 "\n",
+		 "%s: maximum number of entries\t\t: %" PRIu16 "\n",
 		 function,
 		 index_node->maximum_number_of_entries );
 
 		libcnotify_printf(
-		 "%s: entry size\t\t\t\t\t: %" PRIu8 "\n",
+		 "%s: entry size\t\t\t\t: %" PRIu8 "\n",
 		 function,
 		 index_node->entry_size );
 
 		libcnotify_printf(
-		 "%s: node level\t\t\t\t\t: %" PRIu8 "\n",
+		 "%s: node level\t\t\t\t: %" PRIu8 "\n",
 		 function,
 		 index_node->level );
 
@@ -952,11 +952,11 @@ int libpff_index_node_read_footer_data(
 			 0 );
 		}
 		libcnotify_printf(
-		 "%s: index node type\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: index node type\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 index_node->type );
 		libcnotify_printf(
-		 "%s: index node type copy\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: index node type copy\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 index_node_type_copy );
 
@@ -966,16 +966,16 @@ int libpff_index_node_read_footer_data(
 			 ( (pff_index_node_32bit_footer_t *) data )->signature,
 			 value_16bit );
 			libcnotify_printf(
-			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
+			 "%s: signature\t\t\t\t: 0x%04" PRIx16 "\n",
 			 function,
 			 value_16bit );
 
 			libcnotify_printf(
-			 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
+			 "%s: back pointer\t\t\t: 0x%08" PRIx64 "\n",
 			 function,
 			 index_node->back_pointer );
 			libcnotify_printf(
-			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: checksum\t\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 index_node->stored_checksum );
 		}
@@ -985,16 +985,16 @@ int libpff_index_node_read_footer_data(
 			 ( (pff_index_node_64bit_footer_t *) data )->signature,
 			 value_16bit );
 			libcnotify_printf(
-			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
+			 "%s: signature\t\t\t\t: 0x%04" PRIx16 "\n",
 			 function,
 			 value_16bit );
 
 			libcnotify_printf(
-			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: checksum\t\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 index_node->stored_checksum );
 			libcnotify_printf(
-			 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
+			 "%s: back pointer\t\t\t: 0x%08" PRIx64 "\n",
 			 function,
 			 index_node->back_pointer );
 		}
@@ -1004,16 +1004,16 @@ int libpff_index_node_read_footer_data(
 			 ( (pff_index_node_64bit_4k_page_footer_t *) data )->signature,
 			 value_16bit );
 			libcnotify_printf(
-			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
+			 "%s: signature\t\t\t\t: 0x%04" PRIx16 "\n",
 			 function,
 			 value_16bit );
 
 			libcnotify_printf(
-			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: checksum\t\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 index_node->stored_checksum );
 			libcnotify_printf(
-			 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
+			 "%s: back pointer\t\t\t: 0x%08" PRIx64 "\n",
 			 function,
 			 index_node->back_pointer );
 
@@ -1021,7 +1021,7 @@ int libpff_index_node_read_footer_data(
 			 ( (pff_index_node_64bit_4k_page_footer_t *) data )->unknown1,
 			 value_64bit );
 			libcnotify_printf(
-			 "%s: unknown1\t\t\t\t\t: 0x%08" PRIx64 "\n",
+			 "%s: unknown1\t\t\t\t: 0x%08" PRIx64 "\n",
 			 function,
 			 value_64bit );
 		}

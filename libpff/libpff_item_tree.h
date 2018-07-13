@@ -61,6 +61,18 @@ int libpff_item_tree_create_node(
      libfcache_cache_t *index_tree_cache,
      libcdata_list_t *orphan_node_list,
      libcdata_tree_node_t **root_folder_item_tree_node,
+     int recursion_depth,
+     libcerror_error_t **error );
+
+int libpff_item_tree_create_leaf_node(
+     libcdata_tree_node_t *item_tree_root_node,
+     libbfio_handle_t *file_io_handle,
+     libfdata_tree_t *descriptor_index_tree,
+     libfdata_tree_node_t *descriptor_index_tree_node,
+     libfcache_cache_t *index_tree_cache,
+     libcdata_list_t *orphan_node_list,
+     libcdata_tree_node_t **root_folder_item_tree_node,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_item_tree_get_identifier(
