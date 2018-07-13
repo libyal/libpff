@@ -524,6 +524,7 @@ int libpff_local_descriptor_node_read(
 	     file_io_handle,
 	     node_offset,
 	     node_size,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

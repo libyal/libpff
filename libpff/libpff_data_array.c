@@ -691,6 +691,7 @@ int libpff_data_array_read_entries(
 		     file_io_handle,
 		     offset_index_value->file_offset,
 		     offset_index_value->data_size,
+		     io_handle->file_type,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -978,6 +979,7 @@ int libpff_data_array_read_element_data(
 	     file_io_handle,
 	     element_offset,
 	     (size32_t) element_size,
+	     data_array->io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

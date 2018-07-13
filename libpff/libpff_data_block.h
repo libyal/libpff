@@ -102,6 +102,7 @@ int libpff_data_block_read_file_io_handle(
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
      size32_t data_size,
+     uint8_t file_type,
      libcerror_error_t **error );
 
 int libpff_data_block_read_element_data(

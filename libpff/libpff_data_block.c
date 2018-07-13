@@ -514,6 +514,7 @@ int libpff_data_block_read_file_io_handle(
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
      size32_t data_size,
+     uint8_t file_type,
      libcerror_error_t **error )
 {
 	uint8_t *uncompressed_data            = NULL;
@@ -544,17 +545,6 @@ int libpff_data_block_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( data_block->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data block - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( data_block->data != NULL )
 	{
 		libcerror_error_set(
@@ -566,9 +556,9 @@ int libpff_data_block_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( ( data_block->io_handle->file_type != LIBPFF_FILE_TYPE_32BIT )
-	 && ( data_block->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT )
-	 && ( data_block->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	if( ( file_type != LIBPFF_FILE_TYPE_32BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -621,19 +611,19 @@ int libpff_data_block_read_file_io_handle(
 	}
 	if( data_size != 0 )
 	{
-		if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+		if( file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
 			data_block_footer_size    = (uint32_t) sizeof( pff_block_footer_32bit_t );
 			data_block_increment_size = 64;
 			maximum_data_block_size   = 8192;
 		}
-		else if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+		else if( file_type == LIBPFF_FILE_TYPE_64BIT )
 		{
 			data_block_footer_size    = (uint32_t) sizeof( pff_block_footer_64bit_t );
 			data_block_increment_size = 64;
 			maximum_data_block_size   = 8192;
 		}
-		else if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+		else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
 		{
 			data_block_footer_size    = (uint32_t) sizeof( pff_block_footer_64bit_4k_page_t );
 			data_block_increment_size = 512;
@@ -723,7 +713,7 @@ int libpff_data_block_read_file_io_handle(
 		     data_block,
 		     &( data_block->data[ data_block_footer_offset ] ),
 		     data_block_footer_size,
-		     data_block->io_handle->file_type,
+		     file_type,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -748,7 +738,7 @@ int libpff_data_block_read_file_io_handle(
 			}
 		}
 #endif
-		if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+		if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
 		{
 			if( ( data_block->data_size != 0 )
 			 && ( data_block->uncompressed_data_size != 0 )
@@ -931,6 +921,17 @@ int libpff_data_block_read_element_data(
 
 		return( -1 );
 	}
+	if( data_block->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data block - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( element_size > (size64_t) UINT32_MAX )
 	{
 		libcerror_error_set(
@@ -949,6 +950,7 @@ int libpff_data_block_read_element_data(
 		     file_io_handle,
 		     element_offset,
 		     (size32_t) element_size,
+		     data_block->io_handle->file_type,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

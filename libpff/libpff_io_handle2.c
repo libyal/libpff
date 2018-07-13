@@ -231,6 +231,7 @@ int libpff_io_handle_read_descriptor_data_list(
 	     file_io_handle,
 	     offset_index_value->file_offset,
 	     offset_index_value->data_size,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

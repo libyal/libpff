@@ -387,6 +387,7 @@ int libpff_recover_items(
 					          file_io_handle,
 					          offset_index_value->file_offset,
 					          offset_index_value->data_size,
+					          io_handle->file_type,
 					          error );
 
 					if( result != 1 )
