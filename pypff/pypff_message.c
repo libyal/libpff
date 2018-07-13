@@ -738,7 +738,7 @@ PyObject *pypff_message_get_client_submit_time(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_client_submit_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -797,7 +797,7 @@ PyObject *pypff_message_get_client_submit_time_as_integer(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_client_submit_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -856,7 +856,7 @@ PyObject *pypff_message_get_delivery_time(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_delivery_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -915,7 +915,7 @@ PyObject *pypff_message_get_delivery_time_as_integer(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_delivery_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -974,7 +974,7 @@ PyObject *pypff_message_get_creation_time(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_creation_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -1033,7 +1033,7 @@ PyObject *pypff_message_get_creation_time_as_integer(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_creation_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -1092,7 +1092,7 @@ PyObject *pypff_message_get_modification_time(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_modification_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -1151,7 +1151,7 @@ PyObject *pypff_message_get_modification_time_as_integer(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_modification_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -1771,7 +1771,7 @@ PyObject *pypff_message_get_attachment_by_index(
 		goto on_error;
 	}
 	sub_item_object = pypff_item_new(
-	                   &pypff_message_type_object,
+	                   &pypff_attachment_type_object,
 	                   sub_item,
 	                   (PyObject *) ( (pypff_item_t *) pypff_item )->parent_object );
 
