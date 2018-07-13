@@ -17,6 +17,7 @@ MSVSCPP_FILES = \
 	libfwnt/libfwnt.vcproj \
 	libpff/libpff.vcproj \
 	libuna/libuna.vcproj \
+	pff_test_allocation_table/pff_test_allocation_table.vcproj \
 	pff_test_attached_file_io_handle/pff_test_attached_file_io_handle.vcproj \
 	pff_test_attachment/pff_test_attachment.vcproj \
 	pff_test_column_definition/pff_test_column_definition.vcproj \

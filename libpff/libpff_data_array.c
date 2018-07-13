@@ -517,7 +517,7 @@ int libpff_data_array_read_entries(
 	{
 		array_entry_data_size = 8;
 	}
-	if( ( (size_t) number_of_array_entries * array_entry_data_size )  > array_data_size )
+	if( ( (size_t) number_of_array_entries * array_entry_data_size ) > array_data_size )
 	{
 		libcerror_error_set(
 		 error,
@@ -530,17 +530,6 @@ int libpff_data_array_read_entries(
 	}
 	if( data_array->data_size == 0 )
 	{
-		if( (size_t) *total_data_size > array_data_size )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid array total data size value out of bounds.",
-			 function );
-
-			goto on_error;
-		}
 		data_array->data_size = *total_data_size;
 	}
 	if( libcdata_array_get_number_of_entries(

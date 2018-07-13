@@ -1,5 +1,5 @@
 /*
- * Allocation table functions
+ * The libcdata header wrapper
  *
  * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,37 +19,36 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_ALLOCATION_TABLE_H )
-#define _LIBPFF_ALLOCATION_TABLE_H
+#if !defined( _PFF_TEST_LIBCDATA_H )
+#define _PFF_TEST_LIBCDATA_H
 
 #include <common.h>
-#include <types.h>
 
-#include "libpff_libbfio.h"
-#include "libpff_libcdata.h"
-#include "libpff_libcerror.h"
+/* Define HAVE_LOCAL_LIBCDATA for local use of libcdata
+ */
+#if defined( HAVE_LOCAL_LIBCDATA )
 
-#if defined( __cplusplus )
-extern "C" {
+#include <libcdata_array.h>
+#include <libcdata_btree.h>
+#include <libcdata_definitions.h>
+#include <libcdata_list.h>
+#include <libcdata_list_element.h>
+#include <libcdata_range_list.h>
+#include <libcdata_tree_node.h>
+#include <libcdata_types.h>
+
+#else
+
+/* If libtool DLL support is enabled set LIBCDATA_DLL_IMPORT
+ * before including libcdata.h
+ */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBCDATA_DLL_IMPORT
 #endif
 
-int libpff_allocation_table_read_data(
-     libcdata_range_list_t *unallocated_block_list,
-     const uint8_t *data,
-     size_t data_size,
-     uint8_t file_type,
-     libcerror_error_t **error );
+#include <libcdata.h>
 
-int libpff_allocation_table_read_file_io_handle(
-     libcdata_range_list_t *unallocated_block_list,
-     libbfio_handle_t *file_io_handle,
-     off64_t allocation_table_offset,
-     uint8_t file_type,
-     libcerror_error_t **error );
+#endif /* defined( HAVE_LOCAL_LIBCDATA ) */
 
-#if defined( __cplusplus )
-}
-#endif
-
-#endif /* !defined( _LIBPFF_ALLOCATION_TABLE_H ) */
+#endif /* !defined( _PFF_TEST_LIBCDATA_H ) */
 

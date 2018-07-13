@@ -34,27 +34,26 @@
 
 #include "pff_allocation_table.h"
 
-/* Reads an allocation table
+/* Reads allocation table data
  * Returns 1 if successful or -1 on error
  */
-int libpff_allocation_table_read(
+int libpff_allocation_table_read_data(
      libcdata_range_list_t *unallocated_block_list,
-     libbfio_handle_t *file_io_handle,
-     off64_t allocation_table_offset,
+     const uint8_t *data,
+     size_t data_size,
      uint8_t file_type,
      libcerror_error_t **error )
 {
-	uint8_t *allocation_table_data     = NULL;
 	uint8_t *table_data                = NULL;
-	static char *function              = "libpff_allocation_table_read";
+	static char *function              = "libpff_allocation_table_read_data";
+	size_t allocation_block_size       = 0;
+	size_t allocation_table_data_size  = 0;
+	size_t unallocated_size            = 0;
+	ssize_t read_count                 = 0;
 	off64_t back_pointer_offset        = 0;
 	off64_t unallocated_offset         = 0;
-	size_t read_size                   = 0;
-	size_t unallocated_size            = 0;
-	size_t allocation_block_size       = 0;
-	ssize_t read_count                 = 0;
-	uint32_t stored_checksum           = 0;
 	uint32_t calculated_checksum       = 0;
+	uint32_t stored_checksum           = 0;
 	uint16_t table_data_index          = 0;
 	uint16_t table_data_size           = 0;
 	uint8_t allocation_table_entry     = 0;
@@ -78,13 +77,24 @@ int libpff_allocation_table_read(
 
 		return( -1 );
 	}
-	if( file_io_handle == NULL )
+	if( data == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file IO handle.",
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid data size value exceeds maximum.",
 		 function );
 
 		return( -1 );
@@ -102,126 +112,81 @@ int libpff_allocation_table_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading allocation table at offset: 0x%08" PRIx64 "\n",
-		 function,
-		 allocation_table_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     allocation_table_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek allocation table offset: 0x%08" PRIx64 ".",
-		 function,
-		 allocation_table_offset );
-
-		goto on_error;
-	}
 	if( file_type == LIBPFF_FILE_TYPE_32BIT )
 	{
-		read_size       = sizeof( pff_allocation_table_32bit_t );
-		table_data_size = 496;
+		allocation_table_data_size = sizeof( pff_allocation_table_32bit_t );
+		table_data_size            = 496;
 	}
 	else if( file_type == LIBPFF_FILE_TYPE_64BIT )
 	{
-		read_size       = sizeof( pff_allocation_table_64bit_t );
-		table_data_size = 496;
+		allocation_table_data_size = sizeof( pff_allocation_table_64bit_t );
+		table_data_size            = 496;
 	}
 	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
 	{
-		read_size       = sizeof( pff_allocation_table_64bit_4k_page_t );
-		table_data_size = 4072;
+		allocation_table_data_size = sizeof( pff_allocation_table_64bit_4k_page_t );
+		table_data_size            = 4072;
 	}
-	allocation_table_data = (uint8_t *) memory_allocate(
-	                                     sizeof( uint8_t ) * read_size );
-
-	if( allocation_table_data == NULL )
+	if( data_size < allocation_table_data_size )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create alloction table data.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid data size value too small.",
 		 function );
 
-		goto on_error;
-	}
-	read_count = libbfio_handle_read_buffer(
-	              file_io_handle,
-	              allocation_table_data,
-	              read_size,
-	              error );
-
-	if( read_count != (ssize_t) read_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read allocation table.",
-		 function );
-
-		goto on_error;
+		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: allocation table:\n",
+		 "%s: allocation table data:\n",
 		 function );
 		libcnotify_print_data(
-		 allocation_table_data,
-		 read_size,
+		 data,
+		 allocation_table_data_size,
 		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
 	if( file_type == LIBPFF_FILE_TYPE_32BIT )
 	{
-		table_data                 = ( (pff_allocation_table_32bit_t *) allocation_table_data )->data;
-		allocation_table_type      = ( (pff_allocation_table_32bit_t *) allocation_table_data )->type;
-		allocation_table_type_copy = ( (pff_allocation_table_32bit_t *) allocation_table_data )->type_copy;
+		table_data                 = ( (pff_allocation_table_32bit_t *) data )->data;
+		allocation_table_type      = ( (pff_allocation_table_32bit_t *) data )->type;
+		allocation_table_type_copy = ( (pff_allocation_table_32bit_t *) data )->type_copy;
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (pff_allocation_table_32bit_t *) allocation_table_data )->back_pointer,
+		 ( (pff_allocation_table_32bit_t *) data )->back_pointer,
 		 back_pointer_offset );
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (pff_allocation_table_32bit_t *) allocation_table_data )->checksum,
+		 ( (pff_allocation_table_32bit_t *) data )->checksum,
 		 stored_checksum );
 	}
 	else if( file_type == LIBPFF_FILE_TYPE_64BIT )
 	{
-		table_data                 = ( (pff_allocation_table_64bit_t *) allocation_table_data )->data;
-		allocation_table_type      = ( (pff_allocation_table_64bit_t *) allocation_table_data )->type;
-		allocation_table_type_copy = ( (pff_allocation_table_64bit_t *) allocation_table_data )->type_copy;
+		table_data                 = ( (pff_allocation_table_64bit_t *) data )->data;
+		allocation_table_type      = ( (pff_allocation_table_64bit_t *) data )->type;
+		allocation_table_type_copy = ( (pff_allocation_table_64bit_t *) data )->type_copy;
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (pff_allocation_table_64bit_t *) allocation_table_data )->checksum,
+		 ( (pff_allocation_table_64bit_t *) data )->checksum,
 		 stored_checksum );
 		byte_stream_copy_to_uint64_little_endian(
-		 ( (pff_allocation_table_64bit_t *) allocation_table_data )->back_pointer,
+		 ( (pff_allocation_table_64bit_t *) data )->back_pointer,
 		 back_pointer_offset );
 	}
 	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
 	{
-		table_data                 = ( (pff_allocation_table_64bit_4k_page_t *) allocation_table_data )->data;
-		allocation_table_type      = ( (pff_allocation_table_64bit_4k_page_t *) allocation_table_data )->type;
-		allocation_table_type_copy = ( (pff_allocation_table_64bit_4k_page_t *) allocation_table_data )->type_copy;
+		table_data                 = ( (pff_allocation_table_64bit_4k_page_t *) data )->data;
+		allocation_table_type      = ( (pff_allocation_table_64bit_4k_page_t *) data )->type;
+		allocation_table_type_copy = ( (pff_allocation_table_64bit_4k_page_t *) data )->type_copy;
 
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (pff_allocation_table_64bit_4k_page_t *) allocation_table_data )->checksum,
+		 ( (pff_allocation_table_64bit_4k_page_t *) data )->checksum,
 		 stored_checksum );
 		byte_stream_copy_to_uint64_little_endian(
-		 ( (pff_allocation_table_64bit_4k_page_t *) allocation_table_data )->back_pointer,
+		 ( (pff_allocation_table_64bit_4k_page_t *) data )->back_pointer,
 		 back_pointer_offset );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -239,7 +204,7 @@ int libpff_allocation_table_read(
 		if( file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
 			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_allocation_table_32bit_t *) allocation_table_data )->signature,
+			 ( (pff_allocation_table_32bit_t *) data )->signature,
 			 value_16bit );
 			libcnotify_printf(
 			 "%s: signature\t\t: 0x%04" PRIx16 "\n",
@@ -262,13 +227,13 @@ int libpff_allocation_table_read(
 			if( file_type == LIBPFF_FILE_TYPE_64BIT )
 			{
 				byte_stream_copy_to_uint16_little_endian(
-				 ( (pff_allocation_table_64bit_t *) allocation_table_data )->signature,
+				 ( (pff_allocation_table_64bit_t *) data )->signature,
 				 value_16bit );
 			}
 			else
 			{
 				byte_stream_copy_to_uint16_little_endian(
-				 ( (pff_allocation_table_64bit_4k_page_t *) allocation_table_data )->signature,
+				 ( (pff_allocation_table_64bit_4k_page_t *) data )->signature,
 				 value_16bit );
 			}
 			libcnotify_printf(
@@ -289,7 +254,7 @@ int libpff_allocation_table_read(
 			if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
 			{
 				byte_stream_copy_to_uint64_little_endian(
-				 ( (pff_allocation_table_64bit_4k_page_t *) allocation_table_data )->unknown1,
+				 ( (pff_allocation_table_64bit_4k_page_t *) data )->unknown1,
 				 value_64bit );
 				libcnotify_printf(
 				 "%s: unknown1\t\t: 0x%08" PRIx64 "\n",
@@ -300,7 +265,8 @@ int libpff_allocation_table_read(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	if( libfmapi_checksum_calculate_weak_crc32(
 	     &calculated_checksum,
 	     table_data,
@@ -469,12 +435,173 @@ int libpff_allocation_table_read(
 		}
 		unallocated_size = 0;
 	}
+	return( 1 );
+
+on_error:
+/* TODO clear allocation table on error ? */
+	return( -1 );
+}
+
+/* Reads an allocation table
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_allocation_table_read_file_io_handle(
+     libcdata_range_list_t *unallocated_block_list,
+     libbfio_handle_t *file_io_handle,
+     off64_t allocation_table_offset,
+     uint8_t file_type,
+     libcerror_error_t **error )
+{
+	uint8_t *allocation_table_data     = NULL;
+	uint8_t *table_data                = NULL;
+	static char *function              = "libpff_allocation_table_read_file_io_handle";
+	off64_t back_pointer_offset        = 0;
+	off64_t unallocated_offset         = 0;
+	size_t allocation_table_data_size  = 0;
+	size_t unallocated_size            = 0;
+	size_t allocation_block_size       = 0;
+	ssize_t read_count                 = 0;
+	uint32_t stored_checksum           = 0;
+	uint32_t calculated_checksum       = 0;
+	uint16_t table_data_index          = 0;
+	uint16_t table_data_size           = 0;
+	uint8_t allocation_table_entry     = 0;
+	uint8_t allocation_table_type      = 0;
+	uint8_t allocation_table_type_copy = 0;
+	uint8_t bit_index                  = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint64_t value_64bit               = 0;
+	uint16_t value_16bit               = 0;
+#endif
+
+	if( unallocated_block_list == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid unallocated block list.",
+		 function );
+
+		return( -1 );
+	}
+	if( file_io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( file_type != LIBPFF_FILE_TYPE_32BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported file type.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading allocation table at offset: 0x%08" PRIx64 "\n",
+		 function,
+		 allocation_table_offset );
+	}
+#endif
+	if( libbfio_handle_seek_offset(
+	     file_io_handle,
+	     allocation_table_offset,
+	     SEEK_SET,
+	     error ) == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek allocation table offset: 0x%08" PRIx64 ".",
+		 function,
+		 allocation_table_offset );
+
+		goto on_error;
+	}
+	if( file_type == LIBPFF_FILE_TYPE_32BIT )
+	{
+		allocation_table_data_size = sizeof( pff_allocation_table_32bit_t );
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT )
+	{
+		allocation_table_data_size = sizeof( pff_allocation_table_64bit_t );
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+	{
+		allocation_table_data_size = sizeof( pff_allocation_table_64bit_4k_page_t );
+	}
+	allocation_table_data = (uint8_t *) memory_allocate(
+	                                     sizeof( uint8_t ) * allocation_table_data_size );
+
+	if( allocation_table_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create alloction table data.",
+		 function );
+
+		goto on_error;
+	}
+	read_count = libbfio_handle_read_buffer(
+	              file_io_handle,
+	              allocation_table_data,
+	              allocation_table_data_size,
+	              error );
+
+	if( read_count != (ssize_t) allocation_table_data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read allocation table data.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_allocation_table_read_data(
+	     unallocated_block_list,
+	     allocation_table_data,
+	     allocation_table_data_size,
+	     file_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read allocation table.",
+		 function );
+
+		goto on_error;
+	}
 	memory_free(
 	 allocation_table_data );
 
 	return( 1 );
 
 on_error:
+/* TODO clear allocation table on error ? */
+
 	if( allocation_table_data != NULL )
 	{
 		memory_free(

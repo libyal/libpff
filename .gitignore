@@ -127,6 +127,7 @@ stamp-h[1-9]
 /pfftools/pffinfo
 /tests/*.exe
 /tests/input
+/tests/pff_test_allocation_table
 /tests/pff_test_attached_file_io_handle
 /tests/pff_test_attachment
 /tests/pff_test_column_definition

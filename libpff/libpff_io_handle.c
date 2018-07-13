@@ -1300,7 +1300,7 @@ int libpff_io_handle_read_unallocated_data_blocks(
 	}
 	while( allocation_table_offset < (off64_t) io_handle->file_size )
 	{
-		if( libpff_allocation_table_read(
+		if( libpff_allocation_table_read_file_io_handle(
 		     unallocated_data_block_list,
 		     file_io_handle,
 		     allocation_table_offset,
@@ -1363,7 +1363,7 @@ int libpff_io_handle_read_unallocated_page_blocks(
 
 	while( allocation_table_offset < (off64_t) io_handle->file_size )
 	{
-		if( libpff_allocation_table_read(
+		if( libpff_allocation_table_read_file_io_handle(
 		     unallocated_page_block_list,
 		     file_io_handle,
 		     allocation_table_offset,
