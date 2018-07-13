@@ -145,6 +145,7 @@ stamp-h[1-9]
 /tests/pff_test_io_handle
 /tests/pff_test_item
 /tests/pff_test_item_descriptor
+/tests/pff_test_item_tree
 /tests/pff_test_item_values
 /tests/pff_test_local_descriptor_node
 /tests/pff_test_local_descriptor_value
@@ -164,6 +165,7 @@ stamp-h[1-9]
 /tests/pff_test_table
 /tests/pff_test_table_block_index
 /tests/pff_test_table_index_value
+/tests/pff_test_value_type
 /tests/tmp*
 
 # Local library dependencies specific files

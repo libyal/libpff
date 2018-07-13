@@ -65,6 +65,7 @@ check_PROGRAMS = \
 	pff_test_io_handle \
 	pff_test_item \
 	pff_test_item_descriptor \
+	pff_test_item_tree \
 	pff_test_item_values \
 	pff_test_local_descriptor_node \
 	pff_test_local_descriptor_value \
@@ -82,7 +83,8 @@ check_PROGRAMS = \
 	pff_test_support \
 	pff_test_table \
 	pff_test_table_block_index \
-	pff_test_table_index_value
+	pff_test_table_index_value \
+	pff_test_value_type
 
 pff_test_allocation_table_SOURCES = \
 	pff_test_allocation_table.c \
@@ -343,6 +345,19 @@ pff_test_item_descriptor_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
+pff_test_item_tree_SOURCES = \
+	pff_test_item_tree.c \
+	pff_test_libcdata.h \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_item_tree_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
 pff_test_item_values_SOURCES = \
 	pff_test_item_values.c \
 	pff_test_libcerror.h \
@@ -562,6 +577,17 @@ pff_test_table_index_value_SOURCES = \
 	pff_test_unused.h
 
 pff_test_table_index_value_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_value_type_SOURCES = \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h \
+	pff_test_value_type.c
+
+pff_test_value_type_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 

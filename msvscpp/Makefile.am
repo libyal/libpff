@@ -35,6 +35,7 @@ MSVSCPP_FILES = \
 	pff_test_io_handle/pff_test_io_handle.vcproj \
 	pff_test_item/pff_test_item.vcproj \
 	pff_test_item_descriptor/pff_test_item_descriptor.vcproj \
+	pff_test_item_tree/pff_test_item_tree.vcproj \
 	pff_test_item_values/pff_test_item_values.vcproj \
 	pff_test_local_descriptor_node/pff_test_local_descriptor_node.vcproj \
 	pff_test_local_descriptor_value/pff_test_local_descriptor_value.vcproj \
@@ -53,6 +54,7 @@ MSVSCPP_FILES = \
 	pff_test_table/pff_test_table.vcproj \
 	pff_test_table_block_index/pff_test_table_block_index.vcproj \
 	pff_test_table_index_value/pff_test_table_index_value.vcproj \
+	pff_test_value_type/pff_test_value_type.vcproj \
 	pffexport/pffexport.vcproj \
 	pffinfo/pffinfo.vcproj \
 	pypff/pypff.vcproj \

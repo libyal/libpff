@@ -747,7 +747,6 @@ int libpff_index_node_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	index_node->entries_data              = index_node->data;
 	index_node->maximum_entries_data_size = (uint16_t) maximum_entries_data_size;
 
 	return( 1 );
@@ -1198,6 +1197,8 @@ int libpff_index_node_read_file_io_handle(
 
 		goto on_error;
 	}
+	index_node->entries_data = index_node->data;
+
 	return( 1 );
 
 on_error:

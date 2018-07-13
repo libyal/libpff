@@ -601,6 +601,190 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_index_node_get_entry_data function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_index_node_get_entry_data(
+     void )
+{
+	libcerror_error_t *error        = NULL;
+	libpff_index_node_t *index_node = NULL;
+	uint8_t *entries_data           = NULL;
+	uint8_t *entry_data             = 0;
+	int result                      = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_index_node_initialize(
+	          &index_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "index_node",
+	 index_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_index_node_read_data(
+	          index_node,
+	          pff_test_index_node_data_32bit,
+	          512,
+	          LIBPFF_FILE_TYPE_32BIT,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	entries_data             = index_node->entries_data;
+	index_node->entries_data = pff_test_index_node_data_32bit;
+
+	result = libpff_index_node_get_entry_data(
+	          index_node,
+	          0,
+	          &entry_data,
+	          &error );
+
+	index_node->entries_data = entries_data;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_index_node_get_entry_data(
+	          NULL,
+	          0,
+	          &entry_data,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	entries_data             = index_node->entries_data;
+	index_node->entries_data = NULL;
+
+	result = libpff_index_node_get_entry_data(
+	          index_node,
+	          0,
+	          &entry_data,
+	          &error );
+
+	index_node->entries_data = entries_data;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_index_node_get_entry_data(
+	          index_node,
+	          (uint16_t) 0xffff,
+	          &entry_data,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_index_node_get_entry_data(
+	          index_node,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_index_node_free(
+	          &index_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "index_node",
+	 index_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( index_node != NULL )
+	{
+		libpff_index_node_free(
+		 &index_node,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libpff_index_node_read_data function
  * Returns 1 if successful or 0 if not
  */
@@ -1229,6 +1413,92 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_index_node_check_for_empty_block function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_index_node_check_for_empty_block(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_index_node_check_for_empty_block(
+	          pff_test_index_node_data_32bit,
+	          512,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_index_node_check_for_empty_block(
+	          &( pff_test_index_node_data_32bit[ 1 ] ),
+	          511,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_index_node_check_for_empty_block(
+	          NULL,
+	          512,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_index_node_check_for_empty_block(
+	          pff_test_index_node_data_32bit,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -1256,7 +1526,9 @@ int main(
 	 "libpff_index_node_free",
 	 pff_test_index_node_free );
 
-	/* TODO: add tests for libpff_index_node_get_entry_data */
+	PFF_TEST_RUN(
+	 "libpff_index_node_get_entry_data",
+	 pff_test_index_node_get_entry_data );
 
 	PFF_TEST_RUN(
 	 "libpff_index_node_read_data",
@@ -1270,7 +1542,9 @@ int main(
 	 "libpff_index_node_read_file_io_handle",
 	 pff_test_index_node_read_file_io_handle );
 
-	/* TODO: add tests for libpff_index_node_check_for_empty_block */
+	PFF_TEST_RUN(
+	 "libpff_index_node_check_for_empty_block",
+	 pff_test_index_node_check_for_empty_block );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
