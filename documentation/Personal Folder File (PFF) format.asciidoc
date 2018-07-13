@@ -66,13 +66,13 @@ Renamed the local descriptor list into the local descriptors. +
 Added information about the build-in Public strings class in the name-to-id map.
 | 0.0.20 | J.B. Metz | March 2009 | Additional information and corrections.
 | 0.0.21 | J.B. Metz | May 2009 | Update for recipient types based on patch by K. Mazur
-| 0.0.22 | J.B. Metz | May 2009 | Update for attachment rendering position from finding by
-| K. Mazur. Changed local descriptors node level into node type.
+| 0.0.22 | J.B. Metz | May 2009 | Update for attachment rendering position from finding by K. Mazur. +
+Changed local descriptors node level into node type.
 | 0.0.23 | J.B. Metz | June 2009 | Update for non UTF-16 strings in name-to-id map. +
 Clean up of the PFF items, mainly provided for in the MAPI documentation. +
 First table index offset of an Outlook 2007 SP2 ost file is out of the ordinary.
 | 0.0.24 | J.B. Metz | June 2009 | Added information about the b5 table header table entries level. +
-| Added information about the local descriptors type (level of indirection).
+Added information about the local descriptors type (level of indirection).
 | 0.0.25 | J.B. Metz | June 2009 | Added information about 6c and 8c table. +
 Added information about sub folders item.
 | 0.0.26 | J.B. Metz | July 2009 | Additional information and corrections. +
@@ -543,20 +543,426 @@ Page type 0x83 not yet been seen to be used with the 64-bit Unicode format with 
 
 == The index b-tree
 
+The PFF consists of multiple index b-trees.
+
+* The (file) offset index b-tree (Block B-Tree (BBT))
+* The (item) descriptor index b-tree (Node B-Tree (NBT))
+
+These b-trees have a similar basic structure.
+
+An index b-tree consists of:
+
+* branch nodes that point to branch or leaf nodes
+* leaf nodes that contain the index data
+
+=== The 32-bit index b-tree node
+
+Both the 32-bit branch and leaf node have a similar structure which is 512
+bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 496 | | Node entries +
+(number of records x entry size) +
+Maximum of 496 the remaining values are zeroed
+4+| _Footer 16 bytes of size_
+| 496 | 1 | | The number of entries +
+The number of entries that are used
+| 497 | 1 | | The maximum number of entries
+| 498 | 1 | | The size of an entry
+| 499 | 1 | | Node level +
+A zero value represents a leaf node +
+A value greater than zero branch nodes with the highest level representing the root
+| 500 | 1 | 0x80 +
+0x81 | Page type +
+See section: <<page_types,Page types>>
+| 501 | 1 | 0x80 +
+0x81 | Copy of page type
+| 502 | 2 | | Signature
+| 504 | 4 | | Back pointer +
+must match the back pointer that pointed to this node
+| 508 | 4 | | A weak CRC32 of the first 500 bytes of the index node
+|===
+
+==== The 32-bit index b-tree branch node entry
+
+The 32-bit index b-tree node entry is used in branch nodes. It is 12 bytes of
+size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The index identifier of the first child node +
+Identifier of type node identifier +
+See section: <<index_identifier,Index identifier>>
+| 4 | 4 | | The back pointer
+| 8 | 4 | | The (file) offset
+|===
+
+The index b-tree node will contain the following values:
+
+* The maximum number of entries: 41
+* The size of an entry: 12
+
+An index b-tree node can contain the same identifier value as a (file) offset
+index entry. This occurs when the leaf node is the lowest identifier in the
+branch node.
+
+==== The 32-bit (file) offset index entry
+
+The 32-bit (file) offset index entry is used in leaf nodes. It is 12 bytes of
+size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The identifier +
+Identifier of type block identifier
+| 4 | 4 | | The (file) offset
+| 8 | 2 | | The size
+| 10 | 2 | | The reference count
+|===
+
+The index b-tree node will contain the following values:
+
+* The maximum number of entries: 41
+* The size of an entry: 12
+
+The first LSB of the identifier is reserved.
+
+The second LSB of the identifier is used to indicate if the block is internal or not.
+
+* 0 = is not internal (external)
+* 1 = is internal (used for array and local descriptors)
+
+In an encrypted PFF the internal flag also indicates if the corresponding entry
+is encrypted or not. See section: <<block_types,Block types>> for more information.
+
+When the index tree is searched make sure to clear the first LSB in the
+identifier.
+
+==== The 32-bit descriptor index b-tree leaf node entry
+
+The 32-bit descriptor index b-tree leaf node entry is 16 bytes of size and
+consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The (descriptor) index identifier +
+Identifier of type node identifier +
+See section: <<index_identifier,Index identifier>>
+| 4 | 4 | | The (file) offset index identifier of the data
+| 8 | 4 | | The (file) offset index identifier of the local descriptors
+| 12 | 4 | | The parent (descriptor) index identifier
+|===
+
+The index b-tree node will contain the following values:
+
+* The maximum number of entries: 31
+* The size of an entry: 16
+
+=== The 64-bit index b-tree node
+
+Both the 64-bit branch and leaf node have a similar structure which is 512
+bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 488 | | Node entries +
+(number of records x entry size) +
+Maximum of 488 the remaining values are zeroed
+4+| _Footer 24 bytes of size_
+| 488 | 1 | | The number of entries +
+The number of entries that are used
+| 489 | 1 | | The maximum number of entries
+| 490 | 1 | | The size of an entry
+| 491 | 1 | | Node level +
+A zero value represents a leaf node +
+A value greater than zero branch nodes with the highest level representing the root
+| 492 | 4 | | [yellow-background]*Unknown (Padding)*
+| 496 | 1 | 0x80 +
+0x81 | Page type
+See section: <<page_types,Page types>>
+| 497 | 1 | 0x80 +
+0x81 | Copy of page type
+| 498 | 2 | | Signature
+| 500 | 4 | | A weak CRC32 of the first 496 bytes of the index node
+| 504 | 8 | | Back pointer +
+must match the back pointer that pointed to this node
+|===
+
+==== The 64-bit index b-tree branch node entry
+
+The 64-bit index b-tree node entry is used in branch nodes. It is 24 bytes of
+size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 8 | | The index identifier of the first child node +
+Identifier of type node identifier, only 32-bit are used +
+See section: <<index_identifier,Index identifier>>
+| 8 | 8 | | The back pointer
+| 16 | 8 | | The (file) offset
+|===
+
+The index b-tree node will contain the following values:
+
+* The maximum number of entries: 20
+* The size of an entry: 24
+
+An index b-tree node can contain the same identifier value as a (file) offset
+index entry. This occurs when the leaf node is the lowest identifier in the
+branch node.
+
+==== The 64-bit (file) offset index entry
+
+The 64-bit (file) offset index entry is used in leaf nodes. It is 24 bytes of
+size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 8 | | The index identifier +
+Identifier of type block identifier
+| 8 | 8 | | The (file) offset
+| 16 | 2 | | The size
+| 18 | 2 | | The reference count
+| 20 | 4 | | File offset of the data allocation table
+|===
+
+The index b-tree node will contain the following values:
+
+* The maximum number of entries: 20
+* The size of an entry: 24
+
+The first LSB of the identifier is reserved.
+
+The second LSB of the identifier is used to indicate if the block is internal
+or not.
+
+* 0 = is not internal (external)
+* 1 = is internal (used for array and local descriptors)
+
+In an encrypted PFF the internal flag also indicates if the corresponding entry
+is encrypted or not. See section: 7.4 Block type for more information.
+
+When the index tree is searched make sure to clear the first LSB in the
+identifier.
+
+==== The 64-bit descriptor index b-tree leaf node entry
+
+The 64-bit descriptor index b-tree leaf node entry is 32 bytes of size and
+consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 8 | | The (descriptor) index identifier +
+Identifier of type node identifier, only 32-bit are used +
+See section: <<index_identifier,Index identifier>>
+| 8 | 8 | | The (file) offset index identifier of the data
+| 16 | 8 | | The (file) offset index identifier of the local descriptors
+| 24 | 4 | | The parent (descriptor) index identifier
+| 28 | 4 | | [yellow-background]*Unknown* +
+[yellow-background]*This value mainly contains 2, unless when both the data and local descriptor are empty.*
+|===
+
+The index b-tree node will contain the following values:
+
+* The maximum number of entries: 15
+* The size of an entry: 32
+
+=== The 64-bit 4k page index b-tree node
+
+In Outlook 2013, at least for OST files, a 4k (4096 bytes) page version of the
+64-bit index b-tree node was introduced.
+
+Both the 64-bit branch and leaf node have a similar structure which is 4096
+bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4056 | | Node entries +
+(number of records x entry size) +
+Maximum of 488 the remaining values are zeroed
+4+| _Footer 40 bytes of size_
+| 4056 | 2 | | The number of entries +
+The number of entries that are used
+| 4058 | 2 | | The maximum number of entries
+| 4060 | 1 | | The size of an entry
+| 4061 | 1 | | Node level +
+A zero value represents a leaf node +
+A value greater than zero branch nodes with the highest level representing the root
+| 4062 | 10 | | [yellow-background]*Unknown (Padding)*
+| 4072 | 1 | 0x80 +
+0x81 | Page type +
+See section: <<page_types,Page types>>
+| 4073 | 1 | 0x80 +
+0x81 | Copy of page type
+| 4074 | 2 | | Signature
+| 4076 | 4 | | A weak CRC32 of the first 4072 bytes of the index node
+| 4080 | 8 | | Back pointer +
+must match the back pointer that pointed to this node
+| 4088 | 8 | | [yellow-background]*Unknown*
+|===
+
+The node entry structures are the same as those of the 64-bit index b-tree node
+(512 byte page) version.
+
+=== [[index_identifier]]Index identifier
+
+The index identifier is 32-bit of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0.0  | 5 bits | | Identifier type +
+See section: <<node_identifier_types,Node identifier types>>
+| 0.5 | 27 bits | | Identifier value
+|===
+
+[NOTE]
+The identifiers should be unique and are so for allocated descriptors. However
+unallocated descriptors can have identifiers that are in use.
+
+==== [[node_identifier_types]]Node identifier types
+
+The node identifier is used in both the item descriptor identifier and the
+table value reference. It signifies the type of node the identifier is
+referencing.
+
+[yellow-background]*TODO: migrate remainder of documentation*
+
+== The free map
+
+[yellow-background]*TODO: migrate remainder of documentation*
+
+== The density list
+
+[yellow-background]*TODO: migrate remainder of documentation*
+
+== Blocks
+
+[yellow-background]*TODO: migrate remainder of documentation*
+
+=== [[block_types]]Block types
+
+[yellow-background]*TODO: migrate remainder of documentation*
+
+== [[array]]The array
+
+[yellow-background]*TODO: migrate remainder of documentation*
+
+== [[local_descriptors]]The local descriptors
+
 [yellow-background]*TODO: migrate remainder of documentation*
 
 :numbered!:
 [appendix]
 == References
 
-`[REFERENCE]`
+`[SMITH02]`
 
 [cols="1,5",options="header"]
 |===
-| Title: |
-| Author(s): |
-| Date: |
-| URL: |
+| Title: | outlook.pst -- format of MS Outlook .pst file
+| Author(s): | David Smith, Joe Nahmias, Brad Hards, Carl Byington
+| URL: | http://hg.file-ten-sg.com/libpst/
+|===
+
+`[LIBESEDB]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | Extensible Storage Engine (ESE) Database File (EDB) format
+| Author(s): | Joachim Metz
+| URL: | https://github.com/libyal/libesedb/blob/master/documentation/Extensible%20Storage%20Engine%20(ESE)%20Database%20File%20(EDB)%20format.asciidoc
+|===
+
+`[LIBFMAPI]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | Message API (MAPI) definitions
+| Auhtor: | Joachim Metz
+| URL: | https://github.com/libyal/libfmapi/blob/master/documentation/MAPI%20definitions.pdf
+|===
+
+`[MSDN]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | Microsoft Developer Network
+| URL: | http://msdn.microsoft.com/
+|===
+
+`[MS-PST]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | [MS-PST] Outlook Personal Folders File Format (.pst) structure specification
+| URL: | http://msdn.microsoft.com/
+|===
+
+`[MACBINARY]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | Macintosh Binary Transfer Format (“MacBinary”) Standard Proposal
+|===
+
+[cols="1,5",options="header"]
+|===
+| Title: | Macintosh Binary Transfer Format (“MacBinary II”) Standard Proposal
+|===
+
+[cols="1,5",options="header"]
+|===
+| Title: | Macintosh Binary Transfer Format (“MacBinary III”) Standard Proposal
+|===
+
+`[OPENCHANGE]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | Openchange MAPI library
+| URL: | http://www.openchange.org/index.php
+|===
+
+`[RFC1950]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | ZLIB Compressed Data Format Specification
+| Version: | 3.3
+| Author(s): | P. Deutsch, J-L. Gailly
+| Date: | May 1996
+| URL: | http://www.ietf.org/rfc/rfc1950.txt
+|===
+
+`[RFC1951]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | DEFLATE Compressed Data Format Specification
+| Version: | 1.3
+| Author(s): | P. Deutsch
+| Date: | May 1996
+| URL: | http://www.ietf.org/rfc/rfc1951.txt
+|===
+
+`[ROTHMAN99]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | The Compressed RTF Format
+| Author(s): | Amichai Rothman
+| URL: | http://www.freeutils.net/source/jtnef/rtfcompressed.jsp
 |===
 
 [appendix]
