@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #endif
 
+#include "pff_test_libbfio.h"
 #include "pff_test_libcdata.h"
 #include "pff_test_libcerror.h"
 #include "pff_test_libpff.h"
@@ -196,6 +197,57 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_item_tree_create_node function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_item_tree_create_node(
+     void )
+{
+	libbfio_handle_t *file_io_handle                 = NULL;
+	libcdata_list_t *orphan_node_list                = NULL;
+	libcdata_tree_node_t *item_tree_root_node        = NULL;
+	libcdata_tree_node_t *root_folder_item_tree_node = NULL;
+	libcerror_error_t *error                         = NULL;
+	libfcache_cache_t *index_tree_cache              = NULL;
+	libfdata_tree_t *descriptor_index_tree           = NULL;
+	libfdata_tree_node_t *descriptor_index_tree_node = NULL;
+	int result                                       = 0;
+
+	/* Test error cases
+	 */
+	result = libpff_item_tree_create_node(
+	          NULL,
+	          file_io_handle,
+	          descriptor_index_tree,
+	          descriptor_index_tree_node,
+	          index_tree_cache,
+	          orphan_node_list,
+	          &root_folder_item_tree_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -227,7 +279,9 @@ int main(
 	 "libpff_item_tree_get_sub_node_by_identifier",
 	 pff_test_item_tree_get_sub_node_by_identifier );
 
-	/* TODO: add tests for libpff_item_tree_create_node */
+	PFF_TEST_RUN(
+	 "libpff_item_tree_create_node",
+	 pff_test_item_tree_create_node );
 
 	/* TODO: add tests for libpff_item_tree_get_identifier */
 

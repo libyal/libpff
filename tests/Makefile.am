@@ -347,6 +347,7 @@ pff_test_item_descriptor_LDADD = \
 
 pff_test_item_tree_SOURCES = \
 	pff_test_item_tree.c \
+	pff_test_libbfio.h \
 	pff_test_libcdata.h \
 	pff_test_libcerror.h \
 	pff_test_libpff.h \

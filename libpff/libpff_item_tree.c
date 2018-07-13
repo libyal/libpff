@@ -425,17 +425,20 @@ int libpff_item_tree_create_node(
      libcdata_tree_node_t **root_folder_item_tree_node,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *item_tree_node                    = NULL;
-	libcdata_tree_node_t *parent_node                       = NULL;
-	libfdata_tree_node_t *descriptor_index_tree_parent_node = NULL;
-	libfdata_tree_node_t *descriptor_index_tree_sub_node    = NULL;
-	libpff_index_value_t *descriptor_index_value            = NULL;
-	libpff_item_descriptor_t *item_descriptor               = NULL;
-	static char *function                                   = "libpff_item_tree_create_node";
-	int leaf_node_index                                     = 0;
-	int number_of_sub_nodes                                 = 0;
-	int result                                              = 0;
-	int sub_node_index                                      = 0;
+	libcdata_tree_node_t *item_tree_node                         = NULL;
+	libcdata_tree_node_t *parent_node                            = NULL;
+	libfdata_tree_node_t *descriptor_index_tree_parent_node      = NULL;
+	libfdata_tree_node_t *descriptor_index_tree_sub_node         = NULL;
+	libfdata_tree_node_t *safe_descriptor_index_tree_parent_node = NULL;
+	libpff_index_value_t *descriptor_index_value                 = NULL;
+	libpff_item_descriptor_t *item_descriptor                    = NULL;
+	static char *function                                        = "libpff_item_tree_create_node";
+	uint32_t identifier                                          = 0;
+	uint32_t parent_identifier                                   = 0;
+	int leaf_node_index                                          = 0;
+	int number_of_sub_nodes                                      = 0;
+	int result                                                   = 0;
+	int sub_node_index                                           = 0;
 
 	if( item_tree_root_node == NULL )
 	{
@@ -517,7 +520,7 @@ int libpff_item_tree_create_node(
 		 function,
 		 sub_node_index );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -540,7 +543,7 @@ int libpff_item_tree_create_node(
 		 function,
 		 sub_node_index );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result == 0 )
 	{
@@ -565,7 +568,7 @@ int libpff_item_tree_create_node(
 				 function,
 				 sub_node_index );
 
-				return( -1 );
+				goto on_error;
 			}
 			result = libpff_item_tree_create_node(
 			          item_tree_root_node,
@@ -587,7 +590,7 @@ int libpff_item_tree_create_node(
 				 function,
 				 sub_node_index );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 	}
@@ -608,7 +611,7 @@ int libpff_item_tree_create_node(
 			 "%s: unable to retrieve descriptor index tree sub node value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( descriptor_index_value == NULL )
 		{
@@ -619,7 +622,7 @@ int libpff_item_tree_create_node(
 			 "%s: missing descriptor index tree sub node value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( descriptor_index_value->identifier > (uint64_t) UINT32_MAX )
 		{
@@ -630,7 +633,7 @@ int libpff_item_tree_create_node(
 			 "%s: descriptor index identifier value exceeds maximum.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		/* Create a new item descriptor
 		 */
@@ -649,22 +652,19 @@ int libpff_item_tree_create_node(
 			 "%s: unable to create item descriptor.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
-		if( item_descriptor == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing item descriptor.",
-			 function );
+		/* The descriptor_index_value can be cached out by function calls below
+		 * so preserve values that are needed.
+		 */
+		identifier        = (uint32_t) descriptor_index_value->identifier;
+		parent_identifier = descriptor_index_value->parent_identifier;
 
-			return( -1 );
-		}
+		descriptor_index_value = NULL;
+
 		/* The root folder index descriptor points to itself as its parent
 		 */
-		if( descriptor_index_value->identifier == descriptor_index_value->parent_identifier )
+		if( identifier == parent_identifier )
 		{
 			if( *root_folder_item_tree_node != NULL )
 			{
@@ -675,11 +675,7 @@ int libpff_item_tree_create_node(
 				 "%s: root folder item tree node already set.",
 				 function );
 
-				libpff_item_descriptor_free(
-				 &item_descriptor,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			if( libcdata_tree_node_initialize(
 			     root_folder_item_tree_node,
@@ -692,11 +688,7 @@ int libpff_item_tree_create_node(
 				 "%s: unable to create root folder item tree node.",
 				 function );
 
-				libpff_item_descriptor_free(
-				 &item_descriptor,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			if( libcdata_tree_node_set_value(
 			     *root_folder_item_tree_node,
@@ -710,15 +702,7 @@ int libpff_item_tree_create_node(
 				 "%s: unable to set item descriptor in root folder item tree node.",
 				 function );
 
-				libcdata_tree_node_free(
-				 root_folder_item_tree_node,
-				 NULL,
-				 NULL );
-				libpff_item_descriptor_free(
-				 &item_descriptor,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			result = libcdata_tree_node_insert_node(
 				  item_tree_root_node,
@@ -745,14 +729,14 @@ int libpff_item_tree_create_node(
 				 "%s: unable to insert item descriptor in item tree node.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 		else
 		{
 			result = libpff_item_tree_get_tree_node_by_identifier(
 				  item_tree_root_node,
-				  descriptor_index_value->parent_identifier,
+				  parent_identifier,
 				  &parent_node,
 			          error );
 
@@ -764,16 +748,15 @@ int libpff_item_tree_create_node(
 					libcnotify_printf(
 					 "%s: reading ahead for descriptor: %" PRIu64 " parent %" PRIu32 ".\n",
 					 function,
-					 descriptor_index_value->identifier,
-					 descriptor_index_value->parent_identifier );
+					 identifier,
+					 parent_identifier );
 				}
 #endif
-
 				result = libpff_index_tree_get_leaf_node_by_identifier(
 					  descriptor_index_tree,
 					  file_io_handle,
 					  index_tree_cache,
-					  descriptor_index_value->parent_identifier,
+					  parent_identifier,
 					  &leaf_node_index,
 					  &descriptor_index_tree_parent_node,
 				          error );
@@ -789,11 +772,7 @@ int libpff_item_tree_create_node(
 						 "%s: invalid descriptor index tree parent node.",
 						 function );
 
-						libpff_item_descriptor_free(
-						 &item_descriptor,
-						 NULL );
-
-						return( -1 );
+						goto on_error;
 					}
 					result = libpff_item_tree_create_node(
 					          item_tree_root_node,
@@ -813,19 +792,15 @@ int libpff_item_tree_create_node(
 						 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 						 "%s: unable to create index tree from descriptor index tree parent node: %" PRIu32 ".",
 						 function,
-						 descriptor_index_value->parent_identifier );
+						 parent_identifier );
 
-						libpff_item_descriptor_free(
-						 &item_descriptor,
-						 NULL );
-
-						return( -1 );
+						goto on_error;
 					}
 					parent_node = NULL;
 
 					result = libpff_item_tree_get_tree_node_by_identifier(
 						  item_tree_root_node,
-						  descriptor_index_value->parent_identifier,
+						  parent_identifier,
 						  &parent_node,
 					          error );
 				}
@@ -838,13 +813,9 @@ int libpff_item_tree_create_node(
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to find parent node: %" PRIu32 ".",
 				 function,
-				 descriptor_index_value->parent_identifier );
+				 parent_identifier );
 
-				libpff_item_descriptor_free(
-				 &item_descriptor,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			else if( result == 0 )
 			{
@@ -854,8 +825,8 @@ int libpff_item_tree_create_node(
 					libcnotify_printf(
 					 "%s: parent node: %" PRIu32 " missing - found orphan node: %" PRIu64 ".\n",
 					 function,
-					 descriptor_index_value->parent_identifier,
-					 descriptor_index_value->identifier );
+					 parent_identifier,
+					 identifier );
 				}
 #endif
 				if( libcdata_tree_node_initialize(
@@ -869,11 +840,7 @@ int libpff_item_tree_create_node(
 					 "%s: unable to create item tree node.",
 					 function );
 
-					libpff_item_descriptor_free(
-					 &item_descriptor,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				if( libcdata_tree_node_set_value(
 				     item_tree_node,
@@ -887,15 +854,7 @@ int libpff_item_tree_create_node(
 					 "%s: unable to set item descriptor in item tree root node.",
 					 function );
 
-					libcdata_tree_node_free(
-					 &item_tree_node,
-					 NULL,
-					 NULL );
-					libpff_item_descriptor_free(
-					 &item_descriptor,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				item_descriptor = NULL;
 
@@ -911,12 +870,7 @@ int libpff_item_tree_create_node(
 					 "%s: unable to append orphan node in orphan node list.",
 					 function );
 
-					libcdata_tree_node_free(
-					 &item_tree_node,
-					 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_item_descriptor_free,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				return( 0 );
 			}
@@ -929,11 +883,7 @@ int libpff_item_tree_create_node(
 				 "%s: invalid parent node.",
 				 function );
 
-				libpff_item_descriptor_free(
-				 &item_descriptor,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			result = libcdata_tree_node_insert_value(
 				  parent_node,
@@ -959,11 +909,34 @@ int libpff_item_tree_create_node(
 				 "%s: unable to insert item descriptor in item tree node.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( item_tree_node != NULL )
+	{
+		libcdata_tree_node_free(
+		 &item_tree_node,
+		 NULL,
+		 NULL );
+	}
+	if( *root_folder_item_tree_node != NULL )
+	{
+		libcdata_tree_node_free(
+		 root_folder_item_tree_node,
+		 NULL,
+		 NULL );
+	}
+	if( item_descriptor != NULL )
+	{
+		libpff_item_descriptor_free(
+		 &item_descriptor,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the identifier of the item
