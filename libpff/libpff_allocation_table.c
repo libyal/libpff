@@ -49,7 +49,6 @@ int libpff_allocation_table_read_data(
 	size_t allocation_block_size       = 0;
 	size_t allocation_table_data_size  = 0;
 	size_t unallocated_size            = 0;
-	ssize_t read_count                 = 0;
 	off64_t back_pointer_offset        = 0;
 	off64_t unallocated_offset         = 0;
 	uint32_t calculated_checksum       = 0;
@@ -193,11 +192,11 @@ int libpff_allocation_table_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: type\t\t: 0x%02" PRIx8 "\n",
+		 "%s: type\t\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 allocation_table_type );
 		libcnotify_printf(
-		 "%s: type copy\t\t: 0x%02" PRIx8 "\n",
+		 "%s: type copy\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 allocation_table_type_copy );
 
@@ -207,17 +206,17 @@ int libpff_allocation_table_read_data(
 			 ( (pff_allocation_table_32bit_t *) data )->signature,
 			 value_16bit );
 			libcnotify_printf(
-			 "%s: signature\t\t: 0x%04" PRIx16 "\n",
+			 "%s: signature\t\t\t\t: 0x%04" PRIx16 "\n",
 			 function,
 			 value_16bit );
 
 			libcnotify_printf(
-			 "%s: back pointer\t: %" PRIu64 "\n",
+			 "%s: back pointer\t\t\t\t: %" PRIu64 "\n",
 			 function,
 			 back_pointer_offset );
 
 			libcnotify_printf(
-			 "%s: checksum\t\t: 0x%" PRIx32 "\n",
+			 "%s: checksum\t\t\t\t: 0x%" PRIx32 "\n",
 			 function,
 			 stored_checksum );
 		}
@@ -237,17 +236,17 @@ int libpff_allocation_table_read_data(
 				 value_16bit );
 			}
 			libcnotify_printf(
-			 "%s: signature\t\t: 0x%04" PRIx16 "\n",
+			 "%s: signature\t\t\t\t: 0x%04" PRIx16 "\n",
 			 function,
 			 value_16bit );
 
 			libcnotify_printf(
-			 "%s: checksum\t\t: 0x%" PRIx32 "\n",
+			 "%s: checksum\t\t\t\t: 0x%" PRIx32 "\n",
 			 function,
 			 stored_checksum );
 
 			libcnotify_printf(
-			 "%s: back pointer\t: %" PRIu64 "\n",
+			 "%s: back pointer\t\t\t\t: %" PRIu64 "\n",
 			 function,
 			 back_pointer_offset );
 
@@ -257,7 +256,7 @@ int libpff_allocation_table_read_data(
 				 ( (pff_allocation_table_64bit_4k_page_t *) data )->unknown1,
 				 value_64bit );
 				libcnotify_printf(
-				 "%s: unknown1\t\t: 0x%08" PRIx64 "\n",
+				 "%s: unknown1\t\t\t\t: 0x%08" PRIx64 "\n",
 				 function,
 				 value_64bit );
 			}
@@ -289,7 +288,7 @@ int libpff_allocation_table_read_data(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_INPUT,
 		 LIBCERROR_INPUT_ERROR_CHECKSUM_MISMATCH,
-		 "%s: mismatch in checksum ( %" PRIu32 " != %" PRIu32 " ).",
+		 "%s: mismatch in checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
 		 function,
 		 stored_checksum,
 		 calculated_checksum );
@@ -452,28 +451,10 @@ int libpff_allocation_table_read_file_io_handle(
      uint8_t file_type,
      libcerror_error_t **error )
 {
-	uint8_t *allocation_table_data     = NULL;
-	uint8_t *table_data                = NULL;
-	static char *function              = "libpff_allocation_table_read_file_io_handle";
-	off64_t back_pointer_offset        = 0;
-	off64_t unallocated_offset         = 0;
-	size_t allocation_table_data_size  = 0;
-	size_t unallocated_size            = 0;
-	size_t allocation_block_size       = 0;
-	ssize_t read_count                 = 0;
-	uint32_t stored_checksum           = 0;
-	uint32_t calculated_checksum       = 0;
-	uint16_t table_data_index          = 0;
-	uint16_t table_data_size           = 0;
-	uint8_t allocation_table_entry     = 0;
-	uint8_t allocation_table_type      = 0;
-	uint8_t allocation_table_type_copy = 0;
-	uint8_t bit_index                  = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint64_t value_64bit               = 0;
-	uint16_t value_16bit               = 0;
-#endif
+	uint8_t *allocation_table_data    = NULL;
+	static char *function             = "libpff_allocation_table_read_file_io_handle";
+	size_t allocation_table_data_size = 0;
+	ssize_t read_count                = 0;
 
 	if( unallocated_block_list == NULL )
 	{

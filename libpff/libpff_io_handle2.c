@@ -210,32 +210,6 @@ int libpff_io_handle_read_descriptor_data_list(
 		goto on_error;
 	}
 #endif
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading data block at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 offset_index_value->file_offset,
-		 offset_index_value->file_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     offset_index_value->file_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek data block offset: %" PRIi64 ".",
-		 function,
-		 offset_index_value->file_offset );
-
-		goto on_error;
-	}
 	if( libpff_data_block_initialize(
 	     &data_block,
 	     io_handle,
@@ -252,9 +226,10 @@ int libpff_io_handle_read_descriptor_data_list(
 
 		goto on_error;
 	}
-	if( libpff_data_block_read(
+	if( libpff_data_block_read_file_io_handle(
 	     data_block,
 	     file_io_handle,
+	     offset_index_value->file_offset,
 	     offset_index_value->data_size,
 	     error ) != 1 )
 	{

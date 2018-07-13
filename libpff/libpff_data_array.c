@@ -668,31 +668,6 @@ int libpff_data_array_read_entries(
 			goto on_error;
 		}
 #endif
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: reading data block at offset: 0x%08" PRIx64 "\n",
-			 function,
-			 offset_index_value->file_offset );
-		}
-#endif
-		if( libbfio_handle_seek_offset(
-		     file_io_handle,
-		     offset_index_value->file_offset,
-		     SEEK_SET,
-		     error ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek data block offset: %" PRIi64 ".",
-			 function,
-			 offset_index_value->file_offset );
-
-			goto on_error;
-		}
 		/* The data block uses the identifier as the back pointer
 		 */
 		if( libpff_data_block_initialize(
@@ -711,9 +686,10 @@ int libpff_data_array_read_entries(
 
 			goto on_error;
 		}
-		if( libpff_data_block_read(
+		if( libpff_data_block_read_file_io_handle(
 		     data_block,
 		     file_io_handle,
+		     offset_index_value->file_offset,
 		     offset_index_value->data_size,
 		     error ) != 1 )
 		{
@@ -981,31 +957,6 @@ int libpff_data_array_read_element_data(
 
 		goto on_error;
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading data block at offset: 0x%08" PRIx64 "\n",
-		 function,
-		 element_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     element_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek data block offset: 0x%08" PRIx64 ".",
-		 function,
-		 element_offset );
-
-		goto on_error;
-	}
 	if( libpff_data_block_initialize(
 	     &data_block,
 	     data_array->io_handle,
@@ -1022,9 +973,10 @@ int libpff_data_array_read_element_data(
 
 		goto on_error;
 	}
-	if( libpff_data_block_read(
+	if( libpff_data_block_read_file_io_handle(
 	     data_block,
 	     file_io_handle,
+	     element_offset,
 	     (size32_t) element_size,
 	     error ) != 1 )
 	{

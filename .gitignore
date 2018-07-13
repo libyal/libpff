@@ -149,6 +149,7 @@ stamp-h[1-9]
 /tests/pff_test_local_descriptor_node
 /tests/pff_test_local_descriptor_value
 /tests/pff_test_local_descriptors
+/tests/pff_test_mapi_value
 /tests/pff_test_message
 /tests/pff_test_multi_value
 /tests/pff_test_name_to_id_map_entry

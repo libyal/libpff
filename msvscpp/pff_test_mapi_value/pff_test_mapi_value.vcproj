@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="pff_test_allocation_table"
-	ProjectGUID="{AB7D208B-6B81-4F73-961E-CA344D126EA9}"
-	RootNamespace="pff_test_allocation_table"
+	Name="pff_test_mapi_value"
+	ProjectGUID="{3F7E08D9-3658-4BD5-AC9E-4F76083392E4}"
+	RootNamespace="pff_test_mapi_value"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,15 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\pff_test_allocation_table.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\pff_test_functions.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\pff_test_memory.c"
+				RelativePath="..\..\tests\pff_test_mapi_value.c"
 				>
 			</File>
 		</Filter>
@@ -193,18 +185,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\..\tests\pff_test_functions.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\pff_test_libbfio.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\pff_test_libcdata.h"
-				>
-			</File>
 			<File
 				RelativePath="..\..\tests\pff_test_libcerror.h"
 				>
@@ -215,10 +195,6 @@
 			</File>
 			<File
 				RelativePath="..\..\tests\pff_test_macros.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\pff_test_memory.h"
 				>
 			</File>
 			<File

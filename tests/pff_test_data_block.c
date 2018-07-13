@@ -35,6 +35,9 @@
 
 #include "../libpff/libpff_data_block.h"
 
+uint8_t pff_test_data_block_footer_32bit[ 12 ] = {
+	0x68, 0x05, 0xbe, 0x6f, 0x38, 0x0f, 0x00, 0x00, 0x7b, 0x67, 0x66, 0x1d };
+
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 /* Tests the libpff_data_block_free function
@@ -75,6 +78,133 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_data_block_read_footer_data function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_data_block_read_footer_data(
+     void )
+{
+	libpff_data_block_t *data_block = NULL;
+	libcerror_error_t *error        = NULL;
+	int result                      = 0;
+
+	/* Initialize test
+	 */
+
+	/* Test regular cases
+	 */
+
+	/* Test error cases
+	 */
+	result = libpff_data_block_read_footer_data(
+	          NULL,
+	          pff_test_data_block_footer_32bit,
+	          12,
+	          LIBPFF_FILE_TYPE_32BIT,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_data_block_read_footer_data(
+	          data_block,
+	          NULL,
+	          12,
+	          LIBPFF_FILE_TYPE_32BIT,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_data_block_read_footer_data(
+	          data_block,
+	          pff_test_data_block_footer_32bit,
+	          (size_t) SSIZE_MAX + 1,
+	          LIBPFF_FILE_TYPE_32BIT,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_data_block_read_footer_data(
+	          data_block,
+	          pff_test_data_block_footer_32bit,
+	          12,
+	          0xff,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_data_block_read_footer_data(
+	          data_block,
+	          pff_test_data_block_footer_32bit,
+	          0,
+	          LIBPFF_FILE_TYPE_32BIT,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -102,9 +232,13 @@ int main(
 
 	/* TODO: add tests for libpff_data_block_clone */
 
-	/* TODO: add tests for libpff_data_block_read_element_data */
+	PFF_TEST_RUN(
+	 "libpff_data_block_read_footer_data",
+	 pff_test_data_block_read_footer_data );
 
-	/* TODO: add tests for libpff_data_block_read */
+	/* TODO: add tests for libpff_data_block_read_file_io_handle */
+
+	/* TODO: add tests for libpff_data_block_read_element_data */
 
 	/* TODO: add tests for libpff_data_block_decrypt_data */
 

@@ -35,12 +35,12 @@
  * Returns 1 if the buffer contains zero bytes, 0 if not or -1 on error
  */
 int libpff_value_type_string_contains_zero_bytes(
-     uint8_t *buffer,
+     const uint8_t *buffer,
      size_t buffer_size,
      libcerror_error_t **error )
 {
 	static char *function   = "libpff_value_type_string_contains_zero_bytes";
-	size_t buffer_iterator  = 0;
+	size_t buffer_offset    = 0;
 	uint8_t zero_byte_found = 0;
 
 	if( buffer == NULL )
@@ -65,20 +65,20 @@ int libpff_value_type_string_contains_zero_bytes(
 
 		return( -1 );
 	}
-	for( buffer_iterator = 0;
-	     buffer_iterator < buffer_size;
-	     buffer_iterator++ )
+	for( buffer_offset = 0;
+	     buffer_offset < buffer_size;
+	     buffer_offset++ )
 	{
 		if( zero_byte_found == 0 )
 		{
-			if( buffer[ buffer_iterator ] == 0 )
+			if( buffer[ buffer_offset ] == 0 )
 			{
 				zero_byte_found = 1;
 			}
 		}
 		else
 		{
-			if( buffer[ buffer_iterator ] != 0 )
+			if( buffer[ buffer_offset ] != 0 )
 			{
 				return( 1 );
 			}
@@ -91,7 +91,7 @@ int libpff_value_type_string_contains_zero_bytes(
  * Returns 1 if successful or -1 on error
  */
 int libpff_value_type_copy_to_32bit(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint32_t *value_32bit,
      libcerror_error_t **error )
@@ -144,7 +144,7 @@ int libpff_value_type_copy_to_32bit(
  * Returns 1 if successful or -1 on error
  */
 int libpff_value_type_copy_to_64bit(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint64_t *value_64bit,
      libcerror_error_t **error )
@@ -197,7 +197,7 @@ int libpff_value_type_copy_to_64bit(
  * Returns 1 if successful or -1 on error
  */
 int libpff_value_type_get_utf8_string_size(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t is_ascii_string,
      uint32_t ascii_codepage,
@@ -315,7 +315,7 @@ int libpff_value_type_get_utf8_string_size(
  * Returns 1 if successful or -1 on error
  */
 int libpff_value_type_copy_to_utf8_string(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t is_ascii_string,
      uint32_t ascii_codepage,
@@ -460,7 +460,7 @@ int libpff_value_type_copy_to_utf8_string(
  * Returns 1 if successful or -1 on error
  */
 int libpff_value_type_get_utf16_string_size(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t is_ascii_string,
      uint32_t ascii_codepage,
@@ -578,7 +578,7 @@ int libpff_value_type_get_utf16_string_size(
  * Returns 1 if successful or -1 on error
  */
 int libpff_value_type_copy_to_utf16_string(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t is_ascii_string,
      uint32_t ascii_codepage,
@@ -723,7 +723,7 @@ int libpff_value_type_copy_to_utf16_string(
  * Returns 1 if successful or -1 on error
  */
 int libpff_value_type_get_binary_data_size(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      size_t *binary_data_size,
      libcerror_error_t **error )
@@ -758,7 +758,7 @@ int libpff_value_type_get_binary_data_size(
  * Returns 1 if successful or -1 on error
  */
 int libpff_value_type_copy_to_binary_data(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t *binary_data,
      size_t binary_data_size,

@@ -382,9 +382,10 @@ int libpff_recover_items(
 
 						goto on_error;
 					}
-					result = libpff_data_block_read(
+					result = libpff_data_block_read_file_io_handle(
 					          recovered_data_block,
 					          file_io_handle,
+					          offset_index_value->file_offset,
 					          offset_index_value->data_size,
 					          error );
 
