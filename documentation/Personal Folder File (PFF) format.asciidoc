@@ -43,7 +43,7 @@ in the section entitled "GNU Free Documentation License".
 [cols="1,1,1,5",options="header"]
 |===
 | Version | Author | Date | Comments
-| 0.0.1 | J.B. Metz | June 2008 | | Initial version based on earlier notes.
+| 0.0.1 | J.B. Metz | June 2008 | Initial version based on earlier notes.
 | 0.0.2 | J.B. Metz | June 2008 | Added information about LZFu compression and arrays.
 | 0.0.3 | J.B. Metz | July 2008 | Added information about allocation tables.
 | 0.0.4 | J.B. Metz | October 2008 | Updated for initial release.
@@ -156,13 +156,394 @@ information within this document:
 
 == File header
 
-[yellow-background]*TODO: migrate remainder of documentation*
+The file header common to both the 32-bit and 64-bit PFF format consists of 24
+bytes and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 4 | | Signature
+| 0 | 4 | "\x21\x42\x44\x4e" (!BDN) | The signature (magic identifier)
+| 4 | 4 | | A weak CRC32 of the following 471 bytes +
+In 64-bit files this CRC seems to be ignored because of the CRC at the end of the file header data at offset 524.
+| 8 | 2 | | The content type (client signature) +
+See section: <<content_types,Content types>>
+| 10 | 2 | | The data version (NDB version) +
+NDB is short for node database +
+See section: <<format_versions,Format versions>>
+| 12 | 2 | | Content version (Client version) +
+[yellow-background]*Unknown use*
+| 14 | 1 | 0x01 | Creation Platform +
+[yellow-background]*Unknown use* +
+must be 0x01 according to `[MS-PST]` +
+Seen 0x02 found in scanpst recovered pst
+| 15 | 1 | 0x01 | Access Platform +
+[yellow-background]*Unknown use* +
+must be 0x01 according to `[MS-PST]` +
+Seen 0x02 found in scanpst recovered pst
+| 16 | 4 | 0 | [yellow-background]*Unknown (dwOpenDBID)* +
+Reserved, sometimes contains: 0x40 0x00 0x00 0x00 (unclean unmount?)
+| 20 | 4 | 0 | [yellow-background]*Unknown (dwOpenClaimID)* +
+Reserved, (mostly empty) (unclean unmount?)
 |===
+
+=== [[content_types]]Content types
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| "\x41\x42" (AB) | | Used for PAB files
+| "\x53\x4d" (SM) | | Used for PST files
+| "\x53\x4f" (SO) | | Used for OST files
+|===
+
+=== [[format_types]]Format types
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| "\x0e\x00" | | 32-bit ANSI format
+| "\x0f\x00" | | 32-bit ANSI format
+| "\x15\x00" | | 64-bit Unicode format (by Visual Recovery)
+| "\x17\x00" | | 64-bit Unicode format
+| "\x24\x00" | | 64-bit Unicode format with 4k
+|===
+
+=== The 32-bit header data
+
+The 32-bit header data is 488 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 24 | 4 | | Next (available) index pointer
+| 28 | 4 | | Next (available) index back pointer +
+[yellow-background]*In more recent pst/ost files used for the density list at offset 0x4200*
+| 32 | 4 | | Seed value +
+Unique value for the CRC calculation, which changes for consecutive created files
+| 36 | 128 (32 x 4) | | Descriptor index high water marks (NID high-water marks)
+4+| _Part of the header data to which `[MS-PST]` refers to as the root_
+| 164 | 4 | 0 | [yellow-background]*Unknown (Reserved)*
+| 168 | 4 | | Total file size
+| 172 | 4 | | Last data allocation table offset +
+The file offset to the last data allocation table
+| 176 | 4 | | Total available data size
+| 180 | 4 | | Total available page size
+| 184 | 4 | | The descriptor index back pointer +
+the value that should appear in the parent offset of the root node of the descriptor index b-tree
+| 188 | 4 | | The descriptor index file offset +
+File offset of the the of the descriptor index b-tree
+| 192 | 4 | | The (file) offset index back pointer +
+the value that should appear in the parent offset of the root node of the (file) offset index b-tree
+| 196 | 4 | | The (file) offset index file offset +
+File offset of the the of the (file) offset index b-tree
+| 200 | 1 | | Allocation table validation type +
+See section: <<allocation_table_validation_types,Allocation table validation types>>
+| 201 | 1 | 0 | [yellow-background]*Unknown (Reserved)*
+| 202 | 2 | 0 | [yellow-background]*Unknown (Reserved)*
+4+| _End of the root_
+| 204 | 128 | | The initial data free map
+| 332 | 128 | | The initial page free map
+| 460 | 1 | 0x80 | Senitinal
+| 461 | 1 | | Encryption type +
+See section: <<encryption_types,Encryption types>>
+| 462 | 2 | 0 | [yellow-background]*Unknown (Reserved)* +
+[yellow-background]*In older formats (rgbReserved Index) which is 17 bytes of size*
+| 464 | 8 | 0 | [yellow-background]*Unknown (Reserved)*
+| 472 | 4 | 0 | [yellow-background]*Unknown (Reserved)*
+| 476 | 3 | 0 | [yellow-background]*Unknown (Reserved)*
+| 479 | 1 | 0 | [yellow-background]*Unknown (Reserved)*
+| 480 | 32 | 0 | [yellow-background]*Unknown (Reserved)*
+|===
+
+Data after file header data probably extended data for AMap
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 512 | 4 | | [yellow-background]*Unknown value* +
+[yellow-background]*Changes consecutive created pst files*
+| 516 | 4 | | [yellow-background]*Unknown value* +
+[yellow-background]*Changes consecutive created pst files*
+| 520 | 4 | | [yellow-background]*Unknown value* +
+[yellow-background]*Does not change in consecutive created pst files*
+| 524 | 4 | | [yellow-background]*Unknown value* +
+[yellow-background]*Changes consecutive created pst files*
+| 528 | 16880 | | [yellow-background]*Empty values*
+|===
+
+=== The 64-bit header data
+
+The 64-bit header data is 540 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 24 | 8 | | [yellow-background]*Unused (bidUnused)* +
+Sometimes contains: 0x04 0x00 0x00 0x00 0x01 0x00 0x00 0x00
+| 32 | 8 | | Next (available) index back pointer +
+In more recent pst/ost files used for the density list at offset 0x4200
+| 40 | 4 | | Seed value +
+Unique value for the CRC calculation, which changes for consecutive created files
+| 44 | 128 (32 x 4) | | Descriptor index high water marks (NID high-water marks)
+| 172 | 8 | 0 | [yellow-background]*Unknown (qwAlign)* +
+[yellow-background]*Unused*
+4+| _Part of the header data to which `[MS-PST]` refers to as the root_
+| 180 | 4 | 0 | [yellow-background]*Unknown (cOrphans)* +
+[yellow-background]*Reserved*
+| 184 | 8 | | Total file size
+| 192 | 8 | | Last data allocation table offset +
+The file offset to the last data allocation table
+| 200 | 8 | | Total available data size
+| 208 | 8 | | Total available page size
+| 216 | 8 | | The descriptor index back pointer +
+The value that should appear in the parent offset of the root node of the descriptor index b-tree
+| 224 | 8 | | The descriptor index file offset +
+File offset of the the of the descriptor index b-tree
+| 232 | 8 | | The (file) offset index back pointer +
+The value that should appear in the parent offset of the root node of the (file) offset index b-tree
+| 240 | 8 | | The (file) offset index file offset +
+File offset of the the of the (file) offset index b-tree
+| 248 | 1 | | Allocation table validation type +
+See section: <<allocation_table_validation_types,Allocation table validation types>>
+| 249 | 1 | 0 | [yellow-background]*Unknown (bARVec)* +
+[yellow-background]*Reserved*
+| 250 | 2 | 0 | [yellow-background]*Unknown (cARVec)* +
+[yellow-background]*Reserved*
+4+| _End of the root_
+| 252 | 4 | 0 | [yellow-background]*Unknown (dwAlign)* +
+Alignment data according to `[MS-PST]`
+| 256 | 128 | 0xff | The initial data free map +
+According to `[MS-PST]` deprecated
+| 384 | 128 | 0xff | The initial free page map +
+According to `[MS-PST]` deprecated
+| 512 | 1 | 0x80 | Senitinal
+| 513 | 1 | | Encryption type +
+See section: <<encryption_types,Encryption types>>
+| 514 | 2 | 0 | [yellow-background]*Unknown (bReserved)* +
+[yellow-background]*Reserved*
+| 516 | 8 | | Next (available) index pointer
+| 524 | 4 | | A weak CRC32 of the previous 516 bytes
+| 528 | 3 | 0 | [yellow-background]*Unknown (rgbVersionEncoded)* +
+[yellow-background]*Reserved*
+| 531 | 1 | 0 | [yellow-background]*Unknown (bLockSemaphore)* +
+[yellow-background]*Reserved*
+| 532 | 32 | 0 | [yellow-background]*Unknown (rgbLock)* +
+[yellow-background]*Reserved*
+|===
+
+Data after file header data probably extended data for AMap
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 538 | 8 | | [yellow-background]*Unknown value*
+| 546 | 8 | | [yellow-background]*Unknown value*
+| 552 | ... | |
+|===
+
+=== [[allocation_table_validation_types]]Allocation table validation types
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00 | INVALID_AMAP | One or more allocation tables are invalid
+| 0x01 | VALID_AMAP1 | All allocation tables are valid +
+According to `[MS-PST]` this value is deprecated
+| 0x02 | VALID_AMAP2 | All allocation tables are valid
+|===
+
+=== Descriptor index high water marks
+
+....
+Unknown use
+NID => Node ID ? Seems to be the equivalent of the items identifiers
+type=n is the number in the array
+
+Under high-water mark, any object less than the user's security level can be
+opened, but the object is relabeled to reflect the highest security level
+currently open. Hence the name.
+....
+
+==== Descriptor index high water mark type
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000400 | NID_TYPE_NORMAL_FOLDER | Folder or any other type
+| 0x00004000 | NID_TYPE_SEARCH_FOLDER | Search folder
+| 0x00008000 | NID_TYPE_ASSOC_MESSAGE | Associated content
+| 0x00010000 | NID_TYPE_NORMAL_MESSAGE | Message
+|===
+
+=== [[encryption_types]]Encryption types
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00 | NDB_CRYPT_NONE | No encryption
+| 0x01 | NDB_CRYPT_PERMUTE | Compressible encryption +
+According to `[MS-PST]` this is encryption with 'permutation algorithm', which is a substitution cipher
+| 0x02 | NDB_CRYPT_CYCLIC | High encryption +
+According to `[MS-PST]` this is encryption with 'cyclic algorithm', which is similar to the 3 rotor Enigma cipher
+|===
+
+== Pages
+
+`[MS-PST]` defines a common structure for the allocation table, the index
+b-tree, the free map and the density list as the page.
+
+=== The 32-bit page
+
+The 32-bit page is 512 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 500 | | Page data
+| 500 | 1 | | Page type +
+See section: <<page_types,Page types>>
+| 501 | 1 | | Copy of page type
+| 502 | 2 | | Signature
+| 504 | 4 | | The back pointer
+| 508 | 4 | | A weak CRC32 of the 496 bytes of the table data
+|===
+
+=== The 64-bit page
+
+The 64-bit page is 512 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 496 | | Page data
+| 496 | 1 | | Page type +
+See section: <<page_types,Page types>>
+| 497 | 1 | | Copy of page type
+| 498 | 2 | | Signature
+| 500 | 4 | | A weak CRC32 of the 496 bytes of the table data
+| 504 | 8 | | The back pointer
+|===
+
+=== The 64-bit 4k page
+
+The 64-bit 4k page is 4096 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 496 | | Page data
+| 4072 | 1 | | Page type +
+See section: <<page_types,Page types>>
+| 4073 | 1 | | Copy of page type
+| 4074 | 2 | | Signature
+| 4076 | 4 | | A weak CRC32 of the 4072 bytes of the table data
+| 4080 | 8 | | The back pointer
+| 4088 | 8 | | [yellow-background]*Unknown*
+|===
+
+=== [[page_types]]Page types
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x80 | ptypeBBT | Offset index b-tree node
+| 0x81 | ptypeNBT | Descriptor index b-tree node
+| 0x82 | ptypeFMap | Free map
+| 0x83 | ptypePMap | Page allocation table
+| 0x84 | ptypeAMap | Data allocation table
+| 0x85 | ptypeFPMap | Free page map
+| 0x86 | ptypeDL | Density list
+|===
+
+== The allocation table
+
+The PFF contains several allocation tables. These tables are used to describe 
+what parts of the PFF are in use and free. 
+
+=== The 32-bit allocation table
+
+The 32-bit allocation is 512 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | [yellow-background]*Unknown (Padding)*
+| 4 | 496 | | The allocation table data +
+Each bit represents a certain number of bytes (block). A value of 1 means that the block is allocated, 0 if not
+4+| _Footer 12 bytes of size_
+| 500 | 1 | 0x83 +
+0x84 | Page type +
+See section: <<page_types,Page types>> and <<allocation_table_types,Allocation table types>>
+| 501 | 1 | 0x83 +
+0x84 | Copy of page type
+| 502 | 2 | 0 | Signature +
+According to `[MS-PST]` this should be empty
+| 504 | 4 | | The back pointer +
+The value contains the allocation table offset
+| 508 | 4 | | A weak CRC32 of the 496 bytes of the allocation table data
+|===
+
+=== The 64-bit allocation table
+
+The 64-bit allocation is 512 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 496 | | The allocation table data +
+Each bit represents a certain number of bytes (block). A value of 1 means that the block is allocated, 0 if not
+4+| _Footer 16 bytes of size_
+| 496 | 1 | 0x83 +
+0x84 | Page type +
+See section: <<page_types,Page types>> and <<allocation_table_types,Allocation table types>>
+| 497 | 1 | 0x83 +
+0x84 | Copy of page type
+| 498 | 2 | | Signature +
+According to `[MS-PST]` this should be empty
+| 500 | 4 | | A weak CRC32 of the 496 bytes of the allocation table data
+| 504 | 8 | | The back pointer +
+The value contains the allocation table offset
+|===
+
+=== The 64-bit 4k page allocation table
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4072 | | The allocation table data +
+Each bit represents a certain number of bytes (block). A value of 1 means that the block is allocated, 0 if not
+4+| _Footer 24 bytes of size_
+| 4072 | 1 | [yellow-background]*0x83* +
+0x84 | Page type +
+See section: <<page_types,Page types>> and <<allocation_table_types,Allocation table types>>
+| 4073 | 1 | [yellow-background]*0x83* +
+0x84 | Copy of page type
+| 4074 | 2 | | Signature
+| 4076 | 4 | | A weak CRC32 of the first 4072 bytes of the allocation table data
+| 4080 | 8 | | Back pointer +
+The value contains the allocation table offset
+| 4088 | 8 | | [yellow-background]*Unknown*
+|===
+
+=== [[allocation_table_types]]Allocation table types
+
+For both the 32-bit ANSI format and the 64-bit Unicode format the behavior of
+the allocation tables is as following:
+
+* The allocation table at offset 0x4400 with page type 0x84 addresses 64 byte blocks. Where the first bit in the allocation table data refers to offset 0x4400. These are used for the data allocation. The tables repeat themselves every 496 x 8 x 64 = 253952 bytes.
+* The allocation table at offset 0x4600 with page type 0x83 addresses 512 byte blocks. Where the first bit in the allocation table data refers to offset 0x4400. These are used for the page allocation. The tables repeat themselves every 496 x 8 x 512 = 2031616 bytes.
+
+For the 64-bit Unicode format with 4k (4096 bytes) pages format the allocation
+tables is as following:
+
+* The allocation table at offset 0x22000 with page type 0x84 addresses 64 byte blocks. Where the first bit in the allocation table data refers to offset 0x22000. These are used for the data allocation. The tables repeat themselves every 4072 x 8 x 512 = 16678912 bytes.
+
+[NOTE]
+Page type 0x83 not yet been seen to be used with the 64-bit Unicode format with 4k format.
+
+== The index b-tree
+
+[yellow-background]*TODO: migrate remainder of documentation*
 
 :numbered!:
 [appendix]
