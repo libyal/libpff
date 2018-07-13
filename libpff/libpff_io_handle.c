@@ -1436,11 +1436,11 @@ int libpff_io_handle_read_index_node(
 
 		goto on_error;
 	}
-	if( libpff_index_node_read(
+	if( libpff_index_node_read_file_io_handle(
 	     index_node,
-	     io_handle,
 	     file_io_handle,
 	     element_data_offset,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

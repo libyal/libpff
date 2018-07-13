@@ -2034,11 +2034,11 @@ int libpff_recover_index_values(
 
 		goto on_error;
 	}
-	if( libpff_index_node_read(
+	if( libpff_index_node_read_file_io_handle(
 	     index_node,
-	     (libpff_io_handle_t *) io_handle,
 	     file_io_handle,
 	     node_offset,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )

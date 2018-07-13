@@ -487,7 +487,7 @@ int libpff_data_block_read_footer_data(
 			 value_16bit );
 
 			libcnotify_printf(
-			 "%s: uncompressed data size\t\t\t: %" PRIu16 "\n",
+			 "%s: uncompressed data size\t\t: %" PRIu16 "\n",
 			 function,
 			 data_block->uncompressed_data_size );
 

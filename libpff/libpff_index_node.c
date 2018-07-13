@@ -219,21 +219,21 @@ int libpff_index_node_get_entry_data(
 /* Reads an index node
  * Returns 1 if successful or -1 on error
  */
-int libpff_index_node_read(
+int libpff_index_node_read_data(
      libpff_index_node_t *index_node,
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     off64_t node_offset,
+     const uint8_t *data,
+     size_t data_size,
+     uint8_t file_type,
      libcerror_error_t **error )
 {
-	uint8_t *index_node_footer_data              = NULL;
-	static char *function                        = "libpff_index_node_read";
-	ssize_t read_count                           = 0;
+	static char *function                        = "libpff_index_node_read_data";
+	size_t checksum_data_size                    = 0;
+	size_t index_node_data_size                  = 0;
+	size_t index_node_footer_data_size           = 0;
+	size_t maximum_entries_data_size             = 0;
 	uint32_t calculated_checksum                 = 0;
-	uint32_t stored_checksum                     = 0;
 	uint8_t calculated_entry_size                = 0;
 	uint8_t calculated_maximum_number_of_entries = 0;
-	uint8_t index_node_type_copy                 = 0;
 	int result                                   = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -256,31 +256,31 @@ int libpff_index_node_read(
 
 		return( -1 );
 	}
-	if( index_node->data != NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid index node - data already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( io_handle == NULL )
+	if( data == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
+		 "%s: invalid data.",
 		 function );
 
 		return( -1 );
 	}
-	if( ( io_handle->file_type != LIBPFF_FILE_TYPE_32BIT )
-	 && ( io_handle->file_type != LIBPFF_FILE_TYPE_64BIT )
-	 && ( io_handle->file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	if( data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( file_type != LIBPFF_FILE_TYPE_32BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -291,77 +291,36 @@ int libpff_index_node_read(
 
 		return( -1 );
 	}
-	if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+	if( file_type == LIBPFF_FILE_TYPE_32BIT )
 	{
-		index_node->data_size                 = 512;
-		index_node->maximum_entries_data_size = 512 - sizeof( pff_index_node_32bit_footer_t );
+		checksum_data_size          = 500;
+		index_node_data_size        = 512;
+		index_node_footer_data_size = sizeof( pff_index_node_32bit_footer_t );
 	}
-	else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT )
 	{
-		index_node->data_size                 = 512;
-		index_node->maximum_entries_data_size = 512 - sizeof( pff_index_node_64bit_footer_t );
+		checksum_data_size          = 496;
+		index_node_data_size        = 512;
+		index_node_footer_data_size = sizeof( pff_index_node_64bit_footer_t );
 	}
-	else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
 	{
-		index_node->data_size                 = 4096;
-		index_node->maximum_entries_data_size = 4096 - sizeof( pff_index_node_64bit_4k_page_footer_t );
+		checksum_data_size          = 4072;
+		index_node_data_size        = 4096;
+		index_node_footer_data_size = sizeof( pff_index_node_64bit_4k_page_footer_t );
 	}
-	index_node->data = (uint8_t *) memory_allocate(
-	                                sizeof( uint8_t ) * index_node->data_size );
+	maximum_entries_data_size = index_node_data_size - index_node_footer_data_size;
 
-	if( index_node->data == NULL )
+	if( data_size < index_node_data_size )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create index node data.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid data size value too small.",
 		 function );
 
-		goto on_error;
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading index node data at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 node_offset,
-		 node_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     node_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek node offset: %" PRIi64 ".",
-		 function,
-		 node_offset );
-
-		goto on_error;
-	}
-	read_count = libbfio_handle_read_buffer(
-	              file_io_handle,
-	              index_node->data,
-	              index_node->data_size,
-	              error );
-
-	if( read_count != (ssize_t) index_node->data_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read index node data.",
-		 function );
-
-		goto on_error;
+		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -370,30 +329,59 @@ int libpff_index_node_read(
 		 "%s: index node data:\n",
 		 function );
 		libcnotify_print_data(
-		 index_node->data,
-		 index_node->data_size,
+		 data,
+		 data_size,
 		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
-	index_node_footer_data = &( index_node->data[ index_node->maximum_entries_data_size ] );
-
-	if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+	if( libpff_index_node_read_footer_data(
+	     index_node,
+	     &( data[ maximum_entries_data_size ] ),
+	     index_node_footer_data_size,
+	     file_type,
+	     error ) != 1 )
 	{
-		index_node->type     = ( (pff_index_node_32bit_footer_t *) index_node_footer_data )->type;
-		index_node_type_copy = ( (pff_index_node_32bit_footer_t *) index_node_footer_data )->type_copy;
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read index node footer.",
+		 function );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (pff_index_node_32bit_footer_t *) index_node_footer_data )->back_pointer,
-		 index_node->back_pointer );
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (pff_index_node_32bit_footer_t *) index_node_footer_data )->checksum,
-		 stored_checksum );
+		return( -1 );
+	}
+	if( libfmapi_checksum_calculate_weak_crc32(
+	     &calculated_checksum,
+	     data,
+	     checksum_data_size,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to calculate weak CRC-32.",
+		 function );
 
-		index_node->number_of_entries         = ( (pff_index_node_32bit_footer_t *) index_node_footer_data )->number_of_entries;
-		index_node->maximum_number_of_entries = ( (pff_index_node_32bit_footer_t *) index_node_footer_data )->maximum_number_of_entries;
-		index_node->entry_size                = ( (pff_index_node_32bit_footer_t *) index_node_footer_data )->entry_size;
-		index_node->level                     = ( (pff_index_node_32bit_footer_t *) index_node_footer_data )->level;
-
+		return( -1 );
+	}
+	if( index_node->stored_checksum != calculated_checksum )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: mismatch in checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
+			 function,
+			 index_node->stored_checksum,
+			 calculated_checksum );
+		}
+#endif
+		/* TODO smart error handling */
+	}
+	if( file_type == LIBPFF_FILE_TYPE_32BIT )
+	{
 		if( ( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
 		 && ( index_node->level == LIBPFF_INDEX_NODE_LEVEL_LEAF ) )
 		{
@@ -406,23 +394,8 @@ int libpff_index_node_read(
 			calculated_maximum_number_of_entries = 496 / 12;
 		}
 	}
-	else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT )
 	{
-		index_node->type     = ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->type;
-		index_node_type_copy = ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->type_copy;
-
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->checksum,
-		 stored_checksum );
-		byte_stream_copy_to_uint64_little_endian(
-		 ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->back_pointer,
-		 index_node->back_pointer );
-
-		index_node->number_of_entries         = ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->number_of_entries;
-		index_node->maximum_number_of_entries = ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->maximum_number_of_entries;
-		index_node->entry_size                = ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->entry_size;
-		index_node->level                     = ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->level;
-
 		if( ( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
 		 && ( index_node->level == LIBPFF_INDEX_NODE_LEVEL_LEAF ) )
 		{
@@ -435,28 +408,8 @@ int libpff_index_node_read(
 			calculated_maximum_number_of_entries = 488 / 24;
 		}
 	}
-	else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
 	{
-		index_node->type     = ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->type;
-		index_node_type_copy = ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->type_copy;
-
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->checksum,
-		 stored_checksum );
-		byte_stream_copy_to_uint64_little_endian(
-		 ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->back_pointer,
-		 index_node->back_pointer );
-
-		byte_stream_copy_to_uint16_little_endian(
-		 ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->number_of_entries,
-		 index_node->number_of_entries );
-		byte_stream_copy_to_uint16_little_endian(
-		 ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->maximum_number_of_entries,
-		 index_node->maximum_number_of_entries );
-
-		index_node->entry_size = ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->entry_size;
-		index_node->level      = ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->level;
-
 		if( ( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
 		 && ( index_node->level == LIBPFF_INDEX_NODE_LEVEL_LEAF ) )
 		{
@@ -468,213 +421,6 @@ int libpff_index_node_read(
 			calculated_entry_size                = 24;
 			calculated_maximum_number_of_entries = 4056 / 24;
 		}
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: number of entries\t\t\t\t: %" PRIu16 "\n",
-		 function,
-		 index_node->number_of_entries );
-
-		libcnotify_printf(
-		 "%s: maximum number of entries\t\t\t: %" PRIu16 "\n",
-		 function,
-		 index_node->maximum_number_of_entries );
-
-		libcnotify_printf(
-		 "%s: entry size\t\t\t\t\t: %" PRIu8 "\n",
-		 function,
-		 index_node->entry_size );
-
-		libcnotify_printf(
-		 "%s: node level\t\t\t\t\t: %" PRIu8 "\n",
-		 function,
-		 index_node->level );
-
-		if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-		{
-			libcnotify_printf(
-			 "%s: padding:\n",
-			 function );
-			libcnotify_print_data(
-			 ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->padding1,
-			 4,
-			 0 );
-		}
-		else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
-		{
-			libcnotify_printf(
-			 "%s: padding:\n",
-			 function );
-			libcnotify_print_data(
-			 ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->padding1,
-			 10,
-			 0 );
-		}
-		libcnotify_printf(
-		 "%s: index node type\t\t\t\t\t: 0x%02" PRIx8 "\n",
-		 function,
-		 index_node->type );
-		libcnotify_printf(
-		 "%s: index node type copy\t\t\t\t: 0x%02" PRIx8 "\n",
-		 function,
-		 index_node_type_copy );
-
-		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
-		{
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_index_node_32bit_footer_t *) index_node_footer_data )->signature,
-			 value_16bit );
-			libcnotify_printf(
-			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
-			 function,
-			 value_16bit );
-
-			libcnotify_printf(
-			 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
-			 function,
-			 index_node->back_pointer );
-			libcnotify_printf(
-			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
-			 function,
-			 stored_checksum );
-		}
-		else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-		{
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_index_node_64bit_footer_t *) index_node_footer_data )->signature,
-			 value_16bit );
-			libcnotify_printf(
-			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
-			 function,
-			 value_16bit );
-
-			libcnotify_printf(
-			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
-			 function,
-			 stored_checksum );
-			libcnotify_printf(
-			 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
-			 function,
-			 index_node->back_pointer );
-		}
-		else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
-		{
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->signature,
-			 value_16bit );
-			libcnotify_printf(
-			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
-			 function,
-			 value_16bit );
-
-			libcnotify_printf(
-			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
-			 function,
-			 stored_checksum );
-			libcnotify_printf(
-			 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
-			 function,
-			 index_node->back_pointer );
-
-			byte_stream_copy_to_uint64_little_endian(
-			 ( (pff_index_node_64bit_4k_page_footer_t *) index_node_footer_data )->unknown1,
-			 value_64bit );
-			libcnotify_printf(
-			 "%s: unknown1\t\t\t\t\t: 0x%08" PRIx64 "\n",
-			 function,
-			 value_64bit );
-		}
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif
-
-	if( index_node->type != index_node_type_copy )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: mismatch in index node type (0x%02" PRIx8 " != 0x%02" PRIx8 ").\n",
-			 function,
-			 index_node->type,
-			 index_node_type_copy );
-		}
-#endif
-		if( ( index_node->type != LIBPFF_INDEX_TYPE_DESCRIPTOR )
-		 && ( index_node->type != LIBPFF_INDEX_TYPE_OFFSET )
-		 && ( ( index_node_type_copy == LIBPFF_INDEX_TYPE_DESCRIPTOR )
-		   || ( index_node_type_copy == LIBPFF_INDEX_TYPE_OFFSET ) ) )
-		{
-			index_node->type = index_node_type_copy;
-		}
-	}
-	if( ( index_node->type != LIBPFF_INDEX_TYPE_DESCRIPTOR )
-	 && ( index_node->type != LIBPFF_INDEX_TYPE_OFFSET ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported index node type: 0x%02" PRIx8 ".",
-		 function,
-		 index_node->type );
-
-		goto on_error;
-	}
-	if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
-	{
-		result = libfmapi_checksum_calculate_weak_crc32(
-		          &calculated_checksum,
-		          index_node->data,
-		          500,
-		          0,
-		          error );
-	}
-	else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-	{
-		result = libfmapi_checksum_calculate_weak_crc32(
-		          &calculated_checksum,
-		          index_node->data,
-		          496,
-		          0,
-		          error );
-	}
-	else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
-	{
-		result = libfmapi_checksum_calculate_weak_crc32(
-		          &calculated_checksum,
-		          index_node->data,
-		          4072,
-		          0,
-		          error );
-	}
-	if( result != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to calculate weak CRC-32.",
-		 function );
-
-		goto on_error;
-	}
-	if( stored_checksum != calculated_checksum )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: mismatch in checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
-			 function,
-			 stored_checksum,
-			 calculated_checksum );
-		}
-#endif
-		/* TODO smart error handling */
 	}
 	if( ( index_node->entry_size != 0 )
 	 && ( index_node->entry_size != calculated_entry_size ) )
@@ -720,24 +466,24 @@ int libpff_index_node_read(
 #endif
 		index_node->number_of_entries = index_node->maximum_number_of_entries;
 	}
-	if( ( (uint16_t) index_node->number_of_entries * (uint16_t) index_node->entry_size ) > index_node->maximum_entries_data_size )
+	if( ( (uint16_t) index_node->number_of_entries * (uint16_t) index_node->entry_size ) > maximum_entries_data_size )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: size of entries: %" PRIu16 ", exceeds maximum: %" PRIu16 ".",
+		 "%s: size of entries: %" PRIu16 ", exceeds maximum: %" PRIzd ".",
 		 function,
 		 index_node->number_of_entries * index_node->entry_size,
-		 index_node->maximum_entries_data_size );
+		 maximum_entries_data_size );
 
-		goto on_error;
+		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		index_node_entry_data      = index_node->data;
-		index_node_entry_data_size = index_node->maximum_entries_data_size;
+		index_node_entry_data_size = maximum_entries_data_size;
 
 		/* Print all the entries
 		 */
@@ -773,14 +519,14 @@ int libpff_index_node_read(
 				 "%s: remaining node entries\n",
 				 function );
 			}
-			if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+			if( file_type == LIBPFF_FILE_TYPE_32BIT )
 			{
 				byte_stream_copy_to_uint32_little_endian(
 				 index_node_entry_data,
 				 value_64bit );
 			}
-			else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-			      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+			else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+			      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 			{
 				byte_stream_copy_to_uint64_little_endian(
 				 index_node_entry_data,
@@ -798,14 +544,14 @@ int libpff_index_node_read(
 			if( ( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
 			 && ( index_node->level == LIBPFF_INDEX_NODE_LEVEL_LEAF ) )
 			{
-				if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+				if( file_type == LIBPFF_FILE_TYPE_32BIT )
 				{
 					byte_stream_copy_to_uint32_little_endian(
 					 ( (pff_index_node_descriptor_entry_32bit_t *) index_node_entry_data )->data_identifier,
 					 value_64bit );
 				}
-				else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-				      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+				else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+				      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 				{
 					byte_stream_copy_to_uint64_little_endian(
 					 ( (pff_index_node_descriptor_entry_64bit_t *) index_node_entry_data )->data_identifier,
@@ -818,14 +564,14 @@ int libpff_index_node_read(
 				 value_64bit,
 				 value_64bit );
 
-				if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+				if( file_type == LIBPFF_FILE_TYPE_32BIT )
 				{
 					byte_stream_copy_to_uint32_little_endian(
 					 ( (pff_index_node_descriptor_entry_32bit_t *) index_node_entry_data )->local_descriptors_identifier,
 					 value_64bit );
 				}
-				else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-				      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+				else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+				      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 				{
 					byte_stream_copy_to_uint64_little_endian(
 					 ( (pff_index_node_descriptor_entry_64bit_t *) index_node_entry_data )->local_descriptors_identifier,
@@ -838,14 +584,14 @@ int libpff_index_node_read(
 				 value_64bit,
 				 value_64bit );
 
-				if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+				if( file_type == LIBPFF_FILE_TYPE_32BIT )
 				{
 					byte_stream_copy_to_uint32_little_endian(
 					 ( (pff_index_node_descriptor_entry_32bit_t *) index_node_entry_data )->parent_identifier,
 					 value_32bit );
 				}
-				else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-				      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+				else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+				      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 				{
 					byte_stream_copy_to_uint32_little_endian(
 					 ( (pff_index_node_descriptor_entry_64bit_t *) index_node_entry_data )->parent_identifier,
@@ -858,8 +604,8 @@ int libpff_index_node_read(
 				 value_32bit,
 				 value_32bit );
 
-				if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-				 || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+				if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+				 || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 				{
 					byte_stream_copy_to_uint32_little_endian(
 					 ( (pff_index_node_descriptor_entry_64bit_t *) index_node_entry_data )->unknown1,
@@ -879,14 +625,14 @@ int libpff_index_node_read(
 			{
 				if( index_node->level != LIBPFF_INDEX_NODE_LEVEL_LEAF )
 				{
-					if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+					if( file_type == LIBPFF_FILE_TYPE_32BIT )
 					{
 						byte_stream_copy_to_uint32_little_endian(
 						 ( (pff_index_node_branch_entry_32bit_t *) index_node_entry_data )->back_pointer,
 						 value_64bit );
 					}
-					else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-					      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+					else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+					      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 					{
 						byte_stream_copy_to_uint64_little_endian(
 						 ( (pff_index_node_branch_entry_64bit_t *) index_node_entry_data )->back_pointer,
@@ -900,14 +646,14 @@ int libpff_index_node_read(
 				}
 				if( index_node->level == LIBPFF_INDEX_NODE_LEVEL_LEAF )
 				{
-					if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+					if( file_type == LIBPFF_FILE_TYPE_32BIT )
 					{
 						byte_stream_copy_to_uint32_little_endian(
 						 ( (pff_index_node_offset_entry_32bit_t *) index_node_entry_data )->file_offset,
 						 value_64bit );
 					}
-					else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-					      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+					else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+					      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 					{
 						byte_stream_copy_to_uint64_little_endian(
 						 ( (pff_index_node_offset_entry_64bit_t *) index_node_entry_data )->file_offset,
@@ -916,14 +662,14 @@ int libpff_index_node_read(
 				}
 				else
 				{
-					if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+					if( file_type == LIBPFF_FILE_TYPE_32BIT )
 					{
 						byte_stream_copy_to_uint32_little_endian(
 						 ( (pff_index_node_branch_entry_32bit_t *) index_node_entry_data )->file_offset,
 						 value_64bit );
 					}
-					else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-					      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+					else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+					      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 					{
 						byte_stream_copy_to_uint64_little_endian(
 						 ( (pff_index_node_branch_entry_64bit_t *) index_node_entry_data )->file_offset,
@@ -939,14 +685,14 @@ int libpff_index_node_read(
 
 				if( index_node->level == LIBPFF_INDEX_NODE_LEVEL_LEAF )
 				{
-					if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+					if( file_type == LIBPFF_FILE_TYPE_32BIT )
 					{
 						byte_stream_copy_to_uint16_little_endian(
 						 ( (pff_index_node_offset_entry_32bit_t *) index_node_entry_data )->data_size,
 						 value_16bit );
 					}
-					else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-					      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+					else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+					      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 					{
 						byte_stream_copy_to_uint16_little_endian(
 						 ( (pff_index_node_offset_entry_64bit_t *) index_node_entry_data )->data_size,
@@ -958,14 +704,14 @@ int libpff_index_node_read(
 					 entry_index,
 					 value_16bit );
 
-					if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+					if( file_type == LIBPFF_FILE_TYPE_32BIT )
 					{
 						byte_stream_copy_to_uint16_little_endian(
 						 ( (pff_index_node_offset_entry_32bit_t *) index_node_entry_data )->reference_count,
 						 value_16bit );
 					}
-					else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-					      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+					else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+					      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 					{
 						byte_stream_copy_to_uint16_little_endian(
 						 ( (pff_index_node_offset_entry_64bit_t *) index_node_entry_data )->reference_count,
@@ -977,8 +723,8 @@ int libpff_index_node_read(
 					 entry_index,
 					 value_16bit );
 
-					if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-					 || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+					if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+					 || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 					{
 						byte_stream_copy_to_uint32_little_endian(
 						 ( (pff_index_node_offset_entry_64bit_t *) index_node_entry_data )->data_allocation_table_file_offset,
@@ -999,9 +745,459 @@ int libpff_index_node_read(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
-	index_node->entries_data = index_node->data;
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	index_node->entries_data              = index_node->data;
+	index_node->maximum_entries_data_size = (uint16_t) maximum_entries_data_size;
+
+	return( 1 );
+}
+
+/* Reads an index node footer
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_node_read_footer_data(
+     libpff_index_node_t *index_node,
+     const uint8_t *data,
+     size_t data_size,
+     uint8_t file_type,
+     libcerror_error_t **error )
+{
+	static char *function              = "libpff_index_node_read_footer_data";
+	size_t index_node_footer_data_size = 0;
+	uint8_t index_node_type_copy       = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint64_t value_64bit               = 0;
+	uint16_t value_16bit               = 0;
+#endif
+
+	if( index_node == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index node.",
+		 function );
+
+		return( -1 );
+	}
+	if( data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( file_type != LIBPFF_FILE_TYPE_32BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported file type.",
+		 function );
+
+		return( -1 );
+	}
+	if( file_type == LIBPFF_FILE_TYPE_32BIT )
+	{
+		index_node_footer_data_size = sizeof( pff_index_node_32bit_footer_t );;
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT )
+	{
+		index_node_footer_data_size = sizeof( pff_index_node_64bit_footer_t );;
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+	{
+		index_node_footer_data_size = sizeof( pff_index_node_64bit_4k_page_footer_t );
+	}
+	if( data_size < index_node_footer_data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid data size value too small.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: index node footer data:\n",
+		 function );
+		libcnotify_print_data(
+		 data,
+		 data_size,
+		 0 );
+	}
+#endif
+	if( file_type == LIBPFF_FILE_TYPE_32BIT )
+	{
+		index_node->type     = ( (pff_index_node_32bit_footer_t *) data )->type;
+		index_node_type_copy = ( (pff_index_node_32bit_footer_t *) data )->type_copy;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (pff_index_node_32bit_footer_t *) data )->back_pointer,
+		 index_node->back_pointer );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (pff_index_node_32bit_footer_t *) data )->checksum,
+		 index_node->stored_checksum );
+
+		index_node->number_of_entries         = ( (pff_index_node_32bit_footer_t *) data )->number_of_entries;
+		index_node->maximum_number_of_entries = ( (pff_index_node_32bit_footer_t *) data )->maximum_number_of_entries;
+		index_node->entry_size                = ( (pff_index_node_32bit_footer_t *) data )->entry_size;
+		index_node->level                     = ( (pff_index_node_32bit_footer_t *) data )->level;
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT )
+	{
+		index_node->type     = ( (pff_index_node_64bit_footer_t *) data )->type;
+		index_node_type_copy = ( (pff_index_node_64bit_footer_t *) data )->type_copy;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (pff_index_node_64bit_footer_t *) data )->checksum,
+		 index_node->stored_checksum );
+		byte_stream_copy_to_uint64_little_endian(
+		 ( (pff_index_node_64bit_footer_t *) data )->back_pointer,
+		 index_node->back_pointer );
+
+		index_node->number_of_entries         = ( (pff_index_node_64bit_footer_t *) data )->number_of_entries;
+		index_node->maximum_number_of_entries = ( (pff_index_node_64bit_footer_t *) data )->maximum_number_of_entries;
+		index_node->entry_size                = ( (pff_index_node_64bit_footer_t *) data )->entry_size;
+		index_node->level                     = ( (pff_index_node_64bit_footer_t *) data )->level;
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+	{
+		index_node->type     = ( (pff_index_node_64bit_4k_page_footer_t *) data )->type;
+		index_node_type_copy = ( (pff_index_node_64bit_4k_page_footer_t *) data )->type_copy;
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->checksum,
+		 index_node->stored_checksum );
+		byte_stream_copy_to_uint64_little_endian(
+		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->back_pointer,
+		 index_node->back_pointer );
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->number_of_entries,
+		 index_node->number_of_entries );
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->maximum_number_of_entries,
+		 index_node->maximum_number_of_entries );
+
+		index_node->entry_size = ( (pff_index_node_64bit_4k_page_footer_t *) data )->entry_size;
+		index_node->level      = ( (pff_index_node_64bit_4k_page_footer_t *) data )->level;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: number of entries\t\t\t\t: %" PRIu16 "\n",
+		 function,
+		 index_node->number_of_entries );
+
+		libcnotify_printf(
+		 "%s: maximum number of entries\t\t\t: %" PRIu16 "\n",
+		 function,
+		 index_node->maximum_number_of_entries );
+
+		libcnotify_printf(
+		 "%s: entry size\t\t\t\t\t: %" PRIu8 "\n",
+		 function,
+		 index_node->entry_size );
+
+		libcnotify_printf(
+		 "%s: node level\t\t\t\t\t: %" PRIu8 "\n",
+		 function,
+		 index_node->level );
+
+		if( file_type == LIBPFF_FILE_TYPE_64BIT )
+		{
+			libcnotify_printf(
+			 "%s: padding:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (pff_index_node_64bit_footer_t *) data )->padding1,
+			 4,
+			 0 );
+		}
+		else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+		{
+			libcnotify_printf(
+			 "%s: padding:\n",
+			 function );
+			libcnotify_print_data(
+			 ( (pff_index_node_64bit_4k_page_footer_t *) data )->padding1,
+			 10,
+			 0 );
+		}
+		libcnotify_printf(
+		 "%s: index node type\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 function,
+		 index_node->type );
+		libcnotify_printf(
+		 "%s: index node type copy\t\t\t\t: 0x%02" PRIx8 "\n",
+		 function,
+		 index_node_type_copy );
+
+		if( file_type == LIBPFF_FILE_TYPE_32BIT )
+		{
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (pff_index_node_32bit_footer_t *) data )->signature,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
+			 function,
+			 value_16bit );
+
+			libcnotify_printf(
+			 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
+			 function,
+			 index_node->back_pointer );
+			libcnotify_printf(
+			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 index_node->stored_checksum );
+		}
+		else if( file_type == LIBPFF_FILE_TYPE_64BIT )
+		{
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (pff_index_node_64bit_footer_t *) data )->signature,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
+			 function,
+			 value_16bit );
+
+			libcnotify_printf(
+			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 index_node->stored_checksum );
+			libcnotify_printf(
+			 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
+			 function,
+			 index_node->back_pointer );
+		}
+		else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+		{
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (pff_index_node_64bit_4k_page_footer_t *) data )->signature,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
+			 function,
+			 value_16bit );
+
+			libcnotify_printf(
+			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 index_node->stored_checksum );
+			libcnotify_printf(
+			 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
+			 function,
+			 index_node->back_pointer );
+
+			byte_stream_copy_to_uint64_little_endian(
+			 ( (pff_index_node_64bit_4k_page_footer_t *) data )->unknown1,
+			 value_64bit );
+			libcnotify_printf(
+			 "%s: unknown1\t\t\t\t\t: 0x%08" PRIx64 "\n",
+			 function,
+			 value_64bit );
+		}
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+	if( index_node->type != index_node_type_copy )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: mismatch in index node type (0x%02" PRIx8 " != 0x%02" PRIx8 ").\n",
+			 function,
+			 index_node->type,
+			 index_node_type_copy );
+		}
+#endif
+		if( ( index_node->type != LIBPFF_INDEX_TYPE_DESCRIPTOR )
+		 && ( index_node->type != LIBPFF_INDEX_TYPE_OFFSET )
+		 && ( ( index_node_type_copy == LIBPFF_INDEX_TYPE_DESCRIPTOR )
+		   || ( index_node_type_copy == LIBPFF_INDEX_TYPE_OFFSET ) ) )
+		{
+			index_node->type = index_node_type_copy;
+		}
+	}
+	if( ( index_node->type != LIBPFF_INDEX_TYPE_DESCRIPTOR )
+	 && ( index_node->type != LIBPFF_INDEX_TYPE_OFFSET ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported index node type: 0x%02" PRIx8 ".",
+		 function,
+		 index_node->type );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Reads an index node
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_node_read_file_io_handle(
+     libpff_index_node_t *index_node,
+     libbfio_handle_t *file_io_handle,
+     off64_t node_offset,
+     uint8_t file_type,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_index_node_read_file_io_handle";
+	ssize_t read_count    = 0;
+
+	if( index_node == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index node.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_node->data != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid index node - data already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( file_type != LIBPFF_FILE_TYPE_32BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported file type.",
+		 function );
+
+		return( -1 );
+	}
+	if( (file_type == LIBPFF_FILE_TYPE_32BIT )
+	 || ( file_type == LIBPFF_FILE_TYPE_64BIT ) )
+	{
+		index_node->data_size = 512;
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+	{
+		index_node->data_size = 4096;
+	}
+	index_node->data = (uint8_t *) memory_allocate(
+	                                sizeof( uint8_t ) * index_node->data_size );
+
+	if( index_node->data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create index node data.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading index node data at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 node_offset,
+		 node_offset );
+	}
+#endif
+	if( libbfio_handle_seek_offset(
+	     file_io_handle,
+	     node_offset,
+	     SEEK_SET,
+	     error ) == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek index node offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 node_offset,
+		 node_offset );
+
+		goto on_error;
+	}
+	read_count = libbfio_handle_read_buffer(
+	              file_io_handle,
+	              index_node->data,
+	              index_node->data_size,
+	              error );
+
+	if( read_count != (ssize_t) index_node->data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read index node data.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_index_node_read_data(
+	     index_node,
+	     index_node->data,
+	     index_node->data_size,
+	     file_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read index node.",
+		 function );
+
+		goto on_error;
+	}
 	return( 1 );
 
 on_error:
