@@ -588,6 +588,7 @@ int libpff_name_to_id_map_entry_read(
 	libpff_internal_name_to_id_map_entry_t *internal_name_to_id_map_entry = NULL;
 	uint8_t *name_to_id_map_string_data                                   = NULL;
 	static char *function                                                 = "libpff_name_to_id_map_entry_read";
+	size_t name_to_id_map_class_identifier_data_offset                    = 0;
 	uint32_t name_to_id_map_entry_value                                   = 0;
 	uint32_t name_to_id_map_string_size                                   = 0;
 	uint16_t name_to_id_map_class_identifier_index                        = 0;
@@ -688,7 +689,9 @@ int libpff_name_to_id_map_entry_read(
 	{
 		name_to_id_map_class_identifier_index = (uint16_t) ( ( name_to_id_map_entry_type / 2 ) - 3 );
 
-		if( (size_t) name_to_id_map_class_identifier_index >= ( ( name_to_id_map_class_identifiers_data_size - 16 ) / 16 ) )
+		name_to_id_map_class_identifier_data_offset = (size_t) name_to_id_map_class_identifier_index * 16;
+
+		if( name_to_id_map_class_identifier_data_offset > ( name_to_id_map_class_identifiers_data_size - 16 ) )
 		{
 			libcerror_error_set(
 			 error,
@@ -701,7 +704,7 @@ int libpff_name_to_id_map_entry_read(
 		}
 		if( memory_copy(
 		     internal_name_to_id_map_entry->guid,
-		     &( name_to_id_map_class_identifiers_data[ name_to_id_map_class_identifier_index * 16 ] ),
+		     &( name_to_id_map_class_identifiers_data[ name_to_id_map_class_identifier_data_offset ] ),
 		     16 ) == NULL )
 		{
 			libcerror_error_set(
