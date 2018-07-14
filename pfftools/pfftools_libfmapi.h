@@ -32,7 +32,6 @@
 #include <libfmapi_checksum.h>
 #include <libfmapi_definitions.h>
 #include <libfmapi_entry_identifier.h>
-#include <libfmapi_guid.h>
 #include <libfmapi_lzfu.h>
 #include <libfmapi_property_type.h>
 #include <libfmapi_one_off_entry_identifier.h>
@@ -55,7 +54,7 @@
 
 #include <libfmapi.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBFMAPI ) */
 
-#endif
+#endif /* !defined( _PFFTOOLS_LIBFMAPI_H ) */
 

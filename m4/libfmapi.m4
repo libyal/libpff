@@ -1,10 +1,10 @@
 dnl Functions for libfmapi
 dnl
-dnl Version: 20180405
+dnl Version: 20180714
 
 dnl Function to detect if libfmapi is available
 dnl ac_libfmapi_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
-AC_DEFUN([AX_LIBFWPS_CHECK_LIB],
+AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
   [dnl Check if parameters were provided
   AS_IF(
     [test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xno && test "x$ac_cv_with_libfmapi" != xauto-detect],
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBFWPS_CHECK_LIB],
       [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
       [PKG_CHECK_MODULES(
         [libfmapi],
-        [libfmapi >= 20140622],
+        [libfmapi >= 20180714],
         [ac_cv_libfmapi=yes],
         [ac_cv_libfmapi=no])
       ])
@@ -157,6 +157,13 @@ AC_DEFUN([AX_LIBFWPS_CHECK_LIB],
           [ac_cv_libfmapi_dummy=yes],
           [ac_cv_libfmapi=no])
 
+        dnl MAPI class identifiers
+        AC_CHECK_LIB(
+          fmapi,
+          libfmapi_class_identifier_public_strings,
+          [ac_cv_libfmapi_dummy=yes],
+          [ac_cv_libfmapi=no])
+
         ac_cv_libfmapi_LIBADD="-lfmapi"
         ])
       ])
@@ -191,7 +198,7 @@ AC_DEFUN([AX_LIBFWPS_CHECK_LIB],
   AS_IF(
     [test "x$ac_cv_libfmapi" = xyes],
     [AC_DEFINE(
-      [HAVE_LIBFWPS],
+      [HAVE_LIBFMAPI],
       [1],
       [Define to 1 if you have the `fmapi' library (-lfmapi).])
     ])
@@ -199,10 +206,10 @@ AC_DEFUN([AX_LIBFWPS_CHECK_LIB],
   AS_IF(
     [test "x$ac_cv_libfmapi" = xyes],
     [AC_SUBST(
-      [HAVE_LIBFWPS],
+      [HAVE_LIBFMAPI],
       [1]) ],
     [AC_SUBST(
-      [HAVE_LIBFWPS],
+      [HAVE_LIBFMAPI],
       [0])
     ])
   ])

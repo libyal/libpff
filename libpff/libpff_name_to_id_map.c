@@ -721,7 +721,7 @@ int libpff_name_to_id_map_entry_read(
 	{
 		if( memory_copy(
 		     internal_name_to_id_map_entry->guid,
-		     libfmapi_guid_public_strings,
+		     libfmapi_class_identifier_public_strings,
 		     16 ) == NULL )
 		{
 			libcerror_error_set(

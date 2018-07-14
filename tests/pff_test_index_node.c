@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <file_stream.h>
+#include <memory.h>
 #include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
@@ -672,11 +673,16 @@ int pff_test_index_node_get_entry_data(
 
 	/* Test error cases
 	 */
+	entries_data             = index_node->entries_data;
+	index_node->entries_data = pff_test_index_node_data_32bit;
+
 	result = libpff_index_node_get_entry_data(
 	          NULL,
 	          0,
 	          &entry_data,
 	          &error );
+
+	index_node->entries_data = entries_data;
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -713,11 +719,16 @@ int pff_test_index_node_get_entry_data(
 	libcerror_error_free(
 	 &error );
 
+	entries_data             = index_node->entries_data;
+	index_node->entries_data = pff_test_index_node_data_32bit;
+
 	result = libpff_index_node_get_entry_data(
 	          index_node,
 	          (uint16_t) 0xffff,
 	          &entry_data,
 	          &error );
+
+	index_node->entries_data = entries_data;
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -731,11 +742,16 @@ int pff_test_index_node_get_entry_data(
 	libcerror_error_free(
 	 &error );
 
+	entries_data             = index_node->entries_data;
+	index_node->entries_data = pff_test_index_node_data_32bit;
+
 	result = libpff_index_node_get_entry_data(
 	          index_node,
 	          0,
 	          NULL,
 	          &error );
+
+	index_node->entries_data = entries_data;
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -1390,6 +1406,225 @@ int pff_test_index_node_read_file_io_handle(
 	 "error",
 	 error );
 
+	/* Initialize test
+	 */
+	result = libpff_index_node_initialize(
+	          &index_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "index_node",
+	 index_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Initialize file IO handle
+	 */
+	result = pff_test_open_file_io_handle(
+	          &file_io_handle,
+	          pff_test_index_node_data_64bit,
+	          512,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	/* Test libpff_index_node_read_file_io_handle with malloc failing
+	 */
+	pff_test_malloc_attempts_before_fail = 0;
+
+	result = libpff_index_node_read_file_io_handle(
+	          index_node,
+	          file_io_handle,
+	          0,
+	          LIBPFF_FILE_TYPE_64BIT,
+	          &error );
+
+	if( pff_test_malloc_attempts_before_fail != -1 )
+	{
+		pff_test_malloc_attempts_before_fail = -1;
+	}
+	else
+	{
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
+	/* Test regular cases
+	 */
+	result = libpff_index_node_read_file_io_handle(
+	          index_node,
+	          file_io_handle,
+	          0,
+	          LIBPFF_FILE_TYPE_64BIT,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Clean up file IO handle
+	 */
+	result = pff_test_close_file_io_handle(
+	          &file_io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Clean up
+	 */
+	result = libpff_index_node_free(
+	          &index_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "index_node",
+	 index_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Initialize test
+	 */
+	result = libpff_index_node_initialize(
+	          &index_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "index_node",
+	 index_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Initialize file IO handle
+	 */
+	result = pff_test_open_file_io_handle(
+	          &file_io_handle,
+	          pff_test_index_node_data_64bit_4k_page,
+	          4096,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_index_node_read_file_io_handle(
+	          index_node,
+	          file_io_handle,
+	          0,
+	          LIBPFF_FILE_TYPE_64BIT_4K_PAGE,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Clean up file IO handle
+	 */
+	result = pff_test_close_file_io_handle(
+	          &file_io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Clean up
+	 */
+	result = libpff_index_node_free(
+	          &index_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "index_node",
+	 index_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	return( 1 );
 
 on_error:
@@ -1419,28 +1654,56 @@ on_error:
 int pff_test_index_node_check_for_empty_block(
      void )
 {
+	uint8_t empty_block[ 64 ];
+
 	libcerror_error_t *error = NULL;
+	void *memset_result      = NULL;
 	int result               = 0;
+
+	/* Initialize test
+	 */
+	memset_result = memory_set(
+	                 empty_block,
+	                 0,
+	                 sizeof( uint8_t ) * 64 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "memset_result",
+	 memset_result );
 
 	/* Test regular cases
 	 */
 	result = libpff_index_node_check_for_empty_block(
-	          pff_test_index_node_data_32bit,
-	          512,
+	          empty_block,
+	          64,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
 	result = libpff_index_node_check_for_empty_block(
-	          &( pff_test_index_node_data_32bit[ 1 ] ),
-	          511,
+	          &( empty_block[ 1 ] ),
+	          63,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_index_node_check_for_empty_block(
+	          pff_test_index_node_data_32bit,
+	          512,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -1456,7 +1719,7 @@ int pff_test_index_node_check_for_empty_block(
 	 */
 	result = libpff_index_node_check_for_empty_block(
 	          NULL,
-	          512,
+	          64,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -1472,7 +1735,7 @@ int pff_test_index_node_check_for_empty_block(
 	 &error );
 
 	result = libpff_index_node_check_for_empty_block(
-	          pff_test_index_node_data_32bit,
+	          empty_block,
 	          (size_t) SSIZE_MAX + 1,
 	          &error );
 

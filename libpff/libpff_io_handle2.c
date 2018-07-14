@@ -255,9 +255,9 @@ int libpff_io_handle_read_descriptor_data_list(
 	{
 		if( libpff_data_array_initialize(
 		     &data_array,
+		     io_handle,
 		     descriptor_identifier,
 		     data_identifier,
-		     io_handle,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

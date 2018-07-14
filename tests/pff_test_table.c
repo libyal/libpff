@@ -37,6 +37,222 @@
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
+/* Tests the libpff_table_initialize function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_table_initialize(
+     void )
+{
+	libcerror_error_t *error        = NULL;
+	libpff_table_t *table           = NULL;
+	int result                      = 0;
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 5;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
+	/* Test regular cases
+	 */
+	result = libpff_table_initialize(
+	          &table,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "table",
+	 table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_table_free(
+	          &table,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "table",
+	 table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_table_initialize(
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	table = (libpff_table_t *) 0x12345678UL;
+
+	result = libpff_table_initialize(
+	          &table,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	table = NULL;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_table_initialize with malloc failing
+		 * Test libpff_table_initialize with malloc failing in libcdata_array_initialize (4x)
+		 */
+		pff_test_malloc_attempts_before_fail = test_number;
+
+		result = libpff_table_initialize(
+		          &table,
+		          0,
+		          0,
+		          0,
+		          0,
+		          &error );
+
+		if( pff_test_malloc_attempts_before_fail != -1 )
+		{
+			pff_test_malloc_attempts_before_fail = -1;
+
+			if( table != NULL )
+			{
+				libpff_table_free(
+				 &table,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "table",
+			 table );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_table_initialize with memset failing
+		 */
+		pff_test_memset_attempts_before_fail = test_number;
+
+		result = libpff_table_initialize(
+		          &table,
+		          0,
+		          0,
+		          0,
+		          0,
+		          &error );
+
+		if( pff_test_memset_attempts_before_fail != -1 )
+		{
+			pff_test_memset_attempts_before_fail = -1;
+
+			if( table != NULL )
+			{
+				libpff_table_free(
+				 &table,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "table",
+			 table );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( table != NULL )
+	{
+		libpff_table_free(
+		 &table,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libpff_table_free function
  * Returns 1 if successful or 0 if not
  */
@@ -75,6 +291,448 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_table_clone function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_table_clone(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libpff_table_t *destination_table = NULL;
+	libpff_table_t *source_table      = NULL;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_table_initialize(
+	          &source_table,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "source_table",
+	 source_table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_table_clone(
+	          &destination_table,
+	          source_table,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "destination_table",
+	 destination_table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_table_free(
+	          &destination_table,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "destination_table",
+	 destination_table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_table_clone(
+	          &destination_table,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "destination_table",
+	 destination_table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_table_clone(
+	          NULL,
+	          source_table,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_table_free(
+	          &source_table,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "source_table",
+	 source_table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( destination_table != NULL )
+	{
+		libpff_table_free(
+		 &destination_table,
+		 NULL );
+	}
+	if( source_table != NULL )
+	{
+		libpff_table_free(
+		 &source_table,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_table_resize_record_entries function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_table_resize_record_entries(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	libpff_table_t *table    = NULL;
+	int result               = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_table_initialize(
+	          &table,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "table",
+	 table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_table_resize_record_entries(
+	          table,
+	          10,
+	          10,
+	          LIBPFF_CODEPAGE_WINDOWS_1251,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_table_resize_record_entries(
+	          NULL,
+	          10,
+	          10,
+	          LIBPFF_CODEPAGE_WINDOWS_1251,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_table_resize_record_entries(
+	          table,
+	          -1,
+	          10,
+	          LIBPFF_CODEPAGE_WINDOWS_1251,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_table_resize_record_entries(
+	          table,
+	          10,
+	          -1,
+	          LIBPFF_CODEPAGE_WINDOWS_1251,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_table_free(
+	          &table,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "table",
+	 table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( table != NULL )
+	{
+		libpff_table_free(
+		 &table,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_table_expand_record_entries function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_table_expand_record_entries(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	libpff_table_t *table    = NULL;
+	int result               = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_table_initialize(
+	          &table,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "table",
+	 table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_table_expand_record_entries(
+	          table,
+	          10,
+	          10,
+	          LIBPFF_CODEPAGE_WINDOWS_1251,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_table_expand_record_entries(
+	          NULL,
+	          10,
+	          10,
+	          LIBPFF_CODEPAGE_WINDOWS_1251,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_table_expand_record_entries(
+	          table,
+	          -1,
+	          10,
+	          LIBPFF_CODEPAGE_WINDOWS_1251,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_table_expand_record_entries(
+	          table,
+	          10,
+	          -1,
+	          LIBPFF_CODEPAGE_WINDOWS_1251,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_table_free(
+	          &table,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "table",
+	 table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( table != NULL )
+	{
+		libpff_table_free(
+		 &table,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -94,17 +752,25 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
-	/* TODO: add tests for libpff_table_initialize */
+	PFF_TEST_RUN(
+	 "libpff_table_initialize",
+	 pff_test_table_initialize );
 
 	PFF_TEST_RUN(
 	 "libpff_table_free",
 	 pff_test_table_free );
 
-	/* TODO: add tests for libpff_table_clone */
+	PFF_TEST_RUN(
+	 "libpff_table_clone",
+	 pff_test_table_clone );
 
-	/* TODO: add tests for libpff_table_resize_record_entries */
+	PFF_TEST_RUN(
+	 "libpff_table_resize_record_entries",
+	 pff_test_table_resize_record_entries );
 
-	/* TODO: add tests for libpff_table_expand_record_entries */
+	PFF_TEST_RUN(
+	 "libpff_table_expand_record_entries",
+	 pff_test_table_expand_record_entries );
 
 	/* TODO: add tests for libpff_table_entries_get_record_entry_by_index */
 

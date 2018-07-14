@@ -45,9 +45,9 @@
  */
 int libpff_data_array_initialize(
      libpff_data_array_t **data_array,
+     libpff_io_handle_t *io_handle,
      uint32_t descriptor_identifier,
      uint64_t data_identifier,
-     libpff_io_handle_t *io_handle,
      libcerror_error_t **error )
 {
 	static char *function = "libpff_data_array_initialize";
