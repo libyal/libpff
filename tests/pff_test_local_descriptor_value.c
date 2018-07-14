@@ -113,6 +113,8 @@ int pff_test_local_descriptor_value_initialize(
 	          &local_descriptor_value,
 	          &error );
 
+	local_descriptor_value = NULL;
+
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int pff_test_local_descriptor_value_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	local_descriptor_value = NULL;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
 

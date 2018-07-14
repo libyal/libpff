@@ -116,6 +116,8 @@ int pff_test_reference_descriptor_initialize(
 	          0,
 	          &error );
 
+	reference_descriptor = NULL;
+
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -127,8 +129,6 @@ int pff_test_reference_descriptor_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	reference_descriptor = NULL;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
 

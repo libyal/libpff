@@ -954,6 +954,8 @@ int pff_test_data_block_initialize(
 	          0,
 	          &error );
 
+	data_block = NULL;
+
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -965,8 +967,6 @@ int pff_test_data_block_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	data_block = NULL;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
 

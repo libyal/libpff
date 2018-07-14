@@ -113,6 +113,8 @@ int pff_test_multi_value_initialize(
 	          &multi_value,
 	          &error );
 
+	multi_value = NULL;
+
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int pff_test_multi_value_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	multi_value = NULL;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
 

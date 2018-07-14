@@ -254,6 +254,9 @@ int libpff_record_entry_clone(
 
 		goto on_error;
 	}
+	internal_destination_record_entry->value_data      = NULL;
+	internal_destination_record_entry->value_data_size = 0;
+
 	if( internal_source_record_entry->value_data != NULL )
 	{
 		internal_destination_record_entry->value_data = (uint8_t *) memory_allocate(

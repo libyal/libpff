@@ -116,6 +116,8 @@ int pff_test_table_block_index_initialize(
 	          0,
 	          &error );
 
+	table_block_index = NULL;
+
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -127,8 +129,6 @@ int pff_test_table_block_index_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	table_block_index = NULL;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
 

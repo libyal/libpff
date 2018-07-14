@@ -48,7 +48,7 @@ int pff_test_record_set_initialize(
 	int result                      = 0;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
-	int number_of_malloc_fail_tests = 3;
+	int number_of_malloc_fail_tests = 4;
 	int number_of_memset_fail_tests = 1;
 	int test_number                 = 0;
 #endif
@@ -119,6 +119,8 @@ int pff_test_record_set_initialize(
 	          LIBPFF_CODEPAGE_WINDOWS_1251,
 	          &error );
 
+	record_set = NULL;
+
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -130,8 +132,6 @@ int pff_test_record_set_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	record_set = NULL;
 
 	result = libpff_record_set_initialize(
 	          &record_set,
@@ -158,6 +158,8 @@ int pff_test_record_set_initialize(
 	     test_number++ )
 	{
 		/* Test libpff_record_set_initialize with malloc failing
+		 * Test libpff_record_set_initialize with malloc failing in libcdata_array_initialize (2x)
+		 * Test libpff_record_set_initialize with malloc failing in libpff_record_entry_initialize
 		 */
 		pff_test_malloc_attempts_before_fail = test_number;
 
@@ -351,6 +353,12 @@ int pff_test_record_set_clone(
 	libpff_record_set_t *source_record_set      = NULL;
 	int result                                  = 0;
 
+#if defined( HAVE_PFF_TEST_MEMORY )
+	int number_of_malloc_fail_tests             = 2;
+	int number_of_memset_fail_tests             = 1;
+	int test_number                             = 0;
+#endif
+
 	/* Initialize test
 	 */
 	result = libpff_record_set_initialize(
@@ -445,6 +453,118 @@ int pff_test_record_set_clone(
 
 	libcerror_error_free(
 	 &error );
+
+	destination_record_set = (libpff_record_set_t *) 0x12345678UL;
+
+	result = libpff_record_set_clone(
+	          &destination_record_set,
+	          source_record_set,
+	          &error );
+
+	destination_record_set = NULL;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_record_set_clone with malloc failing
+		 * Test libpff_record_set_clone with malloc failing in libcdata_array_clone
+		 */
+		pff_test_malloc_attempts_before_fail = test_number;
+
+		result = libpff_record_set_clone(
+		          &destination_record_set,
+		          source_record_set,
+		          &error );
+
+		if( pff_test_malloc_attempts_before_fail != -1 )
+		{
+			pff_test_malloc_attempts_before_fail = -1;
+
+			if( destination_record_set != NULL )
+			{
+				libpff_internal_record_set_free(
+				 (libpff_internal_record_set_t **) &destination_record_set,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "destination_record_set",
+			 destination_record_set );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_record_set_clone with memset failing
+		 */
+		pff_test_memset_attempts_before_fail = test_number;
+
+		result = libpff_record_set_clone(
+		          &destination_record_set,
+		          source_record_set,
+		          &error );
+
+		if( pff_test_memset_attempts_before_fail != -1 )
+		{
+			pff_test_memset_attempts_before_fail = -1;
+
+			if( destination_record_set != NULL )
+			{
+				libpff_internal_record_set_free(
+				 (libpff_internal_record_set_t **) &destination_record_set,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "destination_record_set",
+			 destination_record_set );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
 
 	/* Clean up
 	 */
