@@ -1841,12 +1841,13 @@ int libpff_table_get_record_entry_by_utf8_name(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-/* TODO add system string support */
+/* TODO add system string support
 		libcnotify_printf(
 		 "%s: retrieving table set: %d name: %s\n",
 		 function,
 		 set_index,
 		 utf8_name );
+*/
 	}
 #endif
 	if( libcdata_array_get_entry_by_index(
@@ -2009,7 +2010,6 @@ int libpff_table_read(
 	libpff_data_block_t *data_block               = NULL;
 	static char *function                         = "libpff_table_read";
 	uint32_t table_value_reference                = 0;
-	uint8_t table_signature                       = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libpff_table_block_index_t *table_block_index = NULL;
@@ -2218,55 +2218,19 @@ int libpff_table_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: table start:\n",
-		 function );
-		libcnotify_print_data(
-		 data_block->data,
-		 sizeof( pff_table_t ),
-		 0 );
-	}
-#endif
-	table_signature = ( (pff_table_t *) data_block->data )->signature;
-	table->type     = ( (pff_table_t *) data_block->data )->type;
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (pff_table_t *) data_block->data )->value_reference,
-	 table_value_reference );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: table signature\t\t\t\t\t: 0x%02" PRIx8 "\n",
-		 function,
-		 table_signature );
-
-		libcnotify_printf(
-		 "%s: table type\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
-		 function,
-		 table->type );
-
-		libcnotify_printf(
-		 "%s: table value reference\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
-		 function,
-		 table_value_reference,
-		 libpff_debug_get_node_identifier_type(
-		  (uint8_t) ( table_value_reference & 0x0000001fUL ) ) );
-	}
-#endif
-	if( table_signature != 0xec )
+	if( libpff_table_read_header_data(
+	     table,
+	     data_block->data,
+	     data_block->uncompressed_data_size,
+	     &table_value_reference,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported table signature: 0x%02" PRIx8 ".",
-		 function,
-		 table_signature );
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read table header.",
+		 function );
 
 		return( -1 );
 	}
@@ -4709,6 +4673,128 @@ on_error:
 	return( -1 );
 }
 
+/* Reads the table header
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_table_read_header_data(
+     libpff_table_t *table,
+     const uint8_t *data,
+     size_t data_size,
+     uint32_t *table_value_reference,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_table_read_header_data";
+
+	if( table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	if( data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_value_reference == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table value reference.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size < sizeof( pff_table_t ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: unsupported table header of size: %" PRIzd ".",
+		 function,
+		 data_size );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: table header data:\n",
+		 function );
+		libcnotify_print_data(
+		 data,
+		 sizeof( pff_table_t ),
+		 0 );
+	}
+#endif
+	if( ( (pff_table_t *) data )->signature != 0xec )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported table signature: 0x%02" PRIx8 ".",
+		 function,
+		 ( (pff_table_t *) data )->signature );
+
+		return( -1 );
+	}
+	table->type = ( (pff_table_t *) data )->type;
+
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (pff_table_t *) data )->value_reference,
+	 *table_value_reference );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: table signature\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 function,
+		 ( (pff_table_t *) data )->signature );
+
+		libcnotify_printf(
+		 "%s: table type\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 function,
+		 table->type );
+
+		libcnotify_printf(
+		 "%s: table value reference\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
+		 function,
+		 *table_value_reference,
+		 libpff_debug_get_node_identifier_type(
+		  (uint8_t) ( *table_value_reference & 0x0000001fUL ) ) );
+	}
+#endif
+	return( 1 );
+}
+
 /* Reads the 6c table header
  * Returns 1 if successful or -1 on error
  */
@@ -4722,6 +4808,17 @@ int libpff_table_read_6c_header_data(
 {
 	static char *function = "libpff_table_read_6c_header_data";
 
+	if( table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
 	if( data == NULL )
 	{
 		libcerror_error_set(
@@ -4781,6 +4878,18 @@ int libpff_table_read_6c_header_data(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: 6c table header data:\n",
+		 function );
+		libcnotify_print_data(
+		 data,
+		 data_size,
+		 0 );
+	}
+#endif
 	byte_stream_copy_to_uint32_little_endian(
 	 data,
 	 *b5_table_header_reference );
@@ -4829,6 +4938,17 @@ int libpff_table_read_7c_header_data(
 	uint16_t value_16bit  = 0;
 #endif
 
+	if( table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
 	if( data == NULL )
 	{
 		libcerror_error_set(
@@ -4907,6 +5027,18 @@ int libpff_table_read_7c_header_data(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: 7c table header data:\n",
+		 function );
+		libcnotify_print_data(
+		 data,
+		 sizeof( pff_table_header_7c_t ),
+		 0 );
+	}
+#endif
 	if( ( (pff_table_header_7c_t *) data )->type != 0x7c )
 	{
 		libcerror_error_set(
@@ -5016,6 +5148,17 @@ int libpff_table_read_9c_header_data(
 {
 	static char *function = "libpff_table_read_9c_header_data";
 
+	if( table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
 	if( data == NULL )
 	{
 		libcerror_error_set(
@@ -5064,6 +5207,18 @@ int libpff_table_read_9c_header_data(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: 9c table header data:\n",
+		 function );
+		libcnotify_print_data(
+		 data,
+		 data_size,
+		 0 );
+	}
+#endif
 	byte_stream_copy_to_uint32_little_endian(
 	 data,
 	 *b5_table_header_reference );
@@ -5102,6 +5257,17 @@ int libpff_table_read_ac_header_data(
 	uint16_t value_16bit  = 0;
 #endif
 
+	if( table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
 	if( data == NULL )
 	{
 		libcerror_error_set(
@@ -5191,6 +5357,18 @@ int libpff_table_read_ac_header_data(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: ac table header data:\n",
+		 function );
+		libcnotify_print_data(
+		 data,
+		 sizeof( pff_table_header_ac_t ),
+		 0 );
+	}
+#endif
 	if( ( (pff_table_header_ac_t *) data )->type != 0xac )
 	{
 		libcerror_error_set(

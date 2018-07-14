@@ -234,7 +234,6 @@ int libpff_index_node_read_data(
 	uint32_t calculated_checksum                 = 0;
 	uint8_t calculated_entry_size                = 0;
 	uint8_t calculated_maximum_number_of_entries = 0;
-	int result                                   = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint8_t *index_node_entry_data               = NULL;
@@ -243,6 +242,7 @@ int libpff_index_node_read_data(
 	uint16_t entry_index                         = 0;
 	uint16_t index_node_entry_data_size          = 0;
 	uint16_t value_16bit                         = 0;
+	int result                                   = 0;
 #endif
 
 	if( index_node == NULL )
