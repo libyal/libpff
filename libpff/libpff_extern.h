@@ -37,8 +37,11 @@
 
 #include <libpff/extern.h>
 
+#define LIBPFF_EXTERN_VARIABLE	LIBPFF_EXTERN
+
 #else
-#define LIBPFF_EXTERN	/* extern */
+#define LIBPFF_EXTERN		/* extern */
+#define LIBPFF_EXTERN_VARIABLE	extern
 
 #endif /* !defined( HAVE_LOCAL_LIBPFF ) */
 

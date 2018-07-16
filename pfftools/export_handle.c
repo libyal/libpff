@@ -7374,13 +7374,17 @@ int export_handle_get_attachment_filename(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	system_character_t *long_filename = NULL;
-	static char *function             = "export_handle_get_attachment_filename";
-	size_t attachment_filename_index  = 0;
-	size_t attachment_filename_length = 0;
-	size_t long_filename_size         = 0;
-	size_t string_index               = 0;
-	int result                        = 0;
+	system_character_t *long_filename  = NULL;
+	system_character_t *name           = NULL;
+	system_character_t *sanitized_name = NULL;
+	static char *function              = "export_handle_get_attachment_filename";
+	size_t long_filename_size          = 0;
+	size_t name_index                  = 0;
+	size_t name_length                 = 0;
+	size_t name_size                   = 0;
+	size_t sanitized_name_size         = 0;
+	size_t string_index                = 0;
+	int result                         = 0;
 
 	if( export_handle == NULL )
 	{
@@ -7434,38 +7438,35 @@ int export_handle_get_attachment_filename(
 	          &long_filename_size,
 	          NULL );
 
-	if( result == 1 )
-	{
-		if( *attachment_filename_size > (size_t) SSIZE_MAX )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-			 "%s: attachment filename size value exceeds maximum.",
-			 function );
-
-			goto on_error;
-		}
-	}
 	/* Reserve space for a leading decimal and a _
 	 */
 	while( number_of_attachments >= 10 )
 	{
 		number_of_attachments /= 10;
 
-		attachment_filename_index++;
+		name_index++;
 	}
-	*attachment_filename_size = 2 + attachment_filename_index + long_filename_size;
-
-	if( *attachment_filename_size < ( attachment_filename_index + 17 ) )
+	if( long_filename_size > (size_t) ( SSIZE_MAX - ( 2 + name_index ) ) )
 	{
-		*attachment_filename_size = attachment_filename_index + 17;
-	}
-	*attachment_filename = system_string_allocate(
-	                        *attachment_filename_size );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: attachment long filename size value exceeds maximum.",
+		 function );
 
-	if( *attachment_filename == NULL )
+		goto on_error;
+	}
+	name_size = 2 + name_index + long_filename_size;
+
+	if( name_size < ( name_index + 17 ) )
+	{
+		name_size = name_index + 17;
+	}
+	name = system_string_allocate(
+	        name_size );
+
+	if( name == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -7476,24 +7477,24 @@ int export_handle_get_attachment_filename(
 
 		goto on_error;
 	}
-	string_index = attachment_filename_index;
+	string_index = name_index;
 
 	/* Start with 1_ */
 	attachment_index += 1;
 
 	while( string_index > 0 )
 	{
-		( *attachment_filename )[ string_index-- ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
+		name[ string_index-- ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
 
 		attachment_index /= 10;
 	}
-	( *attachment_filename )[ 0 ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
+	name[ 0 ] = (system_character_t) ( '0' + ( attachment_index % 10 ) );
 
-	attachment_filename_index++;
+	name_index++;
 
-	( *attachment_filename )[ attachment_filename_index++ ] = (system_character_t) '_';
+	name[ name_index++ ] = (system_character_t) '_';
 
-	long_filename = &( ( *attachment_filename )[ attachment_filename_index ] );
+	long_filename = &( name[ name_index ] );
 
 /* TODO make this more efficient by directly operating on record_entry */
 	result = export_handle_item_get_value_string_by_type(
@@ -7507,10 +7508,14 @@ int export_handle_get_attachment_filename(
 
 	if( result == 1 )
 	{
-		attachment_filename_length = system_string_length(
-		                              *attachment_filename );
+		name_length = system_string_length(
+		               name );
 
-		if( attachment_filename_length > 0 )
+		if( name_length == 0 )
+		{
+			result = 0;
+		}
+		else
 		{
 			log_handle_printf(
 			 log_handle,
@@ -7518,17 +7523,20 @@ int export_handle_get_attachment_filename(
 			 long_filename );
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-			result = libcpath_path_sanitize_filename_wide(
-			          *attachment_filename,
-			          attachment_filename_size,
-			          error );
+			if( libcpath_path_get_sanitized_filename_wide(
+			     name,
+			     name_length,
+			     &sanitized_name,
+			     &sanitized_name_size,
+			     error ) != 1 )
 #else
-			result = libcpath_path_sanitize_filename(
-			          *attachment_filename,
-			          attachment_filename_size,
-			          error );
+			if( libcpath_path_get_sanitized_filename(
+			     name,
+			     name_length,
+			     &sanitized_name,
+			     &sanitized_name_size,
+			     error ) != 1 )
 #endif
-			if( result != 1 )
 			{
 				libcerror_error_set(
 				 error,
@@ -7539,20 +7547,24 @@ int export_handle_get_attachment_filename(
 
 				goto on_error;
 			}
+			memory_free(
+			 name );
+
+			name                = sanitized_name;
+			name_size           = sanitized_name_size;
+			sanitized_name      = NULL;
+			sanitized_name_size = 0;
+
 			log_handle_printf(
 			 log_handle,
 			 " as: %" PRIs_SYSTEM "\n",
-			 *attachment_filename );
-		}
-		else
-		{
-			result = 0;
+			 name );
 		}
 	}
 	if( result != 1 )
 	{
 		if( system_string_copy(
-		     &( ( *attachment_filename )[ attachment_filename_index ] ),
+		     &( name[ name_index ] ),
 		     _SYSTEM_STRING( "Attachment.txt" ),
 		     14 ) == NULL )
 		{
@@ -7565,27 +7577,31 @@ int export_handle_get_attachment_filename(
 
 			goto on_error;
 		}
-		( *attachment_filename )[ attachment_filename_index + 14 ] = 0;
+		name[ name_index + 14 ] = 0;
 
-		*attachment_filename_size = attachment_filename_index + 15;
+		name_size = name_index + 15;
 
 		log_handle_printf(
 		 log_handle,
 		 "Missing attachment filename defaulting to: %" PRIs_SYSTEM "\n",
-		 *attachment_filename );
+		 name );
 	}
+	*attachment_filename      = name;
+	*attachment_filename_size = name_size;
+
 	return( 1 );
 
 on_error:
-	if( *attachment_filename != NULL )
+	if( sanitized_name != NULL )
 	{
 		memory_free(
-		 *attachment_filename );
-
-		*attachment_filename = NULL;
+		 sanitized_name );
 	}
-	*attachment_filename_size = 0;
-
+	if( name != NULL )
+	{
+		memory_free(
+		 name );
+	}
 	return( -1 );
 }
 
@@ -13092,10 +13108,14 @@ int export_handle_get_folder_name(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	static char *function     = "export_handle_get_folder_name";
-	size_t folder_name_length = 0;
-	int print_count           = 0;
-	int result                = 0;
+	system_character_t *name           = NULL;
+	system_character_t *sanitized_name = NULL;
+	static char *function              = "export_handle_get_folder_name";
+	size_t name_length                 = 0;
+	size_t name_size                   = 0;
+	size_t sanitized_name_size         = 0;
+	int print_count                    = 0;
+	int result                         = 0;
 
 	if( export_handle == NULL )
 	{
@@ -13146,34 +13166,41 @@ int export_handle_get_folder_name(
 	          folder,
 	          0,
 	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
-	          folder_name,
-	          folder_name_size,
+	          &name,
+	          &name_size,
 	          NULL );
 
 	if( result == 1 )
 	{
-		folder_name_length = system_string_length(
-		                      *folder_name );
+		name_length = system_string_length(
+		               name );
 
-		if( folder_name_length > 0 )
+		if( name_length == 0 )
+		{
+			result = 0;
+		}
+		else
 		{
 			log_handle_printf(
 			 log_handle,
 			 "Saving folder with name: %" PRIs_SYSTEM "",
-			 *folder_name );
+			 name );
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-			result = libcpath_path_sanitize_filename_wide(
-			          *folder_name,
-			          folder_name_size,
-			          error );
+			if( libcpath_path_get_sanitized_filename_wide(
+			     name,
+			     name_length,
+			     &sanitized_name,
+			     &sanitized_name_size,
+			     error ) != 1 )
 #else
-			result = libcpath_path_sanitize_filename(
-			          *folder_name,
-			          folder_name_size,
-			          error );
+			if( libcpath_path_get_sanitized_filename(
+			     name,
+			     name_length,
+			     &sanitized_name,
+			     &sanitized_name_size,
+			     error ) != 1 )
 #endif
-			if( result != 1 )
 			{
 				libcerror_error_set(
 				 error,
@@ -13184,32 +13211,36 @@ int export_handle_get_folder_name(
 
 				goto on_error;
 			}
+			memory_free(
+			 name );
+
+			name                = sanitized_name;
+			name_size           = sanitized_name_size;
+			sanitized_name      = NULL;
+			sanitized_name_size = 0;
+
 			log_handle_printf(
 			 log_handle,
 			 " as: %" PRIs_SYSTEM "\n",
-			 *folder_name );
-		}
-		else
-		{
-			result = 0;
+			 name );
 		}
 	}
 	if( result != 1 )
 	{
-		if( ( *folder_name == NULL )
-		 || ( *folder_name_size < 12 ) )
+		if( ( name == NULL )
+		 || ( name_size < 12 ) )
 		{
-			if( *folder_name != NULL )
+			if( name != NULL )
 			{
 				memory_free(
-				 *folder_name );
+				 name );
 			}
-			*folder_name_size = 12;
+			name_size = 12;
 
-			*folder_name = system_string_allocate(
-			                *folder_name_size );
+			name = system_string_allocate(
+			        name_size );
 
-			if( *folder_name == NULL )
+			if( name == NULL )
 			{
 				libcerror_error_set(
 				 error,
@@ -13222,7 +13253,7 @@ int export_handle_get_folder_name(
 			}
 		}
 		print_count = system_string_sprintf(
-		               *folder_name,
+		               name,
 		               12,
 		               _SYSTEM_STRING( "Folder%05d" ),
 		               folder_index + 1 );
@@ -13239,25 +13270,29 @@ int export_handle_get_folder_name(
 
 			goto on_error;
 		}
-		( *folder_name )[ 11 ] = 0;
+		( name )[ 11 ] = 0;
 
 		log_handle_printf(
 		 log_handle,
 		 "Missing folder name defaulting to: %" PRIs_SYSTEM "\n",
-		 *folder_name );
+		 name );
 	}
+	*folder_name      = name;
+	*folder_name_size = name_size;
+
 	return( 1 );
 
 on_error:
-	if( *folder_name != NULL )
+	if( sanitized_name != NULL )
 	{
 		memory_free(
-		 *folder_name );
-
-		*folder_name = NULL;
+		 sanitized_name );
 	}
-	*folder_name_size = 0;
-
+	if( name != NULL )
+	{
+		memory_free(
+		 name );
+	}
 	return( -1 );
 }
 
