@@ -512,9 +512,18 @@ int libpff_item_determine_type(
 	}
 	else if( result == 0 )
 	{
-		/* The item does not contain a message class and therefore is a folder
+		/* The item does not contain a message class.
+		 * If it has the folder flag, mark it as a folder, otherwise leave unidentified.
 		 */
-		internal_item->type = LIBPFF_ITEM_TYPE_FOLDER;
+        uint32_t identifier;
+        if (libpff_item_get_identifier((libpff_item_t *) internal_item,
+                 &identifier,
+                 error) != 1) {
+            goto on_error;
+        }
+        if ((identifier & 0x1f) == 2 || (identifier & 0x1f) == 3) {
+    		internal_item->type = LIBPFF_ITEM_TYPE_FOLDER;
+        }
 	}
 	else
 	{
