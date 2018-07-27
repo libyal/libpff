@@ -27,7 +27,6 @@ try:
 except ImportError:
   bdist_msi = None
 
-
 if not bdist_msi:
   custom_bdist_msi = None
 else:
@@ -39,7 +38,7 @@ else:
       # bdist_msi does not support the library version so we add ".1"
       # as a work around.
       self.distribution.metadata.version = "{0:s}.1".format(
-          self.distribution.metadata.version)
+        self.distribution.metadata.version)
 
       bdist_msi.run(self)
 
@@ -60,18 +59,19 @@ class custom_build_ext(build_ext):
     """Runs the command."""
     arguments = shlex.split(command)
     process = subprocess.Popen(
-        arguments, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+      arguments, stderr=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
     if not process:
       raise RuntimeError("Running: {0:s} failed.".format(command))
 
     output, error = process.communicate()
     if process.returncode != 0:
-      error = "\n".join(error.split(b"\n")[-5:])
+      error = "\n".join(error.split("\n")[-5:])
       if sys.version_info[0] >= 3:
-        error = error.decode("ascii", errors="replace")
+        #        error = error.decode("ascii", errors="replace")
+        pass
       raise RuntimeError(
-          "Running: {0:s} failed with error:\n{1:s}.".format(
-              command, error))
+        "Running: {0:s} failed with error:\n{1:s}.".format(
+          command, error))
 
     return output
 
@@ -85,7 +85,7 @@ class custom_build_ext(build_ext):
     compiler = new_compiler(compiler=self.compiler)
     if compiler.compiler_type == "msvc":
       self.define = [
-          ("UNICODE", ""),
+        ("UNICODE", ""),
       ]
 
     else:
@@ -97,37 +97,39 @@ class custom_build_ext(build_ext):
 
       # We want to build as much as possible self contained Python binding.
       configure_arguments = []
-      for line in output.split(b"\n"):
+      for line in output.split("\n"):
         line = line.strip()
-        line, _, _ = line.rpartition(b"[=DIR]")
-        if line.startswith(b"--with-lib") and not line.endswith(b"-prefix"):
+        line, _, _ = line.rpartition("[=DIR]")
+        if line.startswith("--with-lib") and not line.endswith("-prefix"):
           if sys.version_info[0] >= 3:
-            line = line.decode("ascii")
+            # line = line.decode("ascii")
+            pass
           configure_arguments.append("{0:s}=no".format(line))
-        elif line == b"--with-bzip2":
+        elif line == "--with-bzip2":
           configure_arguments.append("--with-bzip2=no")
-        elif line == b"--with-openssl":
+        elif line == "--with-openssl":
           configure_arguments.append("--with-openssl=no")
-        elif line == b"--with-zlib":
+        elif line == "--with-zlib":
           configure_arguments.append("--with-zlib=no")
 
       command = "sh configure {0:s}".format(" ".join(configure_arguments))
       output = self._RunCommand(command)
 
       print_line = False
-      for line in output.split(b"\n"):
+      for line in output.split("\n"):
         line = line.rstrip()
-        if line == b"configure:":
+        if line == "configure:":
           print_line = True
 
         if print_line:
           if sys.version_info[0] >= 3:
-            line = line.decode("ascii")
+            # line = line.decode("ascii")
+            pass
           print(line)
 
       self.define = [
-          ("HAVE_CONFIG_H", ""),
-          ("LOCALEDIR", "\"/usr/share/locale\""),
+        ("HAVE_CONFIG_H", ""),
+        ("LOCALEDIR", "\"/usr/share/locale\""),
       ]
 
     build_ext.run(self)
@@ -157,9 +159,9 @@ class custom_sdist(sdist):
 
     source_package_file = glob.glob("*.tar.gz")[0]
     source_package_prefix, _, source_package_suffix = (
-        source_package_file.partition("-"))
+      source_package_file.partition("-"))
     sdist_package_file = "{0:s}-python-{1:s}".format(
-        source_package_prefix, source_package_suffix)
+      source_package_prefix, source_package_suffix)
     sdist_package_file = os.path.join("dist", sdist_package_file)
     os.rename(source_package_file, sdist_package_file)
 
@@ -171,7 +173,7 @@ class custom_sdist(sdist):
 
     self.distribution.metadata.write_pkg_info(".")
     pkg_info_path = "{0:s}-{1:s}/PKG-INFO".format(
-        source_package_prefix, source_package_suffix[:-7])
+      source_package_prefix, source_package_suffix[:-7])
     with tarfile.open(sdist_package_file[:-3], "a:") as tar_file:
       tar_file.add("PKG-INFO", arcname=pkg_info_path)
     os.remove("PKG-INFO")
@@ -251,7 +253,7 @@ class ProjectInformation(object):
 
     if not self.library_name or not self.library_version:
       raise RuntimeError(
-          "Unable to find library name and version in: configure.ac")
+        "Unable to find library name and version in: configure.ac")
 
   def _ReadMakefileAm(self):
     """Reads Makefile.am to initialize the project information."""
@@ -285,8 +287,8 @@ class ProjectInformation(object):
 
     if not self.include_directories or not self.library_names:
       raise RuntimeError(
-          "Unable to find include directories and library names in: "
-          "Makefile.am")
+        "Unable to find include directories and library names in: "
+        "Makefile.am")
 
 
 def GetPythonLibraryDirectoryPath():
@@ -325,7 +327,7 @@ for library_name in project_information.library_names:
     generated_source_file = "{0:s}.c".format(source_file[:-2])
     if not os.path.exists(generated_source_file):
       raise RuntimeError("Missing generated source file: {0:s}".format(
-          generated_source_file))
+        generated_source_file))
 
   source_files = glob.glob(os.path.join(library_name, "*.c"))
   SOURCES.extend(source_files)
@@ -346,32 +348,31 @@ LIBRARY_DATA_FILES = [license_file]
 # TODO: what about description and platform in egg file
 
 setup(
-    name=project_information.package_name,
-    url=project_information.project_url,
-    version=project_information.library_version,
-    description=project_information.package_description,
-    long_description=project_information.package_description,
-    author="Joachim Metz",
-    author_email="joachim.metz@gmail.com",
-    license="GNU Lesser General Public License v3 or later (LGPLv3+)",
-    cmdclass={
-        "build_ext": custom_build_ext,
-        "bdist_msi": custom_bdist_msi,
-        "bdist_rpm": custom_bdist_rpm,
-        "sdist": custom_sdist,
-    },
-    ext_modules=[
-        Extension(
-            project_information.module_name,
-            define_macros=DEFINE_MACROS,
-            include_dirs=project_information.include_directories,
-            libraries=[],
-            library_dirs=[],
-            sources=SOURCES,
-        ),
-    ],
-    data_files=[(PYTHON_LIBRARY_DIRECTORY, LIBRARY_DATA_FILES)],
+  name=project_information.package_name,
+  url=project_information.project_url,
+  version=project_information.library_version,
+  description=project_information.package_description,
+  long_description=project_information.package_description,
+  author="Joachim Metz",
+  author_email="joachim.metz@gmail.com",
+  license="GNU Lesser General Public License v3 or later (LGPLv3+)",
+  cmdclass={
+    "build_ext": custom_build_ext,
+    "bdist_msi": custom_bdist_msi,
+    "bdist_rpm": custom_bdist_rpm,
+    "sdist": custom_sdist,
+  },
+  ext_modules=[
+    Extension(
+      project_information.module_name,
+      define_macros=DEFINE_MACROS,
+      include_dirs=project_information.include_directories,
+      libraries=[],
+      library_dirs=[],
+      sources=SOURCES,
+    ),
+  ],
+  data_files=[(PYTHON_LIBRARY_DIRECTORY, LIBRARY_DATA_FILES)],
 )
 
 os.remove(license_file)
-
