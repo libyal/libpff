@@ -28,13 +28,6 @@
  */
 #if !defined( HAVE_LOCAL_LIBPFF )
 
-/* If libtool DLL support is enabled set LIBPFF_DLL_EXPORT
- * before including libpff/extern.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBPFF_DLL_EXPORT
-#endif
-
 #include <libpff/extern.h>
 
 #define LIBPFF_EXTERN_VARIABLE	LIBPFF_EXTERN

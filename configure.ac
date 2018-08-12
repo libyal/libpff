@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libpff],
- [20180716],
+ [20180812],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -119,10 +119,7 @@ dnl Check if libpff required headers and functions are available
 AX_LIBPFF_CHECK_LOCAL
 
 dnl Check if libpff Python bindings (pypff) required headers and functions are available
-AX_PYTHON_CHECK_PYPREFIX
 AX_PYTHON_CHECK_ENABLE
-AX_PYTHON2_CHECK_ENABLE
-AX_PYTHON3_CHECK_ENABLE
 
 AS_IF(
   [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
@@ -136,10 +133,6 @@ AS_IF(
       [1])
     ])
   ])
-
-AM_CONDITIONAL(
-  HAVE_PYTHON_TESTS,
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno])
 
 dnl Check if libpff java bindings (jpff) should be build
 AX_JAVA_CHECK_ENABLE
@@ -155,7 +148,7 @@ AS_IF(
  [test "x$enable_shared" = xyes],
  [AS_CASE(
   [$host],
-  [*cygwin* | *mingw*],
+  [*cygwin* | *mingw* | *msys*],
   [AC_DEFINE(
    [HAVE_DLLMAIN],
    [1],
@@ -164,7 +157,10 @@ AS_IF(
    [HAVE_DLLMAIN],
    [1])
 
-  dnl Used in tests
+  AC_SUBST(
+   [LIBPFF_DLL_EXPORT],
+   ["-DLIBPFF_DLL_EXPORT"])
+
   AC_SUBST(
    [LIBPFF_DLL_IMPORT],
    ["-DLIBPFF_DLL_IMPORT"])
@@ -271,9 +267,6 @@ Features:
    Wide character type support:              $ac_cv_enable_wide_character_type
    pfftools are build as static executables: $ac_cv_enable_static_executables
    Python (pypff) support:                   $ac_cv_enable_python
-   Python version 2 (pypff) support:         $ac_cv_enable_python2
-   Python version 3 (pypff) support:         $ac_cv_enable_python3
-   Java (jpff) support:                      $ac_cv_enable_java
    Verbose output:                           $ac_cv_enable_verbose_output
    Debug output:                             $ac_cv_enable_debug_output
 ]);

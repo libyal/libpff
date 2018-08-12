@@ -270,6 +270,134 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_io_handle_clear function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_io_handle_clear(
+     void )
+{
+	libcerror_error_t *error      = NULL;
+	libpff_io_handle_t *io_handle = NULL;
+	int result                    = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_io_handle_clear(
+	          io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_io_handle_clear(
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	/* Test libpff_io_handle_clear with memset failing
+	 */
+	pff_test_memset_attempts_before_fail = 0;
+
+	result = libpff_io_handle_clear(
+	          io_handle,
+	          &error );
+
+	if( pff_test_memset_attempts_before_fail != -1 )
+	{
+		pff_test_memset_attempts_before_fail = -1;
+	}
+	else
+	{
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
+	/* Clean up
+	 */
+	result = libpff_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( io_handle != NULL )
+	{
+		libpff_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -297,7 +425,9 @@ int main(
 	 "libpff_io_handle_free",
 	 pff_test_io_handle_free );
 
-	/* TODO: add tests for libpff_io_handle_clear */
+	PFF_TEST_RUN(
+	 "libpff_io_handle_clear",
+	 pff_test_io_handle_clear );
 
 	/* TODO: add tests for libpff_io_handle_read_file_header */
 
