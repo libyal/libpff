@@ -41,6 +41,19 @@ int libpff_attachment_get_type(
      int *attachment_type,
      libcerror_error_t **error );
 
+LIBPFF_EXTERN
+int libpff_attachment_get_utf8_name_size(
+    libpff_item_t *attachment,
+    size_t *utf8_string_size,
+    libcerror_error_t **error);
+
+LIBPFF_EXTERN
+int libpff_attachment_get_utf8_name(
+    libpff_item_t *attachment,
+    uint8_t *utf8_string,
+    size_t utf8_string_size,
+    libcerror_error_t **error);
+
 LIBPFF_EXTERN \
 int libpff_attachment_get_data_size(
      libpff_item_t *attachment,
