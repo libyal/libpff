@@ -9295,7 +9295,8 @@ int libpff_table_read_entry_value(
 		 */
 		else if( ( record_entry_value_type == LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED )
 		      || ( record_entry_value_type == LIBPFF_VALUE_TYPE_FLOAT_32BIT )
-		      || ( record_entry_value_type == LIBPFF_VALUE_TYPE_ERROR ) )
+		      || ( record_entry_value_type == LIBPFF_VALUE_TYPE_ERROR )
+              || ( record_entry_value_type == LIBPFF_VALUE_TYPE_UNSPECIFIED ) )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
