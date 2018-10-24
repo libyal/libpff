@@ -95,23 +95,6 @@ PyObject *pypff_message_get_html_body(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
-PyObject *pypff_message_get_number_of_attachments(
-           pypff_item_t *pypff_item,
-           PyObject *arguments );
-
-PyObject *pypff_message_get_attachment_by_index(
-           PyObject *pypff_item,
-           int attachment_index );
-
-PyObject *pypff_message_get_attachment(
-           pypff_item_t *pypff_item,
-           PyObject *arguments,
-           PyObject *keywords );
-
-PyObject *pypff_message_get_attachments(
-           pypff_item_t *pypff_item,
-           PyObject *arguments );
-
 #if defined( __cplusplus )
 }
 #endif

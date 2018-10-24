@@ -60,6 +60,13 @@ PyMethodDef pypff_attachment_object_methods[] = {
 	  "\n"
 	  "Seeks an offset within the attachment data." },
 
+	{ "get_embedded_attachment",
+	  (PyCFunction) pypff_attachment_get_embedded_attachment,
+	  METH_NOARGS,
+	  "get_embedded_attachment() -> Object or None\n"
+	  "\n"
+	  "Loads an embedded attachment." },
+
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
@@ -398,5 +405,93 @@ PyObject *pypff_attachment_seek_offset(
 	 Py_None );
 
 	return( Py_None );
+}
+
+/* Retrieves an embedded attachment item.
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_attachment_get_embedded_attachment(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	static char *function    = "pypff_attachment_get_embedded_attachment";
+	uint8_t attached_item_type = 0;
+    PyObject *res = NULL;
+    int result;
+    libpff_item_t *attached_item = NULL;
+	libcerror_error_t *error   = NULL;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_attachment_get_item(
+              pypff_item->item,
+              &attached_item,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve attached item.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_type(
+	          attached_item,
+	          &attached_item_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve attachment type.",
+		 function);
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+
+	res = pypff_item_new(
+	               &pypff_item_type_object,
+	               attached_item,
+	               (PyObject *) pypff_item );
+
+	if( res == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create item object.",
+		 function );
+
+		goto on_error;
+	}
+	return( res );
+
+on_error:
+	if( attached_item != NULL )
+	{
+		libpff_item_free(
+		 &attached_item,
+		 NULL );
+	}
+    return ( NULL );
 }
 

@@ -49,6 +49,10 @@ PyObject *pypff_attachment_seek_offset(
            PyObject *arguments,
            PyObject *keywords );
 
+PyObject *pypff_attachment_get_embedded_attachment(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
 #if defined( __cplusplus )
 }
 #endif
