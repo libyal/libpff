@@ -458,7 +458,7 @@ int libpff_item_tree_create_node(
 	if( libfdata_tree_node_get_number_of_sub_nodes(
 	     descriptor_index_tree_node,
 	     (intptr_t *) file_io_handle,
-	     index_tree_cache,
+	     (libfdata_cache_t *) index_tree_cache,
 	     &number_of_sub_nodes,
 	     0,
 	     error ) != 1 )
@@ -509,7 +509,7 @@ int libpff_item_tree_create_node(
 	result = libfdata_tree_node_is_leaf(
 	          descriptor_index_tree_node,
 	          (intptr_t *) file_io_handle,
-	          index_tree_cache,
+	          (libfdata_cache_t *) index_tree_cache,
 	          0,
 	          error );
 
@@ -558,7 +558,7 @@ int libpff_item_tree_create_node(
 			if( libfdata_tree_node_get_sub_node_by_index(
 			     descriptor_index_tree_node,
 			     (intptr_t *) file_io_handle,
-			     index_tree_cache,
+			     (libfdata_cache_t *) index_tree_cache,
 			     sub_node_index,
 			     &descriptor_index_tree_sub_node,
 			     0,
@@ -675,7 +675,7 @@ int libpff_item_tree_create_leaf_node(
 	if( libfdata_tree_node_get_node_value(
 	     descriptor_index_tree_node,
 	     (intptr_t *) file_io_handle,
-	     index_tree_cache,
+	     (libfdata_cache_t *) index_tree_cache,
 	     (intptr_t **) &descriptor_index_value,
 	     0,
 	     error ) != 1 )

@@ -259,8 +259,8 @@ int libpff_offsets_index_set_root_node(
 		     (intptr_t *) index,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_free,
 		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_index_clone,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_node_data,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_sub_nodes,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_node_data,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_sub_nodes,
 		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
 		{
@@ -334,8 +334,8 @@ int libpff_offsets_index_set_root_node(
 		     (intptr_t *) index,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_free,
 		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_index_clone,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_node_data,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_sub_nodes,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_node_data,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_sub_nodes,
 		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
 		{

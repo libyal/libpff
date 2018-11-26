@@ -310,7 +310,7 @@ ssize_t libpff_descriptor_data_stream_data_handle_read_segment_data(
 	if( libfdata_list_get_element_value_at_offset(
 	     data_handle->descriptor_data_list,
 	     file_io_handle,
-	     data_handle->descriptor_data_cache,
+	     (libfdata_cache_t *) data_handle->descriptor_data_cache,
 	     data_handle->current_offset,
 	     &element_index,
 	     &element_data_offset,

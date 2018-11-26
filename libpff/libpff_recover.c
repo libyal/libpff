@@ -201,7 +201,7 @@ int libpff_recover_items(
 	if( libfdata_tree_get_number_of_leaf_nodes(
 	     descriptors_index->recovered_index_tree,
 	     (intptr_t *) file_io_handle,
-	     descriptors_index->index_cache,
+	     (libfdata_cache_t *) descriptors_index->index_cache,
 	     &number_of_recovered_descriptor_index_values,
 	     0,
 	     error ) != 1 )
@@ -226,7 +226,7 @@ int libpff_recover_items(
 		if( libfdata_tree_get_leaf_node_by_index(
 		     descriptors_index->recovered_index_tree,
 		     (intptr_t *) file_io_handle,
-		     descriptors_index->index_cache,
+		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     recovered_descriptor_index_value_iterator,
 		     &recovered_descriptor_index_leaf_node,
 		     0,
@@ -245,7 +245,7 @@ int libpff_recover_items(
 		if( libfdata_tree_node_get_node_value(
 		     recovered_descriptor_index_leaf_node,
 		     (intptr_t *) file_io_handle,
-		     descriptors_index->index_cache,
+		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     (intptr_t **) &descriptor_index_value,
 		     0,
 		     error ) != 1 )
@@ -798,7 +798,7 @@ int libpff_recover_index_nodes(
 	if( libfdata_tree_get_number_of_deleted_leaf_nodes(
 	     descriptors_index->index_tree,
 	     (intptr_t *) file_io_handle,
-	     descriptors_index->index_cache,
+	     (libfdata_cache_t *) descriptors_index->index_cache,
 	     &number_of_deleted_index_values,
 	     0,
 	     error ) != 1 )
@@ -823,7 +823,7 @@ int libpff_recover_index_nodes(
 		if( libfdata_tree_get_deleted_leaf_node_by_index(
 		     descriptors_index->index_tree,
 		     (intptr_t *) file_io_handle,
-		     descriptors_index->index_cache,
+		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     deleted_index_value_iterator,
 		     &deleted_index_leaf_node,
 		     0,
@@ -842,7 +842,7 @@ int libpff_recover_index_nodes(
 		if( libfdata_tree_node_get_node_value(
 		     deleted_index_leaf_node,
 		     (intptr_t *) file_io_handle,
-		     descriptors_index->index_cache,
+		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     (intptr_t **) &deleted_index_value,
 		     0,
 		     error ) != 1 )
@@ -1049,7 +1049,7 @@ int libpff_recover_index_nodes(
 	if( libfdata_tree_get_number_of_deleted_leaf_nodes(
 	     offsets_index->index_tree,
 	     (intptr_t *) file_io_handle,
-	     offsets_index->index_cache,
+	     (libfdata_cache_t *) offsets_index->index_cache,
 	     &number_of_deleted_index_values,
 	     0,
 	     error ) != 1 )
@@ -1074,7 +1074,7 @@ int libpff_recover_index_nodes(
 		if( libfdata_tree_get_deleted_leaf_node_by_index(
 		     offsets_index->index_tree,
 		     (intptr_t *) file_io_handle,
-		     offsets_index->index_cache,
+		     (libfdata_cache_t *) offsets_index->index_cache,
 		     deleted_index_value_iterator,
 		     &deleted_index_leaf_node,
 		     0,
@@ -1093,7 +1093,7 @@ int libpff_recover_index_nodes(
 		if( libfdata_tree_node_get_node_value(
 		     deleted_index_leaf_node,
 		     (intptr_t *) file_io_handle,
-		     offsets_index->index_cache,
+		     (libfdata_cache_t *) offsets_index->index_cache,
 		     (intptr_t **) &deleted_index_value,
 		     0,
 		     error ) != 1 )

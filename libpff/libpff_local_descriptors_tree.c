@@ -150,7 +150,7 @@ int libpff_local_descriptors_tree_node_get_leaf_node_by_identifier(
 	if( libfdata_tree_node_get_number_of_sub_nodes(
 	     local_descriptors_tree_node,
 	     (intptr_t *) file_io_handle,
-	     cache,
+	     (libfdata_cache_t *) cache,
 	     &number_of_sub_nodes,
 	     0,
 	     error ) != 1 )
@@ -171,7 +171,7 @@ int libpff_local_descriptors_tree_node_get_leaf_node_by_identifier(
 		if( libfdata_tree_node_get_sub_node_by_index(
 		     local_descriptors_tree_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     sub_node_index,
 		     &local_descriptors_tree_sub_node,
 		     0,
@@ -190,7 +190,7 @@ int libpff_local_descriptors_tree_node_get_leaf_node_by_identifier(
 		if( libfdata_tree_node_get_node_value(
 		     local_descriptors_tree_sub_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     (intptr_t **) &local_descriptors_tree_sub_node_value,
 		     0,
 		     error ) != 1 )
@@ -243,7 +243,7 @@ int libpff_local_descriptors_tree_node_get_leaf_node_by_identifier(
 		result = libfdata_tree_node_is_leaf(
 		          local_descriptors_tree_sub_node,
 		          (intptr_t *) file_io_handle,
-		          cache,
+		          (libfdata_cache_t *) cache,
 		          0,
 		          error );
 
@@ -348,7 +348,7 @@ int libpff_local_descriptors_tree_node_get_leaf_node_by_identifier(
 				if( libfdata_tree_node_get_sub_node_by_index(
 				     local_descriptors_tree_node,
 				     (intptr_t *) file_io_handle,
-				     cache,
+				     (libfdata_cache_t *) cache,
 				     sub_node_index - 1,
 				     &local_descriptors_tree_sub_node,
 				     0,
@@ -441,7 +441,7 @@ int libpff_local_descriptors_tree_get_value_by_identifier(
 		if( libfdata_tree_node_get_node_value(
 		     leaf_local_descriptors_tree_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     (intptr_t **) local_descriptor_value,
 		     0,
 		     error ) != 1 )
@@ -578,8 +578,8 @@ int libpff_local_descriptors_tree_read(
 	     (intptr_t *) local_descriptors,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_local_descriptors_free,
 	     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_local_descriptors_clone,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_local_descriptors_read_node,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_local_descriptors_read_sub_nodes,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_local_descriptors_read_node,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_local_descriptors_read_sub_nodes,
 	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 	     error ) != 1 )
 	{

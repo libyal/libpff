@@ -1081,7 +1081,7 @@ int libpff_table_get_value_data_by_index_value(
 	if( libfdata_list_get_element_value_by_index(
 	     table->descriptor_data_list,
 	     (intptr_t *) file_io_handle,
-	     table->descriptor_data_cache,
+	     (libfdata_cache_t *) table->descriptor_data_cache,
 	     (int) table_index_value->array_entry,
 	     (intptr_t **) &data_block,
 	     0,
@@ -2158,7 +2158,7 @@ int libpff_table_read(
 	if( libfdata_list_get_element_value_by_index(
 	     table->descriptor_data_list,
 	     (intptr_t *) file_io_handle,
-	     table->descriptor_data_cache,
+	     (libfdata_cache_t *) table->descriptor_data_cache,
 	     0,
 	     (intptr_t **) &data_block,
 	     0,
@@ -2492,7 +2492,7 @@ int libpff_table_read_index(
 		if( libfdata_list_get_element_value_by_index(
 		     table->descriptor_data_list,
 		     (intptr_t *) file_io_handle,
-		     table->descriptor_data_cache,
+		     (libfdata_cache_t *) table->descriptor_data_cache,
 		     table_array_entry_iterator,
 		     (intptr_t **) &data_block,
 		     0,
@@ -7533,7 +7533,7 @@ int libpff_table_read_ac_column_definitions(
 	if( libfdata_list_get_element_value_by_index(
 	     column_definitions_data_list,
 	     (intptr_t *) file_io_handle,
-	     column_definitions_data_cache,
+	     (libfdata_cache_t *) column_definitions_data_cache,
 	     0,
 	     (intptr_t **) &column_definitions_data_block,
 	     0,
@@ -7632,7 +7632,7 @@ int libpff_table_read_ac_column_definitions(
 		if( libfdata_list_get_element_value_at_offset(
 		     column_definitions_data_list,
 		     (intptr_t *) file_io_handle,
-		     column_definitions_data_cache,
+		     (libfdata_cache_t *) column_definitions_data_cache,
 		     (off64_t) column_definition_data_offset,
 		     &element_index,
 		     &column_definition_data_block_offset,
@@ -8451,7 +8451,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 		if( libfdata_list_get_element_value_by_index(
 		     table->values_array_data_list,
 		     (intptr_t *) file_io_handle,
-		     table->values_array_data_cache,
+		     (libfdata_cache_t *) table->values_array_data_cache,
 		     values_array_block_index,
 		     (intptr_t **) &data_block,
 		     read_flags,

@@ -1193,7 +1193,7 @@ int libpff_io_handle_read_file_header(
 	     (intptr_t *) io_handle,
 	     NULL,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_io_handle_read_index_node,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_io_handle_read_index_node,
 	     NULL,
 	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
@@ -1392,7 +1392,7 @@ int libpff_io_handle_read_index_node(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int element_index,
      int element_data_file_index LIBPFF_ATTRIBUTE_UNUSED,
      off64_t element_data_offset,

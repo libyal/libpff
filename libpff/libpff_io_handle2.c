@@ -274,7 +274,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		     (intptr_t *) data_array,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_data_array_free,
 		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_data_array_clone,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_array_read_element_data,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_array_read_element_data,
 		     NULL,
 		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
@@ -366,7 +366,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		     (intptr_t *) data_block,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_data_block_free,
 		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_data_block_clone,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_block_read_element_data,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_block_read_element_data,
 		     NULL,
 		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
@@ -424,7 +424,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		if( libfdata_list_set_element_value_by_index(
 		     *descriptor_data_list,
 		     (intptr_t *) file_io_handle,
-		     *descriptor_data_cache,
+		     (libfdata_cache_t *) *descriptor_data_cache,
 		     0,
 		     (intptr_t *) data_block,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_data_block_free,
