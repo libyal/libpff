@@ -9295,8 +9295,7 @@ int libpff_table_read_entry_value(
 		 */
 		else if( ( record_entry_value_type == LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED )
 		      || ( record_entry_value_type == LIBPFF_VALUE_TYPE_FLOAT_32BIT )
-		      || ( record_entry_value_type == LIBPFF_VALUE_TYPE_ERROR )
-              || ( record_entry_value_type == LIBPFF_VALUE_TYPE_UNSPECIFIED ) )
+		      || ( record_entry_value_type == LIBPFF_VALUE_TYPE_ERROR ))
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -9601,31 +9600,22 @@ int libpff_table_read_entry_value(
 				}
 			}
 		}
-		else
-		{
+		else {
+            // Some unknown entry type. Keep it as binary data.
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: table set: %03" PRIu32 " entry: %03" PRIu32 " record entry value (reference)\t\t: 0x%08" PRIx64 "\n",
+				 "%s: table set: %03" PRIu32 " entry: %03" PRIu32 " record entry value\t\t\t: 0x%08" PRIx64 "\n",
 				 function,
 				 set_index,
 				 entry_index,
 				 entry_value );
-				libcnotify_printf(
-				 "\n" );
+
 			}
 #endif
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value type: 0x%08" PRIx32 " with value size: %" PRIu8 ".",
-			 function,
-			 record_entry_value_type,
-			 record_entry_value_size );
-
-			goto on_error;
+			record_entry_value_data      = record_entry_value;
+			record_entry_value_data_size = record_entry_value_size;
 		}
 	}
 /* TODO is this check necessary do entry values get read more than once ? */
