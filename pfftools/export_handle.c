@@ -1,7 +1,7 @@
 /*
  * Export handle
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -2245,7 +2245,7 @@ int export_handle_export_record_entry_to_item_file(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retreive value data.",
+			 "%s: unable to retrieve value data.",
 			 function );
 
 			goto on_error;
