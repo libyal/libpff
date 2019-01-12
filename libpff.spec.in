@@ -13,6 +13,14 @@ BuildRequires: gcc @ax_libbfio_spec_build_requires@ @ax_libcdata_spec_build_requ
 %description -n libpff
 Library to access the Personal Folder File (OST, PAB and PST) format
 
+%package -n libpff-static
+Summary: Library to access the Personal Folder File (OST, PAB and PST) format
+Group: Development/Libraries
+Requires: libpff = %{version}-%{release}
+
+%description -n libpff-static
+Static library version of libpff.
+
 %package -n libpff-devel
 Summary: Header files and libraries for developing applications for libpff
 Group: Development/Libraries
@@ -73,11 +81,16 @@ rm -rf %{buildroot}
 %doc AUTHORS README
 %attr(755,root,root) %{_libdir}/*.so.*
 
+%files -n libpff-static
+%defattr(644,root,root,755)
+%license COPYING
+%doc AUTHORS README
+%attr(755,root,root) %{_libdir}/*.a
+
 %files -n libpff-devel
 %defattr(644,root,root,755)
 %license COPYING
 %doc AUTHORS README
-%{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/libpff.pc

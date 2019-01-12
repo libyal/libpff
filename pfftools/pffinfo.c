@@ -162,7 +162,7 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	pffoutput_version_fprint(
+	pfftools_output_version_fprint(
 	 stdout,
 	 program );
 
@@ -207,7 +207,7 @@ int main( int argc, char * const argv[] )
 				break;
 
 			case (system_integer_t) 'V':
-				pffoutput_copyright_fprint(
+				pfftools_output_copyright_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
