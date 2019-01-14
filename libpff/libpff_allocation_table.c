@@ -59,6 +59,7 @@ int libpff_allocation_table_read_data(
 	uint8_t allocation_table_type      = 0;
 	uint8_t allocation_table_type_copy = 0;
 	uint8_t bit_index                  = 0;
+	int result                         = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint64_t value_64bit               = 0;
@@ -376,14 +377,16 @@ int libpff_allocation_table_read_data(
 					 unallocated_size );
 				}
 #endif
-				if( libcdata_range_list_insert_range(
-				     unallocated_block_list,
-				     unallocated_offset,
-				     unallocated_size,
-				     NULL,
-				     NULL,
-				     NULL,
-				     error ) != 1 )
+				result = libcdata_range_list_insert_range(
+				          unallocated_block_list,
+				          unallocated_offset,
+				          unallocated_size,
+				          NULL,
+				          NULL,
+				          NULL,
+				          error );
+
+				if( result == -1 )
 				{
 					libcerror_error_set(
 					 error,
@@ -414,14 +417,16 @@ int libpff_allocation_table_read_data(
 			 unallocated_size );
 		}
 #endif
-		if( libcdata_range_list_insert_range(
-		     unallocated_block_list,
-		     unallocated_offset,
-		     unallocated_size,
-		     NULL,
-		     NULL,
-		     NULL,
-		     error ) != 1 )
+		result = libcdata_range_list_insert_range(
+		          unallocated_block_list,
+		          unallocated_offset,
+		          unallocated_size,
+		          NULL,
+		          NULL,
+		          NULL,
+		          error );
+
+		if( result == -1 )
 		{
 			libcerror_error_set(
 			 error,
