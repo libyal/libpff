@@ -1,7 +1,7 @@
 /*
  * Free map functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -60,6 +60,7 @@ int libpff_free_map_read(
 	uint8_t free_map_entry       = 0;
 	uint8_t free_map_type        = 0;
 	uint8_t free_map_type_copy   = 0;
+	int result                   = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint16_t value_16bit         = 0;
@@ -340,14 +341,16 @@ int libpff_free_map_read(
 			}
 			else if( unallocated_size > 0 )
 			{
-				if( libcdata_range_list_insert_range(
-				     unallocated_block_list,
-				     unallocated_offset,
-				     unallocated_size,
-				     NULL,
-				     NULL,
-				     NULL,
-				     error ) != 1 )
+				result = libcdata_range_list_insert_range(
+				          unallocated_block_list,
+				          unallocated_offset,
+				          unallocated_size,
+				          NULL,
+				          NULL,
+				          NULL,
+				          error );
+
+				if( result == -1 )
 				{
 					libcerror_error_set(
 					 error,
@@ -367,14 +370,16 @@ int libpff_free_map_read(
 	}
 	if( unallocated_size > 0 )
 	{
-		if( libcdata_range_list_insert_range(
-		     unallocated_block_list,
-		     unallocated_offset,
-		     unallocated_size,
-		     NULL,
-		     NULL,
-		     NULL,
-		     error ) != 1 )
+		result = libcdata_range_list_insert_range(
+		          unallocated_block_list,
+		          unallocated_offset,
+		          unallocated_size,
+		          NULL,
+		          NULL,
+		          NULL,
+		          error );
+
+		if( result == -1 )
 		{
 			libcerror_error_set(
 			 error,

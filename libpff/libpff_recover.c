@@ -1,7 +1,7 @@
 /*
  * Recover functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -201,7 +201,7 @@ int libpff_recover_items(
 	if( libfdata_tree_get_number_of_leaf_nodes(
 	     descriptors_index->recovered_index_tree,
 	     (intptr_t *) file_io_handle,
-	     descriptors_index->index_cache,
+	     (libfdata_cache_t *) descriptors_index->index_cache,
 	     &number_of_recovered_descriptor_index_values,
 	     0,
 	     error ) != 1 )
@@ -226,7 +226,7 @@ int libpff_recover_items(
 		if( libfdata_tree_get_leaf_node_by_index(
 		     descriptors_index->recovered_index_tree,
 		     (intptr_t *) file_io_handle,
-		     descriptors_index->index_cache,
+		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     recovered_descriptor_index_value_iterator,
 		     &recovered_descriptor_index_leaf_node,
 		     0,
@@ -245,7 +245,7 @@ int libpff_recover_items(
 		if( libfdata_tree_node_get_node_value(
 		     recovered_descriptor_index_leaf_node,
 		     (intptr_t *) file_io_handle,
-		     descriptors_index->index_cache,
+		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     (intptr_t **) &descriptor_index_value,
 		     0,
 		     error ) != 1 )
@@ -382,10 +382,12 @@ int libpff_recover_items(
 
 						goto on_error;
 					}
-					result = libpff_data_block_read(
+					result = libpff_data_block_read_file_io_handle(
 					          recovered_data_block,
 					          file_io_handle,
+					          offset_index_value->file_offset,
 					          offset_index_value->data_size,
+					          io_handle->file_type,
 					          error );
 
 					if( result != 1 )
@@ -796,7 +798,7 @@ int libpff_recover_index_nodes(
 	if( libfdata_tree_get_number_of_deleted_leaf_nodes(
 	     descriptors_index->index_tree,
 	     (intptr_t *) file_io_handle,
-	     descriptors_index->index_cache,
+	     (libfdata_cache_t *) descriptors_index->index_cache,
 	     &number_of_deleted_index_values,
 	     0,
 	     error ) != 1 )
@@ -821,7 +823,7 @@ int libpff_recover_index_nodes(
 		if( libfdata_tree_get_deleted_leaf_node_by_index(
 		     descriptors_index->index_tree,
 		     (intptr_t *) file_io_handle,
-		     descriptors_index->index_cache,
+		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     deleted_index_value_iterator,
 		     &deleted_index_leaf_node,
 		     0,
@@ -840,7 +842,7 @@ int libpff_recover_index_nodes(
 		if( libfdata_tree_node_get_node_value(
 		     deleted_index_leaf_node,
 		     (intptr_t *) file_io_handle,
-		     descriptors_index->index_cache,
+		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     (intptr_t **) &deleted_index_value,
 		     0,
 		     error ) != 1 )
@@ -1047,7 +1049,7 @@ int libpff_recover_index_nodes(
 	if( libfdata_tree_get_number_of_deleted_leaf_nodes(
 	     offsets_index->index_tree,
 	     (intptr_t *) file_io_handle,
-	     offsets_index->index_cache,
+	     (libfdata_cache_t *) offsets_index->index_cache,
 	     &number_of_deleted_index_values,
 	     0,
 	     error ) != 1 )
@@ -1072,7 +1074,7 @@ int libpff_recover_index_nodes(
 		if( libfdata_tree_get_deleted_leaf_node_by_index(
 		     offsets_index->index_tree,
 		     (intptr_t *) file_io_handle,
-		     offsets_index->index_cache,
+		     (libfdata_cache_t *) offsets_index->index_cache,
 		     deleted_index_value_iterator,
 		     &deleted_index_leaf_node,
 		     0,
@@ -1091,7 +1093,7 @@ int libpff_recover_index_nodes(
 		if( libfdata_tree_node_get_node_value(
 		     deleted_index_leaf_node,
 		     (intptr_t *) file_io_handle,
-		     offsets_index->index_cache,
+		     (libfdata_cache_t *) offsets_index->index_cache,
 		     (intptr_t **) &deleted_index_value,
 		     0,
 		     error ) != 1 )
@@ -2032,11 +2034,11 @@ int libpff_recover_index_values(
 
 		goto on_error;
 	}
-	if( libpff_index_node_read(
+	if( libpff_index_node_read_file_io_handle(
 	     index_node,
-	     (libpff_io_handle_t *) io_handle,
 	     file_io_handle,
 	     node_offset,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )

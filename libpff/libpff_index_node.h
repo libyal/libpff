@@ -1,7 +1,7 @@
 /*
  * Index node functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
 
@@ -76,6 +75,10 @@ struct libpff_index_node
 	/* The back pointer
 	 */
 	uint64_t back_pointer;
+
+	/* The stored checksum
+	 */
+	uint32_t stored_checksum;
 };
 
 int libpff_index_node_initialize(
@@ -92,11 +95,25 @@ int libpff_index_node_get_entry_data(
      uint8_t **entry_data,
      libcerror_error_t **error );
 
-int libpff_index_node_read(
+int libpff_index_node_read_data(
      libpff_index_node_t *index_node,
-     libpff_io_handle_t *io_handle,
+     const uint8_t *data,
+     size_t data_size,
+     uint8_t file_type,
+     libcerror_error_t **error );
+
+int libpff_index_node_read_footer_data(
+     libpff_index_node_t *index_node,
+     const uint8_t *data,
+     size_t data_size,
+     uint8_t file_type,
+     libcerror_error_t **error );
+
+int libpff_index_node_read_file_io_handle(
+     libpff_index_node_t *index_node,
      libbfio_handle_t *file_io_handle,
      off64_t node_offset,
+     uint8_t file_type,
      libcerror_error_t **error );
 
 int libpff_index_node_check_for_empty_block(

@@ -1,7 +1,7 @@
 /*
  * Index functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -281,7 +281,7 @@ int libpff_index_read_node(
 	if( libfdata_vector_get_element_value_at_offset(
 	     index->io_handle->index_nodes_vector,
 	     (intptr_t *) file_io_handle,
-	     index->io_handle->index_nodes_cache,
+	     (libfdata_cache_t *) index->io_handle->index_nodes_cache,
 	     node_offset,
 	     &element_data_offset,
 	     (intptr_t **) &index_node,
@@ -612,7 +612,7 @@ int libpff_index_read_node_entry(
 	if( libfdata_vector_get_element_value_at_offset(
 	     index->io_handle->index_nodes_vector,
 	     (intptr_t *) file_io_handle,
-	     index->io_handle->index_nodes_cache,
+	     (libfdata_cache_t *) index->io_handle->index_nodes_cache,
 	     node_offset,
 	     &element_data_offset,
 	     (intptr_t **) &index_node,
@@ -841,7 +841,7 @@ int libpff_index_read_node_data(
      libpff_index_t *index,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int node_data_file_index LIBPFF_ATTRIBUTE_UNUSED,
      off64_t node_data_offset,
      size64_t node_data_size,
@@ -1022,7 +1022,7 @@ int libpff_index_read_sub_nodes(
      libpff_index_t *index,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int sub_nodes_data_file_index LIBPFF_ATTRIBUTE_UNUSED,
      off64_t sub_nodes_data_offset,
      size64_t sub_nodes_data_size LIBPFF_ATTRIBUTE_UNUSED,

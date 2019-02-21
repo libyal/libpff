@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20180408
+# Version: 20181117
 
 from __future__ import print_function
+
 import glob
 import gzip
 import platform
@@ -60,18 +61,16 @@ class custom_build_ext(build_ext):
     """Runs the command."""
     arguments = shlex.split(command)
     process = subprocess.Popen(
-        arguments, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        arguments, stderr=subprocess.PIPE, stdout=subprocess.PIPE,
+        universal_newlines=True)
     if not process:
       raise RuntimeError("Running: {0:s} failed.".format(command))
 
     output, error = process.communicate()
     if process.returncode != 0:
-      error = "\n".join(error.split(b"\n")[-5:])
-      if sys.version_info[0] >= 3:
-        error = error.decode("ascii", errors="replace")
-      raise RuntimeError(
-          "Running: {0:s} failed with error:\n{1:s}.".format(
-              command, error))
+      error = "\n".join(error.split("\n")[-5:])
+      raise RuntimeError("Running: {0:s} failed with error:\n{1:s}.".format(
+          command, error))
 
     return output
 
@@ -89,40 +88,16 @@ class custom_build_ext(build_ext):
       ]
 
     else:
-      # We need to run "configure" to make sure config.h is generated
-      # properly. We invoke "configure" with "sh" here to make sure
-      # that it works on mingw32 with the standard python.org binaries.
-      command = "sh configure --help"
-      output = self._RunCommand(command)
-
-      # We want to build as much as possible self contained Python binding.
-      configure_arguments = []
-      for line in output.split(b"\n"):
-        line = line.strip()
-        line, _, _ = line.rpartition(b"[=DIR]")
-        if line.startswith(b"--with-lib") and not line.endswith(b"-prefix"):
-          if sys.version_info[0] >= 3:
-            line = line.decode("ascii")
-          configure_arguments.append("{0:s}=no".format(line))
-        elif line == b"--with-bzip2":
-          configure_arguments.append("--with-bzip2=no")
-        elif line == b"--with-openssl":
-          configure_arguments.append("--with-openssl=no")
-        elif line == b"--with-zlib":
-          configure_arguments.append("--with-zlib=no")
-
-      command = "sh configure {0:s}".format(" ".join(configure_arguments))
+      command = "sh configure --disable-shared-libs"
       output = self._RunCommand(command)
 
       print_line = False
-      for line in output.split(b"\n"):
+      for line in output.split("\n"):
         line = line.rstrip()
-        if line == b"configure:":
+        if line == "configure:":
           print_line = True
 
         if print_line:
-          if sys.version_info[0] >= 3:
-            line = line.decode("ascii")
           print(line)
 
       self.define = [

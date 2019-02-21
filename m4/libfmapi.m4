@@ -1,38 +1,42 @@
-dnl Functions for libfmapi
+dnl Checks for libfmapi required headers and functions
 dnl
-dnl Version: 20180405
+dnl Version: 20181117
 
 dnl Function to detect if libfmapi is available
 dnl ac_libfmapi_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
-AC_DEFUN([AX_LIBFWPS_CHECK_LIB],
-  [dnl Check if parameters were provided
-  AS_IF(
-    [test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xno && test "x$ac_cv_with_libfmapi" != xauto-detect],
-    [AS_IF(
-      [test -d "$ac_cv_with_libfmapi"],
-      [CFLAGS="$CFLAGS -I${ac_cv_with_libfmapi}/include"
-      LDFLAGS="$LDFLAGS -L${ac_cv_with_libfmapi}/lib"],
-      [AC_MSG_WARN([no such directory: $ac_cv_with_libfmapi])
-      ])
-    ])
-
-  AS_IF(
-    [test "x$ac_cv_with_libfmapi" = xno],
+AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
+  [AS_IF(
+    [test "x$ac_cv_enable_shared_libs" = xno || test "x$ac_cv_with_libfmapi" = xno],
     [ac_cv_libfmapi=no],
-    [dnl Check for a pkg-config file
+    [dnl Check if the directory provided as parameter exists
     AS_IF(
-      [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
-      [PKG_CHECK_MODULES(
-        [libfmapi],
-        [libfmapi >= 20140622],
-        [ac_cv_libfmapi=yes],
-        [ac_cv_libfmapi=no])
+      [test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xauto-detect],
+      [AS_IF(
+        [test -d "$ac_cv_with_libfmapi"],
+        [CFLAGS="$CFLAGS -I${ac_cv_with_libfmapi}/include"
+        LDFLAGS="$LDFLAGS -L${ac_cv_with_libfmapi}/lib"],
+        [AC_MSG_FAILURE(
+          [no such directory: $ac_cv_with_libfmapi],
+          [1])
+        ])
+        ac_cv_libfmapi=check],
+      [dnl Check for a pkg-config file
+      AS_IF(
+        [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+        [PKG_CHECK_MODULES(
+          [libfmapi],
+          [libfmapi >= 20180714],
+          [ac_cv_libfmapi=yes],
+          [ac_cv_libfmapi=check])
+        ])
+      AS_IF(
+        [test "x$ac_cv_libfmapi" = xyes],
+        [ac_cv_libfmapi_CPPFLAGS="$pkg_cv_libfmapi_CFLAGS"
+        ac_cv_libfmapi_LIBADD="$pkg_cv_libfmapi_LIBS"])
       ])
 
     AS_IF(
-      [test "x$ac_cv_libfmapi" = xyes],
-      [ac_cv_libfmapi_CPPFLAGS="$pkg_cv_libfmapi_CFLAGS"
-      ac_cv_libfmapi_LIBADD="$pkg_cv_libfmapi_LIBS"],
+      [test "x$ac_cv_libfmapi" = xcheck],
       [dnl Check for headers
       AC_CHECK_HEADERS([libfmapi.h])
 
@@ -157,8 +161,20 @@ AC_DEFUN([AX_LIBFWPS_CHECK_LIB],
           [ac_cv_libfmapi_dummy=yes],
           [ac_cv_libfmapi=no])
 
-        ac_cv_libfmapi_LIBADD="-lfmapi"
-        ])
+        dnl MAPI class identifiers
+        AC_CHECK_LIB(
+          fmapi,
+          libfmapi_class_identifier_public_strings,
+          [ac_cv_libfmapi_dummy=yes],
+          [ac_cv_libfmapi=no])
+
+        ac_cv_libfmapi_LIBADD="-lfmapi"])
+      ])
+    AS_IF(
+      [test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xauto-detect && test "x$ac_cv_libfmapi" != xyes],
+      [AC_MSG_FAILURE(
+        [unable to find supported libfmapi in directory: $ac_cv_with_libfmapi],
+        [1])
       ])
     ])
 
@@ -191,7 +207,7 @@ AC_DEFUN([AX_LIBFWPS_CHECK_LIB],
   AS_IF(
     [test "x$ac_cv_libfmapi" = xyes],
     [AC_DEFINE(
-      [HAVE_LIBFWPS],
+      [HAVE_LIBFMAPI],
       [1],
       [Define to 1 if you have the `fmapi' library (-lfmapi).])
     ])
@@ -199,14 +215,13 @@ AC_DEFUN([AX_LIBFWPS_CHECK_LIB],
   AS_IF(
     [test "x$ac_cv_libfmapi" = xyes],
     [AC_SUBST(
-      [HAVE_LIBFWPS],
+      [HAVE_LIBFMAPI],
       [1]) ],
     [AC_SUBST(
-      [HAVE_LIBFWPS],
+      [HAVE_LIBFMAPI],
       [0])
     ])
   ])
-
 
 dnl Function to detect if libfmapi dependencies are available
 AC_DEFUN([AX_LIBFMAPI_CHECK_LOCAL],

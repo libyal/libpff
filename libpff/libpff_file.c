@@ -1,7 +1,7 @@
 /*
  * File functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1039,15 +1039,13 @@ int libpff_file_open_read(
 
 		goto on_error;
 	}
-	result = libpff_item_tree_create(
-	          &( internal_file->item_tree_root_node ),
-	          file_io_handle,
-	          internal_file->descriptors_index,
-	          internal_file->orphan_item_list,
-	          &( internal_file->root_folder_item_tree_node ),
-	          error );
-
-	if( result == -1 )
+	if( libpff_item_tree_create(
+	     &( internal_file->item_tree_root_node ),
+	     file_io_handle,
+	     internal_file->descriptors_index,
+	     internal_file->orphan_item_list,
+	     &( internal_file->root_folder_item_tree_node ),
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,

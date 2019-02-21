@@ -1,7 +1,7 @@
 /*
  * Local descriptors functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1059,7 +1059,7 @@ int libpff_local_descriptors_read_node(
      libpff_local_descriptors_t *local_descriptors,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int node_file_index,
      off64_t node_offset,
      size64_t node_size,
@@ -1213,7 +1213,7 @@ int libpff_local_descriptors_read_sub_nodes(
      libpff_local_descriptors_t *local_descriptors,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
-     libfcache_cache_t *cache LIBPFF_ATTRIBUTE_UNUSED,
+     libfdata_cache_t *cache LIBPFF_ATTRIBUTE_UNUSED,
      int sub_nodes_file_index LIBPFF_ATTRIBUTE_UNUSED,
      off64_t sub_nodes_offset,
      size64_t sub_nodes_size,

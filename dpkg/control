@@ -9,6 +9,8 @@ Homepage: https://github.com/libyal/libpff
 Package: libpff
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libpff1
+Replaces: libpff1
 Suggests: libpff-dbg
 Description: Library to access the Personal Folder File (OST, PAB and PST) format
  libpff is a library to access the Personal Folder File (OST, PAB and PST) format.
@@ -31,6 +33,8 @@ Package: libpff-tools
 Section: utils
 Architecture: any
 Depends: libpff (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libpff-utils
+Replaces: libpff-utils
 Description: Several tools for reading Personal Folder Files (OST, PAB and PST)
  Several tools for reading Personal Folder Files (OST, PAB and PST).
 
@@ -45,6 +49,8 @@ Package: libpff-python
 Section: python
 Architecture: any
 Depends: libpff (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python-libpff
+Replaces: python-libpff
 Suggests: libpff-python-dbg
 Description: Python 2 bindings for libpff
  Python 2 bindings for libpff.
@@ -60,6 +66,8 @@ Package: libpff-python3
 Section: python
 Architecture: any
 Depends: libpff (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python3-libpff
+Replaces: python3-libpff
 Suggests: libpff-python3-dbg
 Description: Python 3 bindings for libpff
  Python 3 bindings for libpff.

@@ -1,7 +1,7 @@
 /*
  * Allocation table functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -33,7 +33,14 @@
 extern "C" {
 #endif
 
-int libpff_allocation_table_read(
+int libpff_allocation_table_read_data(
+     libcdata_range_list_t *unallocated_block_list,
+     const uint8_t *data,
+     size_t data_size,
+     uint8_t file_type,
+     libcerror_error_t **error );
+
+int libpff_allocation_table_read_file_io_handle(
      libcdata_range_list_t *unallocated_block_list,
      libbfio_handle_t *file_io_handle,
      off64_t allocation_table_offset,

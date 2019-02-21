@@ -1,7 +1,7 @@
 /*
  * Common output functions for the pfftools
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -36,14 +36,14 @@ int pfftools_output_initialize(
      int stdio_mode,
      libcerror_error_t **error );
 
-void pffoutput_copyright_fprint(
+void pfftools_output_copyright_fprint(
       FILE *stream );
 
-void pffoutput_version_fprint(
+void pfftools_output_version_fprint(
       FILE *stream,
       const char *program );
 
-void pffoutput_version_detailed_fprint(
+void pfftools_output_version_detailed_fprint(
       FILE *stream,
       const char *program );
 

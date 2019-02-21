@@ -1,7 +1,7 @@
 /*
  * Deflate (zlib) (un)compression functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1540,6 +1540,11 @@ int libpff_deflate_decompress(
 				bit_stream.byte_stream_offset += block_size;
 				uncompressed_data_offset      += block_size;
 
+				/* Flush the bit-stream buffer
+				 */
+				bit_stream.bit_buffer      = 0;
+				bit_stream.bit_buffer_size = 0;
+
 				break;
 
 			case LIBPFF_DEFLATE_BLOCK_TYPE_HUFFMAN_FIXED:
@@ -1617,6 +1622,11 @@ int libpff_deflate_decompress(
 	}
 	if( ( bit_stream.byte_stream_size - bit_stream.byte_stream_offset ) >= 4 )
 	{
+		while( bit_stream.bit_buffer_size >= 8 )
+		{
+			bit_stream.byte_stream_offset -= 1;
+			bit_stream.bit_buffer_size    -= 8;
+		}
 		byte_stream_copy_to_uint32_big_endian(
 		 &( bit_stream.byte_stream[ bit_stream.byte_stream_offset ] ),
 		 stored_checksum );

@@ -1,7 +1,7 @@
 /*
  * Python object definition of the message type libpff item
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -709,7 +709,7 @@ PyObject *pypff_message_get_client_submit_time(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_client_submit_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -768,7 +768,7 @@ PyObject *pypff_message_get_client_submit_time_as_integer(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_client_submit_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -827,7 +827,7 @@ PyObject *pypff_message_get_delivery_time(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_delivery_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -886,7 +886,7 @@ PyObject *pypff_message_get_delivery_time_as_integer(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_delivery_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -945,7 +945,7 @@ PyObject *pypff_message_get_creation_time(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_creation_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -1004,7 +1004,7 @@ PyObject *pypff_message_get_creation_time_as_integer(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_creation_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -1063,7 +1063,7 @@ PyObject *pypff_message_get_modification_time(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_modification_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -1122,7 +1122,7 @@ PyObject *pypff_message_get_modification_time_as_integer(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libpff_message_get_modification_time(
-	          pypff_item->record_set,
+	          pypff_item->item,
 	          &filetime,
 	          &error );
 
@@ -1614,4 +1614,3 @@ on_error:
 	}
 	return( NULL );
 }
-

@@ -1,7 +1,7 @@
 /*
  * Index tree functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -146,7 +146,7 @@ int libpff_index_tree_node_get_number_of_leaf_nodes_by_identifier(
 	if( libfdata_tree_node_get_number_of_sub_nodes(
 	     index_tree_node,
 	     (intptr_t *) file_io_handle,
-	     cache,
+	     (libfdata_cache_t *) cache,
 	     &number_of_sub_nodes,
 	     0,
 	     error ) != 1 )
@@ -167,7 +167,7 @@ int libpff_index_tree_node_get_number_of_leaf_nodes_by_identifier(
 		if( libfdata_tree_node_get_sub_node_by_index(
 		     index_tree_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     sub_node_index,
 		     &index_tree_sub_node,
 		     0,
@@ -186,7 +186,7 @@ int libpff_index_tree_node_get_number_of_leaf_nodes_by_identifier(
 		if( libfdata_tree_node_get_node_value(
 		     index_tree_sub_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     (intptr_t **) &index_tree_sub_node_value,
 		     0,
 		     error ) != 1 )
@@ -239,7 +239,7 @@ int libpff_index_tree_node_get_number_of_leaf_nodes_by_identifier(
 		result = libfdata_tree_node_is_leaf(
 		          index_tree_sub_node,
 		          (intptr_t *) file_io_handle,
-		          cache,
+		          (libfdata_cache_t *) cache,
 		          0,
 		          error );
 
@@ -328,7 +328,7 @@ int libpff_index_tree_node_get_number_of_leaf_nodes_by_identifier(
 				if( libfdata_tree_node_get_sub_node_by_index(
 				     index_tree_node,
 				     (intptr_t *) file_io_handle,
-				     cache,
+				     (libfdata_cache_t *) cache,
 				     sub_node_index - 1,
 				     &index_tree_sub_node,
 				     0,
@@ -490,7 +490,7 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
 	if( libfdata_tree_node_get_number_of_sub_nodes(
 	     index_tree_node,
 	     (intptr_t *) file_io_handle,
-	     cache,
+	     (libfdata_cache_t *) cache,
 	     &number_of_sub_nodes,
 	     0,
 	     error ) != 1 )
@@ -511,7 +511,7 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
 		if( libfdata_tree_node_get_sub_node_by_index(
 		     index_tree_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     sub_node_index,
 		     &index_tree_sub_node,
 		     0,
@@ -530,7 +530,7 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
 		if( libfdata_tree_node_get_node_value(
 		     index_tree_sub_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     (intptr_t **) &index_tree_sub_node_value,
 		     0,
 		     error ) != 1 )
@@ -583,7 +583,7 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
 		result = libfdata_tree_node_is_leaf(
 		          index_tree_sub_node,
 		          (intptr_t *) file_io_handle,
-		          cache,
+		          (libfdata_cache_t *) cache,
 		          0,
 		          error );
 
@@ -707,7 +707,7 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
 				if( libfdata_tree_node_get_sub_node_by_index(
 				     index_tree_node,
 				     (intptr_t *) file_io_handle,
-				     cache,
+				     (libfdata_cache_t *) cache,
 				     sub_node_index - 1,
 				     &index_tree_sub_node,
 				     0,
@@ -803,7 +803,7 @@ int libpff_index_tree_get_value_by_identifier(
 		if( libfdata_tree_node_get_node_value(
 		     leaf_index_tree_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     (intptr_t **) index_value,
 		     0,
 		     error ) != 1 )
@@ -865,7 +865,7 @@ int libpff_index_tree_node_get_upper_branch_node_by_identifier(
 	if( libfdata_tree_node_get_number_of_sub_nodes(
 	     index_tree_node,
 	     (intptr_t *) file_io_handle,
-	     cache,
+	     (libfdata_cache_t *) cache,
 	     &number_of_sub_nodes,
 	     0,
 	     error ) != 1 )
@@ -884,7 +884,7 @@ int libpff_index_tree_node_get_upper_branch_node_by_identifier(
 		result = libfdata_tree_node_is_leaf(
 		          index_tree_node,
 		          (intptr_t *) file_io_handle,
-		          cache,
+		          (libfdata_cache_t *) cache,
 		          0,
 		          error );
 
@@ -946,7 +946,7 @@ int libpff_index_tree_node_get_upper_branch_node_by_identifier(
 		if( libfdata_tree_node_get_sub_node_by_index(
 		     index_tree_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     sub_node_index,
 		     &index_tree_sub_node,
 		     0,
@@ -965,7 +965,7 @@ int libpff_index_tree_node_get_upper_branch_node_by_identifier(
 		if( libfdata_tree_node_get_node_value(
 		     index_tree_sub_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     (intptr_t **) &index_tree_sub_node_value,
 		     0,
 		     error ) != 1 )
@@ -1018,7 +1018,7 @@ int libpff_index_tree_node_get_upper_branch_node_by_identifier(
 		result = libfdata_tree_node_is_leaf(
 		          index_tree_sub_node,
 		          (intptr_t *) file_io_handle,
-		          cache,
+		          (libfdata_cache_t *) cache,
 		          0,
 		          error );
 
@@ -1121,7 +1121,7 @@ int libpff_index_tree_node_get_upper_branch_node_by_identifier(
 				if( libfdata_tree_node_get_sub_node_by_index(
 				     index_tree_node,
 				     (intptr_t *) file_io_handle,
-				     cache,
+				     (libfdata_cache_t *) cache,
 				     sub_node_index - 1,
 				     &index_tree_sub_node,
 				     0,
@@ -1247,7 +1247,7 @@ int libpff_index_tree_insert_value(
 	if( libfdata_tree_node_get_number_of_sub_nodes(
 	     index_tree_branch_node,
 	     (intptr_t *) file_io_handle,
-	     cache,
+	     (libfdata_cache_t *) cache,
 	     &number_of_sub_nodes,
 	     0,
 	     error ) != 1 )
@@ -1266,7 +1266,7 @@ int libpff_index_tree_insert_value(
 		if( libfdata_tree_node_get_node_value(
 		     index_tree_branch_node,
 		     (intptr_t *) file_io_handle,
-		     cache,
+		     (libfdata_cache_t *) cache,
 		     (intptr_t **) &index_tree_branch_node_value,
 		     0,
 		     error ) != 1 )
@@ -1341,7 +1341,7 @@ int libpff_index_tree_insert_value(
 	if( libfdata_tree_node_insert_sub_node(
 	     index_tree_branch_node,
 	     (intptr_t *) file_io_handle,
-	     cache,
+	     (libfdata_cache_t *) cache,
 	     &sub_node_index,
 	     0,
 	     node_data_offset,

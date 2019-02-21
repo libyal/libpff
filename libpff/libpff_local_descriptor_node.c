@@ -1,7 +1,7 @@
 /*
  * Local descriptor node functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -503,32 +503,6 @@ int libpff_local_descriptor_node_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading local descriptor node data at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 node_offset,
-		 node_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     node_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek local descriptor node at offset: 0x%08" PRIx64 ".",
-		 function,
-		 node_offset );
-
-		goto on_error;
-	}
 	if( libpff_data_block_initialize(
 	     &data_block,
 	     io_handle,
@@ -545,10 +519,12 @@ int libpff_local_descriptor_node_read(
 
 		goto on_error;
 	}
-	if( libpff_data_block_read(
+	if( libpff_data_block_read_file_io_handle(
 	     data_block,
 	     file_io_handle,
+	     node_offset,
 	     node_size,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -884,7 +860,7 @@ int libpff_local_descriptor_node_read_element_data(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_list_element_t *list_element,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int data_range_file_index LIBPFF_ATTRIBUTE_UNUSED,
      off64_t data_range_offset,
      size64_t data_range_size,

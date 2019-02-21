@@ -1,7 +1,7 @@
 /*
  * Message functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -2214,7 +2214,7 @@ int libpff_message_get_plain_text_body_size(
 				/* Sometimes the message body codepade is not the one used to encode
 				 * the message body, so try the message codepage as well
 				 */
-				if( ( ascii_codepage == message_codepage )
+				if( ( (uint32_t) ascii_codepage == message_codepage )
 				 || ( libpff_record_entry_get_data_as_utf8_string_size_with_codepage(
 				       record_entry,
 				       message_codepage,
@@ -2460,7 +2460,7 @@ int libpff_message_get_plain_text_body(
 				/* Sometimes the message body codepade is not the one used to encode
 				 * the message body, so try the message codepage as well
 				 */
-				if( ( ascii_codepage == message_codepage )
+				if( ( (uint32_t) ascii_codepage == message_codepage )
 				 || ( libpff_record_entry_get_data_as_utf8_string_with_codepage(
 				       record_entry,
 				       message_codepage,

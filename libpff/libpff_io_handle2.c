@@ -1,7 +1,7 @@
 /*
  * Input/Output (IO) handle functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -210,32 +210,6 @@ int libpff_io_handle_read_descriptor_data_list(
 		goto on_error;
 	}
 #endif
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading data block at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 offset_index_value->file_offset,
-		 offset_index_value->file_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     offset_index_value->file_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek data block offset: %" PRIi64 ".",
-		 function,
-		 offset_index_value->file_offset );
-
-		goto on_error;
-	}
 	if( libpff_data_block_initialize(
 	     &data_block,
 	     io_handle,
@@ -252,10 +226,12 @@ int libpff_io_handle_read_descriptor_data_list(
 
 		goto on_error;
 	}
-	if( libpff_data_block_read(
+	if( libpff_data_block_read_file_io_handle(
 	     data_block,
 	     file_io_handle,
+	     offset_index_value->file_offset,
 	     offset_index_value->data_size,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -279,9 +255,9 @@ int libpff_io_handle_read_descriptor_data_list(
 	{
 		if( libpff_data_array_initialize(
 		     &data_array,
+		     io_handle,
 		     descriptor_identifier,
 		     data_identifier,
-		     io_handle,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -298,7 +274,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		     (intptr_t *) data_array,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_data_array_free,
 		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_data_array_clone,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_array_read_element_data,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_array_read_element_data,
 		     NULL,
 		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
@@ -390,7 +366,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		     (intptr_t *) data_block,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_data_block_free,
 		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_data_block_clone,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_block_read_element_data,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_data_block_read_element_data,
 		     NULL,
 		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
@@ -448,7 +424,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		if( libfdata_list_set_element_value_by_index(
 		     *descriptor_data_list,
 		     (intptr_t *) file_io_handle,
-		     *descriptor_data_cache,
+		     (libfdata_cache_t *) *descriptor_data_cache,
 		     0,
 		     (intptr_t *) data_block,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_data_block_free,

@@ -1,7 +1,7 @@
 /*
  * Library data_array_entry type test program
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -113,6 +113,8 @@ int pff_test_data_array_entry_initialize(
 	          &data_array_entry,
 	          &error );
 
+	data_array_entry = NULL;
+
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int pff_test_data_array_entry_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	data_array_entry = NULL;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
 

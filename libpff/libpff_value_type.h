@@ -1,7 +1,7 @@
 /*
  * Values type functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -32,24 +32,24 @@ extern "C" {
 #endif
 
 int libpff_value_type_string_contains_zero_bytes(
-     uint8_t *buffer,
+     const uint8_t *buffer,
      size_t buffer_size,
      libcerror_error_t **error );
 
 int libpff_value_type_copy_to_32bit(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint32_t *value_32bit,
      libcerror_error_t **error );
 
 int libpff_value_type_copy_to_64bit(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint64_t *value_64bit,
      libcerror_error_t **error );
 
 int libpff_value_type_get_utf8_string_size(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t is_ascii_string,
      uint32_t ascii_codepage,
@@ -57,7 +57,7 @@ int libpff_value_type_get_utf8_string_size(
      libcerror_error_t **error );
 
 int libpff_value_type_copy_to_utf8_string(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t is_ascii_string,
      uint32_t ascii_codepage,
@@ -66,7 +66,7 @@ int libpff_value_type_copy_to_utf8_string(
      libcerror_error_t **error );
 
 int libpff_value_type_get_utf16_string_size(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t is_ascii_string,
      uint32_t ascii_codepage,
@@ -74,7 +74,7 @@ int libpff_value_type_get_utf16_string_size(
      libcerror_error_t **error );
 
 int libpff_value_type_copy_to_utf16_string(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t is_ascii_string,
      uint32_t ascii_codepage,
@@ -83,13 +83,13 @@ int libpff_value_type_copy_to_utf16_string(
      libcerror_error_t **error );
 
 int libpff_value_type_get_binary_data_size(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      size_t *binary_data_size,
      libcerror_error_t **error );
 
 int libpff_value_type_copy_to_binary_data(
-     uint8_t *value_data,
+     const uint8_t *value_data,
      size_t value_data_size,
      uint8_t *binary_data,
      size_t binary_data_size,

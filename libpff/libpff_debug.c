@@ -1,7 +1,7 @@
 /*
  * Debug functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -947,5 +947,5 @@ int libpff_debug_print_read_offsets(
 	return( 1 );
 }
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 

@@ -1,7 +1,7 @@
 /*
  * Functions for testing
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -347,7 +347,6 @@ int pff_test_get_wide_source(
 
 		return( -1 );
 	}
-
 #endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 	if( wide_string_size < wide_source_size )

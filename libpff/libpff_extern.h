@@ -1,7 +1,7 @@
 /*
  * The internal extern definition
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -28,17 +28,13 @@
  */
 #if !defined( HAVE_LOCAL_LIBPFF )
 
-/* If libtool DLL support is enabled set LIBPFF_DLL_EXPORT
- * before including libpff/extern.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBPFF_DLL_EXPORT
-#endif
-
 #include <libpff/extern.h>
 
+#define LIBPFF_EXTERN_VARIABLE	LIBPFF_EXTERN
+
 #else
-#define LIBPFF_EXTERN	/* extern */
+#define LIBPFF_EXTERN		/* extern */
+#define LIBPFF_EXTERN_VARIABLE	extern
 
 #endif /* !defined( HAVE_LOCAL_LIBPFF ) */
 

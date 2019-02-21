@@ -1,7 +1,7 @@
 /*
  * Input/Output (IO) handle functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1193,7 +1193,7 @@ int libpff_io_handle_read_file_header(
 	     (intptr_t *) io_handle,
 	     NULL,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_io_handle_read_index_node,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_io_handle_read_index_node,
 	     NULL,
 	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
@@ -1300,7 +1300,7 @@ int libpff_io_handle_read_unallocated_data_blocks(
 	}
 	while( allocation_table_offset < (off64_t) io_handle->file_size )
 	{
-		if( libpff_allocation_table_read(
+		if( libpff_allocation_table_read_file_io_handle(
 		     unallocated_data_block_list,
 		     file_io_handle,
 		     allocation_table_offset,
@@ -1363,7 +1363,7 @@ int libpff_io_handle_read_unallocated_page_blocks(
 
 	while( allocation_table_offset < (off64_t) io_handle->file_size )
 	{
-		if( libpff_allocation_table_read(
+		if( libpff_allocation_table_read_file_io_handle(
 		     unallocated_page_block_list,
 		     file_io_handle,
 		     allocation_table_offset,
@@ -1392,7 +1392,7 @@ int libpff_io_handle_read_index_node(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int element_index,
      int element_data_file_index LIBPFF_ATTRIBUTE_UNUSED,
      off64_t element_data_offset,
@@ -1436,11 +1436,11 @@ int libpff_io_handle_read_index_node(
 
 		goto on_error;
 	}
-	if( libpff_index_node_read(
+	if( libpff_index_node_read_file_io_handle(
 	     index_node,
-	     io_handle,
 	     file_io_handle,
 	     element_data_offset,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

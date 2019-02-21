@@ -1,7 +1,7 @@
 /*
  * Data block functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -65,6 +65,10 @@ struct libpff_data_block
 	 */
 	uint32_t uncompressed_data_size;
 
+	/* The stored checksum
+	 */
+	uint32_t stored_checksum;
+
 	/* The flags
 	 */
 	uint8_t flags;
@@ -86,6 +90,21 @@ int libpff_data_block_clone(
      libpff_data_block_t *source_data_block,
      libcerror_error_t **error );
 
+int libpff_data_block_read_footer_data(
+     libpff_data_block_t *data_block,
+     const uint8_t *data,
+     size_t data_size,
+     uint8_t file_type,
+     libcerror_error_t **error );
+
+int libpff_data_block_read_file_io_handle(
+     libpff_data_block_t *data_block,
+     libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
+     size32_t data_size,
+     uint8_t file_type,
+     libcerror_error_t **error );
+
 int libpff_data_block_read_element_data(
      libpff_data_block_t *data_block,
      libbfio_handle_t *file_io_handle,
@@ -96,12 +115,6 @@ int libpff_data_block_read_element_data(
      size64_t element_size,
      uint32_t element_flags,
      uint8_t read_flags,
-     libcerror_error_t **error );
-
-int libpff_data_block_read(
-     libpff_data_block_t *data_block,
-     libbfio_handle_t *file_io_handle,
-     size32_t data_size,
      libcerror_error_t **error );
 
 int libpff_data_block_decrypt_data(

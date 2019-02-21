@@ -1,7 +1,7 @@
 /*
  * Data block functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -275,26 +275,25 @@ on_error:
 	return( -1 );
 }
 
-/* Reads the data block element data
- * Callback for the descriptor data list
- * Returns the number of bytes read if successful or -1 on error
+/* Reads the data block footer
+ * Returns 1 if successful or -1 on error
  */
-int libpff_data_block_read_element_data(
+int libpff_data_block_read_footer_data(
      libpff_data_block_t *data_block,
-     libbfio_handle_t *file_io_handle,
-     libfdata_list_element_t *list_element,
-     libfcache_cache_t *cache,
-     int element_file_index LIBPFF_ATTRIBUTE_UNUSED,
-     off64_t element_offset,
-     size64_t element_size,
-     uint32_t element_flags LIBPFF_ATTRIBUTE_UNUSED,
-     uint8_t read_flags,
+     const uint8_t *data,
+     size_t data_size,
+     uint8_t file_type,
      libcerror_error_t **error )
 {
-	static char *function = "libpff_data_block_read_element_data";
+	static char *function            = "libpff_data_block_read_footer_data";
+	size_t data_block_footer_size    = 0;
+	uint64_t data_block_back_pointer = 0;
+	uint16_t data_block_signature    = 0;
 
-	LIBPFF_UNREFERENCED_PARAMETER( element_file_index )
-	LIBPFF_UNREFERENCED_PARAMETER( element_flags )
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint32_t value_32bit             = 0;
+	uint16_t value_16bit             = 0;
+#endif
 
 	if( data_block == NULL )
 	{
@@ -307,110 +306,220 @@ int libpff_data_block_read_element_data(
 
 		return( -1 );
 	}
-	if( element_size > (size64_t) UINT32_MAX )
+	if( data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size > (size_t) SSIZE_MAX )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid element size value exceeds maximum.\n",
+		 "%s: invalid data size value exceeds maximum.",
 		 function );
 
 		return( -1 );
 	}
-	if( data_block->data == NULL )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: reading data block at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-			 function,
-			 element_offset,
-			 element_offset );
-		}
-#endif
-		if( libbfio_handle_seek_offset(
-		     file_io_handle,
-		     element_offset,
-		     SEEK_SET,
-		     error ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek data block offset: %" PRIi64 ".",
-			 function,
-			 element_offset );
-
-			return( -1 );
-		}
-		if( libpff_data_block_read(
-		     data_block,
-		     file_io_handle,
-		     (size32_t) element_size,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read data block data.",
-			 function );
-
-			return( -1 );
-		}
-		if( libpff_data_block_decrypt_data(
-		     data_block,
-		     read_flags,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ENCRYPTION,
-			 LIBCERROR_ENCRYPTION_ERROR_DECRYPT_FAILED,
-			 "%s: unable to decrypt data block data.",
-			 function );
-
-			return( -1 );
-		}
-	}
-	/* The data block is managed by the list and should not be managed by the cache as well
-	 */
-	if( libfdata_list_element_set_element_value(
-	     list_element,
-	     (intptr_t *) file_io_handle,
-	     cache,
-	     (intptr_t *) data_block,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_data_block_free,
-	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_NON_MANAGED,
-	     error ) != 1 )
+	if( ( file_type != LIBPFF_FILE_TYPE_32BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set data block as element value.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported file type.",
 		 function );
 
 		return( -1 );
 	}
+	if( file_type == LIBPFF_FILE_TYPE_32BIT )
+	{
+		data_block_footer_size = sizeof( pff_block_footer_32bit_t );
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT )
+	{
+		data_block_footer_size = sizeof( pff_block_footer_64bit_t );
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+	{
+		data_block_footer_size = sizeof( pff_block_footer_64bit_4k_page_t );
+	}
+	if( data_size < data_block_footer_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid data size value too small.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: data block footer data:\n",
+		 function );
+		libcnotify_print_data(
+		 data,
+		 data_block_footer_size,
+		 0 );
+	}
+#endif
+	if( file_type == LIBPFF_FILE_TYPE_32BIT )
+	{
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (pff_block_footer_32bit_t *) data )->data_size,
+		 data_block->data_size );
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (pff_block_footer_32bit_t *) data )->signature,
+		 data_block_signature );
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (pff_block_footer_32bit_t *) data )->back_pointer,
+		 data_block_back_pointer );
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (pff_block_footer_32bit_t *) data )->checksum,
+		 data_block->stored_checksum );
+
+		data_block->uncompressed_data_size = data_block->data_size;
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT )
+	{
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (pff_block_footer_64bit_t *) data )->data_size,
+		 data_block->data_size );
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (pff_block_footer_64bit_t *) data )->signature,
+		 data_block_signature );
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (pff_block_footer_64bit_t *) data )->checksum,
+		 data_block->stored_checksum );
+
+		byte_stream_copy_to_uint64_little_endian(
+		 ( (pff_block_footer_64bit_t *) data )->back_pointer,
+		 data_block_back_pointer );
+
+		data_block->uncompressed_data_size = data_block->data_size;
+	}
+	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+	{
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (pff_block_footer_64bit_4k_page_t *) data )->data_size,
+		 data_block->data_size );
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (pff_block_footer_64bit_4k_page_t *) data )->signature,
+		 data_block_signature );
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (pff_block_footer_64bit_4k_page_t *) data )->checksum,
+		 data_block->stored_checksum );
+
+		byte_stream_copy_to_uint64_little_endian(
+		 ( (pff_block_footer_64bit_4k_page_t *) data )->back_pointer,
+		 data_block_back_pointer );
+
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (pff_block_footer_64bit_4k_page_t *) data )->uncompressed_data_size,
+		 data_block->uncompressed_data_size );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: data size\t\t\t\t: %" PRIu32 "\n",
+		 function,
+		 data_block->data_size );
+
+		libcnotify_printf(
+		 "%s: signature\t\t\t\t: 0x%04" PRIx16 "\n",
+		 function,
+		 data_block_signature );
+
+		if( file_type == LIBPFF_FILE_TYPE_32BIT )
+		{
+			libcnotify_printf(
+			 "%s: back pointer\t\t\t: 0x%08" PRIx64 "\n",
+			 function,
+			 data_block_back_pointer );
+
+			libcnotify_printf(
+			 "%s: data checksum\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 data_block->stored_checksum );
+		}
+		else if( ( file_type == LIBPFF_FILE_TYPE_64BIT )
+		      || ( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+		{
+			libcnotify_printf(
+			 "%s: data checksum\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 data_block->stored_checksum );
+
+			libcnotify_printf(
+			 "%s: back pointer\t\t\t: 0x%08" PRIx64 "\n",
+			 function,
+			 data_block_back_pointer );
+		}
+		if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+		{
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (pff_block_footer_64bit_4k_page_t *) data )->unknown1,
+			 value_16bit );
+			libcnotify_printf(
+			 "%s: unknown1\t\t\t\t: 0x%04" PRIx16 "\n",
+			 function,
+			 value_16bit );
+
+			libcnotify_printf(
+			 "%s: uncompressed data size\t\t: %" PRIu16 "\n",
+			 function,
+			 data_block->uncompressed_data_size );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (pff_block_footer_64bit_4k_page_t *) data )->unknown2,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: unknown2\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+		}
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 	return( 1 );
 }
 
 /* Reads the data block
  * Returns 1 if successful or -1 on error
  */
-int libpff_data_block_read(
+int libpff_data_block_read_file_io_handle(
      libpff_data_block_t *data_block,
      libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
      size32_t data_size,
+     uint8_t file_type,
      libcerror_error_t **error )
 {
-	uint8_t *data_block_footer            = NULL;
 	uint8_t *uncompressed_data            = NULL;
-	static char *function                 = "libpff_data_block_read";
+	static char *function                 = "libpff_data_block_read_file_io_handle";
+	size_t data_block_footer_offset       = 0;
 	size_t data_block_padding_size        = 0;
 	size_t uncompressed_data_size         = 0;
 	ssize_t read_count                    = 0;
@@ -420,15 +529,9 @@ int libpff_data_block_read(
 	uint32_t data_block_increment_size    = 0;
 	uint32_t data_block_footer_size       = 0;
 	uint32_t maximum_data_block_size      = 0;
-	uint32_t stored_checksum              = 0;
-	uint16_t data_block_signature         = 0;
 
 #if defined( HAVE_VERBOSE_OUTPUT )
 	uint32_t maximum_data_block_data_size = 0;
-#endif
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit                  = 0;
-	uint16_t value_16bit                  = 0;
 #endif
 
 	if( data_block == NULL )
@@ -438,17 +541,6 @@ int libpff_data_block_read(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid data block.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_block->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data block - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -464,9 +556,9 @@ int libpff_data_block_read(
 
 		return( -1 );
 	}
-	if( ( data_block->io_handle->file_type != LIBPFF_FILE_TYPE_32BIT )
-	 && ( data_block->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT )
-	 && ( data_block->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	if( ( file_type != LIBPFF_FILE_TYPE_32BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT )
+	 && ( file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -490,21 +582,48 @@ int libpff_data_block_read(
 		return( -1 );
 	}
 #endif
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading data block at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 file_offset,
+		 file_offset );
+	}
+#endif
+	if( libbfio_handle_seek_offset(
+	     file_io_handle,
+	     file_offset,
+	     SEEK_SET,
+	     error ) == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek data block offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 file_offset,
+		 file_offset );
+
+		goto on_error;
+	}
 	if( data_size != 0 )
 	{
-		if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+		if( file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
 			data_block_footer_size    = (uint32_t) sizeof( pff_block_footer_32bit_t );
 			data_block_increment_size = 64;
 			maximum_data_block_size   = 8192;
 		}
-		else if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+		else if( file_type == LIBPFF_FILE_TYPE_64BIT )
 		{
 			data_block_footer_size    = (uint32_t) sizeof( pff_block_footer_64bit_t );
 			data_block_increment_size = 64;
 			maximum_data_block_size   = 8192;
 		}
-		else if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+		else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
 		{
 			data_block_footer_size    = (uint32_t) sizeof( pff_block_footer_64bit_4k_page_t );
 			data_block_increment_size = 512;
@@ -570,15 +689,14 @@ int libpff_data_block_read(
 
 			goto on_error;
 		}
-		data_block_padding_size  = data_block->data_size - data_block_footer_size;
-		data_block_footer        = &( data_block->data[ data_block_padding_size ] );
-		data_block_padding_size -= data_size;
+		data_block_footer_offset = data_block->data_size - data_block_footer_size;
+		data_block_padding_size  = data_block_footer_offset - data_size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: data block padding size\t\t\t\t: %" PRIzd "\n",
+			 "%s: data block padding size\t\t: %" PRIzd "\n",
 			 function,
 			 data_block_padding_size );
 
@@ -589,143 +707,24 @@ int libpff_data_block_read(
 			 &( data_block->data[ data_size ] ),
 			 data_block_padding_size,
 			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
-
-			libcnotify_printf(
-			 "%s: data block footer:\n",
+		}
+#endif
+		if( libpff_data_block_read_footer_data(
+		     data_block,
+		     &( data_block->data[ data_block_footer_offset ] ),
+		     data_block_footer_size,
+		     file_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read data block footer.",
 			 function );
-			libcnotify_print_data(
-			 data_block_footer,
-			 data_block_footer_size,
-			 0 );
+
+			goto on_error;
 		}
-#endif
-		if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
-		{
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_block_footer_32bit_t *) data_block_footer )->data_size,
-			 data_block->data_size );
-
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_block_footer_32bit_t *) data_block_footer )->signature,
-			 data_block_signature );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (pff_block_footer_32bit_t *) data_block_footer )->back_pointer,
-			 data_block_back_pointer );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (pff_block_footer_32bit_t *) data_block_footer )->checksum,
-			 stored_checksum );
-
-			data_block->uncompressed_data_size = data_block->data_size;
-		}
-		else if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-		{
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_block_footer_64bit_t *) data_block_footer )->data_size,
-			 data_block->data_size );
-
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_block_footer_64bit_t *) data_block_footer )->signature,
-			 data_block_signature );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (pff_block_footer_64bit_t *) data_block_footer )->checksum,
-			 stored_checksum );
-
-			byte_stream_copy_to_uint64_little_endian(
-			 ( (pff_block_footer_64bit_t *) data_block_footer )->back_pointer,
-			 data_block_back_pointer );
-
-			data_block->uncompressed_data_size = data_block->data_size;
-		}
-		else if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
-		{
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_block_footer_64bit_4k_page_t *) data_block_footer )->data_size,
-			 data_block->data_size );
-
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_block_footer_64bit_4k_page_t *) data_block_footer )->signature,
-			 data_block_signature );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (pff_block_footer_64bit_4k_page_t *) data_block_footer )->checksum,
-			 stored_checksum );
-
-			byte_stream_copy_to_uint64_little_endian(
-			 ( (pff_block_footer_64bit_4k_page_t *) data_block_footer )->back_pointer,
-			 data_block_back_pointer );
-
-			byte_stream_copy_to_uint16_little_endian(
-			 ( (pff_block_footer_64bit_4k_page_t *) data_block_footer )->uncompressed_data_size,
-			 data_block->uncompressed_data_size );
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: data size\t\t\t\t\t: %" PRIu32 "\n",
-			 function,
-			 data_block->data_size );
-
-			libcnotify_printf(
-			 "%s: signature\t\t\t\t\t: 0x%04" PRIx16 "\n",
-			 function,
-			 data_block_signature );
-
-			if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
-			{
-				libcnotify_printf(
-				 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
-				 function,
-				 data_block_back_pointer );
-
-				libcnotify_printf(
-				 "%s: data checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
-				 function,
-				 stored_checksum );
-			}
-			else if( ( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-			      || ( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
-			{
-				libcnotify_printf(
-				 "%s: data checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
-				 function,
-				 stored_checksum );
-
-				libcnotify_printf(
-				 "%s: back pointer\t\t\t\t\t: 0x%08" PRIx64 "\n",
-				 function,
-				 data_block_back_pointer );
-			}
-			if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
-			{
-				byte_stream_copy_to_uint16_little_endian(
-				 ( (pff_block_footer_64bit_4k_page_t *) data_block_footer )->unknown1,
-				 value_16bit );
-				libcnotify_printf(
-				 "%s: unknown1\t\t\t\t\t: 0x%04" PRIx16 "\n",
-				 function,
-				 value_16bit );
-
-				libcnotify_printf(
-				 "%s: uncompressed data size\t\t\t\t: %" PRIu16 "\n",
-				 function,
-				 data_block->uncompressed_data_size );
-
-				byte_stream_copy_to_uint32_little_endian(
-				 ( (pff_block_footer_64bit_4k_page_t *) data_block_footer )->unknown2,
-				 value_32bit );
-				libcnotify_printf(
-				 "%s: unknown2\t\t\t\t\t: 0x%08" PRIx32 "\n",
-				 function,
-				 value_32bit );
-			}
-			libcnotify_printf(
-			 "\n" );
-		}
-#endif
 #if defined( HAVE_VERBOSE_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
@@ -739,7 +738,7 @@ int libpff_data_block_read(
 			}
 		}
 #endif
-		if( data_block->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+		if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
 		{
 			if( ( data_block->data_size != 0 )
 			 && ( data_block->uncompressed_data_size != 0 )
@@ -769,7 +768,7 @@ int libpff_data_block_read(
 					goto on_error;
 				}
 			}
-			if( stored_checksum != 0 )
+			if( data_block->stored_checksum != 0 )
 			{
 				if( libfmapi_checksum_calculate_weak_crc32(
 				     &calculated_checksum,
@@ -787,15 +786,15 @@ int libpff_data_block_read(
 
 					goto on_error;
 				}
-				if( stored_checksum != calculated_checksum )
+				if( data_block->stored_checksum != calculated_checksum )
 				{
 #if defined( HAVE_DEBUG_OUTPUT )
 					if( libcnotify_verbose != 0 )
 					{
 						libcnotify_printf(
-						 "%s: mismatch in data block checksum ( %" PRIu32 " != %" PRIu32 " ).\n",
+						 "%s: mismatch in data block checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
 						 function,
-						 stored_checksum,
+						 data_block->stored_checksum,
 						 calculated_checksum );
 					}
 #endif
@@ -888,6 +887,117 @@ on_error:
 	data_block->data_size = 0;
 
 	return( -1 );
+}
+
+/* Reads the data block element data
+ * Callback for the descriptor data list
+ * Returns the number of bytes read if successful or -1 on error
+ */
+int libpff_data_block_read_element_data(
+     libpff_data_block_t *data_block,
+     libbfio_handle_t *file_io_handle,
+     libfdata_list_element_t *list_element,
+     libfcache_cache_t *cache,
+     int element_file_index LIBPFF_ATTRIBUTE_UNUSED,
+     off64_t element_offset,
+     size64_t element_size,
+     uint32_t element_flags LIBPFF_ATTRIBUTE_UNUSED,
+     uint8_t read_flags,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_data_block_read_element_data";
+
+	LIBPFF_UNREFERENCED_PARAMETER( element_file_index )
+	LIBPFF_UNREFERENCED_PARAMETER( element_flags )
+
+	if( data_block == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data block.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_block->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data block - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( element_size > (size64_t) UINT32_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid element size value exceeds maximum.\n",
+		 function );
+
+		return( -1 );
+	}
+	if( data_block->data == NULL )
+	{
+		if( libpff_data_block_read_file_io_handle(
+		     data_block,
+		     file_io_handle,
+		     element_offset,
+		     (size32_t) element_size,
+		     data_block->io_handle->file_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read data block data.",
+			 function );
+
+			return( -1 );
+		}
+		if( libpff_data_block_decrypt_data(
+		     data_block,
+		     read_flags,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ENCRYPTION,
+			 LIBCERROR_ENCRYPTION_ERROR_DECRYPT_FAILED,
+			 "%s: unable to decrypt data block data.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	/* The data block is managed by the list and should not be managed by the cache as well
+	 */
+	if( libfdata_list_element_set_element_value(
+	     list_element,
+	     (intptr_t *) file_io_handle,
+	     (libfdata_cache_t *) cache,
+	     (intptr_t *) data_block,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_data_block_free,
+	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_NON_MANAGED,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set data block as element value.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
 }
 
 /* Decrypts the data block data

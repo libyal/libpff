@@ -1,7 +1,7 @@
 /*
  * Item tree functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -47,12 +47,6 @@ int libpff_item_tree_get_tree_node_by_identifier(
      libcdata_tree_node_t **result_item_tree_node,
      libcerror_error_t **error );
 
-int libpff_item_tree_get_sub_node(
-     libcdata_tree_node_t *item_tree_node,
-     int sub_node_index,
-     libcdata_tree_node_t **sub_node,
-     libcerror_error_t **error );
-
 int libpff_item_tree_get_sub_node_by_identifier(
      libcdata_tree_node_t *item_tree_node,
      uint32_t sub_node_identifier,
@@ -67,6 +61,18 @@ int libpff_item_tree_create_node(
      libfcache_cache_t *index_tree_cache,
      libcdata_list_t *orphan_node_list,
      libcdata_tree_node_t **root_folder_item_tree_node,
+     int recursion_depth,
+     libcerror_error_t **error );
+
+int libpff_item_tree_create_leaf_node(
+     libcdata_tree_node_t *item_tree_root_node,
+     libbfio_handle_t *file_io_handle,
+     libfdata_tree_t *descriptor_index_tree,
+     libfdata_tree_node_t *descriptor_index_tree_node,
+     libfcache_cache_t *index_tree_cache,
+     libcdata_list_t *orphan_node_list,
+     libcdata_tree_node_t **root_folder_item_tree_node,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_item_tree_get_identifier(

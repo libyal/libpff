@@ -1,7 +1,7 @@
 /*
- * The internal libpff header
+ * The libpff header wrapper
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -23,13 +23,6 @@
 #define _PFF_TEST_LIBPFF_H
 
 #include <common.h>
-
-/* If Cygwin libtool DLL support is enabled and do not want to create static
- * executables set LIBPFF_DLL_IMPORT before including libpff.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
-#define LIBPFF_DLL_IMPORT
-#endif
 
 #include <libpff.h>
 

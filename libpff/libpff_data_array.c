@@ -1,7 +1,7 @@
 /*
  * Data array functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -45,9 +45,9 @@
  */
 int libpff_data_array_initialize(
      libpff_data_array_t **data_array,
+     libpff_io_handle_t *io_handle,
      uint32_t descriptor_identifier,
      uint64_t data_identifier,
-     libpff_io_handle_t *io_handle,
      libcerror_error_t **error )
 {
 	static char *function = "libpff_data_array_initialize";
@@ -361,6 +361,7 @@ int libpff_data_array_read_entries(
 	libpff_data_block_t *data_block             = NULL;
 	libpff_index_value_t *offset_index_value    = NULL;
 	static char *function                       = "libpff_data_array_read_entries";
+	size_t array_entry_data_size                = 0;
 	uint64_t array_entry_identifier             = 0;
 	uint32_t calculated_total_data_size         = 0;
 	uint32_t sub_total_data_size                = 0;
@@ -416,13 +417,14 @@ int libpff_data_array_read_entries(
 
 		return( -1 );
 	}
-	if( array_data_size > (size_t) SSIZE_MAX )
+	if( ( array_data_size < sizeof( pff_array_t ) )
+	 || ( array_data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid array data size value exceeds maximum.",
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid array data size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -506,6 +508,26 @@ int libpff_data_array_read_entries(
 
 		goto on_error;
 	}
+	if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+	{
+		array_entry_data_size = 4;
+	}
+	else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+	      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	{
+		array_entry_data_size = 8;
+	}
+	if( ( (size_t) number_of_array_entries * array_entry_data_size ) > array_data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid number of array entries value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
 	if( data_array->data_size == 0 )
 	{
 		data_array->data_size = *total_data_size;
@@ -562,23 +584,20 @@ int libpff_data_array_read_entries(
 	     array_entry_index < number_of_array_entries;
 	     array_entry_index++ )
 	{
-		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+		if( array_entry_data_size == 4 )
 		{
 			byte_stream_copy_to_uint32_little_endian(
 			 array_data,
 			 array_entry_identifier );
-
-			array_data += 4;
 		}
-		else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-		      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+		else if( array_entry_data_size == 8 )
 		{
 			byte_stream_copy_to_uint64_little_endian(
 			 array_data,
 			 array_entry_identifier );
-
-			array_data += 8;
 		}
+		array_data += array_entry_data_size;
+
 /* TODO handle multiple recovered offset index values */
 		if( libpff_offsets_index_get_index_value_by_identifier(
 		     offsets_index,
@@ -649,31 +668,6 @@ int libpff_data_array_read_entries(
 			goto on_error;
 		}
 #endif
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: reading data block at offset: 0x%08" PRIx64 "\n",
-			 function,
-			 offset_index_value->file_offset );
-		}
-#endif
-		if( libbfio_handle_seek_offset(
-		     file_io_handle,
-		     offset_index_value->file_offset,
-		     SEEK_SET,
-		     error ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek data block offset: %" PRIi64 ".",
-			 function,
-			 offset_index_value->file_offset );
-
-			goto on_error;
-		}
 		/* The data block uses the identifier as the back pointer
 		 */
 		if( libpff_data_block_initialize(
@@ -692,10 +686,12 @@ int libpff_data_array_read_entries(
 
 			goto on_error;
 		}
-		if( libpff_data_block_read(
+		if( libpff_data_block_read_file_io_handle(
 		     data_block,
 		     file_io_handle,
+		     offset_index_value->file_offset,
 		     offset_index_value->data_size,
+		     io_handle->file_type,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -962,31 +958,6 @@ int libpff_data_array_read_element_data(
 
 		goto on_error;
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading data block at offset: 0x%08" PRIx64 "\n",
-		 function,
-		 element_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     element_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek data block offset: 0x%08" PRIx64 ".",
-		 function,
-		 element_offset );
-
-		goto on_error;
-	}
 	if( libpff_data_block_initialize(
 	     &data_block,
 	     data_array->io_handle,
@@ -1003,10 +974,12 @@ int libpff_data_array_read_element_data(
 
 		goto on_error;
 	}
-	if( libpff_data_block_read(
+	if( libpff_data_block_read_file_io_handle(
 	     data_block,
 	     file_io_handle,
+	     element_offset,
 	     (size32_t) element_size,
+	     data_array->io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1041,7 +1014,7 @@ int libpff_data_array_read_element_data(
 	if( libfdata_list_element_set_element_value(
 	     list_element,
 	     (intptr_t *) file_io_handle,
-	     cache,
+	     (libfdata_cache_t *) cache,
 	     (intptr_t *) data_block,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_data_block_free,
 	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_MANAGED,

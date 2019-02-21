@@ -1,7 +1,7 @@
 /*
  * Index functions
  *
- * Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -100,7 +100,7 @@ int libpff_index_read_node_data(
      libpff_index_t *index,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int node_data_file_index,
      off64_t node_data_offset,
      size64_t node_data_size,
@@ -112,7 +112,7 @@ int libpff_index_read_sub_nodes(
      libpff_index_t *index,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int sub_nodes_data_file_index,
      off64_t sub_nodes_data_offset,
      size64_t sub_nodes_data_size,
