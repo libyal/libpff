@@ -88,7 +88,7 @@ class custom_build_ext(build_ext):
       ]
 
     else:
-      command = "sh configure --disable-shared-libs"
+      command = "sh configure --disable-shared-libs --with-zlib=no"
       output = self._RunCommand(command)
 
       print_line = False
