@@ -28,6 +28,7 @@ endif
 
 TESTS = \
 	test_library.sh \
+	test_manpage.sh \
 	test_read_items.sh \
 	test_pffinfo.sh \
 	test_pffexport.sh \
@@ -37,6 +38,7 @@ check_SCRIPTS = \
 	pypff_test_file.py \
 	pypff_test_support.py \
 	test_library.sh \
+	test_manpage.sh \
 	test_pffexport.sh \
 	test_pffinfo.sh \
 	test_python_module.sh \
