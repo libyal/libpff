@@ -28,7 +28,6 @@ endif
 
 TESTS = \
 	test_library.sh \
-	test_manpage.sh \
 	test_read_items.sh \
 	test_pffinfo.sh \
 	test_pffexport.sh \

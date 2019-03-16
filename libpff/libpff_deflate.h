@@ -106,18 +106,24 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
      uint32_t *value_32bit,
      libcerror_error_t **error );
 
-int libpff_deflate_bit_stream_get_huffman_encoded_value(
+int libpff_deflate_initialize_dynamic_huffman_tables(
      libpff_deflate_bit_stream_t *bit_stream,
-     libpff_deflate_huffman_table_t *table,
-     uint32_t *value_32bit,
+     libpff_deflate_huffman_table_t *literals_table,
+     libpff_deflate_huffman_table_t *distances_table,
      libcerror_error_t **error );
 
-int libpff_deflate_bit_stream_get_huffman_encoded_codes_array(
+int libpff_deflate_initialize_fixed_huffman_tables(
+     libpff_deflate_huffman_table_t *literals_table,
+     libpff_deflate_huffman_table_t *distances_table,
+     libcerror_error_t **error );
+
+int libpff_deflate_decode_huffman(
      libpff_deflate_bit_stream_t *bit_stream,
-     libpff_deflate_huffman_table_t *code_size_table,
-     uint16_t *codes_array,
-     uint32_t maximum_number_of_codes,
-     uint32_t number_of_codes,
+     libpff_deflate_huffman_table_t *literals_table,
+     libpff_deflate_huffman_table_t *distances_table,
+     uint8_t *uncompressed_data,
+     size_t uncompressed_data_size,
+     size_t *uncompressed_data_offset,
      libcerror_error_t **error );
 
 int libpff_deflate_calculate_adler32(

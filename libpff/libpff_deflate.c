@@ -36,7 +36,8 @@ int libpff_deflate_bit_stream_get_value(
      uint32_t *value_32bit,
      libcerror_error_t **error )
 {
-	static char *function = "libpff_deflate_bit_stream_get_value";
+	static char *function     = "libpff_deflate_bit_stream_get_value";
+	uint32_t safe_value_32bit = 0;
 
 	if( bit_stream == NULL )
 	{
@@ -90,16 +91,29 @@ int libpff_deflate_bit_stream_get_value(
 
 			return( -1 );
 		}
-		*value_32bit   = bit_stream->byte_stream[ bit_stream->byte_stream_offset++ ];
-		*value_32bit <<= bit_stream->bit_buffer_size;
+		safe_value_32bit   = bit_stream->byte_stream[ bit_stream->byte_stream_offset++ ];
+		safe_value_32bit <<= bit_stream->bit_buffer_size;
 
-		bit_stream->bit_buffer      |= *value_32bit;
+		bit_stream->bit_buffer      |= safe_value_32bit;
 		bit_stream->bit_buffer_size += 8;
 	}
-	*value_32bit = bit_stream->bit_buffer & ~( 0xffffffffUL << number_of_bits );
+	safe_value_32bit = bit_stream->bit_buffer;
 
-	bit_stream->bit_buffer     >>= number_of_bits;
-	bit_stream->bit_buffer_size -= number_of_bits;
+	if( number_of_bits < 32 )
+	{
+		/* On VS 2008 32-bit "~( 0xfffffffUL << 32 )" does not behave as expected
+		 */
+		safe_value_32bit &= ~( 0xffffffffUL << number_of_bits );
+
+		bit_stream->bit_buffer     >>= number_of_bits;
+		bit_stream->bit_buffer_size -= number_of_bits;
+	}
+	else
+	{
+		bit_stream->bit_buffer      = 0;
+		bit_stream->bit_buffer_size = 0;
+	}
+	*value_32bit = safe_value_32bit;
 
 	return( 1 );
 }
@@ -315,15 +329,16 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
      uint32_t *value_32bit,
      libcerror_error_t **error )
 {
-	static char *function  = "libpff_deflate_bit_stream_get_huffman_encoded_value";
-	uint32_t bit_buffer    = 0;
-	uint8_t bit_index      = 0;
-	uint8_t number_of_bits = 0;
-	int code_size_count    = 0;
-	int first_huffman_code = 0;
-	int first_index        = 0;
-	int huffman_code       = 0;
-	int result             = 0;
+	static char *function     = "libpff_deflate_bit_stream_get_huffman_encoded_value";
+	uint32_t bit_buffer       = 0;
+	uint32_t safe_value_32bit = 0;
+	uint8_t bit_index         = 0;
+	uint8_t number_of_bits    = 0;
+	int code_size_count       = 0;
+	int first_huffman_code    = 0;
+	int first_index           = 0;
+	int huffman_code          = 0;
+	int result                = 0;
 
 	if( bit_stream == NULL )
 	{
@@ -366,10 +381,10 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
 		{
 			break;
 		}
-		*value_32bit   = bit_stream->byte_stream[ bit_stream->byte_stream_offset++ ];
-		*value_32bit <<= bit_stream->bit_buffer_size;
+		safe_value_32bit   = bit_stream->byte_stream[ bit_stream->byte_stream_offset++ ];
+		safe_value_32bit <<= bit_stream->bit_buffer_size;
 
-		bit_stream->bit_buffer      |= *value_32bit;
+		bit_stream->bit_buffer      |= safe_value_32bit;
 		bit_stream->bit_buffer_size += 8;
 	}
 	if( table->maximum_number_of_bits < bit_stream->bit_buffer_size )
@@ -394,7 +409,7 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
 
 		if( ( huffman_code - code_size_count ) < first_huffman_code )
 		{
-			*value_32bit = table->codes_array[ first_index + ( huffman_code - first_huffman_code ) ];
+			safe_value_32bit = table->codes_array[ first_index + ( huffman_code - first_huffman_code ) ];
 
 			result = 1;
 
@@ -409,7 +424,20 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
 		bit_stream->bit_buffer     >>= bit_index;
 		bit_stream->bit_buffer_size -= bit_index;
 	}
-	return( result );
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid huffman encoded value.",
+		 function );
+
+		return( -1 );
+	}
+	*value_32bit = safe_value_32bit;
+
+	return( 1 );
 }
 
 /* Initializes the dynamic Huffman tables
