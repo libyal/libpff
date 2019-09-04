@@ -1,7 +1,7 @@
 #!/bin/bash
 # Export tool testing script
 #
-# Version: 20181111
+# Version: 20190223
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -102,17 +102,17 @@ fi
 
 if ! test -d "input";
 then
-	echo "Test input directory: input not found.";
+	echo "Test input directory not found.";
 
-	return ${EXIT_IGNORE};
+	exit ${EXIT_IGNORE};
 fi
 RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
 
 if test ${RESULT} -eq ${EXIT_SUCCESS};
 then
-	echo "No files or directories found in the test input directory: input";
+	echo "No files or directories found in the test input directory";
 
-	return ${EXIT_IGNORE};
+	exit ${EXIT_IGNORE};
 fi
 
 TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "input" "pffexport");
@@ -144,7 +144,7 @@ do
 	then
 		for INPUT_FILE in `cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?"`;
 		do
-			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
+			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS[@]}";
 			RESULT=$?;
 
 			if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -155,7 +155,7 @@ do
 	else
 		for INPUT_FILE in `ls -1 ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB}`;
 		do
-			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
+			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS[@]}";
 			RESULT=$?;
 
 			if test ${RESULT} -ne ${EXIT_SUCCESS};

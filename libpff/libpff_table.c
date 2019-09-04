@@ -1797,8 +1797,8 @@ int libpff_table_get_record_entry_by_type(
 int libpff_table_get_record_entry_by_utf8_name(
      libpff_table_t *table,
      int set_index,
-     const uint8_t *utf8_name,
-     size_t utf8_name_length,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -1846,7 +1846,7 @@ int libpff_table_get_record_entry_by_utf8_name(
 		 "%s: retrieving table set: %d name: %s\n",
 		 function,
 		 set_index,
-		 utf8_name );
+		 utf8_string );
 */
 	}
 #endif
@@ -1868,8 +1868,8 @@ int libpff_table_get_record_entry_by_utf8_name(
 	}
 	result = libpff_record_set_get_entry_by_utf8_name(
 	          record_set,
-	          utf8_name,
-	          utf8_name_length,
+	          utf8_string,
+	          utf8_string_length,
 	          value_type,
 	          record_entry,
 	          flags,
@@ -1902,8 +1902,8 @@ int libpff_table_get_record_entry_by_utf8_name(
 int libpff_table_get_record_entry_by_utf16_name(
      libpff_table_t *table,
      int set_index,
-     const uint16_t *utf16_name,
-     size_t utf16_name_length,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -1973,8 +1973,8 @@ int libpff_table_get_record_entry_by_utf16_name(
 	}
 	result = libpff_record_set_get_entry_by_utf16_name(
 	          record_set,
-	          utf16_name,
-	          utf16_name_length,
+	          utf16_string,
+	          utf16_string_length,
 	          value_type,
 	          record_entry,
 	          flags,
