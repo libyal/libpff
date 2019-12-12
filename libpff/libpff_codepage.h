@@ -29,14 +29,14 @@
 extern "C" {
 #endif
 
-#if !defined( HAVE_LOCAL_LIBPFF )
-
-#include <libpff/codepage.h>
-
 /* Define HAVE_LOCAL_LIBPFF for local use of libpff
  * The definitions in <libpff/codepage.h> are copied here
  * for local use of libpff
  */
+#if !defined( HAVE_LOCAL_LIBPFF )
+
+#include <libpff/codepage.h>
+
 #else
 
 /* The codepage definitions

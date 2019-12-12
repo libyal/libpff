@@ -174,7 +174,6 @@ build_script:
 - ps: If ($env:BUILD_ENVIRONMENT -eq "msbuild" -or ($env:BUILD_ENVIRONMENT -eq "python" -and $isWindows)) {
     .\synclibs.ps1;
     .\autogen.ps1 }
-- sh: if test ${BUILD_ENVIRONMENT} = "python"; then ./synclibs.sh && ./autogen.sh; fi
 - cmd: if [%TARGET%]==[vs2008] (
     msbuild /verbosity:quiet msvscpp\libpff.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2010] (
@@ -200,6 +199,7 @@ build_script:
     msbuild /verbosity:quiet vs2017\libpff.sln /property:Platform=x64 /property:PlatformToolset=v141 /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%BUILD_ENVIRONMENT%]==[python] (
     "%PYTHON%" setup.py bdist_msi bdist_wheel )
+- sh: if test ${BUILD_ENVIRONMENT} = "python"; then ./synclibs.sh && ./autogen.sh; fi
 - sh: if test ${BUILD_ENVIRONMENT} = "python"; then ${PYTHON} setup.py bdist_wheel; fi
 - cmd: if [%BUILD_ENVIRONMENT%]==[cygwin] (
     xcopy /i /q /s C:\projects\libpff C:\cygwin\home\appveyor\libpff &&
