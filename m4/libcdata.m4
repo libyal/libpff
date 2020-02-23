@@ -1,6 +1,6 @@
 dnl Checks for libcdata required headers and functions
 dnl
-dnl Version: 20191220
+dnl Version: 20191221
 
 dnl Function to detect if libcdata is available
 dnl ac_libcdata_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -26,7 +26,7 @@ AC_DEFUN([AX_LIBCDATA_CHECK_LIB],
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
         [PKG_CHECK_MODULES(
           [libcdata],
-          [libcdata >= 20191220],
+          [libcdata >= 20190112],
           [ac_cv_libcdata=yes],
           [ac_cv_libcdata=check])
         ])
@@ -122,6 +122,48 @@ AC_DEFUN([AX_LIBCDATA_CHECK_LIB],
         AC_CHECK_LIB(
           cdata,
           libcdata_array_remove_entry,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+
+        dnl Balanced tree functions
+        AC_CHECK_LIB(
+          cdata,
+          libfdata_btree_initialize,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_free,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_get_number_of_values,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_get_value_by_index,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_get_value_by_value,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_insert_value,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_replace_value,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_remove_value,
           [ac_cv_libcdata_dummy=yes],
           [ac_cv_libcdata=no])
 
