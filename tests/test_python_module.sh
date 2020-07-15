@@ -1,14 +1,14 @@
 #!/bin/bash
 # Tests Python module functions and types.
 #
-# Version: 20190223
+# Version: 20200705
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-TEST_FUNCTIONS="support";
-TEST_FUNCTIONS_WITH_INPUT="file";
+TEST_FUNCTIONS="";
+TEST_FUNCTIONS_WITH_INPUT="file support";
 OPTION_SETS="";
 
 TEST_TOOL_DIRECTORY=".";
@@ -109,7 +109,7 @@ test_python_function_with_input()
 	return ${RESULT};
 }
 
-if ! test -z ${SKIP_PYTHON_TESTS};
+if test -n "${SKIP_PYTHON_TESTS}";
 then
 	exit ${EXIT_IGNORE};
 fi

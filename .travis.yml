@@ -1,18 +1,18 @@
+version: ~> 1.0
 language: c
+os: linux
+dist: bionic
 env:
   global:
    # Encrypted COVERITY_SCAN_TOKEN
    - secure: "p17X8wFVnUeU3oGAUeUpOJknniwIkliHaLLeHWNHrX1Op794acHEz8wVyuVHLxf5B1Irm8R4UXslzM4y/qAPIB03uaeiam9JJXLVXvKtalMxn856hx9+4TWie/HWQjoKQp4zEgUbLrvSkSW2NYUkFjnY3BvotoqyRW3BlYPonw0="
-matrix:
+jobs:
   include:
   - name: "Coverity"
     env:
     - CONFIGURE_OPTIONS=""
     - TARGET="coverity"
     compiler: clang
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
     addons:
       coverity_scan:
@@ -30,9 +30,6 @@ matrix:
     - LDFLAGS="--coverage"
     - TARGET="linux-clang"
     compiler: clang
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
   - name: "Linux with gcc"
     env:
@@ -41,9 +38,6 @@ matrix:
     - LDFLAGS="--coverage"
     - TARGET="linux-gcc"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
   - name: "Linux with gcc on s390x (Docker)"
     env:
@@ -54,9 +48,6 @@ matrix:
     - LDFLAGS="--coverage"
     - TARGET="docker"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
     services:
     - docker
@@ -67,9 +58,6 @@ matrix:
     - LDFLAGS="--coverage"
     - TARGET="linux-gcc-wide-character-type"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
   - name: "Linux with gcc without optimization"
     env:
@@ -79,9 +67,6 @@ matrix:
     - LDFLAGS="--coverage"
     - TARGET="linux-gcc-no-optimization"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
   - name: "Linux with gcc and Python module"
     env:
@@ -90,9 +75,6 @@ matrix:
     - LDFLAGS="--coverage"
     - TARGET="linux-gcc-python"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
   - name: "Linux with gcc and Python 2 module"
     env:
@@ -102,9 +84,6 @@ matrix:
     - PYTHON_VERSION=2
     - TARGET="linux-gcc-python2"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
   - name: "Linux with gcc and Python 3 module"
     env:
@@ -114,26 +93,17 @@ matrix:
     - PYTHON_VERSION=3
     - TARGET="linux-gcc-python3"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
   - name: "Linux with gcc and Python 2 module (setup.py)"
     env:
     - TARGET="linux-gcc-python-setup-py"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
     python: 2.7
   - name: "Linux with gcc and Python 3 module (setup.py)"
     env:
     - TARGET="linux-gcc-python-setup-py"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
     python: 3.6
   - name: "Linux with gcc and shared libraries"
@@ -143,9 +113,6 @@ matrix:
     - LDFLAGS="--coverage"
     - TARGET="linux-gcc-shared"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
   - name: "Linux with gcc, shared libraries and wide character type (wchar_t) support"
     env:
@@ -154,70 +121,64 @@ matrix:
     - LDFLAGS="--coverage"
     - TARGET="linux-gcc-shared-wide-character-type"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
   - name: "Linux with gcc and static executables support"
     env:
-    - CONFIGURE_OPTIONS="--enable-static-executables"
+    - CONFIGURE_OPTIONS="--enable-static-executables=yes --enable-multi-threading-support=no"
     - CFLAGS="--coverage"
     - LDFLAGS="--coverage"
     - TARGET="linux-gcc-static-executables"
     compiler: gcc
-    os: linux
-    dist: bionic
-    sudo: required
     group: edge
-  - name: "Mac OS with clang"
+  - name: "Mac OS 10.14 with clang"
     env:
     - CONFIGURE_OPTIONS=""
     - TARGET="macos-clang"
     compiler: clang
     os: osx
-    osx_image: xcode8.3
-  - name: "Mac OS with gcc"
+    osx_image: xcode11
+  - name: "Mac OS 10.14 with gcc"
     env:
     - CONFIGURE_OPTIONS=""
     - TARGET="macos-gcc"
     compiler: gcc
     os: osx
-    osx_image: xcode8.3
-  - name: "Mac OS with gcc and Python module"
+    osx_image: xcode11
+  - name: "Mac OS 10.14 with gcc and Python module"
     env:
     - CONFIGURE_OPTIONS="--enable-python"
     - TARGET="macos-gcc-python"
     compiler: gcc
     os: osx
-    osx_image: xcode8.3
-  - name: "Mac OS with gcc and Python 2 module"
+    osx_image: xcode11
+  - name: "Mac OS 10.14 with gcc and Python 2 module"
     env:
     - CONFIGURE_OPTIONS="--enable-python2"
     - PYTHON_VERSION=2
     - TARGET="macos-gcc-python2"
     compiler: gcc
     os: osx
-    osx_image: xcode8.3
-  - name: "Mac OS 10.12 with gcc and Python 2 module (setup.py)"
+    osx_image: xcode11
+  - name: "Mac OS 10.14 with gcc and Python 2 module (setup.py)"
     env:
     - TARGET="macos-gcc-python-setup-py"
     compiler: gcc
     os: osx
-    osx_image: xcode8.3
-  - name: "Mac OS 10.14 with gcc and Python 3.7 module (setup.py)"
+    osx_image: xcode11
+  - name: "Mac OS 10.14 with gcc and Python 3.8 module (setup.py)"
     env:
-    - TARGET="macos-gcc-python-setup-py37"
+    - TARGET="macos-gcc-python-setup-py38"
     compiler: gcc
     os: osx
     osx_image: xcode11
     language: shell
-  - name: "Mac OS gcc and Python module and pkgbuild"
+  - name: "Mac OS 10.14 with gcc and Python module and pkgbuild"
     env:
     - CONFIGURE_OPTIONS="--disable-dependency-tracking --prefix=/usr/local --enable-python --with-pyprefix"
     - TARGET="macos-gcc-pkgbuild"
     compiler: gcc
     os: osx
-    osx_image: xcode8.3
+    osx_image: xcode11
 before_install:
 - .travis/before_install.sh
 install:
@@ -226,8 +187,9 @@ script:
 - .travis/script.sh
 after_success:
 - if test ${TARGET} = "linux-gcc-no-optimization"; then
-    curl -o codecov.sh -s https://codecov.io/bash && sed 's/ -execdir / -exec /' -i ./codecov.sh && /bin/bash ./codecov.sh -n ${TARGET} -y .codecov.yml;
+    for DIRECTORY in `find . -maxdepth 1 -type d`; do (cd ${DIRECTORY} && find . -maxdepth 1 -name \*.gcno -type f -exec gcov -pb {} \;) done;
+    curl -o codecov.sh -s https://codecov.io/bash && /bin/bash ./codecov.sh -n ${TARGET} -X gcov;
   fi
-- if test ${TARGET} = "macos-gcc-python-setup-py37" && test -n "${TRAVIS_TAG}"; then
+- if test ${TARGET} = "macos-gcc-python-setup-py38" && test -n "${TRAVIS_TAG}"; then
     python3 -m twine upload dist/*.whl --username __token__ --password ${PYPI_TOKEN} --skip-existing;
   fi

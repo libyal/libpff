@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #endif
 
-#include "pff_test_libcerror.h"
 #include "pff_test_libpff.h"
 #include "pff_test_macros.h"
 #include "pff_test_unused.h"

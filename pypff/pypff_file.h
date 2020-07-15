@@ -53,19 +53,6 @@ struct pypff_file
 extern PyMethodDef pypff_file_object_methods[];
 extern PyTypeObject pypff_file_type_object;
 
-PyObject *pypff_file_new(
-           void );
-
-PyObject *pypff_file_new_open(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
-PyObject *pypff_file_new_open_file_object(
-           PyObject *self,
-           PyObject *arguments,
-           PyObject *keywords );
-
 int pypff_file_init(
      pypff_file_t *pypff_file );
 

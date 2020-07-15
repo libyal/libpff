@@ -69,23 +69,23 @@ PyObject *pypff_record_entries_new(
            int number_of_items );
 
 int pypff_record_entries_init(
-     pypff_record_entries_t *record_entries_object );
+     pypff_record_entries_t *sequence_object );
 
 void pypff_record_entries_free(
-      pypff_record_entries_t *record_entries_object );
+      pypff_record_entries_t *sequence_object );
 
 Py_ssize_t pypff_record_entries_len(
-            pypff_record_entries_t *record_entries_object );
+            pypff_record_entries_t *sequence_object );
 
 PyObject *pypff_record_entries_getitem(
-           pypff_record_entries_t *record_entries_object,
+           pypff_record_entries_t *sequence_object,
            Py_ssize_t item_index );
 
 PyObject *pypff_record_entries_iter(
-           pypff_record_entries_t *record_entries_object );
+           pypff_record_entries_t *sequence_object );
 
 PyObject *pypff_record_entries_iternext(
-           pypff_record_entries_t *record_entries_object );
+           pypff_record_entries_t *sequence_object );
 
 #if defined( __cplusplus )
 }
