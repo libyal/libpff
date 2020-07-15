@@ -866,6 +866,18 @@ int libpff_name_to_id_map_entry_read(
 		}
 		else
 		{
+			if( ( name_to_id_map_string_size == 0 )
+			 || ( name_to_id_map_string_size > (size32_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid name to id map string size value out of bounds.",
+				 function );
+
+				goto on_error;
+			}
 			result = libpff_value_type_string_contains_zero_bytes(
 				  name_to_id_map_string_data,
 				  (size_t) name_to_id_map_string_size,
@@ -886,10 +898,8 @@ int libpff_name_to_id_map_entry_read(
 			{
 				internal_name_to_id_map_entry->is_ascii_string = 1;
 			}
-			internal_name_to_id_map_entry->value_size = (size_t) name_to_id_map_string_size;
-
 			internal_name_to_id_map_entry->string_value = (uint8_t *) memory_allocate(
-			                                                           sizeof( uint8_t ) * internal_name_to_id_map_entry->value_size );
+			                                                           sizeof( uint8_t ) * (size_t) name_to_id_map_string_size );
 
 			if( internal_name_to_id_map_entry->string_value == NULL )
 			{
@@ -902,6 +912,8 @@ int libpff_name_to_id_map_entry_read(
 
 				goto on_error;
 			}
+			internal_name_to_id_map_entry->value_size = (size_t) name_to_id_map_string_size;
+
 			if( memory_copy(
 			     internal_name_to_id_map_entry->string_value,
 			     name_to_id_map_string_data,

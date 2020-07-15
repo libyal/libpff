@@ -677,16 +677,16 @@ int libpff_local_descriptor_node_read(
 /* TODO implement error tollerance */
 		goto on_error;
 	}
-	if( local_descriptor_node->entries_data_size > (size32_t) SSIZE_MAX )
+	if( local_descriptor_node->entries_data_size > (size32_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: entries data size value exceeds maximum.",
+		 "%s: invalid local descriptor node - entries data size value exceeds maximum allocation size.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	/* Copy the entries data to the local descriptor node
 	 * to prevent loosing it when the data block is cached out.

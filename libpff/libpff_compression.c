@@ -195,7 +195,7 @@ int libpff_decompress_data(
 			result = -1;
 		}
 #else
-		result = libpff_deflate_decompress(
+		result = libpff_deflate_decompress_zlib(
 		          compressed_data,
 		          compressed_data_size,
 		          uncompressed_data,

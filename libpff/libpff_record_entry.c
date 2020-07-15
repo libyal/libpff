@@ -569,17 +569,6 @@ int libpff_record_entry_set_value_data(
 
 		return( -1 );
 	}
-	if( value_data_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid value data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
 	if( value_data_size > 0 )
 	{
 		if( value_data == NULL )
@@ -589,6 +578,17 @@ int libpff_record_entry_set_value_data(
 			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 			 "%s: invalid value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( value_data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid value data size value exceeds maximum allocation size.",
 			 function );
 
 			goto on_error;
@@ -761,19 +761,19 @@ int libpff_record_entry_set_value_data_from_stream(
 
 		return( -1 );
 	}
-	if( value_data_size > (size64_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid value data size value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
 	if( value_data_size > 0 )
 	{
+		if( value_data_size > (size64_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid value data size value exceeds maximum allocation size.",
+			 function );
+
+			goto on_error;
+		}
 		if( libfdata_stream_seek_offset(
 		     value_data_stream,
 		     0,
@@ -2658,10 +2658,20 @@ int libpff_record_entry_get_multi_value(
 	 */
 	if( internal_record_entry->value_data != NULL )
 	{
-		internal_multi_value->value_data_size = internal_record_entry->value_data_size;
+		if( ( internal_record_entry->value_data_size == 0 )
+		 || ( internal_record_entry->value_data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid record entry - value data size value out of bounds.",
+			 function );
 
+			goto on_error;
+		}
 		internal_multi_value->value_data = (uint8_t *) memory_allocate(
-								sizeof( uint8_t ) * internal_multi_value->value_data_size );
+								sizeof( uint8_t ) * internal_record_entry->value_data_size );
 
 		if( internal_multi_value->value_data == NULL )
 		{
@@ -2674,6 +2684,8 @@ int libpff_record_entry_get_multi_value(
 
 			goto on_error;
 		}
+		internal_multi_value->value_data_size = internal_record_entry->value_data_size;
+
 		if( memory_copy(
 		     internal_multi_value->value_data,
 		     internal_record_entry->value_data,
@@ -2763,6 +2775,18 @@ int libpff_record_entry_get_multi_value(
 		}
 		if( internal_multi_value->number_of_values > 0 )
 		{
+			if( ( internal_multi_value->number_of_values > (size_t) ( MEMORY_MAXIMUM_ALLOCATION_SIZE / sizeof( uint32_t ) ) )
+			 || ( internal_multi_value->number_of_values > (size_t) ( MEMORY_MAXIMUM_ALLOCATION_SIZE / sizeof( size_t ) ) ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+				 "%s: invalid multi value - number of values exceeds maximum allocatio size.",
+				 function );
+
+				goto on_error;
+			}
 			internal_multi_value->value_offset = (uint32_t *) memory_allocate(
 									   sizeof( uint32_t ) * internal_multi_value->number_of_values );
 

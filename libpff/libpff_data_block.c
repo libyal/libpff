@@ -231,6 +231,17 @@ int libpff_data_block_clone(
 	if( ( source_data_block->data != NULL )
 	 && ( source_data_block->data_size > 0 ) )
 	{
+		if( source_data_block->data_size > MEMORY_MAXIMUM_ALLOCATION_SIZE )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid source data block - data size value exceeds maximum.",
+			 function );
+
+			goto on_error;
+		}
 		( *destination_data_block )->data = (uint8_t *) memory_allocate(
 		                                                 sizeof( uint8_t ) * source_data_block->data_size );
 
@@ -503,6 +514,7 @@ int libpff_data_block_read_footer_data(
 		 "\n" );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 }
 
@@ -645,7 +657,8 @@ int libpff_data_block_read_file_io_handle(
 		{
 			data_block_data_size += data_block_increment_size;
 		}
-		if( data_block_data_size > maximum_data_block_size )
+		if( ( data_block_data_size == 0 )
+		 || ( data_block_data_size > maximum_data_block_size ) )
 		{
 			libcerror_error_set(
 			 error,
@@ -830,6 +843,18 @@ int libpff_data_block_read_file_io_handle(
 		{
 			uncompressed_data_size = (size_t) data_block->uncompressed_data_size;
 
+			if( ( uncompressed_data_size == 0 )
+			 || ( uncompressed_data_size > MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid uncompressed data size value out of bounds.",
+				 function );
+
+				goto on_error;
+			}
 			uncompressed_data = (uint8_t *) memory_allocate(
 			                                 sizeof( uint8_t ) * uncompressed_data_size );
 
