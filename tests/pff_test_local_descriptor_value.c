@@ -281,6 +281,15 @@ int pff_test_local_descriptor_value_clone(
 	libpff_local_descriptor_value_t *source_local_descriptor_value      = NULL;
 	int result                                                          = 0;
 
+#if defined( HAVE_PFF_TEST_MEMORY )
+	int number_of_malloc_fail_tests                                     = 1;
+	int test_number                                                     = 0;
+
+#if defined( OPTIMIZATION_DISABLED )
+	int number_of_memcpy_fail_tests                                     = 1;
+#endif
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
 	/* Initialize test
 	 */
 	result = libpff_local_descriptor_value_initialize(
@@ -373,6 +382,120 @@ int pff_test_local_descriptor_value_clone(
 
 	libcerror_error_free(
 	 &error );
+
+	destination_local_descriptor_value = (libpff_local_descriptor_value_t *) 0x12345678UL;
+
+	result = libpff_local_descriptor_value_clone(
+	          &destination_local_descriptor_value,
+	          source_local_descriptor_value,
+	          &error );
+
+	destination_local_descriptor_value = NULL;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_local_descriptor_value_clone with malloc failing
+		 */
+		pff_test_malloc_attempts_before_fail = test_number;
+
+		result = libpff_local_descriptor_value_clone(
+		          &destination_local_descriptor_value,
+		          source_local_descriptor_value,
+		          &error );
+
+		if( pff_test_malloc_attempts_before_fail != -1 )
+		{
+			pff_test_malloc_attempts_before_fail = -1;
+
+			if( destination_local_descriptor_value != NULL )
+			{
+				libpff_local_descriptor_value_free(
+				 &destination_local_descriptor_value,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "destination_local_descriptor_value",
+			 destination_local_descriptor_value );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#if defined( OPTIMIZATION_DISABLED )
+
+	for( test_number = 0;
+	     test_number < number_of_memcpy_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_local_descriptor_value_clone with memcpy failing
+		 */
+		pff_test_memcpy_attempts_before_fail = test_number;
+
+		result = libpff_local_descriptor_value_clone(
+		          &destination_local_descriptor_value,
+		          source_local_descriptor_value,
+		          &error );
+
+		if( pff_test_memcpy_attempts_before_fail != -1 )
+		{
+			pff_test_memcpy_attempts_before_fail = -1;
+
+			if( destination_local_descriptor_value != NULL )
+			{
+				libpff_local_descriptor_value_free(
+				 &destination_local_descriptor_value,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "destination_local_descriptor_value",
+			 destination_local_descriptor_value );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( OPTIMIZATION_DISABLED ) */
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
 
 	/* Clean up
 	 */

@@ -33,6 +33,8 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
+#include "../libpff/libpff_message.h"
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )

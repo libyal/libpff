@@ -1,5 +1,5 @@
 /*
- * Library descriptors_index type testing program
+ * Library descriptors_index type test program
  *
  * Copyright (C) 2008-2020, Joachim Metz <joachim.metz@gmail.com>
  *

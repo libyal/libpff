@@ -281,6 +281,15 @@ int pff_test_data_array_entry_clone(
 	libpff_data_array_entry_t *source_data_array_entry      = NULL;
 	int result                                              = 0;
 
+#if defined( HAVE_PFF_TEST_MEMORY )
+	int number_of_malloc_fail_tests                         = 1;
+	int test_number                                         = 0;
+
+#if defined( OPTIMIZATION_DISABLED )
+	int number_of_memcpy_fail_tests                         = 1;
+#endif
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
 	/* Initialize test
 	 */
 	result = libpff_data_array_entry_initialize(
@@ -373,6 +382,120 @@ int pff_test_data_array_entry_clone(
 
 	libcerror_error_free(
 	 &error );
+
+	destination_data_array_entry = (libpff_data_array_entry_t *) 0x12345678UL;
+
+	result = libpff_data_array_entry_clone(
+	          &destination_data_array_entry,
+	          source_data_array_entry,
+	          &error );
+
+	destination_data_array_entry = NULL;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_data_array_entry_clone with malloc failing
+		 */
+		pff_test_malloc_attempts_before_fail = test_number;
+
+		result = libpff_data_array_entry_clone(
+		          &destination_data_array_entry,
+		          source_data_array_entry,
+		          &error );
+
+		if( pff_test_malloc_attempts_before_fail != -1 )
+		{
+			pff_test_malloc_attempts_before_fail = -1;
+
+			if( destination_data_array_entry != NULL )
+			{
+				libpff_data_array_entry_free(
+				 &destination_data_array_entry,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "destination_data_array_entry",
+			 destination_data_array_entry );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#if defined( OPTIMIZATION_DISABLED )
+
+	for( test_number = 0;
+	     test_number < number_of_memcpy_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_data_array_entry_clone with memcpy failing
+		 */
+		pff_test_memcpy_attempts_before_fail = test_number;
+
+		result = libpff_data_array_entry_clone(
+		          &destination_data_array_entry,
+		          source_data_array_entry,
+		          &error );
+
+		if( pff_test_memcpy_attempts_before_fail != -1 )
+		{
+			pff_test_memcpy_attempts_before_fail = -1;
+
+			if( destination_data_array_entry != NULL )
+			{
+				libpff_data_array_entry_free(
+				 &destination_data_array_entry,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "destination_data_array_entry",
+			 destination_data_array_entry );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( OPTIMIZATION_DISABLED ) */
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
 
 	/* Clean up
 	 */

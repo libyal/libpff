@@ -429,8 +429,6 @@ int main(
 	 "libpff_io_handle_clear",
 	 pff_test_io_handle_clear );
 
-	/* TODO: add tests for libpff_io_handle_read_file_header */
-
 	/* TODO: add tests for libpff_io_handle_read_unallocated_data_blocks */
 
 	/* TODO: add tests for libpff_io_handle_read_unallocated_page_blocks */

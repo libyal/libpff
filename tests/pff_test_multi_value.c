@@ -283,7 +283,6 @@ int pff_test_multi_value_get_number_of_values(
 	libcerror_error_t *error          = NULL;
 	libpff_multi_value_t *multi_value = NULL;
 	int number_of_values              = 0;
-	int number_of_values_is_set       = 0;
 	int result                        = 0;
 
 	/* Initialize test
@@ -312,16 +311,14 @@ int pff_test_multi_value_get_number_of_values(
 	          &number_of_values,
 	          &error );
 
-	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	number_of_values_is_set = result;
 
 	/* Test error cases
 	 */
@@ -342,25 +339,857 @@ int pff_test_multi_value_get_number_of_values(
 	libcerror_error_free(
 	 &error );
 
-	if( number_of_values_is_set != 0 )
+	result = libpff_multi_value_get_number_of_values(
+	          multi_value,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_multi_value_free(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
 	{
-		result = libpff_multi_value_get_number_of_values(
-		          multi_value,
-		          NULL,
-		          &error );
-
-		PFF_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		PFF_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
 		libcerror_error_free(
 		 &error );
 	}
+	if( multi_value != NULL )
+	{
+		libpff_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_multi_value_get_value_32bit function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_multi_value_get_value_32bit(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libpff_multi_value_t *multi_value = NULL;
+	uint32_t value                    = 0;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_multi_value_initialize(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_multi_value_get_value_32bit(
+	          multi_value,
+	          0,
+	          &value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_multi_value_get_value_32bit(
+	          NULL,
+	          0,
+	          &value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_32bit(
+	          multi_value,
+	          -1,
+	          &value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_32bit(
+	          multi_value,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_multi_value_free(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( multi_value != NULL )
+	{
+		libpff_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_multi_value_get_value_64bit function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_multi_value_get_value_64bit(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libpff_multi_value_t *multi_value = NULL;
+	uint64_t value                    = 0;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_multi_value_initialize(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_multi_value_get_value_64bit(
+	          multi_value,
+	          0,
+	          &value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_multi_value_get_value_64bit(
+	          NULL,
+	          0,
+	          &value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_64bit(
+	          multi_value,
+	          -1,
+	          &value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_64bit(
+	          multi_value,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_multi_value_free(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( multi_value != NULL )
+	{
+		libpff_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_multi_value_get_value_filetime function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_multi_value_get_value_filetime(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libpff_multi_value_t *multi_value = NULL;
+	uint64_t filetime                 = 0;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_multi_value_initialize(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_multi_value_get_value_filetime(
+	          multi_value,
+	          0,
+	          &filetime,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_multi_value_get_value_filetime(
+	          NULL,
+	          0,
+	          &filetime,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_filetime(
+	          multi_value,
+	          -1,
+	          &filetime,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_filetime(
+	          multi_value,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_multi_value_free(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( multi_value != NULL )
+	{
+		libpff_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_multi_value_get_value_utf8_string_size function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_multi_value_get_value_utf8_string_size(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libpff_multi_value_t *multi_value = NULL;
+	size_t utf8_string_size           = 0;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_multi_value_initialize(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_multi_value_get_value_utf8_string_size(
+	          multi_value,
+	          0,
+	          &utf8_string_size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_multi_value_get_value_utf8_string_size(
+	          NULL,
+	          0,
+	          &utf8_string_size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_utf8_string_size(
+	          multi_value,
+	          -1,
+	          &utf8_string_size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_utf8_string_size(
+	          multi_value,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_multi_value_free(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( multi_value != NULL )
+	{
+		libpff_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_multi_value_get_value_utf16_string_size function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_multi_value_get_value_utf16_string_size(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libpff_multi_value_t *multi_value = NULL;
+	size_t utf16_string_size          = 0;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_multi_value_initialize(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_multi_value_get_value_utf16_string_size(
+	          multi_value,
+	          0,
+	          &utf16_string_size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_multi_value_get_value_utf16_string_size(
+	          NULL,
+	          0,
+	          &utf16_string_size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_utf16_string_size(
+	          multi_value,
+	          -1,
+	          &utf16_string_size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_utf16_string_size(
+	          multi_value,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_multi_value_free(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( multi_value != NULL )
+	{
+		libpff_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_multi_value_get_value_binary_data_size function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_multi_value_get_value_binary_data_size(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libpff_multi_value_t *multi_value = NULL;
+	size_t size                       = 0;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_multi_value_initialize(
+	          &multi_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "multi_value",
+	 multi_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_multi_value_get_value_binary_data_size(
+	          multi_value,
+	          0,
+	          &size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_multi_value_get_value_binary_data_size(
+	          NULL,
+	          0,
+	          &size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_binary_data_size(
+	          multi_value,
+	          -1,
+	          &size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_multi_value_get_value_binary_data_size(
+	          multi_value,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 	/* Clean up
 	 */
 	result = libpff_multi_value_free(
@@ -426,35 +1255,51 @@ int main(
 	 "libpff_multi_value_free",
 	 pff_test_multi_value_free );
 
-#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
-
 	PFF_TEST_RUN(
 	 "libpff_multi_value_get_number_of_values",
 	 pff_test_multi_value_get_number_of_values );
 
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
+#ifdef TODO
 
 	/* TODO: add tests for libpff_multi_value_get_value */
 
-	/* TODO: add tests for libpff_multi_value_get_value_32bit */
+	PFF_TEST_RUN(
+	 "libpff_multi_value_get_value_32bit",
+	 pff_test_multi_value_get_value_32bit );
 
-	/* TODO: add tests for libpff_multi_value_get_value_64bit */
+	PFF_TEST_RUN(
+	 "libpff_multi_value_get_value_64bit",
+	 pff_test_multi_value_get_value_64bit );
 
-	/* TODO: add tests for libpff_multi_value_get_value_filetime */
+	PFF_TEST_RUN(
+	 "libpff_multi_value_get_value_filetime",
+	 pff_test_multi_value_get_value_filetime );
 
-	/* TODO: add tests for libpff_multi_value_get_value_utf8_string_size */
+	PFF_TEST_RUN(
+	 "libpff_multi_value_get_value_utf8_string_size",
+	 pff_test_multi_value_get_value_utf8_string_size );
 
 	/* TODO: add tests for libpff_multi_value_get_value_utf8_string */
 
-	/* TODO: add tests for libpff_multi_value_get_value_utf16_string_size */
+	PFF_TEST_RUN(
+	 "libpff_multi_value_get_value_utf16_string_size",
+	 pff_test_multi_value_get_value_utf16_string_size );
 
 	/* TODO: add tests for libpff_multi_value_get_value_utf16_string */
 
-	/* TODO: add tests for libpff_multi_value_get_value_binary_data_size */
+	PFF_TEST_RUN(
+	 "libpff_multi_value_get_value_binary_data_size",
+	 pff_test_multi_value_get_value_binary_data_size );
 
 	/* TODO: add tests for libpff_multi_value_get_value_binary_data */
 
 	/* TODO: add tests for libpff_multi_value_get_value_guid */
+
+#endif /* TODO */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

@@ -70,14 +70,14 @@ PyMethodDef pypff_module_methods[] = {
 	  METH_VARARGS | METH_KEYWORDS,
 	  "check_file_signature(filename) -> Boolean\n"
 	  "\n"
-	  "Checks if a file has a Personal Folder Format (PFF) file signature." },
+	  "Checks if a file has a Personal Folder File (PFF) signature." },
 
 	{ "check_file_signature_file_object",
 	  (PyCFunction) pypff_check_file_signature_file_object,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "check_file_signature_file_object(file_object) -> Boolean\n"
 	  "\n"
-	  "Checks if a file has a Personal Folder Format (PFF) file signature using a file-like object." },
+	  "Checks if a file has a Personal Folder File (PFF) signature using a file-like object." },
 
 	{ "open",
 	  (PyCFunction) pypff_open_new_file,
@@ -130,7 +130,7 @@ PyObject *pypff_get_version(
 	         errors ) );
 }
 
-/* Checks if a file has a Personal Folder Format (PFF) file signature
+/* Checks if a file has a Personal Folder File (PFF) signature
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_check_file_signature(
@@ -326,7 +326,7 @@ PyObject *pypff_check_file_signature(
 	return( NULL );
 }
 
-/* Checks if a file has a Personal Folder Format (PFF) file signature using a file-like object
+/* Checks if a file has a Personal Folder File (PFF) signature using a file-like object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_check_file_signature_file_object(

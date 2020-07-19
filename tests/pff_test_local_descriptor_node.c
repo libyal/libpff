@@ -270,6 +270,117 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_local_descriptor_node_read function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_local_descriptor_node_read(
+     void )
+{
+	libcerror_error_t *error                              = NULL;
+	libpff_local_descriptor_node_t *local_descriptor_node = NULL;
+	int result                                            = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_local_descriptor_node_initialize(
+	          &local_descriptor_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "local_descriptor_node",
+	 local_descriptor_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_local_descriptor_node_read(
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_local_descriptor_node_read(
+	          local_descriptor_node,
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_local_descriptor_node_free(
+	          &local_descriptor_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "local_descriptor_node",
+	 local_descriptor_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( local_descriptor_node != NULL )
+	{
+		libpff_local_descriptor_node_free(
+		 &local_descriptor_node,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -303,7 +414,9 @@ int main(
 
 	/* TODO: add tests for libpff_local_descriptor_node_get_entry_sub_node_identifier */
 
-	/* TODO: add tests for libpff_local_descriptor_node_read */
+	PFF_TEST_RUN(
+	 "libpff_local_descriptor_node_read",
+	 pff_test_local_descriptor_node_read );
 
 	/* TODO: add tests for libpff_local_descriptor_node_read_element_data */
 

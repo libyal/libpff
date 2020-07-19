@@ -1,5 +1,5 @@
 /*
- * Library item_tree functions test program
+ * Library item_tree type test program
  *
  * Copyright (C) 2008-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -438,7 +438,6 @@ int pff_test_item_tree_create_node(
 {
 	libbfio_handle_t *file_io_handle                 = NULL;
 	libcdata_list_t *orphan_node_list                = NULL;
-	libcdata_tree_node_t *item_tree_root_node        = NULL;
 	libcdata_tree_node_t *root_folder_item_tree_node = NULL;
 	libcerror_error_t *error                         = NULL;
 	libfcache_cache_t *index_tree_cache              = NULL;
@@ -521,17 +520,19 @@ int main(
 	 "libpff_item_tree_get_sub_node_by_identifier",
 	 pff_test_item_tree_get_sub_node_by_identifier );
 
+	/* TODO: add tests for libpff_item_tree_get_identifier */
+
+	/* TODO: add tests for libpff_item_tree_append_identifier */
+
+	/* TODO: add tests for libpff_item_tree_create */
+
 	PFF_TEST_RUN(
 	 "libpff_item_tree_create_node",
 	 pff_test_item_tree_create_node );
 
 	/* TODO: add tests for libpff_item_tree_create_leaf_node */
 
-	/* TODO: add tests for libpff_item_tree_get_identifier */
-
-	/* TODO: add tests for libpff_item_tree_append_identifier */
-
-	/* TODO: add tests for libpff_item_tree_create */
+	/* TODO: add tests for libpff_item_tree_get_node_by_identifier */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 

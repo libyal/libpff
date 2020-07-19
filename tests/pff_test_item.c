@@ -452,10 +452,6 @@ on_error:
 	return( 0 );
 }
 
-#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
-
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
-
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -483,11 +479,13 @@ int main(
 	 "libpff_item_free",
 	 pff_test_item_free );
 
-#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
-
 	/* TODO: add tests for libpff_item_clone */
 
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
 	/* TODO: add tests for libpff_item_determine_type */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	/* TODO: add tests for libpff_item_get_identifier */
 
@@ -497,6 +495,24 @@ int main(
 
 	/* TODO: add tests for libpff_item_get_number_of_entries */
 
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
+	/* TODO: add tests for libpff_internal_item_get_entry_value_32bit_integer */
+
+	/* TODO: add tests for libpff_internal_item_get_entry_value_filetime */
+
+	/* TODO: add tests for libpff_internal_item_get_entry_value_utf8_string_size */
+
+	/* TODO: add tests for libpff_internal_item_get_entry_value_utf8_string */
+
+	/* TODO: add tests for libpff_internal_item_get_entry_value_utf16_string_size */
+
+	/* TODO: add tests for libpff_internal_item_get_entry_value_utf16_string */
+
+	/* TODO: add tests for libpff_internal_item_get_embedded_object_data */
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+
 	/* TODO: add tests for libpff_item_get_type */
 
 	/* TODO: add tests for libpff_item_get_number_of_sub_items */
@@ -504,8 +520,6 @@ int main(
 	/* TODO: add tests for libpff_item_get_sub_item */
 
 	/* TODO: add tests for libpff_item_get_sub_item_by_identifier */
-
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
