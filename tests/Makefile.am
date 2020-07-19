@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = subdir-objects
+
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
@@ -29,6 +31,7 @@ endif
 TESTS = \
 	test_library.sh \
 	test_read_items.sh \
+	test_tools.sh \
 	test_pffinfo.sh \
 	test_pffexport.sh \
 	$(TESTS_PYPFF)
@@ -42,7 +45,8 @@ check_SCRIPTS = \
 	test_pffinfo.sh \
 	test_python_module.sh \
 	test_read_items.sh \
-	test_runner.sh
+	test_runner.sh \
+	test_tools.sh
 
 EXTRA_DIST = \
 	$(check_SCRIPTS)
@@ -59,6 +63,7 @@ check_PROGRAMS = \
 	pff_test_descriptors_index \
 	pff_test_error \
 	pff_test_file \
+	pff_test_file_header \
 	pff_test_folder \
 	pff_test_index \
 	pff_test_index_node \
@@ -85,6 +90,9 @@ check_PROGRAMS = \
 	pff_test_table \
 	pff_test_table_block_index \
 	pff_test_table_index_value \
+	pff_test_tools_info_handle \
+	pff_test_tools_output \
+	pff_test_tools_signal \
 	pff_test_value_type
 
 pff_test_allocation_table_SOURCES = \
@@ -251,6 +259,28 @@ pff_test_file_LDADD = \
 	@LIBCTHREADS_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	@PTHREAD_LIBADD@
+
+pff_test_file_header_SOURCES = \
+	pff_test_file_header.c \
+	pff_test_functions.c pff_test_functions.h \
+	pff_test_libbfio.h \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_file_header_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
 
 pff_test_folder_SOURCES = \
 	pff_test_folder.c \
@@ -579,6 +609,42 @@ pff_test_table_index_value_SOURCES = \
 	pff_test_unused.h
 
 pff_test_table_index_value_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_tools_info_handle_SOURCES = \
+	../pfftools/info_handle.c ../pfftools/info_handle.h \
+	pff_test_libcerror.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_tools_info_handle.c \
+	pff_test_unused.h
+
+pff_test_tools_info_handle_LDADD = \
+	@LIBFDATETIME_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_tools_output_SOURCES = \
+	../pfftools/pfftools_output.c ../pfftools/pfftools_output.h \
+	pff_test_libcerror.h \
+	pff_test_macros.h \
+	pff_test_tools_output.c \
+	pff_test_unused.h
+
+pff_test_tools_output_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_tools_signal_SOURCES = \
+	../pfftools/pfftools_signal.c ../pfftools/pfftools_signal.h \
+	pff_test_libcerror.h \
+	pff_test_macros.h \
+	pff_test_tools_signal.c \
+	pff_test_unused.h
+
+pff_test_tools_signal_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 

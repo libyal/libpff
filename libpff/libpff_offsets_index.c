@@ -40,6 +40,8 @@
 int libpff_offsets_index_initialize(
      libpff_offsets_index_t **offsets_index,
      libpff_io_handle_t *io_handle,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
      libcerror_error_t **error )
 {
 	static char *function = "libpff_offsets_index_initialize";
@@ -105,7 +107,9 @@ int libpff_offsets_index_initialize(
 
 		goto on_error;
 	}
-	( *offsets_index )->io_handle = io_handle;
+	( *offsets_index )->io_handle          = io_handle;
+	( *offsets_index )->index_nodes_vector = index_nodes_vector;
+	( *offsets_index )->index_nodes_cache  = index_nodes_cache;
 
 	return( 1 );
 
@@ -239,6 +243,8 @@ int libpff_offsets_index_set_root_node(
 		if( libpff_index_initialize(
 		     &index,
 		     offsets_index->io_handle,
+		     offsets_index->index_nodes_vector,
+		     offsets_index->index_nodes_cache,
 		     LIBPFF_INDEX_TYPE_OFFSET,
 		     root_node_offset,
 		     root_node_back_pointer,
@@ -314,6 +320,8 @@ int libpff_offsets_index_set_root_node(
 		if( libpff_index_initialize(
 		     &index,
 		     offsets_index->io_handle,
+		     offsets_index->index_nodes_vector,
+		     offsets_index->index_nodes_cache,
 		     LIBPFF_INDEX_TYPE_OFFSET,
 		     0,
 		     0,

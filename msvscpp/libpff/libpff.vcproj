@@ -234,6 +234,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_file_header.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_folder.c"
 				>
 			</File>
@@ -437,6 +441,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_file.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_file_header.h"
 				>
 			</File>
 			<File

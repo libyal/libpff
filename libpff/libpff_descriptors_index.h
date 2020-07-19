@@ -43,6 +43,14 @@ struct libpff_descriptors_index
 	 */
 	libpff_io_handle_t *io_handle;
 
+	/* The index nodes vector
+	 */
+	libfdata_vector_t *index_nodes_vector;
+
+	/* The index nodes cache
+	 */
+	libfcache_cache_t *index_nodes_cache;
+
 	/* The index tree
 	 */
 	libfdata_tree_t *index_tree;
@@ -59,6 +67,8 @@ struct libpff_descriptors_index
 int libpff_descriptors_index_initialize(
      libpff_descriptors_index_t **descriptors_index,
      libpff_io_handle_t *io_handle,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
      libcerror_error_t **error );
 
 int libpff_descriptors_index_free(

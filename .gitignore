@@ -140,6 +140,7 @@ stamp-h[1-9]
 /tests/pff_test_descriptors_index
 /tests/pff_test_error
 /tests/pff_test_file
+/tests/pff_test_file_header
 /tests/pff_test_folder
 /tests/pff_test_index
 /tests/pff_test_index_node
@@ -167,6 +168,9 @@ stamp-h[1-9]
 /tests/pff_test_table
 /tests/pff_test_table_block_index
 /tests/pff_test_table_index_value
+/tests/pff_test_tools_info_handle
+/tests/pff_test_tools_output
+/tests/pff_test_tools_signal
 /tests/pff_test_value_type
 /tests/tmp*
 

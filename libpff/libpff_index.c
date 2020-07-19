@@ -45,6 +45,8 @@
 int libpff_index_initialize(
      libpff_index_t **index,
      libpff_io_handle_t *io_handle,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
      uint8_t type,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,
@@ -115,6 +117,8 @@ int libpff_index_initialize(
 		goto on_error;
 	}
 	( *index )->io_handle              = io_handle;
+	( *index )->index_nodes_vector     = index_nodes_vector;
+	( *index )->index_nodes_cache      = index_nodes_cache;
 	( *index )->type                   = type;
 	( *index )->root_node_offset       = root_node_offset;
 	( *index )->root_node_back_pointer = root_node_back_pointer;
@@ -155,6 +159,8 @@ int libpff_index_free(
 	}
 	if( *index != NULL )
 	{
+		/* The io_handle, index_nodes_vector and index_nodes_cache reference are freed elsewhere
+		 */
 		memory_free(
 		 *index );
 
@@ -204,6 +210,8 @@ int libpff_index_clone(
 	if( libpff_index_initialize(
 	     destination_index,
 	     source_index->io_handle,
+	     source_index->index_nodes_vector,
+	     source_index->index_nodes_cache,
 	     source_index->type,
 	     source_index->root_node_offset,
 	     source_index->root_node_back_pointer,
@@ -279,9 +287,9 @@ int libpff_index_read_node(
 		return( -1 );
 	}
 	if( libfdata_vector_get_element_value_at_offset(
-	     index->io_handle->index_nodes_vector,
+	     index->index_nodes_vector,
 	     (intptr_t *) file_io_handle,
-	     (libfdata_cache_t *) index->io_handle->index_nodes_cache,
+	     (libfdata_cache_t *) index->index_nodes_cache,
 	     node_offset,
 	     &element_data_offset,
 	     (intptr_t **) &index_node,
@@ -610,9 +618,9 @@ int libpff_index_read_node_entry(
 		return( -1 );
 	}
 	if( libfdata_vector_get_element_value_at_offset(
-	     index->io_handle->index_nodes_vector,
+	     index->index_nodes_vector,
 	     (intptr_t *) file_io_handle,
-	     (libfdata_cache_t *) index->io_handle->index_nodes_cache,
+	     (libfdata_cache_t *) index->index_nodes_cache,
 	     node_offset,
 	     &element_data_offset,
 	     (intptr_t **) &index_node,

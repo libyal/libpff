@@ -1,5 +1,5 @@
 #!/bin/bash
-# Tests library functions and types.
+# Tests tools functions and types.
 #
 # Version: 20200705
 
@@ -7,8 +7,8 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="allocation_table attached_file_io_handle column_definition data_array data_array_entry data_block deflate descriptors_index error file_header index index_node index_value io_handle item item_descriptor item_tree item_values local_descriptor_node local_descriptor_value local_descriptors multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_index_value value_type";
-LIBRARY_TESTS_WITH_INPUT="file support";
+TOOLS_TESTS="info_handle output signal";
+TOOLS_TESTS_WITH_INPUT="";
 OPTION_SETS="";
 
 INPUT_GLOB="*";
@@ -18,7 +18,7 @@ run_test()
 	local TEST_NAME=$1;
 
 	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
-	local TEST_EXECUTABLE="./pff_test_${TEST_NAME}";
+	local TEST_EXECUTABLE="./pff_test_tools_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
@@ -37,7 +37,7 @@ run_test_with_input()
 	local TEST_NAME=$1;
 
 	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
-	local TEST_EXECUTABLE="./pff_test_${TEST_NAME}";
+	local TEST_EXECUTABLE="./pff_test_tools_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
@@ -59,7 +59,7 @@ run_test_with_input()
 		return ${EXIT_IGNORE};
 	fi
 
-	local TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "input" "libpff");
+	local TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "input" "pfftools");
 
 	local IGNORE_LIST=$(read_ignore_list "${TEST_PROFILE_DIRECTORY}");
 
@@ -129,7 +129,7 @@ run_test_with_input()
 	return ${RESULT};
 }
 
-if test -n "${SKIP_LIBRARY_TESTS}";
+if test -n "${SKIP_TOOLS_TESTS}";
 then
 	exit ${EXIT_IGNORE};
 fi
@@ -152,7 +152,7 @@ source ${TEST_RUNNER};
 
 RESULT=${EXIT_IGNORE};
 
-for TEST_NAME in ${LIBRARY_TESTS};
+for TEST_NAME in ${TOOLS_TESTS};
 do
 	run_test "${TEST_NAME}";
 	RESULT=$?;
@@ -168,7 +168,7 @@ then
 	exit ${RESULT};
 fi
 
-for TEST_NAME in ${LIBRARY_TESTS_WITH_INPUT};
+for TEST_NAME in ${TOOLS_TESTS_WITH_INPUT};
 do
 	if test -d "input";
 	then

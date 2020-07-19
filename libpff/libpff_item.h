@@ -27,6 +27,7 @@
 
 #include "libpff_extern.h"
 #include "libpff_file.h"
+#include "libpff_io_handle.h"
 #include "libpff_item_descriptor.h"
 #include "libpff_item_values.h"
 #include "libpff_libbfio.h"
@@ -34,6 +35,7 @@
 #include "libpff_libcdata.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
+#include "libpff_offsets_index.h"
 #include "libpff_types.h"
 
 #if defined( __cplusplus )
@@ -53,6 +55,18 @@ struct libpff_internal_item
 	/* The internal file
 	 */
 	libpff_internal_file_t *internal_file;
+
+	/* The IO handle
+	 */
+	libpff_io_handle_t *io_handle;
+
+	/* The name to id map list
+	 */
+	libcdata_list_t *name_to_id_map_list;
+
+	/* The offsets index
+	 */
+	libpff_offsets_index_t *offsets_index;
 
 	/* The item tree node
 	 */
@@ -101,8 +115,11 @@ struct libpff_internal_item
 
 int libpff_item_initialize(
      libpff_item_t **item,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_internal_file_t *internal_file,
+     libcdata_list_t *name_to_id_map_list,
+     libpff_offsets_index_t *offsets_index,
      libcdata_tree_node_t *item_tree_node,
      libpff_item_descriptor_t *item_descriptor,
      uint8_t flags,

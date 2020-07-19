@@ -27,10 +27,14 @@
 
 #include "libpff_descriptors_index.h"
 #include "libpff_extern.h"
+#include "libpff_file_header.h"
 #include "libpff_io_handle.h"
+#include "libpff_item_tree.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
+#include "libpff_libfcache.h"
+#include "libpff_libfdata.h"
 #include "libpff_offsets_index.h"
 #include "libpff_types.h"
 
@@ -66,6 +70,18 @@ struct libpff_internal_file
 	 */
 	uint8_t file_io_handle_opened_in_library;
 
+	/* The file header
+	 */
+	libpff_file_header_t *file_header;
+
+	/* The index nodes vector
+	 */
+	libfdata_vector_t *index_nodes_vector;
+
+	/* The index nodes cache
+	 */
+	libfcache_cache_t *index_nodes_cache;
+
 	/* The descriptors index
 	 */
 	libpff_descriptors_index_t *descriptors_index;
@@ -74,9 +90,9 @@ struct libpff_internal_file
 	 */
 	libpff_offsets_index_t *offsets_index;
 
-	/* The item tree root node
+	/* The item tree
 	 */
-	libcdata_tree_node_t *item_tree_root_node;
+	libpff_item_tree_t *item_tree;
 
 	/* The root folder item tree node
 	 */
@@ -157,12 +173,12 @@ int libpff_file_close(
      libpff_file_t *file,
      libcerror_error_t **error );
 
-int libpff_file_open_read(
+int libpff_internal_file_open_read(
      libpff_internal_file_t *internal_file,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
-int libpff_file_read_allocation_tables(
+int libpff_internal_file_read_allocation_tables(
      libpff_internal_file_t *internal_file,
      libcerror_error_t **error );
 

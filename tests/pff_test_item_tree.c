@@ -39,6 +39,239 @@
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
+/* Tests the libpff_item_tree_initialize function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_item_tree_initialize(
+     void )
+{
+	libcerror_error_t *error        = NULL;
+	libpff_item_tree_t *item_tree   = NULL;
+	int result                      = 0;
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 1;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
+	/* Test regular cases
+	 */
+	result = libpff_item_tree_initialize(
+	          &item_tree,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "item_tree",
+	 item_tree );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_item_tree_free(
+	          &item_tree,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "item_tree",
+	 item_tree );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_item_tree_initialize(
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	item_tree = (libpff_item_tree_t *) 0x12345678UL;
+
+	result = libpff_item_tree_initialize(
+	          &item_tree,
+	          &error );
+
+	item_tree = NULL;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_item_tree_initialize with malloc failing
+		 */
+		pff_test_malloc_attempts_before_fail = test_number;
+
+		result = libpff_item_tree_initialize(
+		          &item_tree,
+		          &error );
+
+		if( pff_test_malloc_attempts_before_fail != -1 )
+		{
+			pff_test_malloc_attempts_before_fail = -1;
+
+			if( item_tree != NULL )
+			{
+				libpff_item_tree_free(
+				 &item_tree,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "item_tree",
+			 item_tree );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_item_tree_initialize with memset failing
+		 */
+		pff_test_memset_attempts_before_fail = test_number;
+
+		result = libpff_item_tree_initialize(
+		          &item_tree,
+		          &error );
+
+		if( pff_test_memset_attempts_before_fail != -1 )
+		{
+			pff_test_memset_attempts_before_fail = -1;
+
+			if( item_tree != NULL )
+			{
+				libpff_item_tree_free(
+				 &item_tree,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "item_tree",
+			 item_tree );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( item_tree != NULL )
+	{
+		libpff_item_tree_free(
+		 &item_tree,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_item_tree_free function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_item_tree_free(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libpff_item_tree_free(
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 /* Tests the libpff_item_tree_node_free_recovered function
  * Returns 1 if successful or 0 if not
  */
@@ -267,6 +500,14 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
+	PFF_TEST_RUN(
+	 "libpff_item_tree_initialize",
+	 pff_test_item_tree_initialize );
+
+	PFF_TEST_RUN(
+	 "libpff_item_tree_free",
+	 pff_test_item_tree_free );
 
 	PFF_TEST_RUN(
 	 "libpff_item_tree_node_free_recovered",

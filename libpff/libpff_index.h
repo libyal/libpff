@@ -44,6 +44,14 @@ struct libpff_index
 	 */
 	libpff_io_handle_t *io_handle;
 
+	/* The index nodes vector
+	 */
+	libfdata_vector_t *index_nodes_vector;
+
+	/* The index nodes cache
+	 */
+	libfcache_cache_t *index_nodes_cache;
+
 	/* The index type
 	 */
 	uint8_t type;
@@ -64,6 +72,8 @@ struct libpff_index
 int libpff_index_initialize(
      libpff_index_t **index,
      libpff_io_handle_t *io_handle,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
      uint8_t type,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,

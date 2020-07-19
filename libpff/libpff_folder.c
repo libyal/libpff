@@ -78,17 +78,6 @@ int libpff_folder_get_type(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( type == NULL )
 	{
 		libcerror_error_set(
@@ -102,10 +91,10 @@ int libpff_folder_get_type(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          0,
 	          LIBPFF_ENTRY_TYPE_CONTAINER_CLASS,
 	          0,
@@ -584,10 +573,10 @@ int libpff_folder_determine_sub_folders(
 			}
 			if( libpff_item_values_read(
 			     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
-			     internal_item->internal_file->name_to_id_map_list,
-			     internal_item->internal_file->io_handle,
+			     internal_item->name_to_id_map_list,
+			     internal_item->io_handle,
 			     internal_item->file_io_handle,
-			     internal_item->internal_file->offsets_index,
+			     internal_item->offsets_index,
 			     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
 			     error ) != 1 )
 			{
@@ -725,10 +714,10 @@ int libpff_folder_determine_sub_messages(
 			}
 			if( libpff_item_values_read(
 			     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
-			     internal_item->internal_file->name_to_id_map_list,
-			     internal_item->internal_file->io_handle,
+			     internal_item->name_to_id_map_list,
+			     internal_item->io_handle,
 			     internal_item->file_io_handle,
-			     internal_item->internal_file->offsets_index,
+			     internal_item->offsets_index,
 			     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
 			     error ) != 1 )
 			{
@@ -866,10 +855,10 @@ int libpff_folder_determine_sub_associated_contents(
 			}
 			if( libpff_item_values_read(
 			     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_ASSOCIATED_CONTENTS ],
-			     internal_item->internal_file->name_to_id_map_list,
-			     internal_item->internal_file->io_handle,
+			     internal_item->name_to_id_map_list,
+			     internal_item->io_handle,
 			     internal_item->file_io_handle,
-			     internal_item->internal_file->offsets_index,
+			     internal_item->offsets_index,
 			     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
 			     error ) != 1 )
 			{
@@ -907,17 +896,6 @@ int libpff_folder_determine_unknowns(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid item.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
 		 function );
 
 		return( -1 );
@@ -972,10 +950,10 @@ int libpff_folder_determine_unknowns(
 
 		if( libpff_item_values_read(
 		     internal_item->item_values,
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
 		     error ) != 1 )
 		{
@@ -1068,10 +1046,10 @@ int libpff_folder_determine_unknowns(
 		 */
 		if( libpff_item_values_read(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_UNKNOWNS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
 		     error ) != 1 )
 		{
@@ -1202,17 +1180,6 @@ int libpff_folder_get_number_of_sub_folders(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -1274,10 +1241,10 @@ int libpff_folder_get_number_of_sub_folders(
 	{
 		if( libpff_item_values_get_number_of_record_sets(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     number_of_sub_folders,
 		     error ) != 1 )
 		{
@@ -1323,17 +1290,6 @@ int libpff_folder_get_sub_folder(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -1404,10 +1360,10 @@ int libpff_folder_get_sub_folder(
 	{
 		if( libpff_item_values_get_record_entry_by_type(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     sub_folder_index,
 		     LIBPFF_ENTRY_TYPE_SUB_ITEM_IDENTIFIER,
 		     LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
@@ -1470,8 +1426,11 @@ int libpff_folder_get_sub_folder(
 		}
 		if( libpff_item_initialize(
 		     sub_folder,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
 		     internal_item->internal_file,
+		     internal_item->name_to_id_map_list,
+		     internal_item->offsets_index,
 		     sub_folder_tree_node,
 		     sub_folder_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -1536,17 +1495,6 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -1639,10 +1587,10 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 	{
 		if( libpff_item_values_get_number_of_record_sets(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     &number_of_sub_folders,
 		     error ) != 1 )
 		{
@@ -1661,10 +1609,10 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 		{
 			if( libpff_item_values_get_record_entry_by_type(
 			     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
-			     internal_item->internal_file->name_to_id_map_list,
-			     internal_item->internal_file->io_handle,
+			     internal_item->name_to_id_map_list,
+			     internal_item->io_handle,
 			     internal_item->file_io_handle,
-			     internal_item->internal_file->offsets_index,
+			     internal_item->offsets_index,
 			     sub_folder_index,
 			     LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
 			     0,
@@ -1710,10 +1658,10 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 		}
 		if( libpff_item_values_get_record_entry_by_type(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     sub_folder_index,
 		     LIBPFF_ENTRY_TYPE_SUB_ITEM_IDENTIFIER,
 		     LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
@@ -1776,8 +1724,11 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 		}
 		if( libpff_item_initialize(
 		     sub_folder,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
 		     internal_item->internal_file,
+		     internal_item->name_to_id_map_list,
+		     internal_item->offsets_index,
 		     sub_folder_tree_node,
 		     sub_folder_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -1842,17 +1793,6 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -1945,10 +1885,10 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 	{
 		if( libpff_item_values_get_number_of_record_sets(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     &number_of_sub_folders,
 		     error ) != 1 )
 		{
@@ -1967,10 +1907,10 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 		{
 			if( libpff_item_values_get_record_entry_by_type(
 			     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
-			     internal_item->internal_file->name_to_id_map_list,
-			     internal_item->internal_file->io_handle,
+			     internal_item->name_to_id_map_list,
+			     internal_item->io_handle,
 			     internal_item->file_io_handle,
-			     internal_item->internal_file->offsets_index,
+			     internal_item->offsets_index,
 			     sub_folder_index,
 			     LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
 			     0,
@@ -2016,10 +1956,10 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 		}
 		if( libpff_item_values_get_record_entry_by_type(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     sub_folder_index,
 		     LIBPFF_ENTRY_TYPE_SUB_ITEM_IDENTIFIER,
 		     LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
@@ -2082,8 +2022,11 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 		}
 		if( libpff_item_initialize(
 		     sub_folder,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
 		     internal_item->internal_file,
+		     internal_item->name_to_id_map_list,
+		     internal_item->offsets_index,
 		     sub_folder_tree_node,
 		     sub_folder_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -2243,8 +2186,8 @@ int libpff_folder_get_sub_folders(
 
 	/* Find sub folders tree node
 	 */
-	result = libpff_item_tree_get_tree_node_by_identifier(
-	          internal_item->internal_file->item_tree_root_node,
+	result = libpff_item_tree_get_node_by_identifier(
+	          internal_item->internal_file->item_tree,
 	          sub_folders_descriptor_identifier,
 	          &sub_folders_item_tree_node,
 	          error );
@@ -2281,8 +2224,11 @@ int libpff_folder_get_sub_folders(
 	}
 	if( libpff_item_initialize(
 	     sub_folders,
+	     internal_item->io_handle,
 	     internal_item->file_io_handle,
 	     internal_item->internal_file,
+	     internal_item->name_to_id_map_list,
+	     internal_item->offsets_index,
 	     sub_folders_item_tree_node,
 	     sub_folders_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -2362,17 +2308,6 @@ int libpff_folder_get_number_of_sub_messages(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -2434,10 +2369,10 @@ int libpff_folder_get_number_of_sub_messages(
 	{
 		if( libpff_item_values_get_number_of_record_sets(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     number_of_sub_messages,
 		     error ) != 1 )
 		{
@@ -2483,17 +2418,6 @@ int libpff_folder_get_sub_message(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -2564,10 +2488,10 @@ int libpff_folder_get_sub_message(
 	{
 		if( libpff_item_values_get_record_entry_by_type(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     (int) sub_message_index,
 		     LIBPFF_ENTRY_TYPE_SUB_ITEM_IDENTIFIER,
 		     LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
@@ -2629,8 +2553,11 @@ int libpff_folder_get_sub_message(
 		}
 		if( libpff_item_initialize(
 		     sub_message,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
 		     internal_item->internal_file,
+		     internal_item->name_to_id_map_list,
+		     internal_item->offsets_index,
 		     sub_message_tree_node,
 		     sub_message_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -2695,17 +2622,6 @@ int libpff_folder_get_sub_message_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -2798,10 +2714,10 @@ int libpff_folder_get_sub_message_by_utf8_name(
 	{
 		if( libpff_item_values_get_number_of_record_sets(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     &number_of_sub_messages,
 		     error ) != 1 )
 		{
@@ -2820,10 +2736,10 @@ int libpff_folder_get_sub_message_by_utf8_name(
 		{
 			if( libpff_item_values_get_record_entry_by_type(
 			     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
-			     internal_item->internal_file->name_to_id_map_list,
-			     internal_item->internal_file->io_handle,
+			     internal_item->name_to_id_map_list,
+			     internal_item->io_handle,
 			     internal_item->file_io_handle,
-			     internal_item->internal_file->offsets_index,
+			     internal_item->offsets_index,
 			     sub_message_index,
 			     LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
 			     0,
@@ -2869,10 +2785,10 @@ int libpff_folder_get_sub_message_by_utf8_name(
 		}
 		if( libpff_item_values_get_record_entry_by_type(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     sub_message_index,
 		     LIBPFF_ENTRY_TYPE_SUB_ITEM_IDENTIFIER,
 		     LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
@@ -2934,8 +2850,11 @@ int libpff_folder_get_sub_message_by_utf8_name(
 		}
 		if( libpff_item_initialize(
 		     sub_message,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
 		     internal_item->internal_file,
+		     internal_item->name_to_id_map_list,
+		     internal_item->offsets_index,
 		     sub_message_tree_node,
 		     sub_message_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -3000,17 +2919,6 @@ int libpff_folder_get_sub_message_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -3103,10 +3011,10 @@ int libpff_folder_get_sub_message_by_utf16_name(
 	{
 		if( libpff_item_values_get_number_of_record_sets(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     &number_of_sub_messages,
 		     error ) != 1 )
 		{
@@ -3125,10 +3033,10 @@ int libpff_folder_get_sub_message_by_utf16_name(
 		{
 			if( libpff_item_values_get_record_entry_by_type(
 			     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
-			     internal_item->internal_file->name_to_id_map_list,
-			     internal_item->internal_file->io_handle,
+			     internal_item->name_to_id_map_list,
+			     internal_item->io_handle,
 			     internal_item->file_io_handle,
-			     internal_item->internal_file->offsets_index,
+			     internal_item->offsets_index,
 			     sub_message_index,
 			     LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
 			     0,
@@ -3174,10 +3082,10 @@ int libpff_folder_get_sub_message_by_utf16_name(
 		}
 		if( libpff_item_values_get_record_entry_by_type(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     sub_message_index,
 		     LIBPFF_ENTRY_TYPE_SUB_ITEM_IDENTIFIER,
 		     LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
@@ -3239,8 +3147,11 @@ int libpff_folder_get_sub_message_by_utf16_name(
 		}
 		if( libpff_item_initialize(
 		     sub_message,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
 		     internal_item->internal_file,
+		     internal_item->name_to_id_map_list,
+		     internal_item->offsets_index,
 		     sub_message_tree_node,
 		     sub_message_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -3400,8 +3311,8 @@ int libpff_folder_get_sub_messages(
 
 	/* Find sub messages tree node
 	 */
-	result = libpff_item_tree_get_tree_node_by_identifier(
-	          internal_item->internal_file->item_tree_root_node,
+	result = libpff_item_tree_get_node_by_identifier(
+	          internal_item->internal_file->item_tree,
 	          sub_messages_descriptor_identifier,
 	          &sub_messages_item_tree_node,
 	          error );
@@ -3438,8 +3349,11 @@ int libpff_folder_get_sub_messages(
 	}
 	if( libpff_item_initialize(
 	     sub_messages,
+	     internal_item->io_handle,
 	     internal_item->file_io_handle,
 	     internal_item->internal_file,
+	     internal_item->name_to_id_map_list,
+	     internal_item->offsets_index,
 	     sub_messages_item_tree_node,
 	     sub_messages_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -3519,17 +3433,6 @@ int libpff_folder_get_number_of_sub_associated_contents(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -3591,10 +3494,10 @@ int libpff_folder_get_number_of_sub_associated_contents(
 	{
 		if( libpff_item_values_get_number_of_record_sets(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_ASSOCIATED_CONTENTS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     number_of_sub_associated_contents,
 		     error ) != 1 )
 		{
@@ -3640,17 +3543,6 @@ int libpff_folder_get_sub_associated_content(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
 		if( libpff_item_determine_type(
@@ -3721,10 +3613,10 @@ int libpff_folder_get_sub_associated_content(
 	{
 		if( libpff_item_values_get_record_entry_by_type(
 		     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_ASSOCIATED_CONTENTS ],
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     (int) sub_associated_content_index,
 		     LIBPFF_ENTRY_TYPE_SUB_ITEM_IDENTIFIER,
 		     LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
@@ -3786,8 +3678,11 @@ int libpff_folder_get_sub_associated_content(
 		}
 		if( libpff_item_initialize(
 		     sub_associated_content,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
 		     internal_item->internal_file,
+		     internal_item->name_to_id_map_list,
+		     internal_item->offsets_index,
 		     sub_associated_content_tree_node,
 		     sub_associated_content_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -3947,8 +3842,8 @@ int libpff_folder_get_sub_associated_contents(
 
 	/* Find sub associated contents tree node
 	 */
-	result = libpff_item_tree_get_tree_node_by_identifier(
-	          internal_item->internal_file->item_tree_root_node,
+	result = libpff_item_tree_get_node_by_identifier(
+	          internal_item->internal_file->item_tree,
 	          sub_associated_contents_descriptor_identifier,
 	          &sub_associated_contents_item_tree_node,
 	          error );
@@ -3985,8 +3880,11 @@ int libpff_folder_get_sub_associated_contents(
 	}
 	if( libpff_item_initialize(
 	     sub_associated_contents,
+	     internal_item->io_handle,
 	     internal_item->file_io_handle,
 	     internal_item->internal_file,
+	     internal_item->name_to_id_map_list,
+	     internal_item->offsets_index,
 	     sub_associated_contents_item_tree_node,
 	     sub_associated_contents_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
@@ -4164,8 +4062,11 @@ int libpff_folder_get_unknowns(
 	}
 	if( libpff_item_initialize(
 	     unknowns,
+	     internal_item->io_handle,
 	     internal_item->file_io_handle,
 	     internal_item->internal_file,
+	     internal_item->name_to_id_map_list,
+	     internal_item->offsets_index,
 	     internal_item->sub_item_tree_node[ LIBPFF_FOLDER_SUB_ITEM_UNKNOWNS ],
 	     unknowns_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT | LIBPFF_ITEM_FLAG_MANAGED_ITEM_TREE_NODE,

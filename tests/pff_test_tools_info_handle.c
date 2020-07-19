@@ -1,5 +1,5 @@
 /*
- * Library offsets_index type test program
+ * Tools info_handle type test program
  *
  * Copyright (C) 2008-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <file_stream.h>
+#include <memory.h>
 #include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
@@ -28,59 +29,32 @@
 #endif
 
 #include "pff_test_libcerror.h"
-#include "pff_test_libpff.h"
 #include "pff_test_macros.h"
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
-#include "../libpff/libpff_io_handle.h"
-#include "../libpff/libpff_offsets_index.h"
+#include "../pfftools/info_handle.h"
 
-#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
-
-/* Tests the libpff_offsets_index_initialize function
+/* Tests the info_handle_initialize function
  * Returns 1 if successful or 0 if not
  */
-int pff_test_offsets_index_initialize(
+int pff_test_tools_info_handle_initialize(
      void )
 {
-	libcerror_error_t *error              = NULL;
-	libpff_io_handle_t *io_handle         = NULL;
-	libpff_offsets_index_t *offsets_index = NULL;
-	int result                            = 0;
+	info_handle_t *info_handle      = NULL;
+	libcerror_error_t *error        = NULL;
+	int result                      = 0;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
-	int number_of_malloc_fail_tests       = 1;
-	int number_of_memset_fail_tests       = 1;
-	int test_number                       = 0;
+	int number_of_malloc_fail_tests = 1;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
 #endif
-
-	/* Initialize test
-	 */
-	result = libpff_io_handle_initialize(
-	          &io_handle,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
 
 	/* Test regular cases
 	 */
-	result = libpff_offsets_index_initialize(
-	          &offsets_index,
-	          io_handle,
-	          NULL,
-	          NULL,
+	result = info_handle_initialize(
+	          &info_handle,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -89,15 +63,15 @@ int pff_test_offsets_index_initialize(
 	 1 );
 
 	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "offsets_index",
-	 offsets_index );
+	 "info_handle",
+	 info_handle );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	result = libpff_offsets_index_free(
-	          &offsets_index,
+	result = info_handle_free(
+	          &info_handle,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -106,8 +80,8 @@ int pff_test_offsets_index_initialize(
 	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
-	 "offsets_index",
-	 offsets_index );
+	 "info_handle",
+	 info_handle );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -115,10 +89,7 @@ int pff_test_offsets_index_initialize(
 
 	/* Test error cases
 	 */
-	result = libpff_offsets_index_initialize(
-	          NULL,
-	          io_handle,
-	          NULL,
+	result = info_handle_initialize(
 	          NULL,
 	          &error );
 
@@ -134,35 +105,13 @@ int pff_test_offsets_index_initialize(
 	libcerror_error_free(
 	 &error );
 
-	offsets_index = (libpff_offsets_index_t *) 0x12345678UL;
+	info_handle = (info_handle_t *) 0x12345678UL;
 
-	result = libpff_offsets_index_initialize(
-	          &offsets_index,
-	          io_handle,
-	          NULL,
-	          NULL,
+	result = info_handle_initialize(
+	          &info_handle,
 	          &error );
 
-	offsets_index = NULL;
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libpff_offsets_index_initialize(
-	          &offsets_index,
-	          NULL,
-	          NULL,
-	          NULL,
-	          &error );
+	info_handle = NULL;
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -182,25 +131,22 @@ int pff_test_offsets_index_initialize(
 	     test_number < number_of_malloc_fail_tests;
 	     test_number++ )
 	{
-		/* Test libpff_offsets_index_initialize with malloc failing
+		/* Test info_handle_initialize with malloc failing
 		 */
 		pff_test_malloc_attempts_before_fail = test_number;
 
-		result = libpff_offsets_index_initialize(
-		          &offsets_index,
-		          io_handle,
-		          NULL,
-		          NULL,
+		result = info_handle_initialize(
+		          &info_handle,
 		          &error );
 
 		if( pff_test_malloc_attempts_before_fail != -1 )
 		{
 			pff_test_malloc_attempts_before_fail = -1;
 
-			if( offsets_index != NULL )
+			if( info_handle != NULL )
 			{
-				libpff_offsets_index_free(
-				 &offsets_index,
+				info_handle_free(
+				 &info_handle,
 				 NULL );
 			}
 		}
@@ -212,8 +158,8 @@ int pff_test_offsets_index_initialize(
 			 -1 );
 
 			PFF_TEST_ASSERT_IS_NULL(
-			 "offsets_index",
-			 offsets_index );
+			 "info_handle",
+			 info_handle );
 
 			PFF_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -227,25 +173,22 @@ int pff_test_offsets_index_initialize(
 	     test_number < number_of_memset_fail_tests;
 	     test_number++ )
 	{
-		/* Test libpff_offsets_index_initialize with memset failing
+		/* Test info_handle_initialize with memset failing
 		 */
 		pff_test_memset_attempts_before_fail = test_number;
 
-		result = libpff_offsets_index_initialize(
-		          &offsets_index,
-		          io_handle,
-		          NULL,
-		          NULL,
+		result = info_handle_initialize(
+		          &info_handle,
 		          &error );
 
 		if( pff_test_memset_attempts_before_fail != -1 )
 		{
 			pff_test_memset_attempts_before_fail = -1;
 
-			if( offsets_index != NULL )
+			if( info_handle != NULL )
 			{
-				libpff_offsets_index_free(
-				 &offsets_index,
+				info_handle_free(
+				 &info_handle,
 				 NULL );
 			}
 		}
@@ -257,8 +200,8 @@ int pff_test_offsets_index_initialize(
 			 -1 );
 
 			PFF_TEST_ASSERT_IS_NULL(
-			 "offsets_index",
-			 offsets_index );
+			 "info_handle",
+			 info_handle );
 
 			PFF_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -270,25 +213,6 @@ int pff_test_offsets_index_initialize(
 	}
 #endif /* defined( HAVE_PFF_TEST_MEMORY ) */
 
-	/* Clean up
-	 */
-	result = libpff_io_handle_free(
-	          &io_handle,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -297,25 +221,19 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( offsets_index != NULL )
+	if( info_handle != NULL )
 	{
-		libpff_offsets_index_free(
-		 &offsets_index,
-		 NULL );
-	}
-	if( io_handle != NULL )
-	{
-		libpff_io_handle_free(
-		 &io_handle,
+		info_handle_free(
+		 &info_handle,
 		 NULL );
 	}
 	return( 0 );
 }
 
-/* Tests the libpff_offsets_index_free function
+/* Tests the info_handle_free function
  * Returns 1 if successful or 0 if not
  */
-int pff_test_offsets_index_free(
+int pff_test_tools_info_handle_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -323,7 +241,7 @@ int pff_test_offsets_index_free(
 
 	/* Test error cases
 	 */
-	result = libpff_offsets_index_free(
+	result = info_handle_free(
 	          NULL,
 	          &error );
 
@@ -350,8 +268,6 @@ on_error:
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
-
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -367,21 +283,13 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+	PFF_TEST_RUN(
+	 "info_handle_initialize",
+	 pff_test_tools_info_handle_initialize );
 
 	PFF_TEST_RUN(
-	 "libpff_offsets_index_initialize",
-	 pff_test_offsets_index_initialize );
-
-	PFF_TEST_RUN(
-	 "libpff_offsets_index_free",
-	 pff_test_offsets_index_free );
-
-	/* TODO: add tests for libpff_offsets_index_set_root_node */
-
-	/* TODO: add tests for libpff_offsets_index_get_index_value_by_identifier */
-
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+	 "info_handle_free",
+	 pff_test_tools_info_handle_free );
 
 	return( EXIT_SUCCESS );
 

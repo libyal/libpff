@@ -40,6 +40,8 @@
 int libpff_descriptors_index_initialize(
      libpff_descriptors_index_t **descriptors_index,
      libpff_io_handle_t *io_handle,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
      libcerror_error_t **error )
 {
 	static char *function = "libpff_descriptors_index_initialize";
@@ -105,7 +107,9 @@ int libpff_descriptors_index_initialize(
 
 		goto on_error;
 	}
-	( *descriptors_index )->io_handle = io_handle;
+	( *descriptors_index )->io_handle          = io_handle;
+	( *descriptors_index )->index_nodes_vector = index_nodes_vector;
+	( *descriptors_index )->index_nodes_cache  = index_nodes_cache;
 
 	return( 1 );
 
@@ -239,6 +243,8 @@ int libpff_descriptors_index_set_root_node(
 		if( libpff_index_initialize(
 		     &index,
 		     descriptors_index->io_handle,
+		     descriptors_index->index_nodes_vector,
+		     descriptors_index->index_nodes_cache,
 		     LIBPFF_INDEX_TYPE_DESCRIPTOR,
 		     root_node_offset,
 		     root_node_back_pointer,
@@ -314,6 +320,8 @@ int libpff_descriptors_index_set_root_node(
 		if( libpff_index_initialize(
 		     &index,
 		     descriptors_index->io_handle,
+		     descriptors_index->index_nodes_vector,
+		     descriptors_index->index_nodes_cache,
 		     LIBPFF_INDEX_TYPE_DESCRIPTOR,
 		     0,
 		     0,

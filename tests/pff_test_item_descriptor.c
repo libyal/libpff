@@ -37,6 +37,221 @@
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
+/* Tests the libpff_item_descriptor_initialize function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_item_descriptor_initialize(
+     void )
+{
+	libcerror_error_t *error                  = NULL;
+	libpff_item_descriptor_t *item_descriptor = NULL;
+	int result                                = 0;
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+	int number_of_malloc_fail_tests           = 1;
+	int number_of_memset_fail_tests           = 1;
+	int test_number                           = 0;
+#endif
+
+	/* Test regular cases
+	 */
+	result = libpff_item_descriptor_initialize(
+	          &item_descriptor,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "item_descriptor",
+	 item_descriptor );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_item_descriptor_free(
+	          &item_descriptor,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "item_descriptor",
+	 item_descriptor );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_item_descriptor_initialize(
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	item_descriptor = (libpff_item_descriptor_t *) 0x12345678UL;
+
+	result = libpff_item_descriptor_initialize(
+	          &item_descriptor,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	item_descriptor = NULL;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_item_descriptor_initialize with malloc failing
+		 */
+		pff_test_malloc_attempts_before_fail = test_number;
+
+		result = libpff_item_descriptor_initialize(
+		          &item_descriptor,
+		          0,
+		          0,
+		          0,
+		          0,
+		          &error );
+
+		if( pff_test_malloc_attempts_before_fail != -1 )
+		{
+			pff_test_malloc_attempts_before_fail = -1;
+
+			if( item_descriptor != NULL )
+			{
+				libpff_item_descriptor_free(
+				 &item_descriptor,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "item_descriptor",
+			 item_descriptor );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_item_descriptor_initialize with memset failing
+		 */
+		pff_test_memset_attempts_before_fail = test_number;
+
+		result = libpff_item_descriptor_initialize(
+		          &item_descriptor,
+		          0,
+		          0,
+		          0,
+		          0,
+		          &error );
+
+		if( pff_test_memset_attempts_before_fail != -1 )
+		{
+			pff_test_memset_attempts_before_fail = -1;
+
+			if( item_descriptor != NULL )
+			{
+				libpff_item_descriptor_free(
+				 &item_descriptor,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "item_descriptor",
+			 item_descriptor );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( item_descriptor != NULL )
+	{
+		libpff_item_descriptor_free(
+		 &item_descriptor,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libpff_item_descriptor_free function
  * Returns 1 if successful or 0 if not
  */
@@ -94,7 +309,9 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
-	/* TODO: add tests for libpff_item_descriptor_initialize */
+	PFF_TEST_RUN(
+	 "libpff_item_descriptor_initialize",
+	 pff_test_item_descriptor_initialize );
 
 	PFF_TEST_RUN(
 	 "libpff_item_descriptor_free",

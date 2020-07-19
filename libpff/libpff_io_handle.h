@@ -42,14 +42,6 @@ typedef struct libpff_io_handle libpff_io_handle_t;
 
 struct libpff_io_handle
 {
-	/* The index nodes vector
-	 */
-	libfdata_vector_t *index_nodes_vector;
-
-	/* The index nodes cache
-	 */
-	libfcache_cache_t *index_nodes_cache;
-
 	/* The file size
 	 */
 	size64_t file_size;
@@ -89,16 +81,6 @@ int libpff_io_handle_free(
 
 int libpff_io_handle_clear(
      libpff_io_handle_t *io_handle,
-     libcerror_error_t **error );
-
-int libpff_io_handle_read_file_header(
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     int *file_content_type,
-     off64_t *descriptors_index_root_node_offset,
-     uint64_t *descriptors_index_root_node_back_pointer,
-     off64_t *offsets_index_root_node_offset,
-     uint64_t *offsets_index_root_node_back_pointer,
      libcerror_error_t **error );
 
 int libpff_io_handle_read_unallocated_data_blocks(
