@@ -1692,7 +1692,7 @@ int libpff_table_get_record_entry_by_index(
 
 /* Retrieves the record entry matching the entry and value type pair from the table.
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
@@ -1798,7 +1798,7 @@ int libpff_table_get_record_entry_by_type(
 
 /* Retrieves the record entry matching the UTF-8 encoded name from the table.
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
@@ -1903,7 +1903,7 @@ int libpff_table_get_record_entry_by_utf8_name(
 
 /* Retrieves the record entry matching the UTF-16 encoded name from the table.
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type

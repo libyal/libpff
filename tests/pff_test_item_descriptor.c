@@ -321,6 +321,8 @@ int main(
 
 	/* TODO: add tests for libpff_item_descriptor_compare */
 
+	/* TODO: add tests for libpff_item_descriptor_get_descriptor_identifier */
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );

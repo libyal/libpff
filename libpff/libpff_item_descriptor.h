@@ -82,6 +82,11 @@ int libpff_item_descriptor_compare(
      libpff_item_descriptor_t *second_item_descriptor,
      libcerror_error_t **error );
 
+int libpff_item_descriptor_get_descriptor_identifier(
+     libpff_item_descriptor_t *item_descriptor,
+     uint32_t *identifier,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif

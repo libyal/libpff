@@ -477,17 +477,6 @@ int libpff_folder_determine_sub_folders(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_descriptor == NULL )
 	{
 		libcerror_error_set(
@@ -506,7 +495,7 @@ int libpff_folder_determine_sub_folders(
 		sub_folders_descriptor_identifier = internal_item->item_descriptor->descriptor_identifier + 11;
 
 		result = libpff_descriptors_index_get_index_value_by_identifier(
-			  internal_item->internal_file->descriptors_index,
+			  internal_item->descriptors_index,
 			  internal_item->file_io_handle,
 			  sub_folders_descriptor_identifier,
 			  internal_item->item_descriptor->recovered,
@@ -618,17 +607,6 @@ int libpff_folder_determine_sub_messages(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_descriptor == NULL )
 	{
 		libcerror_error_set(
@@ -647,7 +625,7 @@ int libpff_folder_determine_sub_messages(
 		sub_messages_descriptor_identifier = internal_item->item_descriptor->descriptor_identifier + 12;
 
 		result = libpff_descriptors_index_get_index_value_by_identifier(
-			  internal_item->internal_file->descriptors_index,
+			  internal_item->descriptors_index,
 			  internal_item->file_io_handle,
 			  sub_messages_descriptor_identifier,
 			  internal_item->item_descriptor->recovered,
@@ -759,17 +737,6 @@ int libpff_folder_determine_sub_associated_contents(
 
 		return( -1 );
 	}
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_descriptor == NULL )
 	{
 		libcerror_error_set(
@@ -788,7 +755,7 @@ int libpff_folder_determine_sub_associated_contents(
 		sub_associated_contents_descriptor_identifier = internal_item->item_descriptor->descriptor_identifier + 13;
 
 		result = libpff_descriptors_index_get_index_value_by_identifier(
-			  internal_item->internal_file->descriptors_index,
+			  internal_item->descriptors_index,
 			  internal_item->file_io_handle,
 			  sub_associated_contents_descriptor_identifier,
 			  internal_item->item_descriptor->recovered,
@@ -1182,7 +1149,7 @@ int libpff_folder_get_number_of_sub_folders(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -1270,12 +1237,11 @@ int libpff_folder_get_sub_folder(
      libpff_item_t **sub_folder,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_folder_tree_node           = NULL;
-	libpff_internal_item_t *internal_item                = NULL;
-	libpff_item_descriptor_t *sub_folder_item_descriptor = NULL;
-	libpff_record_entry_t *record_entry                  = NULL;
-	static char *function                                = "libpff_folder_get_sub_folder";
-	uint32_t sub_folder_descriptor_identifier            = 0;
+	libcdata_tree_node_t *sub_folder_tree_node = NULL;
+	libpff_internal_item_t *internal_item      = NULL;
+	libpff_record_entry_t *record_entry        = NULL;
+	static char *function                      = "libpff_folder_get_sub_folder";
+	uint32_t sub_folder_descriptor_identifier  = 0;
 
 	if( folder == NULL )
 	{
@@ -1292,7 +1258,7 @@ int libpff_folder_get_sub_folder(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -1410,29 +1376,15 @@ int libpff_folder_get_sub_folder(
 
 			return( -1 );
 		}
-		if( libcdata_tree_node_get_value(
-		     sub_folder_tree_node,
-		     (intptr_t **) &sub_folder_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve sub folder item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     sub_folder,
 		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
 		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
 		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     sub_folder_tree_node,
-		     sub_folder_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
@@ -1472,15 +1424,14 @@ int libpff_folder_get_sub_folder_by_utf8_name(
      libpff_item_t **sub_folder,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_folder_tree_node           = NULL;
-	libpff_internal_item_t *internal_item                = NULL;
-	libpff_item_descriptor_t *sub_folder_item_descriptor = NULL;
-	libpff_record_entry_t *record_entry                  = NULL;
-	static char *function                                = "libpff_folder_get_sub_folder_by_utf8_name";
-	uint32_t sub_folder_descriptor_identifier            = 0;
-	int number_of_sub_folders                            = 0;
-	int result                                           = 0;
-	int sub_folder_index                                 = 0;
+	libcdata_tree_node_t *sub_folder_tree_node = NULL;
+	libpff_internal_item_t *internal_item      = NULL;
+	libpff_record_entry_t *record_entry        = NULL;
+	static char *function                      = "libpff_folder_get_sub_folder_by_utf8_name";
+	uint32_t sub_folder_descriptor_identifier  = 0;
+	int number_of_sub_folders                  = 0;
+	int result                                 = 0;
+	int sub_folder_index                       = 0;
 
 	if( folder == NULL )
 	{
@@ -1497,7 +1448,7 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -1708,29 +1659,15 @@ int libpff_folder_get_sub_folder_by_utf8_name(
 
 			return( -1 );
 		}
-		if( libcdata_tree_node_get_value(
-		     sub_folder_tree_node,
-		     (intptr_t **) &sub_folder_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve sub folder item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     sub_folder,
 		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
 		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
 		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     sub_folder_tree_node,
-		     sub_folder_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
@@ -1770,15 +1707,14 @@ int libpff_folder_get_sub_folder_by_utf16_name(
      libpff_item_t **sub_folder,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_folder_tree_node           = NULL;
-	libpff_internal_item_t *internal_item                = NULL;
-	libpff_item_descriptor_t *sub_folder_item_descriptor = NULL;
-	libpff_record_entry_t *record_entry                  = NULL;
-	static char *function                                = "libpff_folder_get_sub_folder_by_utf16_name";
-	uint32_t sub_folder_descriptor_identifier            = 0;
-	int number_of_sub_folders                            = 0;
-	int result                                           = 0;
-	int sub_folder_index                                 = 0;
+	libcdata_tree_node_t *sub_folder_tree_node = NULL;
+	libpff_internal_item_t *internal_item      = NULL;
+	libpff_record_entry_t *record_entry        = NULL;
+	static char *function                      = "libpff_folder_get_sub_folder_by_utf16_name";
+	uint32_t sub_folder_descriptor_identifier  = 0;
+	int number_of_sub_folders                  = 0;
+	int result                                 = 0;
+	int sub_folder_index                       = 0;
 
 	if( folder == NULL )
 	{
@@ -1795,7 +1731,7 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -2006,29 +1942,15 @@ int libpff_folder_get_sub_folder_by_utf16_name(
 
 			return( -1 );
 		}
-		if( libcdata_tree_node_get_value(
-		     sub_folder_tree_node,
-		     (intptr_t **) &sub_folder_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve sub folder item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     sub_folder,
 		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
 		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
 		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     sub_folder_tree_node,
-		     sub_folder_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
@@ -2065,12 +1987,11 @@ int libpff_folder_get_sub_folders(
      libpff_item_t **sub_folders,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_folders_item_tree_node      = NULL;
-	libpff_internal_item_t *internal_item                 = NULL;
-	libpff_item_descriptor_t *sub_folders_item_descriptor = NULL;
-	static char *function                                 = "libpff_folder_get_sub_folders";
-	uint32_t sub_folders_descriptor_identifier            = 0;
-	int result                                            = 0;
+	libcdata_tree_node_t *sub_folders_item_tree_node = NULL;
+	libpff_internal_item_t *internal_item            = NULL;
+	static char *function                            = "libpff_folder_get_sub_folders";
+	uint32_t sub_folders_descriptor_identifier       = 0;
+	int result                                       = 0;
 
 	if( folder == NULL )
 	{
@@ -2085,20 +2006,9 @@ int libpff_folder_get_sub_folders(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -2168,8 +2078,8 @@ int libpff_folder_get_sub_folders(
 	}
 	/* Determine the sub folders item descriptor identifier
 	 */
-	if( libpff_item_tree_get_identifier(
-	     internal_item->item_tree_node,
+	if( libpff_item_descriptor_get_descriptor_identifier(
+	     internal_item->item_descriptor,
 	     &sub_folders_descriptor_identifier,
 	     error ) != 1 )
 	{
@@ -2187,7 +2097,7 @@ int libpff_folder_get_sub_folders(
 	/* Find sub folders tree node
 	 */
 	result = libpff_item_tree_get_node_by_identifier(
-	          internal_item->internal_file->item_tree,
+	          internal_item->item_tree,
 	          sub_folders_descriptor_identifier,
 	          &sub_folders_item_tree_node,
 	          error );
@@ -2208,29 +2118,15 @@ int libpff_folder_get_sub_folders(
 	{
 		return( 0 );
 	}
-	if( libcdata_tree_node_get_value(
-	     sub_folders_item_tree_node,
-	     (intptr_t **) &sub_folders_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve sub folders item descriptor.",
-		 function );
-
-		goto on_error;
-	}
 	if( libpff_item_initialize(
 	     sub_folders,
 	     internal_item->io_handle,
 	     internal_item->file_io_handle,
-	     internal_item->internal_file,
 	     internal_item->name_to_id_map_list,
+	     internal_item->descriptors_index,
 	     internal_item->offsets_index,
+	     internal_item->item_tree,
 	     sub_folders_item_tree_node,
-	     sub_folders_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -2310,7 +2206,7 @@ int libpff_folder_get_number_of_sub_messages(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -2398,12 +2294,11 @@ int libpff_folder_get_sub_message(
      libpff_item_t **sub_message,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_message_tree_node           = NULL;
-	libpff_internal_item_t *internal_item                 = NULL;
-	libpff_item_descriptor_t *sub_message_item_descriptor = NULL;
-	libpff_record_entry_t *record_entry                   = NULL;
-	static char *function                                 = "libpff_folder_get_sub_message";
-	uint32_t sub_message_descriptor_identifier            = 0;
+	libcdata_tree_node_t *sub_message_tree_node = NULL;
+	libpff_internal_item_t *internal_item       = NULL;
+	libpff_record_entry_t *record_entry         = NULL;
+	static char *function                       = "libpff_folder_get_sub_message";
+	uint32_t sub_message_descriptor_identifier  = 0;
 
 	if( folder == NULL )
 	{
@@ -2420,7 +2315,7 @@ int libpff_folder_get_sub_message(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -2537,29 +2432,15 @@ int libpff_folder_get_sub_message(
 
 			return( -1 );
 		}
-		if( libcdata_tree_node_get_value(
-		     sub_message_tree_node,
-		     (intptr_t **) &sub_message_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve sub message item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     sub_message,
 		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
 		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
 		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     sub_message_tree_node,
-		     sub_message_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
@@ -2599,15 +2480,14 @@ int libpff_folder_get_sub_message_by_utf8_name(
      libpff_item_t **sub_message,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_message_tree_node           = NULL;
-	libpff_internal_item_t *internal_item                 = NULL;
-	libpff_item_descriptor_t *sub_message_item_descriptor = NULL;
-	libpff_record_entry_t *record_entry                   = NULL;
-	static char *function                                 = "libpff_folder_get_sub_message_by_utf8_name";
-	uint32_t sub_message_descriptor_identifier            = 0;
-	int number_of_sub_messages                            = 0;
-	int result                                            = 0;
-	int sub_message_index                                 = 0;
+	libcdata_tree_node_t *sub_message_tree_node = NULL;
+	libpff_internal_item_t *internal_item       = NULL;
+	libpff_record_entry_t *record_entry         = NULL;
+	static char *function                       = "libpff_folder_get_sub_message_by_utf8_name";
+	uint32_t sub_message_descriptor_identifier  = 0;
+	int number_of_sub_messages                  = 0;
+	int result                                  = 0;
+	int sub_message_index                       = 0;
 
 	if( folder == NULL )
 	{
@@ -2624,7 +2504,7 @@ int libpff_folder_get_sub_message_by_utf8_name(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -2834,29 +2714,15 @@ int libpff_folder_get_sub_message_by_utf8_name(
 
 			return( -1 );
 		}
-		if( libcdata_tree_node_get_value(
-		     sub_message_tree_node,
-		     (intptr_t **) &sub_message_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve sub message item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     sub_message,
 		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
 		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
 		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     sub_message_tree_node,
-		     sub_message_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
@@ -2896,15 +2762,14 @@ int libpff_folder_get_sub_message_by_utf16_name(
      libpff_item_t **sub_message,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_message_tree_node           = NULL;
-	libpff_internal_item_t *internal_item                 = NULL;
-	libpff_item_descriptor_t *sub_message_item_descriptor = NULL;
-	libpff_record_entry_t *record_entry                   = NULL;
-	static char *function                                 = "libpff_folder_get_sub_message_by_utf16_name";
-	uint32_t sub_message_descriptor_identifier            = 0;
-	int number_of_sub_messages                            = 0;
-	int result                                            = 0;
-	int sub_message_index                                 = 0;
+	libcdata_tree_node_t *sub_message_tree_node = NULL;
+	libpff_internal_item_t *internal_item       = NULL;
+	libpff_record_entry_t *record_entry         = NULL;
+	static char *function                       = "libpff_folder_get_sub_message_by_utf16_name";
+	uint32_t sub_message_descriptor_identifier  = 0;
+	int number_of_sub_messages                  = 0;
+	int result                                  = 0;
+	int sub_message_index                       = 0;
 
 	if( folder == NULL )
 	{
@@ -2921,7 +2786,7 @@ int libpff_folder_get_sub_message_by_utf16_name(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -3131,29 +2996,15 @@ int libpff_folder_get_sub_message_by_utf16_name(
 
 			return( -1 );
 		}
-		if( libcdata_tree_node_get_value(
-		     sub_message_tree_node,
-		     (intptr_t **) &sub_message_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve sub message item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     sub_message,
 		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
 		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
 		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     sub_message_tree_node,
-		     sub_message_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
@@ -3190,12 +3041,11 @@ int libpff_folder_get_sub_messages(
      libpff_item_t **sub_messages,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_messages_item_tree_node      = NULL;
-	libpff_internal_item_t *internal_item                  = NULL;
-	libpff_item_descriptor_t *sub_messages_item_descriptor = NULL;
-	static char *function                                  = "libpff_folder_get_sub_messages";
-	uint32_t sub_messages_descriptor_identifier            = 0;
-	int result                                             = 0;
+	libcdata_tree_node_t *sub_messages_item_tree_node = NULL;
+	libpff_internal_item_t *internal_item             = NULL;
+	static char *function                             = "libpff_folder_get_sub_messages";
+	uint32_t sub_messages_descriptor_identifier       = 0;
+	int result                                        = 0;
 
 	if( folder == NULL )
 	{
@@ -3210,20 +3060,9 @@ int libpff_folder_get_sub_messages(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -3293,8 +3132,8 @@ int libpff_folder_get_sub_messages(
 	}
 	/* Determine the sub messages item descriptor identifier
 	 */
-	if( libpff_item_tree_get_identifier(
-	     internal_item->item_tree_node,
+	if( libpff_item_descriptor_get_descriptor_identifier(
+	     internal_item->item_descriptor,
 	     &sub_messages_descriptor_identifier,
 	     error ) != 1 )
 	{
@@ -3312,7 +3151,7 @@ int libpff_folder_get_sub_messages(
 	/* Find sub messages tree node
 	 */
 	result = libpff_item_tree_get_node_by_identifier(
-	          internal_item->internal_file->item_tree,
+	          internal_item->item_tree,
 	          sub_messages_descriptor_identifier,
 	          &sub_messages_item_tree_node,
 	          error );
@@ -3333,29 +3172,15 @@ int libpff_folder_get_sub_messages(
 	{
 		return( 0 );
 	}
-	if( libcdata_tree_node_get_value(
-	     sub_messages_item_tree_node,
-	     (intptr_t **) &sub_messages_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve sub messages item descriptor.",
-		 function );
-
-		goto on_error;
-	}
 	if( libpff_item_initialize(
 	     sub_messages,
 	     internal_item->io_handle,
 	     internal_item->file_io_handle,
-	     internal_item->internal_file,
 	     internal_item->name_to_id_map_list,
+	     internal_item->descriptors_index,
 	     internal_item->offsets_index,
+	     internal_item->item_tree,
 	     sub_messages_item_tree_node,
-	     sub_messages_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -3435,7 +3260,7 @@ int libpff_folder_get_number_of_sub_associated_contents(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -3523,12 +3348,11 @@ int libpff_folder_get_sub_associated_content(
      libpff_item_t **sub_associated_content,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_associated_content_tree_node           = NULL;
-	libpff_internal_item_t *internal_item                            = NULL;
-	libpff_item_descriptor_t *sub_associated_content_item_descriptor = NULL;
-	libpff_record_entry_t *record_entry                              = NULL;
-	static char *function                                            = "libpff_folder_get_sub_associated_content";
-	uint32_t sub_associated_content_descriptor_identifier            = 0;
+	libcdata_tree_node_t *sub_associated_content_tree_node = NULL;
+	libpff_internal_item_t *internal_item                  = NULL;
+	libpff_record_entry_t *record_entry                    = NULL;
+	static char *function                                  = "libpff_folder_get_sub_associated_content";
+	uint32_t sub_associated_content_descriptor_identifier  = 0;
 
 	if( folder == NULL )
 	{
@@ -3545,7 +3369,7 @@ int libpff_folder_get_sub_associated_content(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -3662,29 +3486,15 @@ int libpff_folder_get_sub_associated_content(
 
 			return( -1 );
 		}
-		if( libcdata_tree_node_get_value(
-		     sub_associated_content_tree_node,
-		     (intptr_t **) &sub_associated_content_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve sub associated content item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     sub_associated_content,
 		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
 		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
 		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     sub_associated_content_tree_node,
-		     sub_associated_content_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
@@ -3721,12 +3531,11 @@ int libpff_folder_get_sub_associated_contents(
      libpff_item_t **sub_associated_contents,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *sub_associated_contents_item_tree_node      = NULL;
-	libpff_internal_item_t *internal_item                             = NULL;
-	libpff_item_descriptor_t *sub_associated_contents_item_descriptor = NULL;
-	static char *function                                             = "libpff_folder_get_sub_associated_contents";
-	uint32_t sub_associated_contents_descriptor_identifier            = 0;
-	int result                                                        = 0;
+	libcdata_tree_node_t *sub_associated_contents_item_tree_node = NULL;
+	libpff_internal_item_t *internal_item                        = NULL;
+	static char *function                                        = "libpff_folder_get_sub_associated_contents";
+	uint32_t sub_associated_contents_descriptor_identifier       = 0;
+	int result                                                   = 0;
 
 	if( folder == NULL )
 	{
@@ -3741,20 +3550,9 @@ int libpff_folder_get_sub_associated_contents(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -3824,8 +3622,8 @@ int libpff_folder_get_sub_associated_contents(
 	}
 	/* Determine the sub associated contents item descriptor identifier
 	 */
-	if( libpff_item_tree_get_identifier(
-	     internal_item->item_tree_node,
+	if( libpff_item_descriptor_get_descriptor_identifier(
+	     internal_item->item_descriptor,
 	     &sub_associated_contents_descriptor_identifier,
 	     error ) != 1 )
 	{
@@ -3843,7 +3641,7 @@ int libpff_folder_get_sub_associated_contents(
 	/* Find sub associated contents tree node
 	 */
 	result = libpff_item_tree_get_node_by_identifier(
-	          internal_item->internal_file->item_tree,
+	          internal_item->item_tree,
 	          sub_associated_contents_descriptor_identifier,
 	          &sub_associated_contents_item_tree_node,
 	          error );
@@ -3864,29 +3662,15 @@ int libpff_folder_get_sub_associated_contents(
 	{
 		return( 0 );
 	}
-	if( libcdata_tree_node_get_value(
-	     sub_associated_contents_item_tree_node,
-	     (intptr_t **) &sub_associated_contents_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve sub associated contents item descriptor.",
-		 function );
-
-		goto on_error;
-	}
 	if( libpff_item_initialize(
 	     sub_associated_contents,
 	     internal_item->io_handle,
 	     internal_item->file_io_handle,
-	     internal_item->internal_file,
 	     internal_item->name_to_id_map_list,
+	     internal_item->descriptors_index,
 	     internal_item->offsets_index,
+	     internal_item->item_tree,
 	     sub_associated_contents_item_tree_node,
-	     sub_associated_contents_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -3948,9 +3732,8 @@ int libpff_folder_get_unknowns(
      libpff_item_t **unknowns,
      libcerror_error_t **error )
 {
-	libpff_internal_item_t *internal_item              = NULL;
-	libpff_item_descriptor_t *unknowns_item_descriptor = NULL;
-	static char *function                              = "libpff_folder_get_unknowns";
+	libpff_internal_item_t *internal_item = NULL;
+	static char *function                 = "libpff_folder_get_unknowns";
 
 	if( folder == NULL )
 	{
@@ -3965,20 +3748,9 @@ int libpff_folder_get_unknowns(
 	}
 	internal_item = (libpff_internal_item_t *) folder;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid folder - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -4046,29 +3818,15 @@ int libpff_folder_get_unknowns(
 	{
 		return( 0 );
 	}
-	if( libcdata_tree_node_get_value(
-	     internal_item->sub_item_tree_node[ LIBPFF_FOLDER_SUB_ITEM_UNKNOWNS ],
-	     (intptr_t **) &unknowns_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve unknowns item descriptor.",
-		 function );
-
-		goto on_error;
-	}
 	if( libpff_item_initialize(
 	     unknowns,
 	     internal_item->io_handle,
 	     internal_item->file_io_handle,
-	     internal_item->internal_file,
 	     internal_item->name_to_id_map_list,
+	     internal_item->descriptors_index,
 	     internal_item->offsets_index,
+	     internal_item->item_tree,
 	     internal_item->sub_item_tree_node[ LIBPFF_FOLDER_SUB_ITEM_UNKNOWNS ],
-	     unknowns_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT | LIBPFF_ITEM_FLAG_MANAGED_ITEM_TREE_NODE,
 	     error ) != 1 )
 	{

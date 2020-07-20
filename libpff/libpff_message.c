@@ -984,7 +984,6 @@ int libpff_message_determine_attachments(
      libpff_internal_item_t *internal_item,
      libcerror_error_t **error )
 {
-	libpff_item_descriptor_t *item_descriptor               = NULL;
 	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
 	static char *function                                   = "libpff_message_determine_attachments";
 	int attachment_index                                    = 0;
@@ -1013,6 +1012,17 @@ int libpff_message_determine_attachments(
 
 		return( -1 );
 	}
+	if( internal_item->item_descriptor == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing item descriptor.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_ATTACHMENTS ] != NULL )
 	{
 		libcerror_error_set(
@@ -1020,31 +1030,6 @@ int libpff_message_determine_attachments(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: attachments sub item tree node already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( libcdata_tree_node_get_value(
-	     internal_item->item_tree_node,
-	     (intptr_t **) &item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve item descriptor.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_descriptor == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing item descriptor.",
 		 function );
 
 		return( -1 );
@@ -1060,7 +1045,7 @@ int libpff_message_determine_attachments(
 			libcnotify_printf(
 			 "%s: reading item values of descriptor: %" PRIu32 "\n",
 			 function,
-			 item_descriptor->descriptor_identifier );
+			 internal_item->item_descriptor->descriptor_identifier );
 		}
 #endif
 		if( libpff_item_values_read(
@@ -1118,7 +1103,7 @@ int libpff_message_determine_attachments(
 	{
 		if( libpff_message_initialize_sub_item_attachments(
 		     internal_item,
-		     item_descriptor,
+		     internal_item->item_descriptor,
 		     local_descriptor_value,
 		     error ) != 1 )
 		{
@@ -1155,7 +1140,7 @@ int libpff_message_determine_attachments(
 		{
 			if( libpff_message_determine_attachment(
 			     internal_item,
-			     item_descriptor,
+			     internal_item->item_descriptor,
 			     attachment_index,
 			     error ) != 1 )
 			{
@@ -1200,7 +1185,7 @@ int libpff_message_get_number_of_attachments(
 
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -1289,10 +1274,9 @@ int libpff_message_get_attachment(
      libpff_item_t **attachment,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *attachment_tree_node           = NULL;
-	libpff_internal_item_t *internal_item                = NULL;
-	libpff_item_descriptor_t *attachment_item_descriptor = NULL;
-	static char *function                                = "libpff_message_get_attachment";
+	libcdata_tree_node_t *attachment_tree_node = NULL;
+	libpff_internal_item_t *internal_item      = NULL;
+	static char *function                      = "libpff_message_get_attachment";
 
 	if( message == NULL )
 	{
@@ -1320,7 +1304,7 @@ int libpff_message_get_attachment(
 	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -1415,29 +1399,15 @@ int libpff_message_get_attachment(
 
 			return( -1 );
 		}
-		if( libcdata_tree_node_get_value(
-		     attachment_tree_node,
-		     (intptr_t **) &attachment_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve attachment item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     attachment,
 		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
 		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
 		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     attachment_tree_node,
-		     attachment_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT | LIBPFF_ITEM_FLAG_MANAGED_ITEM_TREE_NODE,
 		     error ) != 1 )
 		{
@@ -1474,9 +1444,8 @@ int libpff_message_get_attachments(
      libpff_item_t **attachments,
      libcerror_error_t **error )
 {
-	libpff_internal_item_t *internal_item                 = NULL;
-	libpff_item_descriptor_t *attachments_item_descriptor = NULL;
-	static char *function                                 = "libpff_message_get_attachments";
+	libpff_internal_item_t *internal_item = NULL;
+	static char *function                 = "libpff_message_get_attachments";
 
 	if( message == NULL )
 	{
@@ -1504,7 +1473,7 @@ int libpff_message_get_attachments(
 	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -1575,29 +1544,15 @@ int libpff_message_get_attachments(
 	{
 		return( 0 );
 	}
-	if( libcdata_tree_node_get_value(
-	     internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_ATTACHMENTS ],
-	     (intptr_t **) &attachments_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve attachments item descriptor.",
-		 function );
-
-		goto on_error;
-	}
 	if( libpff_item_initialize(
 	     attachments,
 	     internal_item->io_handle,
 	     internal_item->file_io_handle,
-	     internal_item->internal_file,
 	     internal_item->name_to_id_map_list,
+	     internal_item->descriptors_index,
 	     internal_item->offsets_index,
+	     internal_item->item_tree,
 	     internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_ATTACHMENTS ],
-	     attachments_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT | LIBPFF_ITEM_FLAG_MANAGED_ITEM_TREE_NODE,
 	     error ) != 1 )
 	{
@@ -1658,7 +1613,6 @@ int libpff_message_determine_recipients(
      libpff_internal_item_t *internal_item,
      libcerror_error_t **error )
 {
-	libpff_item_descriptor_t *item_descriptor               = NULL;
 	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
 	static char *function                                   = "libpff_message_determine_recipients";
 	int result                                              = 0;
@@ -1685,6 +1639,17 @@ int libpff_message_determine_recipients(
 
 		return( -1 );
 	}
+	if( internal_item->item_descriptor == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing item descriptor.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ] != NULL )
 	{
 		libcerror_error_set(
@@ -1692,31 +1657,6 @@ int libpff_message_determine_recipients(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: recipients sub item tree node already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( libcdata_tree_node_get_value(
-	     internal_item->item_tree_node,
-	     (intptr_t **) &item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve item descriptor.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_descriptor == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing item descriptor.",
 		 function );
 
 		return( -1 );
@@ -1731,7 +1671,7 @@ int libpff_message_determine_recipients(
 			libcnotify_printf(
 			 "%s: reading item values of descriptor: %" PRIu32 "\n",
 			 function,
-			 item_descriptor->descriptor_identifier );
+			 internal_item->item_descriptor->descriptor_identifier );
 		}
 #endif
 		if( libpff_item_values_read(
@@ -1789,7 +1729,7 @@ int libpff_message_determine_recipients(
 	{
 		if( libpff_message_initialize_sub_item_recipients(
 		     internal_item,
-		     item_descriptor,
+		     internal_item->item_descriptor,
 		     local_descriptor_value,
 		     error ) != 1 )
 		{
@@ -1817,9 +1757,8 @@ int libpff_message_get_recipients(
      libpff_item_t **recipients,
      libcerror_error_t **error )
 {
-	libpff_internal_item_t *internal_item                = NULL;
-	libpff_item_descriptor_t *recipients_item_descriptor = NULL;
-	static char *function                                = "libpff_message_get_recipients";
+	libpff_internal_item_t *internal_item = NULL;
+	static char *function                 = "libpff_message_get_recipients";
 
 	if( message == NULL )
 	{
@@ -1847,7 +1786,7 @@ int libpff_message_get_recipients(
 	}
 	if( internal_item->type == LIBPFF_ITEM_TYPE_UNDEFINED )
 	{
-		if( libpff_item_determine_type(
+		if( libpff_internal_item_determine_type(
 		     internal_item,
 		     error ) != 1 )
 		{
@@ -1918,29 +1857,15 @@ int libpff_message_get_recipients(
 	{
 		return( 0 );
 	}
-	if( libcdata_tree_node_get_value(
-	     internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ],
-	     (intptr_t **) &recipients_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve recipients item descriptor.",
-		 function );
-
-		goto on_error;
-	}
 	if( libpff_item_initialize(
 	     recipients,
 	     internal_item->io_handle,
 	     internal_item->file_io_handle,
-	     internal_item->internal_file,
 	     internal_item->name_to_id_map_list,
+	     internal_item->descriptors_index,
 	     internal_item->offsets_index,
+	     internal_item->item_tree,
 	     internal_item->sub_item_tree_node[ LIBPFF_MESSAGE_SUB_ITEM_RECIPIENTS ],
-	     recipients_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT | LIBPFF_ITEM_FLAG_MANAGED_ITEM_TREE_NODE,
 	     error ) != 1 )
 	{

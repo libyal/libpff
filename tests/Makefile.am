@@ -361,6 +361,7 @@ pff_test_item_SOURCES = \
 	pff_test_unused.h
 
 pff_test_item_LDADD = \
+	@LIBCDATA_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 

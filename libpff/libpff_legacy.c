@@ -43,10 +43,9 @@ int libpff_file_get_orphan_item(
      libpff_item_t **orphan_item,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *orphan_item_tree_node      = NULL;
-	libpff_internal_file_t *internal_file            = NULL;
-	libpff_item_descriptor_t *orphan_item_descriptor = NULL;
-	static char *function                            = "libpff_file_get_orphan_item";
+	libcdata_tree_node_t *orphan_item_tree_node = NULL;
+	libpff_internal_file_t *internal_file       = NULL;
+	static char *function                       = "libpff_file_get_orphan_item";
 
 	if( file == NULL )
 	{
@@ -99,29 +98,15 @@ int libpff_file_get_orphan_item(
 
 		return( -1 );
 	}
-	if( libcdata_tree_node_get_value(
-	     orphan_item_tree_node,
-	     (intptr_t **) &orphan_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve orphan item descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libpff_item_initialize(
 	     orphan_item,
 	     internal_file->io_handle,
 	     internal_file->file_io_handle,
-	     internal_file,
 	     internal_file->name_to_id_map_list,
+	     internal_file->descriptors_index,
 	     internal_file->offsets_index,
+	     internal_file->item_tree,
 	     orphan_item_tree_node,
-	     orphan_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -146,10 +131,9 @@ int libpff_file_get_recovered_item(
      libpff_item_t **recovered_item,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *recovered_item_tree_node      = NULL;
-	libpff_internal_file_t *internal_file               = NULL;
-	libpff_item_descriptor_t *recovered_item_descriptor = NULL;
-	static char *function                               = "libpff_file_get_recovered_item";
+	libcdata_tree_node_t *recovered_item_tree_node = NULL;
+	libpff_internal_file_t *internal_file          = NULL;
+	static char *function                          = "libpff_file_get_recovered_item";
 
 	if( file == NULL )
 	{
@@ -202,29 +186,15 @@ int libpff_file_get_recovered_item(
 
 		return( -1 );
 	}
-	if( libcdata_tree_node_get_value(
-	     recovered_item_tree_node,
-	     (intptr_t **) &recovered_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve recovered item descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libpff_item_initialize(
 	     recovered_item,
 	     internal_file->io_handle,
 	     internal_file->file_io_handle,
-	     internal_file,
 	     internal_file->name_to_id_map_list,
+	     internal_file->descriptors_index,
 	     internal_file->offsets_index,
+	     internal_file->item_tree,
 	     recovered_item_tree_node,
-	     recovered_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -535,7 +505,7 @@ int libpff_item_get_value_type(
 /* Retrieves the value of a specific entry
  *
  * The value type must be filled with the corresponding value type
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type

@@ -69,11 +69,6 @@ int libpff_item_tree_get_sub_node_by_identifier(
      libcdata_tree_node_t **sub_node,
      libcerror_error_t **error );
 
-int libpff_item_tree_get_identifier(
-     libcdata_tree_node_t *item_tree_node,
-     uint32_t *identifier,
-     libcerror_error_t **error );
-
 int libpff_item_tree_append_identifier(
      libcdata_tree_node_t *item_tree_node,
      uint32_t descriptor_identifier,

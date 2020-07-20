@@ -530,69 +530,6 @@ int libpff_item_tree_get_sub_node_by_identifier(
 	return( result );
 }
 
-/* Retrieves the identifier of the item
- * Returns 1 if successful or -1 on error
- */
-int libpff_item_tree_get_identifier(
-     libcdata_tree_node_t *item_tree_node,
-     uint32_t *identifier,
-     libcerror_error_t **error )
-{
-	libpff_item_descriptor_t *item_descriptor = NULL;
-	static char *function                     = "libpff_item_tree_get_identifier";
-
-	if( item_tree_node == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid item tree node.",
-		 function );
-
-		return( -1 );
-	}
-	if( identifier == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid identifier.",
-		 function );
-
-		return( -1 );
-	}
-	if( libcdata_tree_node_get_value(
-	     item_tree_node,
-	     (intptr_t **) &item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve item descriptor.",
-		 function );
-
-		return( -1 );
-	}
-	if( item_descriptor == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing item descriptor.",
-		 function );
-
-		return( -1 );
-	}
-	*identifier = item_descriptor->descriptor_identifier;
-
-	return( 1 );
-}
-
 /* Appends the identifier of the item
  * Returns 1 if successful or -1 on error
  */

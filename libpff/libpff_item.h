@@ -25,10 +25,12 @@
 #include <common.h>
 #include <types.h>
 
+#include "libpff_descriptors_index.h"
 #include "libpff_extern.h"
 #include "libpff_file.h"
 #include "libpff_io_handle.h"
 #include "libpff_item_descriptor.h"
+#include "libpff_item_tree.h"
 #include "libpff_item_values.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
@@ -52,10 +54,6 @@ struct libpff_internal_item
 	 */
 	libbfio_handle_t *file_io_handle;
 
-	/* The internal file
-	 */
-	libpff_internal_file_t *internal_file;
-
 	/* The IO handle
 	 */
 	libpff_io_handle_t *io_handle;
@@ -64,9 +62,17 @@ struct libpff_internal_item
 	 */
 	libcdata_list_t *name_to_id_map_list;
 
+	/* The descriptors index
+	 */
+	libpff_descriptors_index_t *descriptors_index;
+
 	/* The offsets index
 	 */
 	libpff_offsets_index_t *offsets_index;
+
+	/* The item tree
+	 */
+	libpff_item_tree_t *item_tree;
 
 	/* The item tree node
 	 */
@@ -117,11 +123,11 @@ int libpff_item_initialize(
      libpff_item_t **item,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     libpff_internal_file_t *internal_file,
      libcdata_list_t *name_to_id_map_list,
+     libpff_descriptors_index_t *descriptors_index,
      libpff_offsets_index_t *offsets_index,
+     libpff_item_tree_t *item_tree,
      libcdata_tree_node_t *item_tree_node,
-     libpff_item_descriptor_t *item_descriptor,
      uint8_t flags,
      libcerror_error_t **error );
 
@@ -136,7 +142,7 @@ int libpff_item_clone(
      libpff_item_t *source_item,
      libcerror_error_t **error );
 
-int libpff_item_determine_type(
+int libpff_internal_item_determine_type(
      libpff_internal_item_t *internal_item,
      libcerror_error_t **error );
 

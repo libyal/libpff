@@ -520,8 +520,6 @@ int main(
 	 "libpff_item_tree_get_sub_node_by_identifier",
 	 pff_test_item_tree_get_sub_node_by_identifier );
 
-	/* TODO: add tests for libpff_item_tree_get_identifier */
-
 	/* TODO: add tests for libpff_item_tree_append_identifier */
 
 	/* TODO: add tests for libpff_item_tree_create */

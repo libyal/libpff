@@ -731,7 +731,6 @@ int libpff_attachment_get_item(
 {
 	libcdata_tree_node_t *embedded_item_tree_node           = NULL;
 	libpff_internal_item_t *internal_item                   = NULL;
-	libpff_item_descriptor_t *embedded_item_descriptor      = NULL;
 	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
 	libpff_record_entry_t *record_entry                     = NULL;
 	libpff_record_set_t *record_set                         = NULL;
@@ -756,17 +755,6 @@ int libpff_attachment_get_item(
 	}
 	internal_item = (libpff_internal_item_t *) attachment;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid attachment - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_values == NULL )
 	{
 		libcerror_error_set(
@@ -859,7 +847,7 @@ int libpff_attachment_get_item(
 /* TODO add support for recovered embedded items */
 
 		result = libpff_item_tree_get_node_by_identifier(
-			  internal_item->internal_file->item_tree,
+			  internal_item->item_tree,
 			  embedded_object_item_identifier,
 			  &embedded_item_tree_node,
 			  error );
@@ -997,29 +985,15 @@ int libpff_attachment_get_item(
 				goto on_error;
 			}
 		}
-		if( libcdata_tree_node_get_value(
-		     embedded_item_tree_node,
-		     (intptr_t **) &embedded_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve embedded item descriptor.",
-			 function );
-
-			goto on_error;
-		}
 		if( libpff_item_initialize(
 		     attached_item,
 		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
 		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
 		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     embedded_item_tree_node,
-		     embedded_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{

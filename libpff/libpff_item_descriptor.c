@@ -261,3 +261,40 @@ int libpff_item_descriptor_compare(
 	return( LIBCDATA_COMPARE_EQUAL );
 }
 
+/* Retrieves the descriptor identifier of the item
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_item_descriptor_get_descriptor_identifier(
+     libpff_item_descriptor_t *item_descriptor,
+     uint32_t *identifier,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_item_descriptor_get_descriptor_identifier";
+
+	if( item_descriptor == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing item descriptor.",
+		 function );
+
+		return( -1 );
+	}
+	if( identifier == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid identifier.",
+		 function );
+
+		return( -1 );
+	}
+	*identifier = item_descriptor->descriptor_identifier;
+
+	return( 1 );
+}
+
