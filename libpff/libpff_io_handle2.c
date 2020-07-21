@@ -76,6 +76,7 @@ int libpff_io_handle_read_descriptor_data_list(
 	libpff_data_block_t *data_block          = NULL;
 	libpff_index_value_t *offset_index_value = NULL;
 	static char *function                    = "libpff_io_handle_read_descriptor_data_list";
+	uint32_t total_data_size                 = 0;
 	int element_index                        = 0;
 
 	if( io_handle == NULL )
@@ -290,7 +291,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		}
 		/* The data_array is now managed by the list */
 
-		if( libpff_data_array_read(
+		if( libpff_data_array_read_entries(
 		     data_array,
 		     io_handle,
 		     file_io_handle,
@@ -299,13 +300,14 @@ int libpff_io_handle_read_descriptor_data_list(
 		     recovered,
 		     data_block->data,
 		     (size_t) offset_index_value->data_size,
+		     &total_data_size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read data array.",
+			 "%s: unable to read data array entries.",
 			 function );
 
 			data_array = NULL;

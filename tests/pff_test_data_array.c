@@ -553,8 +553,6 @@ int main(
 	 "libpff_data_array_clone",
 	 pff_test_data_array_clone );
 
-	/* TODO: add tests for libpff_data_array_read */
-
 	/* TODO: add tests for libpff_data_array_read_entries */
 
 	/* TODO: add tests for libpff_data_array_read_element_data */

@@ -81,17 +81,6 @@ int libpff_data_array_clone(
      libpff_data_array_t *source_data_array,
      libcerror_error_t **error );
 
-int libpff_data_array_read(
-     libpff_data_array_t *data_array,
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     libpff_offsets_index_t *offsets_index,
-     libfdata_list_t *descriptor_data_list,
-     uint8_t recovered,
-     uint8_t *array_data,
-     size_t array_data_size,
-     libcerror_error_t **error );
-
 int libpff_data_array_read_entries(
      libpff_data_array_t *data_array,
      libpff_io_handle_t *io_handle,

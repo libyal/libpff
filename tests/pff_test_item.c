@@ -1040,13 +1040,16 @@ int main(
 #endif
 {
 #if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 	libcdata_tree_node_t *item_tree_node      = NULL;
 	libcerror_error_t *error                  = NULL;
 	libpff_io_handle_t *io_handle             = NULL;
 	libpff_item_t *item                       = NULL;
 	libpff_item_descriptor_t *item_descriptor = NULL;
 	int result                                = 0;
-#endif
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
 
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
@@ -1272,7 +1275,8 @@ int main(
 	return( EXIT_SUCCESS );
 
 on_error:
-#if defined( __GNUC__ ) && !defined( LIBEVT_DLL_IMPORT )
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	if( error != NULL )
 	{
@@ -1304,7 +1308,8 @@ on_error:
 		 &io_handle,
 		 NULL );
 	}
-#endif /* defined( __GNUC__ ) && !defined( LIBEVT_DLL_IMPORT ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
 
 	return( EXIT_FAILURE );
 }
