@@ -35,6 +35,7 @@
 #include "libpff_local_descriptor_value.h"
 #include "libpff_name_to_id_map.h"
 #include "libpff_offsets_index.h"
+#include "libpff_table_block_index.h"
 #include "libpff_table_index_value.h"
 #include "libpff_types.h"
 
@@ -274,6 +275,13 @@ int libpff_table_read(
      libpff_offsets_index_t *offsets_index,
      libcdata_list_t *name_to_id_map_list,
      int debug_item_type,
+     libcerror_error_t **error );
+
+int libpff_table_read_index_entries(
+     libpff_table_t *table,
+     libpff_data_block_t *data_block,
+     libpff_table_block_index_t *table_block_index,
+     uint32_t table_array_entry_iterator,
      libcerror_error_t **error );
 
 int libpff_table_read_index(

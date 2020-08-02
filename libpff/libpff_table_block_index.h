@@ -44,7 +44,6 @@ struct libpff_table_block_index
 
 int libpff_table_block_index_initialize(
      libpff_table_block_index_t **table_block_index,
-     uint16_t number_of_values,
      libcerror_error_t **error );
 
 int libpff_table_block_index_free(
@@ -62,9 +61,9 @@ int libpff_table_block_index_get_value_by_index(
      libpff_table_index_value_t **table_index_value,
      libcerror_error_t **error );
 
-int libpff_table_block_index_set_value_by_index(
+int libpff_table_block_index_append_value(
      libpff_table_block_index_t *table_block_index,
-     uint16_t value_index,
+     uint16_t *value_index,
      libpff_table_index_value_t *table_index_value,
      libcerror_error_t **error );
 

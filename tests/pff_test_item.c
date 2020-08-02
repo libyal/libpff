@@ -1175,7 +1175,7 @@ int main(
 	 "error",
 	 error );
 
-/* TODO implement
+/* TODO set up tests
 	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_internal_item_determine_type",
 	 pff_test_internal_item_determine_type,

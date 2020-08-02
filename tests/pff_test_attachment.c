@@ -33,6 +33,11 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
+#include "../libpff/libpff_attachment.h"
+#include "../libpff/libpff_io_handle.h"
+#include "../libpff/libpff_item.h"
+#include "../libpff/libpff_item_descriptor.h"
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -45,10 +50,128 @@ int main(
      char * const argv[] PFF_TEST_ATTRIBUTE_UNUSED )
 #endif
 {
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+	libcdata_tree_node_t *item_tree_node      = NULL;
+	libcerror_error_t *error                  = NULL;
+	libpff_io_handle_t *io_handle             = NULL;
+	libpff_item_t *item                       = NULL;
+	libpff_item_descriptor_t *item_descriptor = NULL;
+	int result                                = 0;
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
-	/* TODO: add tests for libpff_attachment_get_type */
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
+	/* Initialize test
+	 */
+	result = libpff_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_item_descriptor_initialize(
+	          &item_descriptor,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "item_descriptor",
+	 item_descriptor );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libcdata_tree_node_initialize(
+	          &item_tree_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "item_tree_node",
+	 item_tree_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libcdata_tree_node_set_value(
+	          item_tree_node,
+	          (intptr_t *) item_descriptor,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	item_descriptor = NULL;
+
+	result = libpff_item_initialize(
+	          &item,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          item_tree_node,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "item",
+	 item );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+/* TODO implement
+	PFF_TEST_RUN_WITH_ARGS(
+	 "libpff_attachment_get_type",
+	 pff_test_attachment_get_type,
+	 item );
+*/
 
 	/* TODO: add tests for libpff_attachment_get_data_size */
 
@@ -60,9 +183,102 @@ int main(
 
 	/* TODO: add tests for libpff_attachment_get_item */
 
+	/* Clean up
+	 */
+	result = libpff_item_free(
+	          &item,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "item",
+	 item );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libcdata_tree_node_free(
+	          &item_tree_node,
+	          (int (*)(intptr_t **, libcerror_error_t **)) &libpff_item_descriptor_free,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "item_tree_node",
+	 item_tree_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
 	return( EXIT_SUCCESS );
 
 on_error:
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( item != NULL )
+	{
+		libpff_item_free(
+		 &item,
+		 NULL );
+	}
+	if( item_tree_node != NULL )
+	{
+		libcdata_tree_node_free(
+		 &item_tree_node,
+		 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_item_descriptor_free,
+		 NULL );
+	}
+	if( item_descriptor != NULL )
+	{
+		libpff_item_descriptor_free(
+		 &item_descriptor,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libpff_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
 	return( EXIT_FAILURE );
 }
 

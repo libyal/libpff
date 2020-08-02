@@ -2,6 +2,7 @@ TODO
 * libpff_item_tree_get_tree_node_by_identifier add recursion depth
 * add threads RW lock to item
 * remove libpff_item_clone
+* remove libpff_data_block_clone
 * pypff fix get_root_item
 
 IOError: pypff_file_get_item_type_object: unable to retrieve item type.

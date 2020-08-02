@@ -2046,22 +2046,13 @@ int libpff_table_read(
 	}
 	if( table->data_identifier == 0 )
 	{
-#ifdef TODO
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid table - missing data identifier.",
 		 function );
-#else
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid table: %" PRIu32 " - missing data identifier.",
-		 function,
-		 table->descriptor_identifier );
-#endif
+
 		return( -1 );
 	}
 	if( table->local_descriptors_tree != NULL )
@@ -2428,6 +2419,309 @@ int libpff_table_read(
 	return( 1 );
 }
 
+/* Reads table index entries
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_table_read_index_entries(
+     libpff_table_t *table,
+     libpff_data_block_t *data_block,
+     libpff_table_block_index_t *table_block_index,
+     uint32_t table_array_entry_iterator,
+     libcerror_error_t **error )
+{
+	libpff_table_index_value_t *table_index_value = NULL;
+	static char *function                         = "libpff_table_read_index_entries";
+	size_t data_offset                            = 0;
+	uint32_t table_index_offsets_data_size        = 0;
+	uint16_t table_block_value_index              = 0;
+	uint16_t table_index_offset                   = 0;
+	uint16_t table_index_value_iterator           = 0;
+	uint16_t table_number_of_index_offsets        = 0;
+	uint16_t table_number_of_unused_index_offsets = 0;
+	uint16_t table_value_end_offset               = 0;
+	uint16_t table_value_start_offset             = 0;
+
+	if( table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_block == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data block.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_block->data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data block - missing data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_block->uncompressed_data_size < 4 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid data block - uncompressed data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint16_little_endian(
+	 data_block->data,
+	 table_index_offset );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: table index offset\t\t\t: %" PRIu16 "\n",
+		 function,
+		 table_index_offset );
+	}
+#endif
+	if( ( table_index_offset == 0 )
+	 || ( (uint32_t) table_index_offset >= ( data_block->uncompressed_data_size - 4 ) ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid table index offset value out of bounds: %zd.",
+		 function, table_index_offset );
+
+		goto on_error;
+	}
+	/* Determine which values are in the table using the index
+	 */
+        data_offset = table_index_offset;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: table index:\n",
+		 function );
+		libcnotify_print_data(
+		 &( data_block->data[ data_offset ] ),
+		 4,
+		 0 );
+	}
+#endif
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (pff_table_index_t *) &( data_block->data[ data_offset ] ) )->number_of_offsets,
+	 table_number_of_index_offsets );
+
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (pff_table_index_t *) &( data_block->data[ data_offset ] ) )->number_of_unused_offsets,
+	 table_number_of_unused_index_offsets );
+
+	data_offset += 4;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: table number of index offsets\t\t: %" PRIu16 "\n",
+		 function,
+		 table_number_of_index_offsets );
+
+		libcnotify_printf(
+		 "%s: table number of unused index offsets\t: %" PRIu16 "\n",
+		 function,
+		 table_number_of_unused_index_offsets );
+	}
+#endif
+	/* Fill table block index
+	 * The table number of index items should be considered more of a last item number
+	 * The table actually contains 1 additional table index value
+	 */
+	if( table_number_of_index_offsets > 0 )
+	{
+		if( ( table_index_offsets_data_size > ( data_block->uncompressed_data_size - 4 ) )
+		 || ( (uint32_t) table_index_offset >= ( data_block->uncompressed_data_size - 4 - table_index_offsets_data_size ) ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid number of index offsets value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "\n" );
+
+			libcnotify_printf(
+			 "%s: table index offsets:\n",
+			 function );
+			libcnotify_print_data(
+			 &( data_block->data[ data_offset ] ),
+			 (size_t) table_index_offsets_data_size,
+			 0 );
+		}
+#endif
+		/* Fill the table index values
+		 */
+		byte_stream_copy_to_uint16_little_endian(
+		 &( data_block->data[ data_offset ] ),
+		 table_value_start_offset );
+
+		data_offset += 2;
+
+		for( table_index_value_iterator = 0;
+		     table_index_value_iterator < table_number_of_index_offsets;
+		     table_index_value_iterator++ )
+		{
+			byte_stream_copy_to_uint16_little_endian(
+			 &( data_block->data[ data_offset ] ),
+			 table_value_end_offset );
+
+			data_offset += 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: table index value: %03" PRIu16 " offset\t\t: %" PRIu16 " - %" PRIu16 "\n",
+				 function,
+				 table_index_value_iterator,
+				 table_value_start_offset,
+				 table_value_end_offset );
+			}
+#endif
+			if( table_value_start_offset > table_value_end_offset )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: table index start offset: %" PRIu16 " exceeds end offset: %" PRIu16 ".",
+				 function,
+				 table_value_start_offset,
+				 table_value_end_offset );
+
+				goto on_error;
+			}
+			if( libpff_table_index_value_initialize(
+			     &table_index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create table index value: %" PRIu16 ".",
+				 function,
+				 table_index_value_iterator );
+
+				goto on_error;
+			}
+/* TODO add function to set index values ? */
+			table_index_value->array_entry = table_array_entry_iterator;
+			table_index_value->offset      = table_value_start_offset;
+			table_index_value->size        = table_value_end_offset - table_value_start_offset;
+
+			if( libpff_table_block_index_append_value(
+			     table_block_index,
+			     &table_block_value_index,
+			     table_index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set table block index value: %" PRIu16 ".",
+				 function,
+				 table_index_value_iterator );
+
+				goto on_error;
+			}
+			table_index_value = NULL;
+
+			table_value_start_offset = table_value_end_offset;
+		}
+		if( table_value_end_offset > table_index_offset )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: last table index value end offset: %" PRIu16 " exceeds table index offset: %" PRIu16 ".",
+			 function,
+			 table_value_end_offset,
+			 table_index_offset );
+
+			goto on_error;
+		}
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		if( table_value_end_offset < table_index_offset )
+		{
+			libcnotify_printf(
+			 "%s: last table index value end offset: %" PRIu16 " does not match table index offset: %" PRIu16 "\n",
+			 function,
+			 table_value_start_offset,
+			 table_index_offset );
+
+			libcnotify_print_data(
+			 &( data_block->data[ table_value_end_offset ] ),
+			 ( table_index_offset - table_value_end_offset ),
+			 0 );
+		}
+		if( data_offset < (size_t) data_block->uncompressed_data_size )
+		{
+			libcnotify_printf(
+			 "\n" );
+			libcnotify_printf(
+			 "%s: trailing data of size: %" PRIzd "\n",
+			 function,
+			 data_block->uncompressed_data_size - data_offset );
+			libcnotify_print_data(
+			 &( data_block->data[ data_offset ] ),
+			 data_block->uncompressed_data_size - data_offset,
+			 0 );
+		}
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+	return( 1 );
+
+on_error:
+	if( table_index_value != NULL )
+	{
+		libpff_table_index_value_free(
+		 &table_index_value,
+		 NULL );
+	}
+	return( -1 );
+}
+
 /* Reads the table index
  * Returns 1 if successful or -1 on error
  */
@@ -2438,15 +2732,7 @@ int libpff_table_read_index(
 {
 	libpff_data_block_t *data_block               = NULL;
 	libpff_table_block_index_t *table_block_index = NULL;
-	libpff_table_index_value_t *table_index_value = NULL;
-	uint8_t *table_index_data                     = NULL;
 	static char *function                         = "libpff_table_read_index";
-	uint16_t table_index_offset                   = 0;
-	uint16_t table_value_start_offset             = 0;
-	uint16_t table_value_end_offset               = 0;
-	uint16_t table_number_of_index_offsets        = 0;
-	uint16_t table_number_of_unused_index_offsets = 0;
-	uint16_t table_index_value_iterator           = 0;
 	int number_of_table_array_entries             = 0;
 	int table_array_entry_iterator                = 0;
 
@@ -2531,22 +2817,6 @@ int libpff_table_read_index(
 
 			goto on_error;
 		}
-		if( data_block->data == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid data block: %d - missing data.",
-			 function,
-			 table_array_entry_iterator );
-
-			goto on_error;
-		}
-		byte_stream_copy_to_uint16_little_endian(
-		 data_block->data,
-		 table_index_offset );
-
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
@@ -2556,97 +2826,13 @@ int libpff_table_read_index(
 			 table_data_offset );
 
 			libcnotify_printf(
-			 "%s: table size\t\t\t\t\t: %" PRIzd "\n",
+			 "%s: table data size\t\t\t\t: %" PRIzd "\n",
 			 function,
 			 data_block->uncompressed_data_size );
-
-			libcnotify_printf(
-			 "%s: table index offset\t\t\t\t: %" PRIu16 "\n",
-			 function,
-			 table_index_offset );
 		}
 #endif
-		if( table_index_offset == 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid table index offset.",
-			 function );
-
-			goto on_error;
-		}
-		/* The table index offset should point to an offset within the table
-		 */
-		if( (size_t) table_index_offset >= data_block->uncompressed_data_size )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: table index offset exceeds table data size.",
-			 function );
-
-			goto on_error;
-		}
-		/* Determine which values are in the table using the index
-		 */
-		table_index_data = &( data_block->data[ table_index_offset ] );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: table index:\n",
-			 function );
-			libcnotify_print_data(
-			 table_index_data,
-			 4,
-			 0 );
-		}
-#endif
-		byte_stream_copy_to_uint16_little_endian(
-		 ( (pff_table_index_t *) table_index_data )->number_of_offsets,
-		 table_number_of_index_offsets );
-		byte_stream_copy_to_uint16_little_endian(
-		 ( (pff_table_index_t *) table_index_data )->number_of_unused_offsets,
-		 table_number_of_unused_index_offsets );
-
-		table_index_data += 4;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: table number of index offsets\t\t\t: %" PRIu16 "\n",
-			 function,
-			 table_number_of_index_offsets );
-
-			libcnotify_printf(
-			 "%s: table number of unused index offsets\t\t: %" PRIu16 "\n",
-			 function,
-			 table_number_of_unused_index_offsets );
-		}
-#endif
-		if( (size_t) ( table_index_offset + 4 + ( ( table_number_of_index_offsets + 1 ) * 2 ) ) > data_block->uncompressed_data_size )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: number of index offsets do not fit in table.",
-			 function );
-
-			goto on_error;
-		}
-		/* Create the table block index structure
-		 * The table number of index items should be considered more of a last item number
-		 * The table actually contains 1 additional table index value
-		 */
 		if( libpff_table_block_index_initialize(
 		     &table_block_index,
-		     table_number_of_index_offsets,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -2658,150 +2844,22 @@ int libpff_table_read_index(
 
 			goto on_error;
 		}
-		if( table_number_of_index_offsets > 0 )
+		if( libpff_table_read_index_entries(
+		     table,
+		     data_block,
+		     table_block_index,
+		     (uint32_t) table_array_entry_iterator,
+		     error ) != 1 )
 		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "\n" );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read index entries.",
+			 function );
 
-				libcnotify_printf(
-				 "%s: table index offsets:\n",
-				 function );
-				libcnotify_print_data(
-				 table_index_data,
-				 ( table_number_of_index_offsets + 1 ) * 2,
-				 0 );
-			}
-#endif
-			/* Fill the table index values
-			 */
-			byte_stream_copy_to_uint16_little_endian(
-			 table_index_data,
-			 table_value_start_offset );
-
-			table_index_data += 2;
-
-			for( table_index_value_iterator = 0;
-			     table_index_value_iterator < table_number_of_index_offsets;
-			     table_index_value_iterator++ )
-			{
-				byte_stream_copy_to_uint16_little_endian(
-				 table_index_data,
-				 table_value_end_offset );
-
-				table_index_data += 2;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libcnotify_verbose != 0 )
-				{
-					libcnotify_printf(
-					 "%s: table index value: %03" PRIu16 " offset\t\t\t: %" PRIu16 " - %" PRIu16 "\n",
-					 function,
-					 table_index_value_iterator,
-					 table_value_start_offset,
-					 table_value_end_offset );
-				}
-#endif
-				if( table_value_start_offset > table_value_end_offset )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: table index start offset: %" PRIu16 " exceeds end offset: %" PRIu16 ".",
-					 function,
-					 table_value_start_offset,
-					 table_value_end_offset );
-
-					goto on_error;
-				}
-				if( libpff_table_index_value_initialize(
-				     &table_index_value,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-					 "%s: unable to create table index value: %" PRIu16 ".",
-					 function,
-                                         table_index_value_iterator );
-
-					goto on_error;
-				}
-/* TODO add function to set index values ? */
-				table_index_value->array_entry = (uint32_t) table_array_entry_iterator;
-				table_index_value->offset      = table_value_start_offset;
-				table_index_value->size        = table_value_end_offset - table_value_start_offset;
-
-				if( libpff_table_block_index_set_value_by_index(
-				     table_block_index,
-				     table_index_value_iterator,
-				     table_index_value,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set table block index value: %" PRIu16 ".",
-					 function,
-					 table_index_value_iterator );
-
-					goto on_error;
-				}
-				table_index_value = NULL;
-
-				table_value_start_offset = table_value_end_offset;
-			}
-			if( table_value_end_offset > table_index_offset )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: last table index value end offset: %" PRIu16 " exceeds table index offset: %" PRIu16 ".",
-				 function,
-				 table_value_end_offset,
-				 table_index_offset );
-
-				goto on_error;
-			}
+			goto on_error;
 		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			if( table_value_end_offset < table_index_offset )
-			{
-				libcnotify_printf(
-				 "%s: last table index value end offset: %" PRIu16 " does not match table index offset: %" PRIu16 "\n",
-				 function,
-				 table_value_start_offset,
-				 table_index_offset );
-
-				libcnotify_print_data(
-				 &( data_block->data[ table_value_end_offset ] ),
-				 ( table_index_offset - table_value_end_offset ),
-				 0 );
-			}
-			if( (size_t) ( table_index_data - data_block->data ) != data_block->uncompressed_data_size )
-			{
-				libcnotify_printf(
-				 "\n" );
-				libcnotify_printf(
-				 "%s: data after table index of size: %" PRIzd "\n",
-				 function,
-				 data_block->uncompressed_data_size - (size_t) ( table_index_data - data_block->data ) );
-				libcnotify_print_data(
-				 table_index_data,
-				 data_block->uncompressed_data_size - (size_t) ( table_index_data - data_block->data ),
-				 0 );
-			}
-		}
-		table_data_offset += (size_t) data_block->uncompressed_data_size;
-#endif
 		if( libcdata_array_set_entry_by_index(
 		     table->index_array,
 		     table_array_entry_iterator,
@@ -2819,6 +2877,10 @@ int libpff_table_read_index(
 			goto on_error;
 		}
 		table_block_index = NULL;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		table_data_offset += (size_t) data_block->uncompressed_data_size;
+#endif
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -2830,12 +2892,6 @@ int libpff_table_read_index(
 	return( 1 );
 
 on_error:
-	if( table_index_value != NULL )
-	{
-		libpff_table_index_value_free(
-		 &table_index_value,
-		 NULL );
-	}
 	if( table_block_index != NULL )
 	{
 		libpff_table_block_index_free(
@@ -4798,17 +4854,17 @@ int libpff_table_read_header_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: table signature\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: table signature\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 ( (pff_table_t *) data )->signature );
 
 		libcnotify_printf(
-		 "%s: table type\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: table type\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 table->type );
 
 		libcnotify_printf(
-		 "%s: table value reference\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
+		 "%s: table value reference\t\t\t: 0x%08" PRIx32 " (%s)\n",
 		 function,
 		 *table_value_reference,
 		 libpff_debug_get_node_identifier_type(

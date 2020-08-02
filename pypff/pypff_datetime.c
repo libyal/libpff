@@ -504,7 +504,7 @@ PyObject *pypff_datetime_new_from_floatingtime(
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pypff_datetime_new_from_posix_time(
-           uint32_t posix_time )
+           int64_t posix_time )
 {
 	PyObject *datetime_object = NULL;
 	static char *function     = "pypff_datetime_new_from_posix_time";

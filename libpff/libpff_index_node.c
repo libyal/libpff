@@ -612,7 +612,7 @@ int libpff_index_node_read_data(
 					 value_32bit );
 
 					libcnotify_printf(
-					 "%s: entry: %03" PRIu16 " unknown1\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+					 "%s: entry: %03" PRIu16 " unknown1\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 					 function,
 					 entry_index,
 					 value_32bit,

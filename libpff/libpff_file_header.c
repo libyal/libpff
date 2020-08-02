@@ -328,7 +328,7 @@ int libpff_file_header_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: signature\t\t\t\t: %c%c%c%c\n",
+		 "%s: signature\t\t\t\t\t: %c%c%c%c\n",
 		 function,
 		 ( (pff_file_header_t *) data )->signature[ 0 ],
 		 ( (pff_file_header_t *) data )->signature[ 1 ],
@@ -336,7 +336,7 @@ int libpff_file_header_read_data(
 		 ( (pff_file_header_t *) data )->signature[ 3 ] );
 
 		libcnotify_printf(
-		 "%s: checksum\t\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 stored_checksum );
 
@@ -355,17 +355,17 @@ int libpff_file_header_read_data(
 		 value_16bit );
 
 		libcnotify_printf(
-		 "%s: content version\t\t\t: %" PRIu16 "\n",
+		 "%s: content version\t\t\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
 		libcnotify_printf(
-		 "%s: creation platform\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: creation platform\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 ( (pff_file_header_t *) data )->creation_platform );
 
 		libcnotify_printf(
-		 "%s: access platform\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: access platform\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 ( (pff_file_header_t *) data )->access_platform );
 
@@ -373,7 +373,7 @@ int libpff_file_header_read_data(
 		 ( (pff_file_header_t *) data )->unknown1,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: unknown1\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+		 "%s: unknown1\t\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 		 function,
 		 value_32bit,
 		 value_32bit );
@@ -382,7 +382,7 @@ int libpff_file_header_read_data(
 		 ( (pff_file_header_t *) data )->unknown2,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: unknown2\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+		 "%s: unknown2\t\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 		 function,
 		 value_32bit,
 		 value_32bit );
@@ -515,7 +515,7 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_32bit_t *) file_header_data )->next_index_pointer,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: next index pointer\t\t\t: %" PRIu32 "\n",
+			 "%s: next index pointer\t\t\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 
@@ -523,7 +523,7 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_32bit_t *) file_header_data )->next_index_back_pointer,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: next index back pointer\t\t: %" PRIu32 "\n",
+			 "%s: next index back pointer\t\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 
@@ -545,7 +545,7 @@ int libpff_file_header_read_data(
 				 value_data,
 				 value_32bit );
 				libcnotify_printf(
-				 "%s: high water mark: %02d value\t\t: %" PRIu32 "\n",
+				 "%s: high water mark: %02d value\t\t\t: %" PRIu32 "\n",
 				 function,
 				 value_iterator,
 				 value_32bit );
@@ -570,7 +570,7 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_64bit_t *) file_header_data )->next_index_back_pointer,
 			 value_64bit );
 			libcnotify_printf(
-			 "%s: next index back pointer\t\t: %" PRIu64 "\n",
+			 "%s: next index back pointer\t\t\t: %" PRIu64 "\n",
 			 function,
 			 value_64bit );
 
@@ -592,7 +592,7 @@ int libpff_file_header_read_data(
 				 value_data,
 				 value_32bit );
 				libcnotify_printf(
-				 "%s: high water mark: %02d value\t\t: %" PRIu32 "\n",
+				 "%s: high water mark: %02d value\t\t\t: %" PRIu32 "\n",
 				 function,
 				 value_iterator,
 				 value_32bit );
@@ -635,7 +635,7 @@ int libpff_file_header_read_data(
 			 0 );
 		}
 		libcnotify_printf(
-		 "%s: file size\t\t\t\t: %" PRIu64 "\n",
+		 "%s: file size\t\t\t\t\t: %" PRIu64 "\n",
 		 function,
 		 file_header->file_size );
 
@@ -645,7 +645,7 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_32bit_t *) file_header_data )->last_data_allocation_table_offset,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: last data allocation table offset\t: %" PRIu32 "\n",
+			 "%s: last data allocation table offset\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 
@@ -653,7 +653,7 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_32bit_t *) file_header_data )->total_available_data_size,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: total available data size\t\t: %" PRIu32 "\n",
+			 "%s: total available data size\t\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 
@@ -661,7 +661,7 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_32bit_t *) file_header_data )->total_available_page_size,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: total available page size\t\t: %" PRIu32 "\n",
+			 "%s: total available page size\t\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 		}
@@ -672,7 +672,7 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_64bit_t *) file_header_data )->last_data_allocation_table_offset,
 			 value_64bit );
 			libcnotify_printf(
-			 "%s: last data allocation table offset\t: %" PRIu64 "\n",
+			 "%s: last data allocation table offset\t\t: %" PRIu64 "\n",
 			 function,
 			 value_64bit );
 
@@ -680,7 +680,7 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_64bit_t *) file_header_data )->total_available_data_size,
 			 value_64bit );
 			libcnotify_printf(
-			 "%s: total available data size\t\t: %" PRIu64 "\n",
+			 "%s: total available data size\t\t\t: %" PRIu64 "\n",
 			 function,
 			 value_64bit );
 
@@ -688,12 +688,12 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_64bit_t *) file_header_data )->total_available_page_size,
 			 value_64bit );
 			libcnotify_printf(
-			 "%s: total available page size\t\t: %" PRIu64 "\n",
+			 "%s: total available page size\t\t\t: %" PRIu64 "\n",
 			 function,
 			 value_64bit );
 		}
 		libcnotify_printf(
-		 "%s: descriptors index back pointer\t: %" PRIu64 "\n",
+		 "%s: descriptors index back pointer\t\t: %" PRIu64 "\n",
 		 function,
 		 file_header->descriptors_index_root_node_back_pointer );
 
@@ -708,14 +708,14 @@ int libpff_file_header_read_data(
 		 file_header->offsets_index_root_node_back_pointer );
 
 		libcnotify_printf(
-		 "%s: offsets index root node offset\t: %" PRIi64 "\n",
+		 "%s: offsets index root node offset\t\t: %" PRIi64 "\n",
 		 function,
 		 file_header->offsets_index_root_node_offset );
 
 		if( file_header->file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
 			libcnotify_printf(
-			 "%s: allocation table validation type\t: 0x%02" PRIx8 "\n",
+			 "%s: allocation table validation type\t\t: 0x%02" PRIx8 "\n",
 			 function,
 			 ( (pff_file_header_data_32bit_t *) file_header_data )->allocation_table_validation_type );
 
@@ -747,7 +747,7 @@ int libpff_file_header_read_data(
 		      || ( file_header->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 		{
 			libcnotify_printf(
-			 "%s: allocation table validation type\t: 0x%02" PRIx8 "\n",
+			 "%s: allocation table validation type\t\t: 0x%02" PRIx8 "\n",
 			 function,
 			 ( (pff_file_header_data_64bit_t *) file_header_data )->allocation_table_validation_type );
 
@@ -784,12 +784,12 @@ int libpff_file_header_read_data(
 			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
 		libcnotify_printf(
-		 "%s: sentinal\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: sentinal\t\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 sentinal );
 
 		libcnotify_printf(
-		 "%s: encryption type\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: encryption type\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 file_header->encryption_type );
 
@@ -863,7 +863,7 @@ int libpff_file_header_read_data(
 			 value_64bit );
 
 			libcnotify_printf(
-			 "%s: checksum\t\t\t\t: 0x%08" PRIx64 "\n",
+			 "%s: checksum\t\t\t\t\t: 0x%08" PRIx64 "\n",
 			 function,
 			 stored_checksum );
 
