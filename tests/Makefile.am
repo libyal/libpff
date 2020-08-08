@@ -69,6 +69,8 @@ check_PROGRAMS = \
 	pff_test_index_node \
 	pff_test_index_value \
 	pff_test_io_handle \
+	pff_test_io_handle2 \
+	pff_test_index_tree \
 	pff_test_item \
 	pff_test_item_descriptor \
 	pff_test_item_tree \
@@ -138,6 +140,7 @@ pff_test_attachment_SOURCES = \
 	pff_test_unused.h
 
 pff_test_attachment_LDADD = \
+	@LIBCDATA_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
@@ -349,6 +352,43 @@ pff_test_io_handle_SOURCES = \
 	pff_test_unused.h
 
 pff_test_io_handle_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_io_handle2_SOURCES = \
+	pff_test_io_handle2.c \
+	pff_test_libcerror.h \
+	pff_test_libfcache.h \
+	pff_test_libfdata.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_io_handle2_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_index_tree_SOURCES = \
+	pff_test_functions.c pff_test_functions.h \
+	pff_test_index_tree.c \
+	pff_test_libbfio.h \
+	pff_test_libcerror.h \
+	pff_test_libfcache.h \
+	pff_test_libfdata.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_index_tree_LDADD = \
+	@LIBFDATA_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
@@ -579,6 +619,8 @@ pff_test_support_LDADD = \
 
 pff_test_table_SOURCES = \
 	pff_test_libcerror.h \
+	pff_test_libfcache.h \
+	pff_test_libfdata.h \
 	pff_test_libpff.h \
 	pff_test_macros.h \
 	pff_test_memory.c pff_test_memory.h \

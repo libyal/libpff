@@ -23,6 +23,7 @@
 #include <types.h>
 
 #include "libpff_definitions.h"
+#include "libpff_index.h"
 #include "libpff_index_tree.h"
 #include "libpff_index_value.h"
 #include "libpff_libbfio.h"
@@ -30,6 +31,101 @@
 #include "libpff_libcnotify.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
+
+/* Creates an index tree
+ * Make sure the value index_tree is referencing, is set to NULL
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_tree_initialize(
+     libfdata_tree_t **index_tree,
+     libpff_io_handle_t *io_handle,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
+     uint8_t index_type,
+     off64_t root_node_offset,
+     uint64_t root_node_back_pointer,
+     uint8_t recovered,
+     libcerror_error_t **error )
+{
+	libpff_index_t *index = NULL;
+	static char *function = "libpff_index_tree_initialize";
+
+	if( index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( *index_tree != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid index tree value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_index_initialize(
+	     &index,
+	     io_handle,
+	     index_nodes_vector,
+	     index_nodes_cache,
+	     index_type,
+	     root_node_offset,
+	     root_node_back_pointer,
+	     recovered,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdata_tree_initialize(
+	     index_tree,
+	     (intptr_t *) index,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_free,
+	     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_index_clone,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_node_data,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_sub_nodes,
+	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index tree.",
+		 function );
+
+		goto on_error;
+	}
+	/* The index is now managed by the index tree
+	 */
+	index = NULL;
+
+	return( 1 );
+
+on_error:
+	if( index != NULL )
+	{
+		libpff_index_free(
+		 &index,
+		 NULL );
+	}
+	return( -1 );
+}
 
 /* Retrieves the number of leaf nodes for the specific identifier
  * Returns 1 if successful or -1 on error

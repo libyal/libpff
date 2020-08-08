@@ -404,7 +404,7 @@ int libpff_item_get_entry_type(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not such value or -1 on error
@@ -512,7 +512,7 @@ int libpff_item_get_value_type(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not such value or -1 on error
@@ -904,7 +904,7 @@ int libpff_item_get_entry_value_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1131,7 +1131,7 @@ int libpff_item_get_entry_value_boolean_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1370,7 +1370,7 @@ int libpff_item_get_entry_value_16bit_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1609,7 +1609,7 @@ int libpff_item_get_entry_value_32bit_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1848,7 +1848,7 @@ int libpff_item_get_entry_value_64bit_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -2087,7 +2087,7 @@ int libpff_item_get_entry_value_filetime_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -2411,7 +2411,7 @@ int libpff_item_get_entry_value_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -2719,7 +2719,7 @@ int libpff_item_get_entry_value_floating_point_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -3031,7 +3031,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -3350,7 +3350,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -3662,7 +3662,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -3980,7 +3980,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -4219,7 +4219,7 @@ int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -4464,7 +4464,7 @@ int libpff_item_get_entry_value_binary_data_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -4558,7 +4558,7 @@ int libpff_item_get_entry_value_guid(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error

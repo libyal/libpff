@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="pff_test_table"
-	ProjectGUID="{6FC45EEE-3BD0-408C-87EE-FCB6DE408D9B}"
-	RootNamespace="pff_test_table"
+	Name="pff_test_index_tree"
+	ProjectGUID="{70847BA9-F80A-4B81-A161-1FF6C79AB659}"
+	RootNamespace="pff_test_index_tree"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,11 +176,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\pff_test_memory.c"
+				RelativePath="..\..\tests\pff_test_functions.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\pff_test_table.c"
+				RelativePath="..\..\tests\pff_test_index_tree.c"
 				>
 			</File>
 		</Filter>
@@ -189,6 +189,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\tests\pff_test_functions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\pff_test_libbfio.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\tests\pff_test_libcerror.h"
 				>
@@ -207,10 +215,6 @@
 			</File>
 			<File
 				RelativePath="..\..\tests\pff_test_macros.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\pff_test_memory.h"
 				>
 			</File>
 			<File

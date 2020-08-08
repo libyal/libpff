@@ -38,6 +38,160 @@
 #include "../libpff/libpff_item.h"
 #include "../libpff/libpff_item_descriptor.h"
 
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
+/* Tests the libpff_attachment_get_type function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_attachment_get_type(
+     libpff_item_t *attachment )
+{
+	libcerror_error_t *error = NULL;
+	int attachment_type      = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+/* TODO implement
+	result = libpff_attachment_get_type(
+	          attachment,
+	          &attachment_type,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+*/
+
+	/* Test error cases
+	 */
+	result = libpff_attachment_get_type(
+	          NULL,
+	          &attachment_type,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_attachment_get_type(
+	          attachment,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_attachment_get_data_size function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_attachment_get_data_size(
+     libpff_item_t *attachment )
+{
+	libcerror_error_t *error = NULL;
+	size64_t size            = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+/* TODO implement
+	result = libpff_attachment_get_data_size(
+	          attachment,
+	          &size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+*/
+
+	/* Test error cases
+	 */
+	result = libpff_attachment_get_data_size(
+	          NULL,
+	          &size,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_attachment_get_data_size(
+	          attachment,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -50,8 +204,9 @@ int main(
      char * const argv[] PFF_TEST_ATTRIBUTE_UNUSED )
 #endif
 {
-#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
 	libcdata_tree_node_t *item_tree_node      = NULL;
 	libcerror_error_t *error                  = NULL;
 	libpff_io_handle_t *io_handle             = NULL;
@@ -59,14 +214,14 @@ int main(
 	libpff_item_descriptor_t *item_descriptor = NULL;
 	int result                                = 0;
 
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 #endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 
 	/* Initialize test
 	 */
@@ -166,12 +321,15 @@ int main(
 	 "error",
 	 error );
 
-/* TODO implement
 	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_attachment_get_type",
 	 pff_test_attachment_get_type,
 	 item );
-*/
+
+	PFF_TEST_RUN_WITH_ARGS(
+	 "libpff_attachment_get_data_size",
+	 pff_test_attachment_get_data_size,
+	 item );
 
 	/* TODO: add tests for libpff_attachment_get_data_size */
 
@@ -237,15 +395,15 @@ int main(
 	 "error",
 	 error );
 
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 #endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
-on_error:
-#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 
+on_error:
 	if( error != NULL )
 	{
 		libcerror_error_free(
@@ -276,9 +434,9 @@ on_error:
 		 &io_handle,
 		 NULL );
 	}
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
-#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
-
 	return( EXIT_FAILURE );
+
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 }
 

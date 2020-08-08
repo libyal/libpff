@@ -7,7 +7,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="allocation_table attached_file_io_handle column_definition data_array data_array_entry data_block deflate descriptors_index error file_header index index_node index_value io_handle item item_descriptor item_tree item_values local_descriptor_node local_descriptor_value local_descriptors multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_index_value value_type";
+LIBRARY_TESTS="allocation_table attached_file_io_handle attachment column_definition data_array data_array_entry data_block deflate descriptors_index error file_header index index_node index_value io_handle io_handle2 index_tree item item_descriptor item_tree item_values local_descriptor_node local_descriptor_value local_descriptors multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_index_value value_type";
 LIBRARY_TESTS_WITH_INPUT="file support";
 OPTION_SETS="";
 

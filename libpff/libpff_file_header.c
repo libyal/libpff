@@ -515,7 +515,7 @@ int libpff_file_header_read_data(
 			 ( (pff_file_header_data_32bit_t *) file_header_data )->next_index_pointer,
 			 value_32bit );
 			libcnotify_printf(
-			 "%s: next index pointer\t\t\t\t: %" PRIu32 "\n",
+			 "%s: next index pointer\t\t\t: %" PRIu32 "\n",
 			 function,
 			 value_32bit );
 

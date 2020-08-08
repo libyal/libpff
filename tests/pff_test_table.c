@@ -28,6 +28,8 @@
 #endif
 
 #include "pff_test_libcerror.h"
+#include "pff_test_libfcache.h"
+#include "pff_test_libfdata.h"
 #include "pff_test_libpff.h"
 #include "pff_test_macros.h"
 #include "pff_test_memory.h"
@@ -1262,6 +1264,242 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_table_read function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_table_read(
+     void )
+{
+	libcerror_error_t *error      = NULL;
+	libpff_io_handle_t *io_handle = NULL;
+	libpff_table_t *table         = NULL;
+	int result                    = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_table_initialize(
+	          &table,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "table",
+	 table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	table->data_identifier              = 1;
+	table->local_descriptors_identifier = 0;
+
+/* TODO implement */
+
+	/* Test error cases
+	 */
+	result = libpff_table_read(
+	          NULL,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	table->data_identifier = 0;
+
+	result = libpff_table_read(
+	          table,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          &error );
+
+	table->data_identifier = 1;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	table->local_descriptors_tree = (libfdata_tree_t *) 0x12345678UL;
+
+	result = libpff_table_read(
+	          table,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          &error );
+
+	table->local_descriptors_tree = NULL;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	table->local_descriptors_cache = (libfcache_cache_t *) 0x12345678UL;
+
+	result = libpff_table_read(
+	          table,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          &error );
+
+	table->local_descriptors_cache = NULL;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_table_read(
+	          table,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_table_free(
+	          &table,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "table",
+	 table );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( table != NULL )
+	{
+		libpff_table_free(
+		 &table,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libpff_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libpff_table_read_index_entries function
  * Returns 1 if successful or 0 if not
  */
@@ -2403,7 +2641,9 @@ int main(
 
 	/* TODO: add tests for libpff_table_get_record_entry_by_utf16_name */
 
-	/* TODO: add tests for libpff_table_read */
+	PFF_TEST_RUN(
+	 "libpff_table_read",
+	 pff_test_table_read );
 
 	PFF_TEST_RUN(
 	 "libpff_table_read_index_entries",

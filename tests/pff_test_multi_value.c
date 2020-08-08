@@ -1255,11 +1255,11 @@ int main(
 	 "libpff_multi_value_free",
 	 pff_test_multi_value_free );
 
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
 	PFF_TEST_RUN(
 	 "libpff_multi_value_get_number_of_values",
 	 pff_test_multi_value_get_number_of_values );
-
-#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 #ifdef TODO
 

@@ -125,9 +125,6 @@ AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
           [ac_cv_libfdata_dummy=yes],
           [ac_cv_libfdata=no])
 
-        dnl Balanced tree functions
-        dnl TODO: add functions
-
         dnl List functions
         AC_CHECK_LIB(
           fdata,
@@ -445,6 +442,12 @@ AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
           [ac_cv_libfdata=no])
 
         dnl Tree list functions
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_tree_initialize,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+
         dnl TODO: add functions
 
         dnl Vector list functions

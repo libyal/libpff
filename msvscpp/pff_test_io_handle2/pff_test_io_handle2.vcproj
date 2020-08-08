@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="pff_test_table"
-	ProjectGUID="{6FC45EEE-3BD0-408C-87EE-FCB6DE408D9B}"
-	RootNamespace="pff_test_table"
+	Name="pff_test_io_handle2"
+	ProjectGUID="{33BE3FC3-3C3F-4EB2-9577-B470C8AED4B6}"
+	RootNamespace="pff_test_io_handle2"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,11 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\pff_test_memory.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\pff_test_table.c"
+				RelativePath="..\..\tests\pff_test_io_handle2.c"
 				>
 			</File>
 		</Filter>
@@ -207,10 +203,6 @@
 			</File>
 			<File
 				RelativePath="..\..\tests\pff_test_macros.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\pff_test_memory.h"
 				>
 			</File>
 			<File

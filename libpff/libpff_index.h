@@ -74,7 +74,7 @@ int libpff_index_initialize(
      libpff_io_handle_t *io_handle,
      libfdata_vector_t *index_nodes_vector,
      libfcache_cache_t *index_nodes_cache,
-     uint8_t type,
+     uint8_t index_type,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,
      uint8_t recovered,

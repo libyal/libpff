@@ -699,7 +699,7 @@ int libpff_index_node_read_data(
 						 value_16bit );
 					}
 					libcnotify_printf(
-					 "%s: entry: %03" PRIu16 " data size\t\t\t\t: %" PRIu16 "\n",
+					 "%s: entry: %03" PRIu16 " data size\t\t\t: %" PRIu16 "\n",
 					 function,
 					 entry_index,
 					 value_16bit );
@@ -731,7 +731,7 @@ int libpff_index_node_read_data(
 						 value_32bit );
 
 						libcnotify_printf(
-						 "%s: entry: %03" PRIu16 " data allocation table offset\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+						 "%s: entry: %03" PRIu16 " data allocation table offset\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 						 function,
 						 entry_index,
 						 value_32bit,

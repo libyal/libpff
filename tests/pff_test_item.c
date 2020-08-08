@@ -967,8 +967,6 @@ int pff_test_item_get_identifier(
 	          &identifier,
 	          &error );
 
-PFF_TEST_FPRINT_ERROR( error );
-
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -1025,6 +1023,84 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_internal_item_get_entry_value_32bit_integer function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_internal_item_get_entry_value_32bit_integer(
+     libpff_item_t *item )
+{
+	libcerror_error_t *error = NULL;
+	uint32_t value_32bit     = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+/* TODO implement
+	result = libpff_internal_item_get_entry_value_32bit_integer(
+	          (libpff_internal_item_t *) item,
+	          0,
+	          &value_32bit,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+*/
+
+	/* Test error cases
+	 */
+	result = libpff_internal_item_get_entry_value_32bit_integer(
+	          NULL,
+	          0,
+	          &value_32bit,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_internal_item_get_entry_value_32bit_integer(
+	          (libpff_internal_item_t *) item,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -1039,8 +1115,8 @@ int main(
      char * const argv[] PFF_TEST_ATTRIBUTE_UNUSED )
 #endif
 {
-#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 	libcdata_tree_node_t *item_tree_node      = NULL;
 	libcerror_error_t *error                  = NULL;
 	libpff_io_handle_t *io_handle             = NULL;
@@ -1048,8 +1124,8 @@ int main(
 	libpff_item_descriptor_t *item_descriptor = NULL;
 	int result                                = 0;
 
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 #endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
@@ -1072,10 +1148,7 @@ int main(
 	 "libpff_item_clone",
 	 pff_test_item_clone );
 
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
-
 #if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
-#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	/* Initialize test
 	 */
@@ -1193,7 +1266,10 @@ int main(
 
 	/* TODO: add tests for libpff_item_get_number_of_entries */
 
-	/* TODO: add tests for libpff_internal_item_get_entry_value_32bit_integer */
+	PFF_TEST_RUN_WITH_ARGS(
+	 "libpff_internal_item_get_entry_value_32bit_integer",
+	 pff_test_internal_item_get_entry_value_32bit_integer,
+	 item );
 
 	/* TODO: add tests for libpff_internal_item_get_entry_value_filetime */
 
@@ -1269,15 +1345,14 @@ int main(
 	 "error",
 	 error );
 
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 #endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
 on_error:
-#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
-
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 	if( error != NULL )
 	{
 		libcerror_error_free(
@@ -1308,8 +1383,8 @@ on_error:
 		 &io_handle,
 		 NULL );
 	}
-#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 #endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_FAILURE );
 }

@@ -26,6 +26,7 @@
 #include <types.h>
 
 #include "libpff_index_value.h"
+#include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
 #include "libpff_libfcache.h"
@@ -34,6 +35,17 @@
 #if defined( __cplusplus )
 extern "C" {
 #endif
+
+int libpff_index_tree_initialize(
+     libfdata_tree_t **index_tree,
+     libpff_io_handle_t *io_handle,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
+     uint8_t index_type,
+     off64_t root_node_offset,
+     uint64_t root_node_back_pointer,
+     uint8_t recovered,
+     libcerror_error_t **error );
 
 int libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
      libfdata_tree_t *index_tree,

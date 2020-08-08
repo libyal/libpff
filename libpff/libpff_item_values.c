@@ -316,52 +316,6 @@ on_error:
 	return( -1 );
 }
 
-/* Retrieves the local descriptor value for the specific identifier
- * Returns 1 if successful, 0 if no value was found or -1 on error
- */
-int libpff_item_values_get_local_descriptors_value_by_identifier(
-     libpff_item_values_t *item_values,
-     libbfio_handle_t *file_io_handle,
-     uint32_t descriptor_identifier,
-     libpff_local_descriptor_value_t **local_descriptor_value,
-     libcerror_error_t **error )
-{
-	static char *function = "libpff_item_values_get_local_descriptors_value_by_identifier";
-	int result            = 0;
-
-	if( item_values == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid item values.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_table_get_local_descriptors_value_by_identifier(
-	          item_values->table,
-	          file_io_handle,
-	          (uint64_t) descriptor_identifier,
-	          local_descriptor_value,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
-		 function,
-		 descriptor_identifier );
-
-		return( -1 );
-	}
-	return( result );
-}
-
 /* Reads the local descriptor data
  * Returns 1 if successful or -1 on error
  */
@@ -475,6 +429,52 @@ int libpff_item_values_read_local_descriptor_data(
 	return( 1 );
 }
 
+/* Retrieves the local descriptor value for the specific identifier
+ * Returns 1 if successful, 0 if no value was found or -1 on error
+ */
+int libpff_item_values_get_local_descriptors_value_by_identifier(
+     libpff_item_values_t *item_values,
+     libbfio_handle_t *file_io_handle,
+     uint32_t descriptor_identifier,
+     libpff_local_descriptor_value_t **local_descriptor_value,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_item_values_get_local_descriptors_value_by_identifier";
+	int result            = 0;
+
+	if( item_values == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item values.",
+		 function );
+
+		return( -1 );
+	}
+	result = libpff_table_get_local_descriptors_value_by_identifier(
+	          item_values->table,
+	          file_io_handle,
+	          (uint64_t) descriptor_identifier,
+	          local_descriptor_value,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
+		 function,
+		 descriptor_identifier );
+
+		return( -1 );
+	}
+	return( result );
+}
+
 /* Retrieves the number of item value sets
  * Returns 1 if successful or -1 on error
  */
@@ -529,17 +529,6 @@ int libpff_item_values_get_number_of_record_sets(
 
 			return( -1 );
 		}
-		if( item_values->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid item values - missing table.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	if( libpff_table_get_number_of_record_sets(
 	     item_values->table,
@@ -567,7 +556,7 @@ int libpff_item_values_get_number_of_record_sets(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -624,17 +613,6 @@ int libpff_item_values_get_record_entry_by_type(
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
 			 "%s: unable to read item values.",
-			 function );
-
-			return( -1 );
-		}
-		if( item_values->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid item values - missing table.",
 			 function );
 
 			return( -1 );
@@ -729,17 +707,6 @@ int libpff_item_values_get_record_entry_by_utf8_name(
 
 			return( -1 );
 		}
-		if( item_values->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid item values - missing table.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	result = libpff_table_get_record_entry_by_utf8_name(
 	          item_values->table,
@@ -827,17 +794,6 @@ int libpff_item_values_get_record_entry_by_utf16_name(
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
 			 "%s: unable to read item values.",
-			 function );
-
-			return( -1 );
-		}
-		if( item_values->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid item values - missing table.",
 			 function );
 
 			return( -1 );
