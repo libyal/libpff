@@ -381,6 +381,7 @@ pff_test_index_tree_SOURCES = \
 
 pff_test_index_tree_LDADD = \
 	@LIBFDATA_LIBADD@ \
+	@LIBFCACHE_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
 	@LIBCPATH_LIBADD@ \
 	@LIBCFILE_LIBADD@ \
