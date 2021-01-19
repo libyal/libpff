@@ -1,7 +1,7 @@
 /*
  * Allocation table functions
  *
- * Copyright (C) 2008-2020, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -496,31 +496,6 @@ int libpff_allocation_table_read_file_io_handle(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading allocation table at offset: 0x%08" PRIx64 "\n",
-		 function,
-		 allocation_table_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     allocation_table_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek allocation table offset: 0x%08" PRIx64 ".",
-		 function,
-		 allocation_table_offset );
-
-		goto on_error;
-	}
 	if( file_type == LIBPFF_FILE_TYPE_32BIT )
 	{
 		allocation_table_data_size = sizeof( pff_allocation_table_32bit_t );
@@ -547,10 +522,21 @@ int libpff_allocation_table_read_file_io_handle(
 
 		goto on_error;
 	}
-	read_count = libbfio_handle_read_buffer(
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading allocation table at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 allocation_table_offset,
+		 allocation_table_offset );
+	}
+#endif
+	read_count = libbfio_handle_read_buffer_at_offset(
 	              file_io_handle,
 	              allocation_table_data,
 	              allocation_table_data_size,
+	              allocation_table_offset,
 	              error );
 
 	if( read_count != (ssize_t) allocation_table_data_size )
@@ -559,8 +545,10 @@ int libpff_allocation_table_read_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read allocation table data.",
-		 function );
+		 "%s: unable to read allocation table data at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 allocation_table_offset,
+		 allocation_table_offset );
 
 		goto on_error;
 	}

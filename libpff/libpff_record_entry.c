@@ -1,7 +1,7 @@
 /*
  * Record entry functions
  *
- * Copyright (C) 2008-2020, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -774,21 +774,6 @@ int libpff_record_entry_set_value_data_from_stream(
 
 			goto on_error;
 		}
-		if( libfdata_stream_seek_offset(
-		     value_data_stream,
-		     0,
-		     SEEK_SET,
-		     error ) == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek offset: 0 in value data stream.",
-			 function );
-
-			goto on_error;
-		}
 		internal_record_entry->value_data = (uint8_t *) memory_allocate(
 		                                                 (size_t) value_data_size );
 
@@ -805,11 +790,12 @@ int libpff_record_entry_set_value_data_from_stream(
 		}
 		internal_record_entry->value_data_size = (size_t) value_data_size;
 
-		read_count = libfdata_stream_read_buffer(
+		read_count = libfdata_stream_read_buffer_at_offset(
 			      value_data_stream,
 			      (intptr_t *) file_io_handle,
 			      internal_record_entry->value_data,
 			      internal_record_entry->value_data_size,
+			      0,
 			      0,
 			      error );
 
@@ -819,7 +805,7 @@ int libpff_record_entry_set_value_data_from_stream(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read buffer from value data stream.",
+			 "%s: unable to read buffer from value data stream at offset: 0 (0x00000000).",
 			 function );
 
 			goto on_error;

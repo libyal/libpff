@@ -1,7 +1,7 @@
 /*
  * Index node functions
  *
- * Copyright (C) 2008-2020, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1147,27 +1147,11 @@ int libpff_index_node_read_file_io_handle(
 		 node_offset );
 	}
 #endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     node_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek index node offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 node_offset,
-		 node_offset );
-
-		goto on_error;
-	}
-	read_count = libbfio_handle_read_buffer(
+	read_count = libbfio_handle_read_buffer_at_offset(
 	              file_io_handle,
 	              index_node->data,
 	              index_node->data_size,
+	              node_offset,
 	              error );
 
 	if( read_count != (ssize_t) index_node->data_size )
@@ -1176,8 +1160,10 @@ int libpff_index_node_read_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read index node data.",
-		 function );
+		 "%s: unable to read index node data at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 node_offset,
+		 node_offset );
 
 		goto on_error;
 	}

@@ -1,7 +1,7 @@
 /*
  * The libfwnt header wrapper
  *
- * Copyright (C) 2008-2020, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -30,9 +30,12 @@
 
 #include <libfwnt_access_control_entry.h>
 #include <libfwnt_access_control_list.h>
+#include <libfwnt_bit_stream.h>
 #include <libfwnt_definitions.h>
+#include <libfwnt_huffman_tree.h>
 #include <libfwnt_locale_identifier.h>
 #include <libfwnt_lznt1.h>
+#include <libfwnt_lzx.h>
 #include <libfwnt_lzxpress.h>
 #include <libfwnt_security_descriptor.h>
 #include <libfwnt_security_identifier.h>
