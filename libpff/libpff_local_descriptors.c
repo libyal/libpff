@@ -279,9 +279,9 @@ int libpff_local_descriptors_read_local_descriptor_node(
 	libpff_index_value_t *offset_index_value = NULL;
 	static char *function                    = "libpff_local_descriptors_read_local_descriptor_node";
 	off64_t cache_value_offset               = 0;
-	time_t cache_value_timestamp             = 0;
-	int cache_value_index                    = 0;
+	int64_t cache_value_timestamp            = 0;
 	int cache_value_file_index               = 0;
+	int cache_value_index                    = 0;
 	int is_cached                            = 0;
 
 	if( local_descriptors == NULL )

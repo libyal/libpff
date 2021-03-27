@@ -6241,11 +6241,12 @@ int libpff_table_read_7c_column_definitions(
      libcdata_list_t *name_to_id_map_list,
      libcerror_error_t **error )
 {
-	libpff_column_definition_t *column_definition = NULL;
-	static char *function                         = "libpff_table_read_7c_column_definitions";
-	uint8_t column_definition_number              = 0;
-	int column_definition_index                   = 0;
-	int result                                    = 0;
+	libpff_column_definition_t *column_definition        = NULL;
+	libpff_column_definition_t *lookup_column_definition = NULL;
+	static char *function                                = "libpff_table_read_7c_column_definitions";
+	uint8_t column_definition_number                     = 0;
+	int column_definition_index                          = 0;
+	int result                                           = 0;
 
 	LIBPFF_UNREFERENCED_PARAMETER( file_io_handle )
 
@@ -6475,7 +6476,36 @@ int libpff_table_read_7c_column_definitions(
 			libcnotify_printf(
 			 "\n" );
 		}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+		if( libcdata_array_get_entry_by_index(
+		     column_definitions_array,
+		     (int) column_definition_number,
+		     (intptr_t **) &lookup_column_definition,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column definitions: %" PRIu8 " in array.",
+			 function,
+			 column_definition_number );
+
+			goto on_error;
+		}
+		if( lookup_column_definition != NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: column definitions: %" PRIu8 " already set in array.",
+			 function,
+			 column_definition_number );
+
+			goto on_error;
+		}
 		if( libcdata_array_set_entry_by_index(
 		     column_definitions_array,
 		     (int) column_definition_number,
@@ -7476,14 +7506,15 @@ int libpff_table_read_ac_column_definitions(
 	libfcache_cache_t *column_definitions_data_cache         = NULL;
 	libfdata_list_t *column_definitions_data_list            = NULL;
 	libpff_column_definition_t *column_definition            = NULL;
+	libpff_column_definition_t *lookup_column_definition     = NULL;
 	libpff_data_block_t *column_definition_data_block        = NULL;
 	libpff_data_block_t *column_definitions_data_block       = NULL;
 	libpff_local_descriptor_value_t *local_descriptor_value  = NULL;
 	pff_table_column_definition_ac_t *column_definition_data = NULL;
 	static char *function                                    = "libpff_table_read_ac_column_definitions";
-	off64_t column_definition_data_block_offset              = 0;
 	size_t column_definition_data_offset                     = 0;
 	size_t column_definition_data_size                       = 0;
+	off64_t column_definition_data_block_offset              = 0;
 	uint32_t record_entry_values_table_descriptor            = 0;
 	uint16_t column_definition_number                        = 0;
 	int column_definition_index                              = 0;
@@ -7927,7 +7958,8 @@ int libpff_table_read_ac_column_definitions(
 			libcnotify_printf(
 			 "\n" );
 		}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 		/* Read the record entry values table if necessary
 		 */
 		if( record_entry_values_table_descriptor > 0 )
@@ -8035,6 +8067,34 @@ int libpff_table_read_ac_column_definitions(
 
 				goto on_error;
 			}
+		}
+		if( libcdata_array_get_entry_by_index(
+		     column_definitions_array,
+		     (int) column_definition_number,
+		     (intptr_t **) &lookup_column_definition,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column definitions: %" PRIu8 " in array.",
+			 function,
+			 column_definition_number );
+
+			goto on_error;
+		}
+		if( lookup_column_definition != NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: column definitions: %" PRIu8 " already set in array.",
+			 function,
+			 column_definition_number );
+
+			goto on_error;
 		}
 		if( libcdata_array_set_entry_by_index(
 		     column_definitions_array,
