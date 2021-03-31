@@ -792,6 +792,18 @@ int libpff_item_tree_create_node(
 
 		return( -1 );
 	}
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > 256 ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	/* Check if the index node can be read
 	 */
 	if( libfdata_tree_node_get_number_of_sub_nodes(

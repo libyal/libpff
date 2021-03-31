@@ -145,20 +145,21 @@ int libpff_file_header_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	const uint8_t *file_header_data = NULL;
-	static char *function           = "libpff_file_header_read_data";
-	uint32_t calculated_checksum    = 0;
-	uint32_t stored_checksum        = 0;
-	uint16_t content_type           = 0;
-	uint16_t data_version           = 0;
+	const uint8_t *file_header_data                  = NULL;
+	static char *function                            = "libpff_file_header_read_data";
+	uint64_t safe_descriptors_index_root_node_offset = 0;
+	uint32_t calculated_checksum                     = 0;
+	uint32_t stored_checksum                         = 0;
+	uint16_t content_type                            = 0;
+	uint16_t data_version                            = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	const uint8_t *value_data       = 0;
-	uint64_t value_64bit            = 0;
-	uint32_t value_32bit            = 0;
-	uint16_t value_16bit            = 0;
-	uint8_t sentinal                = 0;
-	int value_iterator              = 0;
+	const uint8_t *value_data                        = 0;
+	uint64_t value_64bit                             = 0;
+	uint32_t value_32bit                             = 0;
+	uint16_t value_16bit                             = 0;
+	uint8_t sentinal                                 = 0;
+	int value_iterator                               = 0;
 #endif
 
 	if( file_header == NULL )
@@ -459,7 +460,9 @@ int libpff_file_header_read_data(
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_file_header_data_32bit_t *) file_header_data )->descriptors_index_root_node_offset,
-		 file_header->descriptors_index_root_node_offset );
+		 safe_descriptors_index_root_node_offset );
+
+		file_header->descriptors_index_root_node_offset = (off64_t) safe_descriptors_index_root_node_offset;
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_file_header_data_32bit_t *) file_header_data )->offsets_index_back_pointer,
@@ -487,7 +490,9 @@ int libpff_file_header_read_data(
 
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_file_header_data_64bit_t *) file_header_data )->descriptors_index_root_node_offset,
-		 file_header->descriptors_index_root_node_offset );
+		 safe_descriptors_index_root_node_offset );
+
+		file_header->descriptors_index_root_node_offset = (off64_t) safe_descriptors_index_root_node_offset;
 
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_file_header_data_64bit_t *) file_header_data )->offsets_index_back_pointer,

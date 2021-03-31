@@ -568,7 +568,7 @@ int libpff_index_read_node_entry(
 	uint8_t *node_entry_data        = NULL;
 	static char *function           = "libpff_index_read_node_entry";
 	off64_t element_data_offset     = 0;
-	off64_t sub_nodes_offset        = 0;
+	uint64_t sub_nodes_offset       = 0;
 	int result                      = 0;
 
 	if( index == NULL )
@@ -820,10 +820,21 @@ int libpff_index_read_node_entry(
 		}
 		else if( result == 0 )
 		{
+			if( sub_nodes_offset > (uint64_t) INT64_MAX )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid sub nodes offset value out of bounds.",
+				 function );
+
+				return( -1 );
+			}
 			if( libfdata_tree_node_set_sub_nodes_data_range(
 			     index_tree_node,
 			     0,
-			     sub_nodes_offset,
+			     (off64_t) sub_nodes_offset,
 			     0,
 			     0,
 			     error ) != 1 )
