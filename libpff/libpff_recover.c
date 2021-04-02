@@ -198,12 +198,11 @@ int libpff_recover_items(
 	/* For the recovered descriptor index nodes check
 	 * if the local descriptor and data offset index value still exists
 	 */
-	if( libfdata_tree_get_number_of_leaf_nodes(
+	if( libpff_index_tree_get_number_of_leaf_nodes(
 	     descriptors_index->recovered_index_tree,
-	     (intptr_t *) file_io_handle,
+	     file_io_handle,
 	     (libfdata_cache_t *) descriptors_index->index_cache,
 	     &number_of_recovered_descriptor_index_values,
-	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -223,13 +222,12 @@ int libpff_recover_items(
 		{
 			goto on_error;
 		}
-		if( libfdata_tree_get_leaf_node_by_index(
+		if( libpff_index_tree_get_leaf_node_by_index(
 		     descriptors_index->recovered_index_tree,
-		     (intptr_t *) file_io_handle,
+		     file_io_handle,
 		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     recovered_descriptor_index_value_iterator,
 		     &recovered_descriptor_index_leaf_node,
-		     0,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -779,12 +777,11 @@ int libpff_recover_index_nodes(
 #endif
 	/* Scan the existing descriptor index nodes for remnant values
 	 */
-	if( libfdata_tree_get_number_of_deleted_leaf_nodes(
+	if( libpff_index_tree_get_number_of_deleted_leaf_nodes(
 	     descriptors_index->index_tree,
-	     (intptr_t *) file_io_handle,
+	     file_io_handle,
 	     (libfdata_cache_t *) descriptors_index->index_cache,
 	     &number_of_deleted_index_values,
-	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -804,13 +801,12 @@ int libpff_recover_index_nodes(
 		{
 			return( -1 );
 		}
-		if( libfdata_tree_get_deleted_leaf_node_by_index(
+		if( libpff_index_tree_get_deleted_leaf_node_by_index(
 		     descriptors_index->index_tree,
-		     (intptr_t *) file_io_handle,
+		     file_io_handle,
 		     (libfdata_cache_t *) descriptors_index->index_cache,
 		     deleted_index_value_iterator,
 		     &deleted_index_leaf_node,
-		     0,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1030,12 +1026,11 @@ int libpff_recover_index_nodes(
 #ifdef TODO
 	/* Scan the existing offset index nodes for remnant values
 	 */
-	if( libfdata_tree_get_number_of_deleted_leaf_nodes(
+	if( libpff_index_tree_get_number_of_deleted_leaf_nodes(
 	     offsets_index->index_tree,
-	     (intptr_t *) file_io_handle,
+	     file_io_handle,
 	     (libfdata_cache_t *) offsets_index->index_cache,
 	     &number_of_deleted_index_values,
-	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1055,13 +1050,12 @@ int libpff_recover_index_nodes(
 		{
 			return( -1 );
 		}
-		if( libfdata_tree_get_deleted_leaf_node_by_index(
+		if( libpff_index_tree_get_deleted_leaf_node_by_index(
 		     offsets_index->index_tree,
-		     (intptr_t *) file_io_handle,
+		     file_io_handle,
 		     (libfdata_cache_t *) offsets_index->index_cache,
 		     deleted_index_value_iterator,
 		     &deleted_index_leaf_node,
-		     0,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

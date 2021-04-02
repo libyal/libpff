@@ -83,7 +83,7 @@ int pff_test_index_tree_initialize(
      void )
 {
 	libcerror_error_t *error        = NULL;
-	libfdata_tree_t *index_tree     = NULL;
+	libpff_index_tree_t *index_tree = NULL;
 	libpff_io_handle_t *io_handle   = NULL;
 	int result                      = 0;
 
@@ -138,7 +138,7 @@ int pff_test_index_tree_initialize(
 	 "error",
 	 error );
 
-	result = libfdata_tree_free(
+	result = libpff_index_tree_free(
 	          &index_tree,
 	          &error );
 
@@ -180,7 +180,7 @@ int pff_test_index_tree_initialize(
 	libcerror_error_free(
 	 &error );
 
-	index_tree = (libfdata_tree_t *) 0x12345678UL;
+	index_tree = (libpff_index_tree_t *) 0x12345678UL;
 
 	result = libpff_index_tree_initialize(
 	          &index_tree,
@@ -257,7 +257,7 @@ int pff_test_index_tree_initialize(
 
 			if( index_tree != NULL )
 			{
-				libfdata_tree_free(
+				libpff_index_tree_free(
 				 &index_tree,
 				 NULL );
 			}
@@ -306,7 +306,7 @@ int pff_test_index_tree_initialize(
 
 			if( index_tree != NULL )
 			{
-				libfdata_tree_free(
+				libpff_index_tree_free(
 				 &index_tree,
 				 NULL );
 			}
@@ -361,7 +361,7 @@ on_error:
 	}
 	if( index_tree != NULL )
 	{
-		libfdata_tree_free(
+		libpff_index_tree_free(
 		 &index_tree,
 		 NULL );
 	}
@@ -378,13 +378,13 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_index_tree_get_number_of_leaf_nodes_by_identifier(
-     libfdata_tree_t *index_tree )
+     libpff_index_tree_t *index_tree )
 {
-	libbfio_handle_t *file_io_handle     = NULL;
-	libcerror_error_t *error             = NULL;
-	libfcache_cache_t *cache             = NULL;
-	int number_of_leaf_nodes             = 0;
-	int result                           = 0;
+	libbfio_handle_t *file_io_handle = NULL;
+	libcerror_error_t *error         = NULL;
+	libfcache_cache_t *cache         = NULL;
+	int number_of_leaf_nodes         = 0;
+	int result                       = 0;
 
 	/* Initialize test
 	 */
@@ -569,7 +569,7 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_index_tree_node_get_number_of_leaf_nodes_by_identifier(
-     libfdata_tree_t *index_tree )
+     libpff_index_tree_t *index_tree )
 {
 	libbfio_handle_t *file_io_handle      = NULL;
 	libcerror_error_t *error              = NULL;
@@ -580,7 +580,7 @@ int pff_test_index_tree_node_get_number_of_leaf_nodes_by_identifier(
 
 	/* Initialize test
 	 */
-	result = libfdata_tree_get_root_node(
+	result = libpff_index_tree_get_root_node(
 	          index_tree,
 	          &index_tree_node,
 	          &error );
@@ -779,7 +779,7 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_index_tree_get_leaf_node_by_identifier(
-     libfdata_tree_t *index_tree )
+     libpff_index_tree_t *index_tree )
 {
 	libbfio_handle_t *file_io_handle           = NULL;
 	libcerror_error_t *error                   = NULL;
@@ -996,7 +996,7 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_index_tree_node_get_leaf_node_by_identifier(
-     libfdata_tree_t *index_tree )
+     libpff_index_tree_t *index_tree )
 {
 	libbfio_handle_t *file_io_handle           = NULL;
 	libcerror_error_t *error                   = NULL;
@@ -1008,7 +1008,7 @@ int pff_test_index_tree_node_get_leaf_node_by_identifier(
 
 	/* Initialize test
 	 */
-	result = libfdata_tree_get_root_node(
+	result = libpff_index_tree_get_root_node(
 	          index_tree,
 	          &index_tree_node,
 	          &error );
@@ -1232,7 +1232,7 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_index_tree_get_value_by_identifier(
-     libfdata_tree_t *index_tree )
+     libpff_index_tree_t *index_tree )
 {
 	libbfio_handle_t *file_io_handle       = NULL;
 	libcerror_error_t *error               = NULL;
@@ -1442,9 +1442,9 @@ int main(
 
 	libcerror_error_t *error             = NULL;
 	libfcache_cache_t *index_node_cache  = NULL;
-	libfdata_tree_t *index_tree          = NULL;
 	libfdata_vector_t *index_node_vector = NULL;
 	libpff_io_handle_t *io_handle        = NULL;
+	libpff_index_tree_t *index_tree      = NULL;
 	int result                           = 0;
 	int segment_index                    = 0;
 
@@ -1567,12 +1567,9 @@ int main(
 	 "error",
 	 error );
 
-	result = libfdata_tree_set_root_node(
+	result = libpff_index_tree_set_root_node(
 	          index_tree,
-	          0,
 	          LIBPFF_OFFSETS_INDEX_TREE_ROOT_OFFSET,
-	          0,
-	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -1615,7 +1612,7 @@ int main(
 
 	/* Clean up
 	 */
-	result = libfdata_tree_free(
+	result = libpff_index_tree_free(
 	          &index_tree,
 	          &error );
 
@@ -1682,7 +1679,7 @@ on_error:
 	}
 	if( index_tree != NULL )
 	{
-		libfdata_tree_free(
+		libpff_index_tree_free(
 		 &index_tree,
 		 NULL );
 	}

@@ -36,8 +36,17 @@
 extern "C" {
 #endif
 
+typedef struct libpff_index_tree libpff_index_tree_t;
+
+struct libpff_index_tree
+{
+	/* Tree data structure
+	 */
+	libfdata_tree_t *tree;
+};
+
 int libpff_index_tree_initialize(
-     libfdata_tree_t **index_tree,
+     libpff_index_tree_t **index_tree,
      libpff_io_handle_t *io_handle,
      libfdata_vector_t *index_nodes_vector,
      libfcache_cache_t *index_nodes_cache,
@@ -47,8 +56,29 @@ int libpff_index_tree_initialize(
      uint8_t recovered,
      libcerror_error_t **error );
 
+int libpff_index_tree_free(
+     libpff_index_tree_t **index_tree,
+     libcerror_error_t **error );
+
+int libpff_index_tree_get_root_node(
+     libpff_index_tree_t *index_tree,
+     libfdata_tree_node_t **root_node,
+     libcerror_error_t **error );
+
+int libpff_index_tree_set_root_node(
+     libpff_index_tree_t *index_tree,
+     off64_t node_offset,
+     libcerror_error_t **error );
+
+int libpff_index_tree_get_number_of_leaf_nodes(
+     libpff_index_tree_t *index_tree,
+     libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *cache,
+     int *number_of_leaf_nodes,
+     libcerror_error_t **error );
+
 int libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-     libfdata_tree_t *index_tree,
+     libpff_index_tree_t *index_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,
@@ -63,8 +93,16 @@ int libpff_index_tree_node_get_number_of_leaf_nodes_by_identifier(
      int *number_of_leaf_nodes,
      libcerror_error_t **error );
 
+int libpff_index_tree_get_leaf_node_by_index(
+     libpff_index_tree_t *index_tree,
+     libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *cache,
+     int leaf_node_index,
+     libfdata_tree_node_t **leaf_node,
+     libcerror_error_t **error );
+
 int libpff_index_tree_get_leaf_node_by_identifier(
-     libfdata_tree_t *index_tree,
+     libpff_index_tree_t *index_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,
@@ -81,8 +119,23 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
      libfdata_tree_node_t **leaf_index_tree_node,
      libcerror_error_t **error );
 
+int libpff_index_tree_get_number_of_deleted_leaf_nodes(
+     libpff_index_tree_t *index_tree,
+     libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *cache,
+     int *number_of_deleted_leaf_nodes,
+     libcerror_error_t **error );
+
+int libpff_index_tree_get_deleted_leaf_node_by_index(
+     libpff_index_tree_t *index_tree,
+     libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *cache,
+     int deleted_leaf_node_index,
+     libfdata_tree_node_t **deleted_leaf_node,
+     libcerror_error_t **error );
+
 int libpff_index_tree_get_value_by_identifier(
-     libfdata_tree_t *index_tree,
+     libpff_index_tree_t *index_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,
@@ -99,7 +152,7 @@ int libpff_index_tree_node_get_upper_branch_node_by_identifier(
      libcerror_error_t **error );
 
 int libpff_index_tree_insert_value(
-     libfdata_tree_t *index_tree,
+     libpff_index_tree_t *index_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,

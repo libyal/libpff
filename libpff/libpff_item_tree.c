@@ -646,7 +646,7 @@ int libpff_item_tree_create(
 
 		return( -1 );
 	}
-	if( libfdata_tree_get_root_node(
+	if( libpff_index_tree_get_root_node(
 	     descriptors_index->index_tree,
 	     &descriptor_index_tree_root_node,
 	     error ) != 1 )
@@ -756,7 +756,7 @@ on_error:
 int libpff_item_tree_create_node(
      libpff_item_tree_t *item_tree,
      libbfio_handle_t *file_io_handle,
-     libfdata_tree_t *descriptor_index_tree,
+     libpff_index_tree_t *descriptor_index_tree,
      libfdata_tree_node_t *descriptor_index_tree_node,
      libfcache_cache_t *index_tree_cache,
      libcdata_list_t *orphan_node_list,
@@ -970,7 +970,7 @@ on_error:
 int libpff_item_tree_create_leaf_node(
      libpff_item_tree_t *item_tree,
      libbfio_handle_t *file_io_handle,
-     libfdata_tree_t *descriptor_index_tree,
+     libpff_index_tree_t *descriptor_index_tree,
      libfdata_tree_node_t *descriptor_index_tree_node,
      libfcache_cache_t *index_tree_cache,
      libcdata_list_t *orphan_node_list,

@@ -149,7 +149,7 @@ int libpff_offsets_index_free(
 	{
 		if( ( *offsets_index )->index_tree != NULL )
 		{
-			if( libfdata_tree_free(
+			if( libpff_index_tree_free(
 			     &( ( *offsets_index )->index_tree ),
 			     error ) != 1 )
 			{
@@ -165,7 +165,7 @@ int libpff_offsets_index_free(
 		}
 		if( ( *offsets_index )->recovered_index_tree != NULL )
 		{
-			if( libfdata_tree_free(
+			if( libpff_index_tree_free(
 			     &( ( *offsets_index )->recovered_index_tree ),
 			     error ) != 1 )
 			{
@@ -251,12 +251,9 @@ int libpff_offsets_index_set_root_node(
 		/* Point the root node data offset to LIBPFF_OFFSETS_INDEX_TREE_ROOT_OFFSET
 		 * otherwise it will mess up the caching of the first index value
 		 */
-		if( libfdata_tree_set_root_node(
+		if( libpff_index_tree_set_root_node(
 		     offsets_index->index_tree,
-		     0,
 		     LIBPFF_OFFSETS_INDEX_TREE_ROOT_OFFSET,
-		     0,
-		     0,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -294,12 +291,9 @@ int libpff_offsets_index_set_root_node(
 		/* Point the root node data offset to LIBPFF_RECOVERED_OFFSETS_INDEX_TREE_ROOT_OFFSET
 		 * otherwise it will mess up the caching of the first index value
 		 */
-		if( libfdata_tree_set_root_node(
+		if( libpff_index_tree_set_root_node(
 		     offsets_index->recovered_index_tree,
-		     0,
 		     LIBPFF_RECOVERED_OFFSETS_INDEX_TREE_ROOT_OFFSET,
-		     0,
-		     0,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -336,7 +330,7 @@ on_error:
 	{
 		if( offsets_index->index_tree != NULL )
 		{
-			libfdata_tree_free(
+			libpff_index_tree_free(
 			 &( offsets_index->index_tree ),
 			 NULL );
 		}
@@ -345,7 +339,7 @@ on_error:
 	{
 		if( offsets_index->recovered_index_tree != NULL )
 		{
-			libfdata_tree_free(
+			libpff_index_tree_free(
 			 &( offsets_index->recovered_index_tree ),
 			 NULL );
 		}

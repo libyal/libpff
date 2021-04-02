@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libpff_index_tree.h"
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
@@ -53,11 +54,11 @@ struct libpff_descriptors_index
 
 	/* The index tree
 	 */
-	libfdata_tree_t *index_tree;
+	libpff_index_tree_t *index_tree;
 
 	/* The recovered index tree
 	 */
-	libfdata_tree_t *recovered_index_tree;
+	libpff_index_tree_t *recovered_index_tree;
 
 	/* The index cache
 	 */
