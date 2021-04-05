@@ -1074,6 +1074,7 @@ int pff_test_index_tree_node_get_leaf_node_by_identifier(
 	          0x0000012c,
 	          &leaf_node_index,
 	          &leaf_index_tree_node,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -1094,6 +1095,7 @@ int pff_test_index_tree_node_get_leaf_node_by_identifier(
 	          0x0000012c,
 	          &leaf_node_index,
 	          &leaf_index_tree_node,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -1115,6 +1117,7 @@ int pff_test_index_tree_node_get_leaf_node_by_identifier(
 	          0x0000012c,
 	          &leaf_node_index,
 	          &leaf_index_tree_node,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -1136,6 +1139,7 @@ int pff_test_index_tree_node_get_leaf_node_by_identifier(
 	          0x0000012c,
 	          NULL,
 	          &leaf_index_tree_node,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -1157,6 +1161,7 @@ int pff_test_index_tree_node_get_leaf_node_by_identifier(
 	          0x0000012c,
 	          &leaf_node_index,
 	          NULL,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(

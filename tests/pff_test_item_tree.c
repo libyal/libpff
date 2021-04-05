@@ -441,8 +441,8 @@ int pff_test_item_tree_create_node(
 	libcdata_tree_node_t *root_folder_item_tree_node = NULL;
 	libcerror_error_t *error                         = NULL;
 	libfcache_cache_t *index_tree_cache              = NULL;
-	libfdata_tree_t *descriptor_index_tree           = NULL;
 	libfdata_tree_node_t *descriptor_index_tree_node = NULL;
+	libpff_index_tree_t *descriptor_index_tree       = NULL;
 	int result                                       = 0;
 
 	/* Test error cases

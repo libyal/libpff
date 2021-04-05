@@ -148,6 +148,7 @@ int libpff_file_header_read_data(
 	const uint8_t *file_header_data                  = NULL;
 	static char *function                            = "libpff_file_header_read_data";
 	uint64_t safe_descriptors_index_root_node_offset = 0;
+	uint64_t safe_offsets_index_root_node_offset     = 0;
 	uint32_t calculated_checksum                     = 0;
 	uint32_t stored_checksum                         = 0;
 	uint16_t content_type                            = 0;
@@ -462,15 +463,13 @@ int libpff_file_header_read_data(
 		 ( (pff_file_header_data_32bit_t *) file_header_data )->descriptors_index_root_node_offset,
 		 safe_descriptors_index_root_node_offset );
 
-		file_header->descriptors_index_root_node_offset = (off64_t) safe_descriptors_index_root_node_offset;
-
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_file_header_data_32bit_t *) file_header_data )->offsets_index_back_pointer,
 		 file_header->offsets_index_root_node_back_pointer );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_file_header_data_32bit_t *) file_header_data )->offsets_index_root_node_offset,
-		 file_header->offsets_index_root_node_offset );
+		 safe_offsets_index_root_node_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		sentinal = ( (pff_file_header_data_32bit_t *) file_header_data )->sentinal;
@@ -492,15 +491,13 @@ int libpff_file_header_read_data(
 		 ( (pff_file_header_data_64bit_t *) file_header_data )->descriptors_index_root_node_offset,
 		 safe_descriptors_index_root_node_offset );
 
-		file_header->descriptors_index_root_node_offset = (off64_t) safe_descriptors_index_root_node_offset;
-
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_file_header_data_64bit_t *) file_header_data )->offsets_index_back_pointer,
 		 file_header->offsets_index_root_node_back_pointer );
 
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_file_header_data_64bit_t *) file_header_data )->offsets_index_root_node_offset,
-		 file_header->offsets_index_root_node_offset );
+		 safe_offsets_index_root_node_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		sentinal = ( (pff_file_header_data_64bit_t *) file_header_data )->sentinal;
@@ -703,9 +700,9 @@ int libpff_file_header_read_data(
 		 file_header->descriptors_index_root_node_back_pointer );
 
 		libcnotify_printf(
-		 "%s: descriptors index root node offset\t: %" PRIi64 "\n",
+		 "%s: descriptors index root node offset\t: %" PRIu64 " (0x%08" PRIx64 ")\n",
 		 function,
-		 file_header->descriptors_index_root_node_offset );
+		 safe_descriptors_index_root_node_offset );
 
 		libcnotify_printf(
 		 "%s: offsets index back pointer\t\t: %" PRIu64 "\n",
@@ -713,9 +710,10 @@ int libpff_file_header_read_data(
 		 file_header->offsets_index_root_node_back_pointer );
 
 		libcnotify_printf(
-		 "%s: offsets index root node offset\t\t: %" PRIi64 "\n",
+		 "%s: offsets index root node offset\t\t: %" PRIu64 " (0x%08" PRIx64 ")\n",
 		 function,
-		 file_header->offsets_index_root_node_offset );
+		 safe_offsets_index_root_node_offset,
+		 safe_offsets_index_root_node_offset );
 
 		if( file_header->file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
@@ -898,6 +896,32 @@ int libpff_file_header_read_data(
 		}
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+	if( safe_descriptors_index_root_node_offset > (uint64_t) INT64_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid descriptors index root node offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( safe_offsets_index_root_node_offset > (uint64_t) INT64_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid offsets index root node offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+
+	file_header->descriptors_index_root_node_offset = (off64_t) safe_descriptors_index_root_node_offset;
+	file_header->offsets_index_root_node_offset     = (off64_t) safe_offsets_index_root_node_offset;
 
 	if( ( file_header->file_type == LIBPFF_FILE_TYPE_64BIT )
 	 || ( file_header->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )

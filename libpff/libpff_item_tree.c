@@ -793,7 +793,7 @@ int libpff_item_tree_create_node(
 		return( -1 );
 	}
 	if( ( recursion_depth < 0 )
-	 || ( recursion_depth > 256 ) )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_ITEM_TREE_RECURSION_DEPTH ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -1012,7 +1012,7 @@ int libpff_item_tree_create_leaf_node(
 		return( -1 );
 	}
 	if( ( recursion_depth < 0 )
-	 || ( recursion_depth > 256 ) )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_ITEM_TREE_RECURSION_DEPTH ) )
 	{
 		libcerror_error_set(
 		 error,

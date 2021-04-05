@@ -117,6 +117,7 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
      uint64_t identifier,
      int *leaf_node_index,
      libfdata_tree_node_t **leaf_index_tree_node,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_index_tree_get_number_of_deleted_leaf_nodes(

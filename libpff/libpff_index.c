@@ -242,15 +242,15 @@ int libpff_index_read_node(
      libcerror_error_t **error )
 {
 	libpff_index_node_t *index_node      = NULL;
-	static char *function                = "libpff_index_read_node";
 	uint8_t *node_entry_data             = NULL;
+	static char *function                = "libpff_index_read_node";
 	off64_t element_data_offset          = 0;
-	off64_t index_value_file_offset      = 0;
 	off64_t node_data_offset             = 0;
-	uint64_t index_value_identifier      = 0;
 	uint64_t index_value_data_identifier = 0;
-	uint16_t index_value_data_size       = 0;
+	uint64_t index_value_file_offset     = 0;
+	uint64_t index_value_identifier      = 0;
 	uint16_t entry_index                 = 0;
+	uint16_t index_value_data_size       = 0;
 	int sub_node_index                   = 0;
 
 	if( index == NULL )
@@ -497,7 +497,8 @@ int libpff_index_read_node(
 					}
 					/* Ignore offset index values without a file offset and data size
 					 */
-					if( ( index_value_file_offset <= 0 )
+					if( ( index_value_file_offset == 0 )
+					 || ( index_value_file_offset > (uint64_t) INT64_MAX )
 					 || ( index_value_data_size == 0 ) )
 					{
 						continue;
