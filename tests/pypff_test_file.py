@@ -38,15 +38,16 @@ class FileTypeTests(unittest.TestCase):
 
   def test_open(self):
     """Tests the open function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     with self.assertRaises(IOError):
-      pff_file.open(unittest.source)
+      pff_file.open(test_source)
 
     pff_file.close()
 
@@ -54,19 +55,20 @@ class FileTypeTests(unittest.TestCase):
       pff_file.open(None)
 
     with self.assertRaises(ValueError):
-      pff_file.open(unittest.source, mode="w")
+      pff_file.open(test_source, mode="w")
 
   def test_open_file_object(self):
     """Tests the open_file_object function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
-    if not os.path.isfile(unittest.source):
+    if not os.path.isfile(test_source):
       raise unittest.SkipTest("source not a regular file")
 
     pff_file = pypff.file()
 
-    with open(unittest.source, "rb") as file_object:
+    with open(test_source, "rb") as file_object:
 
       pff_file.open_file_object(file_object)
 
@@ -83,7 +85,8 @@ class FileTypeTests(unittest.TestCase):
 
   def test_close(self):
     """Tests the close function."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
@@ -93,21 +96,22 @@ class FileTypeTests(unittest.TestCase):
 
   def test_open_close(self):
     """Tests the open and close functions."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       return
 
     pff_file = pypff.file()
 
     # Test open and close.
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
     pff_file.close()
 
     # Test open and close a second time to validate clean up on close.
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
     pff_file.close()
 
-    if os.path.isfile(unittest.source):
-      with open(unittest.source, "rb") as file_object:
+    if os.path.isfile(test_source):
+      with open(test_source, "rb") as file_object:
 
         # Test open_file_object and close.
         pff_file.open_file_object(file_object)
@@ -146,12 +150,13 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_size(self):
     """Tests the get_size function and size property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     size = pff_file.get_size()
     self.assertIsNotNone(size)
@@ -162,12 +167,13 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_content_type(self):
     """Tests the get_content_type function and content_type property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     content_type = pff_file.get_content_type()
     self.assertIsNotNone(content_type)
@@ -178,12 +184,13 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_encryption_type(self):
     """Tests the get_encryption_type function and encryption_type property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     encryption_type = pff_file.get_encryption_type()
     self.assertIsNotNone(encryption_type)
@@ -194,12 +201,13 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_ascii_codepage(self):
     """Tests the get_ascii_codepage function and ascii_codepage property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     ascii_codepage = pff_file.get_ascii_codepage()
     self.assertIsNotNone(ascii_codepage)
@@ -210,12 +218,13 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_root_item(self):
     """Tests the get_root_item function and root_item property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     _ = pff_file.get_root_item()
 
@@ -225,12 +234,13 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_message_store(self):
     """Tests the get_message_store function and message_store property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     _ = pff_file.get_message_store()
 
@@ -240,12 +250,13 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_name_to_id_map(self):
     """Tests the get_name_to_id_map function and name_to_id_map property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     _ = pff_file.get_name_to_id_map()
 
@@ -255,12 +266,13 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_root_folder(self):
     """Tests the get_root_folder function and root_folder property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     _ = pff_file.get_root_folder()
 
@@ -270,12 +282,13 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_number_of_orphan_items(self):
     """Tests the get_number_of_orphan_items function and number_of_orphan_items property."""
-    if not unittest.source:
+    test_source = unittest.source
+    if not test_source:
       raise unittest.SkipTest("missing source")
 
     pff_file = pypff.file()
 
-    pff_file.open(unittest.source)
+    pff_file.open(test_source)
 
     number_of_orphan_items = pff_file.get_number_of_orphan_items()
     self.assertIsNotNone(number_of_orphan_items)
