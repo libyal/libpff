@@ -224,7 +224,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a record sets object
+/* Initializes a record sets object
  * Returns 0 if successful or -1 on error
  */
 int pypff_record_sets_init(

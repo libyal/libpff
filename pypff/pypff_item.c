@@ -283,7 +283,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes an item object
+/* Initializes an item object
  * Returns 0 if successful or -1 on error
  */
 int pypff_item_init(

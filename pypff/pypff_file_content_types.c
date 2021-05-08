@@ -242,7 +242,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a file content types object
+/* Initializes a file content types object
  * Returns 0 if successful or -1 on error
  */
 int pypff_file_content_types_init(

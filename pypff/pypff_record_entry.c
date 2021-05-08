@@ -319,7 +319,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a record entry object
+/* Initializes a record entry object
  * Returns 0 if successful or -1 on error
  */
 int pypff_record_entry_init(
