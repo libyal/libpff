@@ -1,22 +1,22 @@
 /*
  * Allocation table functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -496,31 +496,6 @@ int libpff_allocation_table_read_file_io_handle(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading allocation table at offset: 0x%08" PRIx64 "\n",
-		 function,
-		 allocation_table_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     allocation_table_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek allocation table offset: 0x%08" PRIx64 ".",
-		 function,
-		 allocation_table_offset );
-
-		goto on_error;
-	}
 	if( file_type == LIBPFF_FILE_TYPE_32BIT )
 	{
 		allocation_table_data_size = sizeof( pff_allocation_table_32bit_t );
@@ -547,10 +522,21 @@ int libpff_allocation_table_read_file_io_handle(
 
 		goto on_error;
 	}
-	read_count = libbfio_handle_read_buffer(
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading allocation table at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 allocation_table_offset,
+		 allocation_table_offset );
+	}
+#endif
+	read_count = libbfio_handle_read_buffer_at_offset(
 	              file_io_handle,
 	              allocation_table_data,
 	              allocation_table_data_size,
+	              allocation_table_offset,
 	              error );
 
 	if( read_count != (ssize_t) allocation_table_data_size )
@@ -559,8 +545,10 @@ int libpff_allocation_table_read_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read allocation table data.",
-		 function );
+		 "%s: unable to read allocation table data at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 allocation_table_offset,
+		 allocation_table_offset );
 
 		goto on_error;
 	}

@@ -1,22 +1,22 @@
 /*
  * Table functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBPFF_TABLE_H )
@@ -35,6 +35,7 @@
 #include "libpff_local_descriptor_value.h"
 #include "libpff_name_to_id_map.h"
 #include "libpff_offsets_index.h"
+#include "libpff_table_block_index.h"
 #include "libpff_table_index_value.h"
 #include "libpff_types.h"
 
@@ -250,8 +251,8 @@ int libpff_table_get_record_entry_by_type(
 int libpff_table_get_record_entry_by_utf8_name(
      libpff_table_t *table,
      int set_index,
-     const uint8_t *utf8_name,
-     size_t utf8_name_length,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -260,8 +261,8 @@ int libpff_table_get_record_entry_by_utf8_name(
 int libpff_table_get_record_entry_by_utf16_name(
      libpff_table_t *table,
      int set_index,
-     const uint16_t *utf16_name,
-     size_t utf16_name_length,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -274,6 +275,13 @@ int libpff_table_read(
      libpff_offsets_index_t *offsets_index,
      libcdata_list_t *name_to_id_map_list,
      int debug_item_type,
+     libcerror_error_t **error );
+
+int libpff_table_read_index_entries(
+     libpff_table_t *table,
+     libpff_data_block_t *data_block,
+     libpff_table_block_index_t *table_block_index,
+     uint32_t table_array_entry_iterator,
      libcerror_error_t **error );
 
 int libpff_table_read_index(

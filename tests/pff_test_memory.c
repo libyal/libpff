@@ -1,22 +1,22 @@
 /*
  * Memory allocation functions for testing
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -35,15 +35,15 @@
 
 #if defined( HAVE_PFF_TEST_MEMORY )
 
-static void *(*pff_test_real_malloc)(size_t)                 = NULL;
-static void *(*pff_test_real_memcpy)(void *, void *, size_t) = NULL;
-static void *(*pff_test_real_memset)(void *, int, size_t)    = NULL;
-static void *(*pff_test_real_realloc)(void *, size_t)        = NULL;
+static void *(*pff_test_real_malloc)(size_t)                       = NULL;
+static void *(*pff_test_real_memcpy)(void *, const void *, size_t) = NULL;
+static void *(*pff_test_real_memset)(void *, int, size_t)          = NULL;
+static void *(*pff_test_real_realloc)(void *, size_t)              = NULL;
 
-int pff_test_malloc_attempts_before_fail                     = -1;
-int pff_test_memcpy_attempts_before_fail                     = -1;
-int pff_test_memset_attempts_before_fail                     = -1;
-int pff_test_realloc_attempts_before_fail                    = -1;
+int pff_test_malloc_attempts_before_fail                           = -1;
+int pff_test_memcpy_attempts_before_fail                           = -1;
+int pff_test_memset_attempts_before_fail                           = -1;
+int pff_test_realloc_attempts_before_fail                          = -1;
 
 /* Custom malloc for testing memory error cases
  * Note this function might fail if compiled with optimation
@@ -82,7 +82,7 @@ void *malloc(
  */
 void *memcpy(
        void *destination,
-       void *source,
+       const void *source,
        size_t size )
 {
 	if( pff_test_real_memcpy == NULL )

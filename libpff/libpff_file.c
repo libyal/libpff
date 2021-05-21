@@ -1,22 +1,22 @@
 /*
  * File functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -29,16 +29,18 @@
 #include "libpff_debug.h"
 #include "libpff_definitions.h"
 #include "libpff_descriptors_index.h"
+#include "libpff_file.h"
+#include "libpff_file_header.h"
+#include "libpff_folder.h"
 #include "libpff_io_handle.h"
 #include "libpff_item.h"
 #include "libpff_item_descriptor.h"
-#include "libpff_file.h"
-#include "libpff_folder.h"
 #include "libpff_item_tree.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
+#include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_name_to_id_map.h"
 #include "libpff_offsets_index.h"
@@ -577,7 +579,7 @@ int libpff_file_open_file_io_handle(
 		}
 		internal_file->file_io_handle_opened_in_library = 1;
 	}
-	if( libpff_file_open_read(
+	if( libpff_internal_file_open_read(
 	     internal_file,
 	     file_io_handle,
 	     error ) != 1 )
@@ -715,6 +717,45 @@ int libpff_file_close(
 
 		result = -1;
 	}
+	if( libpff_file_header_free(
+	     &( internal_file->file_header ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free file header.",
+		 function );
+
+		result = -1;
+	}
+	if( libfdata_vector_free(
+	     &( internal_file->index_nodes_vector ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free index nodes vector.",
+		 function );
+
+		result = -1;
+	}
+	if( libfcache_cache_free(
+	     &( internal_file->index_nodes_cache ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free index nodes cache.",
+		 function );
+
+		result = -1;
+	}
 	if( libpff_descriptors_index_free(
 	     &( internal_file->descriptors_index ),
 	     error ) != 1 )
@@ -741,9 +782,8 @@ int libpff_file_close(
 
 		result = -1;
 	}
-	if( libcdata_tree_node_free(
-	     &( internal_file->item_tree_root_node ),
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_item_descriptor_free,
+	if( libpff_item_tree_free(
+	     &( internal_file->item_tree ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -836,25 +876,21 @@ int libpff_file_close(
 			result = -1;
 		}
 	}
-	internal_file->content_type = 0;
-
 	return( result );
 }
 
 /* Opens a file for reading
  * Returns 1 if successful or -1 on error
  */
-int libpff_file_open_read(
+int libpff_internal_file_open_read(
      libpff_internal_file_t *internal_file,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	static char *function                             = "libpff_file_open_read";
-	off64_t descriptors_index_root_node_offset        = 0;
-	uint64_t descriptors_index_root_node_back_pointer = 0;
-	off64_t offsets_index_root_node_offset            = 0;
-	uint64_t offsets_index_root_node_back_pointer     = 0;
-	int result                                        = 0;
+	static char *function = "libpff_internal_file_open_read";
+	size_t page_size      = 0;
+	int result            = 0;
+	int segment_index     = 0;
 
 	if( internal_file == NULL )
 	{
@@ -863,6 +899,17 @@ int libpff_file_open_read(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->file_header != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file - file header value already set.",
 		 function );
 
 		return( -1 );
@@ -889,13 +936,13 @@ int libpff_file_open_read(
 
 		return( -1 );
 	}
-	if( internal_file->item_tree_root_node != NULL )
+	if( internal_file->item_tree != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid file - item tree root node value already set.",
+		 "%s: invalid file - item tree value already set.",
 		 function );
 
 		return( -1 );
@@ -940,21 +987,125 @@ int libpff_file_open_read(
 		 "Reading file header:\n" );
 	}
 #endif
-	if( libpff_io_handle_read_file_header(
-	     internal_file->io_handle,
+	if( libpff_file_header_initialize(
+	     &( internal_file->file_header ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file header.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_file_header_read_file_io_handle(
+	     internal_file->file_header,
 	     file_io_handle,
-	     &( internal_file->content_type ),
-	     &descriptors_index_root_node_offset,
-	     &descriptors_index_root_node_back_pointer,
-	     &offsets_index_root_node_offset,
-	     &offsets_index_root_node_back_pointer,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read file header.",
+		 "%s: unable to read file header data.",
+		 function );
+
+		goto on_error;
+	}
+	internal_file->io_handle->encryption_type = internal_file->file_header->encryption_type;
+	internal_file->io_handle->file_size       = internal_file->file_header->file_size;
+	internal_file->io_handle->file_type       = internal_file->file_header->file_type;
+
+	if( ( internal_file->io_handle->encryption_type != LIBPFF_ENCRYPTION_TYPE_NONE )
+	 && ( internal_file->io_handle->encryption_type != LIBPFF_ENCRYPTION_TYPE_COMPRESSIBLE )
+	 && ( internal_file->io_handle->encryption_type != LIBPFF_ENCRYPTION_TYPE_HIGH ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported encryption type: 0x%02x",
+		 function,
+		 internal_file->io_handle->encryption_type );
+
+		goto on_error;
+	}
+	if( internal_file->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+	{
+		page_size = 4096;
+	}
+	else
+	{
+		page_size = 512;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: file type\t\t\t\t: %" PRIu8 "\n",
+		 function,
+		 internal_file->io_handle->file_type );
+
+		libcnotify_printf(
+		 "%s: page size\t\t\t\t: %" PRIzd "\n",
+		 function,
+		 page_size );
+
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif
+/* TODO free and clone function ? */
+	if( libfdata_vector_initialize(
+	     &( internal_file->index_nodes_vector ),
+	     page_size,
+	     (intptr_t *) internal_file->io_handle,
+	     NULL,
+	     NULL,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_io_handle_read_index_node,
+	     NULL,
+	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index nodes vector.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdata_vector_append_segment(
+	     internal_file->index_nodes_vector,
+	     &segment_index,
+	     0,
+	     0,
+	     internal_file->io_handle->file_size,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to create append segment to nodes vector.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfcache_cache_initialize(
+	     &( internal_file->index_nodes_cache ),
+	     LIBPFF_MAXIMUM_CACHE_ENTRIES_INDEX_NODES,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index nodes cache.",
 		 function );
 
 		goto on_error;
@@ -969,6 +1120,8 @@ int libpff_file_open_read(
 	if( libpff_descriptors_index_initialize(
 	     &( internal_file->descriptors_index ),
 	     internal_file->io_handle,
+	     internal_file->index_nodes_vector,
+	     internal_file->index_nodes_cache,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -982,8 +1135,8 @@ int libpff_file_open_read(
 	}
 	if( libpff_descriptors_index_set_root_node(
 	     internal_file->descriptors_index,
-	     descriptors_index_root_node_offset,
-	     descriptors_index_root_node_back_pointer,
+	     internal_file->file_header->descriptors_index_root_node_offset,
+	     internal_file->file_header->descriptors_index_root_node_back_pointer,
 	     0,
 	     error ) != 1 )
 	{
@@ -999,6 +1152,8 @@ int libpff_file_open_read(
 	if( libpff_offsets_index_initialize(
 	     &( internal_file->offsets_index ),
 	     internal_file->io_handle,
+	     internal_file->index_nodes_vector,
+	     internal_file->index_nodes_cache,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1012,8 +1167,8 @@ int libpff_file_open_read(
 	}
 	if( libpff_offsets_index_set_root_node(
 	     internal_file->offsets_index,
-	     offsets_index_root_node_offset,
-	     offsets_index_root_node_back_pointer,
+	     internal_file->file_header->offsets_index_root_node_offset,
+	     internal_file->file_header->offsets_index_root_node_back_pointer,
 	     0,
 	     error ) != 1 )
 	{
@@ -1039,8 +1194,21 @@ int libpff_file_open_read(
 
 		goto on_error;
 	}
+	if( libpff_item_tree_initialize(
+	     &( internal_file->item_tree ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create item tree.",
+		 function );
+
+		goto on_error;
+	}
 	if( libpff_item_tree_create(
-	     &( internal_file->item_tree_root_node ),
+             internal_file->item_tree,
 	     file_io_handle,
 	     internal_file->descriptors_index,
 	     internal_file->orphan_item_list,
@@ -1115,11 +1283,10 @@ on_error:
 		 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_item_tree_node_free_recovered,
 		 NULL );
 	}
-	if( internal_file->item_tree_root_node != NULL )
+	if( internal_file->item_tree != NULL )
 	{
-		libcdata_tree_node_free(
-		 &( internal_file->item_tree_root_node ),
-		 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_item_descriptor_free,
+		libpff_item_tree_free(
+		 &( internal_file->item_tree ),
 		 NULL );
 	}
 	if( internal_file->offsets_index != NULL )
@@ -1134,17 +1301,35 @@ on_error:
 		 &( internal_file->descriptors_index ),
 		 NULL );
 	}
+	if( internal_file->index_nodes_cache != NULL )
+	{
+		libfcache_cache_free(
+		 &( internal_file->index_nodes_cache ),
+		 NULL );
+	}
+	if( internal_file->index_nodes_vector != NULL )
+	{
+		libfdata_vector_free(
+		 &( internal_file->index_nodes_vector ),
+		 NULL );
+	}
+	if( internal_file->file_header != NULL )
+	{
+		libpff_file_header_free(
+		 &( internal_file->file_header ),
+		 NULL );
+	}
 	return( -1 );
 }
 
 /* Reads the allocation tables
  * Returns 1 if successful or -1 on error
  */
-int libpff_file_read_allocation_tables(
+int libpff_internal_file_read_allocation_tables(
      libpff_internal_file_t *internal_file,
      libcerror_error_t **error )
 {
-	static char *function = "libpff_file_read_allocation_tables";
+	static char *function = "libpff_internal_file_read_allocation_tables";
 
 	if( internal_file == NULL )
 	{
@@ -1401,7 +1586,7 @@ int libpff_file_recover_items(
 	}
 	if( internal_file->read_allocation_tables == 0 )
 	{
-		if( libpff_file_read_allocation_tables(
+		if( libpff_internal_file_read_allocation_tables(
 		     internal_file,
 		     error ) != 1 )
 		{
@@ -1545,6 +1730,17 @@ int libpff_file_get_content_type(
 	}
 	internal_file = (libpff_internal_file_t *) file;
 
+	if( internal_file->file_header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing file header.",
+		 function );
+
+		return( -1 );
+	}
 	if( content_type == NULL )
 	{
 		libcerror_error_set(
@@ -1560,7 +1756,7 @@ int libpff_file_get_content_type(
 	{
 		return( 0 );
 	}
-	*content_type = (uint8_t) internal_file->content_type;
+	*content_type = (uint8_t) internal_file->file_header->file_content_type;
 
 	return( 1 );
 }
@@ -1831,7 +2027,7 @@ int libpff_file_get_number_of_unallocated_blocks(
 
 	if( internal_file->read_allocation_tables == 0 )
 	{
-		if( libpff_file_read_allocation_tables(
+		if( libpff_internal_file_read_allocation_tables(
 		     internal_file,
 		     error ) != 1 )
 		{
@@ -1950,7 +2146,7 @@ int libpff_file_get_unallocated_block(
 	}
 	if( internal_file->read_allocation_tables == 0 )
 	{
-		if( libpff_file_read_allocation_tables(
+		if( libpff_internal_file_read_allocation_tables(
 		     internal_file,
 		     error ) != 1 )
 		{
@@ -1993,9 +2189,8 @@ int libpff_file_get_root_item(
      libpff_item_t **root_item,
      libcerror_error_t **error )
 {
-	libpff_internal_file_t *internal_file          = NULL;
-	libpff_item_descriptor_t *root_item_descriptor = NULL;
-	static char *function                          = "libpff_file_get_root_item";
+	libpff_internal_file_t *internal_file = NULL;
+	static char *function                 = "libpff_file_get_root_item";
 
 	if( file == NULL )
 	{
@@ -2021,13 +2216,13 @@ int libpff_file_get_root_item(
 
 		return( -1 );
 	}
-	if( internal_file->item_tree_root_node == NULL )
+	if( internal_file->item_tree == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file - missing item tree root node.",
+		 "%s: invalid file - missing item tree.",
 		 function );
 
 		return( -1 );
@@ -2054,26 +2249,15 @@ int libpff_file_get_root_item(
 
 		return( -1 );
 	}
-	if( libcdata_tree_node_get_value(
-	     internal_file->item_tree_root_node,
-	     (intptr_t **) &root_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve root item descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libpff_item_initialize(
 	     root_item,
+	     internal_file->io_handle,
 	     internal_file->file_io_handle,
-	     internal_file,
-	     internal_file->item_tree_root_node,
-	     root_item_descriptor,
+	     internal_file->name_to_id_map_list,
+	     internal_file->descriptors_index,
+	     internal_file->offsets_index,
+	     internal_file->item_tree,
+	     internal_file->item_tree->root_node,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -2097,11 +2281,10 @@ int libpff_file_get_message_store(
      libpff_item_t **message_store,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *message_store_item_tree_node      = NULL;
-	libpff_item_descriptor_t *message_store_item_descriptor = NULL;
-	libpff_internal_file_t *internal_file                   = NULL;
-	static char *function                                   = "libpff_file_get_message_store";
-	int result                                              = 0;
+	libcdata_tree_node_t *message_store_item_tree_node = NULL;
+	libpff_internal_file_t *internal_file              = NULL;
+	static char *function                              = "libpff_file_get_message_store";
+	int result                                         = 0;
 
 	if( file == NULL )
 	{
@@ -2149,8 +2332,8 @@ int libpff_file_get_message_store(
 
 		return( -1 );
 	}
-	result = libpff_item_tree_get_tree_node_by_identifier(
-	          internal_file->item_tree_root_node,
+	result = libpff_item_tree_get_node_by_identifier(
+	          internal_file->item_tree,
 	          LIBPFF_DESCRIPTOR_IDENTIFIER_MESSAGE_STORE,
                   &message_store_item_tree_node,
 	          error );
@@ -2169,26 +2352,15 @@ int libpff_file_get_message_store(
 	}
 	else if( result != 0 )
 	{
-		if( libcdata_tree_node_get_value(
-		     message_store_item_tree_node,
-		     (intptr_t **) &message_store_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve message store item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     message_store,
+		     internal_file->io_handle,
 		     internal_file->file_io_handle,
-		     internal_file,
+		     internal_file->name_to_id_map_list,
+		     internal_file->descriptors_index,
+		     internal_file->offsets_index,
+		     internal_file->item_tree,
 		     message_store_item_tree_node,
-		     message_store_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
@@ -2213,11 +2385,10 @@ int libpff_file_get_name_to_id_map(
      libpff_item_t **name_to_id_map,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *name_to_id_map_item_tree_node      = NULL;
-	libpff_item_descriptor_t *name_to_id_map_item_descriptor = NULL;
-	libpff_internal_file_t *internal_file                    = NULL;
-	static char *function                                    = "libpff_file_get_name_to_id_map";
-	int result                                               = 0;
+	libcdata_tree_node_t *name_to_id_map_item_tree_node = NULL;
+	libpff_internal_file_t *internal_file               = NULL;
+	static char *function                               = "libpff_file_get_name_to_id_map";
+	int result                                          = 0;
 
 	if( file == NULL )
 	{
@@ -2265,8 +2436,8 @@ int libpff_file_get_name_to_id_map(
 
 		return( -1 );
 	}
-	result = libpff_item_tree_get_tree_node_by_identifier(
-	          internal_file->item_tree_root_node,
+	result = libpff_item_tree_get_node_by_identifier(
+	          internal_file->item_tree,
 	          LIBPFF_DESCRIPTOR_IDENTIFIER_NAME_TO_ID_MAP,
                   &name_to_id_map_item_tree_node,
 	          error );
@@ -2285,26 +2456,15 @@ int libpff_file_get_name_to_id_map(
 	}
 	else if( result != 0 )
 	{
-		if( libcdata_tree_node_get_value(
-		     name_to_id_map_item_tree_node,
-		     (intptr_t **) &name_to_id_map_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve name to id map item descriptor.",
-			 function );
-
-			return( -1 );
-		}
 		if( libpff_item_initialize(
 		     name_to_id_map,
+		     internal_file->io_handle,
 		     internal_file->file_io_handle,
-		     internal_file,
+		     internal_file->name_to_id_map_list,
+		     internal_file->descriptors_index,
+		     internal_file->offsets_index,
+		     internal_file->item_tree,
 		     name_to_id_map_item_tree_node,
-		     name_to_id_map_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
@@ -2329,9 +2489,8 @@ int libpff_file_get_root_folder(
      libpff_item_t **root_folder,
      libcerror_error_t **error )
 {
-	libpff_internal_file_t *internal_file                 = NULL;
-	libpff_item_descriptor_t *root_folder_item_descriptor = NULL;
-	static char *function                                 = "libpff_file_get_root_folder";
+	libpff_internal_file_t *internal_file = NULL;
+	static char *function                 = "libpff_file_get_root_folder";
 
 	if( file == NULL )
 	{
@@ -2383,26 +2542,15 @@ int libpff_file_get_root_folder(
 	{
 		return( 0 );
 	}
-	if( libcdata_tree_node_get_value(
-	     internal_file->root_folder_item_tree_node,
-	     (intptr_t **) &root_folder_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve root folder item descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libpff_item_initialize(
 	     root_folder,
+	     internal_file->io_handle,
 	     internal_file->file_io_handle,
-	     internal_file,
+	     internal_file->name_to_id_map_list,
+	     internal_file->descriptors_index,
+	     internal_file->offsets_index,
+	     internal_file->item_tree,
 	     internal_file->root_folder_item_tree_node,
-	     root_folder_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -2427,11 +2575,10 @@ int libpff_file_get_item_by_identifier(
      libpff_item_t **item,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *item_tree_node      = NULL;
-	libpff_internal_file_t *internal_file     = NULL;
-	libpff_item_descriptor_t *item_descriptor = NULL;
-	static char *function                     = "libpff_file_get_item_by_identifier";
-	int result                                = 0;
+	libcdata_tree_node_t *item_tree_node  = NULL;
+	libpff_internal_file_t *internal_file = NULL;
+	static char *function                 = "libpff_file_get_item_by_identifier";
+	int result                            = 0;
 
 	if( file == NULL )
 	{
@@ -2453,17 +2600,6 @@ int libpff_file_get_item_by_identifier(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid file - missing file IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_file->item_tree_root_node == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file - missing item tree root node.",
 		 function );
 
 		return( -1 );
@@ -2490,8 +2626,8 @@ int libpff_file_get_item_by_identifier(
 
 		return( -1 );
 	}
-	result = libpff_item_tree_get_tree_node_by_identifier(
-	          internal_file->item_tree_root_node,
+	result = libpff_item_tree_get_node_by_identifier(
+	          internal_file->item_tree,
                   item_identifier,
                   &item_tree_node,
 	          error );
@@ -2523,26 +2659,15 @@ int libpff_file_get_item_by_identifier(
 
 		return( -1 );
 	}
-	if( libcdata_tree_node_get_value(
-	     item_tree_node,
-	     (intptr_t **) &item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve item descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libpff_item_initialize(
 	     item,
+	     internal_file->io_handle,
 	     internal_file->file_io_handle,
-	     internal_file,
+	     internal_file->name_to_id_map_list,
+	     internal_file->descriptors_index,
+	     internal_file->offsets_index,
+	     internal_file->item_tree,
 	     item_tree_node,
-	     item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -2619,10 +2744,9 @@ int libpff_file_get_orphan_item_by_index(
      libpff_item_t **orphan_item,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *orphan_item_tree_node      = NULL;
-	libpff_internal_file_t *internal_file            = NULL;
-	libpff_item_descriptor_t *orphan_item_descriptor = NULL;
-	static char *function                            = "libpff_file_get_orphan_item_by_index";
+	libcdata_tree_node_t *orphan_item_tree_node = NULL;
+	libpff_internal_file_t *internal_file       = NULL;
+	static char *function                       = "libpff_file_get_orphan_item_by_index";
 
 	if( file == NULL )
 	{
@@ -2675,26 +2799,15 @@ int libpff_file_get_orphan_item_by_index(
 
 		return( -1 );
 	}
-	if( libcdata_tree_node_get_value(
-	     orphan_item_tree_node,
-	     (intptr_t **) &orphan_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve orphan item descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libpff_item_initialize(
 	     orphan_item,
+	     internal_file->io_handle,
 	     internal_file->file_io_handle,
-	     internal_file,
+	     internal_file->name_to_id_map_list,
+	     internal_file->descriptors_index,
+	     internal_file->offsets_index,
+	     internal_file->item_tree,
 	     orphan_item_tree_node,
-	     orphan_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -2771,10 +2884,9 @@ int libpff_file_get_recovered_item_by_index(
      libpff_item_t **recovered_item,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *recovered_item_tree_node      = NULL;
-	libpff_internal_file_t *internal_file               = NULL;
-	libpff_item_descriptor_t *recovered_item_descriptor = NULL;
-	static char *function                               = "libpff_file_get_recovered_item_by_index";
+	libcdata_tree_node_t *recovered_item_tree_node = NULL;
+	libpff_internal_file_t *internal_file          = NULL;
+	static char *function                          = "libpff_file_get_recovered_item_by_index";
 
 	if( file == NULL )
 	{
@@ -2827,26 +2939,15 @@ int libpff_file_get_recovered_item_by_index(
 
 		return( -1 );
 	}
-	if( libcdata_tree_node_get_value(
-	     recovered_item_tree_node,
-	     (intptr_t **) &recovered_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve recovered item descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libpff_item_initialize(
 	     recovered_item,
+	     internal_file->io_handle,
 	     internal_file->file_io_handle,
-	     internal_file,
+	     internal_file->name_to_id_map_list,
+	     internal_file->descriptors_index,
+	     internal_file->offsets_index,
+	     internal_file->item_tree,
 	     recovered_item_tree_node,
-	     recovered_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{

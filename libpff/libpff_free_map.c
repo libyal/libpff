@@ -1,22 +1,22 @@
 /*
  * Free map functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -100,22 +100,6 @@ int libpff_free_map_read(
 
 		return( -1 );
 	}
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     free_map_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek free map offset: %" PRIi64 ".",
-		 function,
-		 free_map_offset );
-
-		goto on_error;
-	}
 	if( file_type == LIBPFF_FILE_TYPE_32BIT )
 	{
 		read_size = sizeof( pff_free_map_32bit_t );
@@ -138,10 +122,11 @@ int libpff_free_map_read(
 
 		goto on_error;
 	}
-	read_count = libbfio_handle_read_buffer(
+	read_count = libbfio_handle_read_buffer_at_offset(
 	              file_io_handle,
 	              free_map_data,
 	              read_size,
+	              free_map_offset,
 	              error );
 
 	if( read_count != (ssize_t) read_size )
@@ -150,8 +135,10 @@ int libpff_free_map_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read free map.",
-		 function );
+		 "%s: unable to read free map at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 free_map_offset,
+		 free_map_offset );
 
 		goto on_error;
 	}

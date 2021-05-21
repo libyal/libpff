@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20180318
+# Version: 20200912
 
 # Generic auto-generated build files
 *~
@@ -25,7 +25,9 @@
 *.swp
 *.Tpo
 *.trs
+/*.egg-info/
 .deps
+.dirstamp
 .libs
 INSTALL
 Makefile
@@ -59,6 +61,7 @@ stamp-h[1-9]
 /m4/gettext.m4
 /m4/glibc21.m4
 /m4/glibc2.m4
+/m4/host-cpu-c-abi.m4
 /m4/iconv.m4
 /m4/intdiv0.m4
 /m4/intldir.m4
@@ -138,11 +141,14 @@ stamp-h[1-9]
 /tests/pff_test_descriptors_index
 /tests/pff_test_error
 /tests/pff_test_file
+/tests/pff_test_file_header
 /tests/pff_test_folder
 /tests/pff_test_index
 /tests/pff_test_index_node
+/tests/pff_test_index_tree
 /tests/pff_test_index_value
 /tests/pff_test_io_handle
+/tests/pff_test_io_handle2
 /tests/pff_test_item
 /tests/pff_test_item_descriptor
 /tests/pff_test_item_tree
@@ -165,6 +171,9 @@ stamp-h[1-9]
 /tests/pff_test_table
 /tests/pff_test_table_block_index
 /tests/pff_test_table_index_value
+/tests/pff_test_tools_info_handle
+/tests/pff_test_tools_output
+/tests/pff_test_tools_signal
 /tests/pff_test_value_type
 /tests/tmp*
 

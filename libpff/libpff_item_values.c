@@ -1,22 +1,22 @@
 /*
  * Item values functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -316,52 +316,6 @@ on_error:
 	return( -1 );
 }
 
-/* Retrieves the local descriptor value for the specific identifier
- * Returns 1 if successful, 0 if no value was found or -1 on error
- */
-int libpff_item_values_get_local_descriptors_value_by_identifier(
-     libpff_item_values_t *item_values,
-     libbfio_handle_t *file_io_handle,
-     uint32_t descriptor_identifier,
-     libpff_local_descriptor_value_t **local_descriptor_value,
-     libcerror_error_t **error )
-{
-	static char *function = "libpff_item_values_get_local_descriptors_value_by_identifier";
-	int result            = 0;
-
-	if( item_values == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid item values.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_table_get_local_descriptors_value_by_identifier(
-	          item_values->table,
-	          file_io_handle,
-	          (uint64_t) descriptor_identifier,
-	          local_descriptor_value,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
-		 function,
-		 descriptor_identifier );
-
-		return( -1 );
-	}
-	return( result );
-}
-
 /* Reads the local descriptor data
  * Returns 1 if successful or -1 on error
  */
@@ -475,6 +429,52 @@ int libpff_item_values_read_local_descriptor_data(
 	return( 1 );
 }
 
+/* Retrieves the local descriptor value for the specific identifier
+ * Returns 1 if successful, 0 if no value was found or -1 on error
+ */
+int libpff_item_values_get_local_descriptors_value_by_identifier(
+     libpff_item_values_t *item_values,
+     libbfio_handle_t *file_io_handle,
+     uint32_t descriptor_identifier,
+     libpff_local_descriptor_value_t **local_descriptor_value,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_item_values_get_local_descriptors_value_by_identifier";
+	int result            = 0;
+
+	if( item_values == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item values.",
+		 function );
+
+		return( -1 );
+	}
+	result = libpff_table_get_local_descriptors_value_by_identifier(
+	          item_values->table,
+	          file_io_handle,
+	          (uint64_t) descriptor_identifier,
+	          local_descriptor_value,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
+		 function,
+		 descriptor_identifier );
+
+		return( -1 );
+	}
+	return( result );
+}
+
 /* Retrieves the number of item value sets
  * Returns 1 if successful or -1 on error
  */
@@ -529,17 +529,6 @@ int libpff_item_values_get_number_of_record_sets(
 
 			return( -1 );
 		}
-		if( item_values->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid item values - missing table.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	if( libpff_table_get_number_of_record_sets(
 	     item_values->table,
@@ -560,14 +549,14 @@ int libpff_item_values_get_number_of_record_sets(
 
 /* Retrieves the record entry matching the entry and value type pair from the item values.
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -628,17 +617,6 @@ int libpff_item_values_get_record_entry_by_type(
 
 			return( -1 );
 		}
-		if( item_values->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid item values - missing table.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	result = libpff_table_get_record_entry_by_type(
 	          item_values->table,
@@ -665,7 +643,7 @@ int libpff_item_values_get_record_entry_by_type(
 
 /* Retrieves the record entry matching the UTF-8 encoded entry name from the item values.
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
@@ -679,8 +657,8 @@ int libpff_item_values_get_record_entry_by_utf8_name(
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
      int record_set_index,
-     const uint8_t *utf8_name,
-     size_t utf8_name_length,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -729,23 +707,12 @@ int libpff_item_values_get_record_entry_by_utf8_name(
 
 			return( -1 );
 		}
-		if( item_values->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid item values - missing table.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	result = libpff_table_get_record_entry_by_utf8_name(
 	          item_values->table,
 	          record_set_index,
-	          utf8_name,
-	          utf8_name_length,
+	          utf8_string,
+	          utf8_string_length,
 	          value_type,
 	          record_entry,
 	          flags,
@@ -767,7 +734,7 @@ int libpff_item_values_get_record_entry_by_utf8_name(
 
 /* Retrieves the record entry matching the UTF-16 encoded entry name from the item values.
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
@@ -781,8 +748,8 @@ int libpff_item_values_get_record_entry_by_utf16_name(
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
      int record_set_index,
-     const uint16_t *utf16_name,
-     size_t utf16_name_length,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -831,23 +798,12 @@ int libpff_item_values_get_record_entry_by_utf16_name(
 
 			return( -1 );
 		}
-		if( item_values->table == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid item values - missing table.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	result = libpff_table_get_record_entry_by_utf16_name(
 	          item_values->table,
 	          record_set_index,
-	          utf16_name,
-	          utf16_name_length,
+	          utf16_string,
+	          utf16_string_length,
 	          value_type,
 	          record_entry,
 	          flags,

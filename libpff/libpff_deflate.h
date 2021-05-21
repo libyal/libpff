@@ -1,22 +1,22 @@
 /*
  * Deflate (zlib) (un)compression functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBPFF_DEFLATE_COMPRESSION_H )
@@ -74,7 +74,7 @@ struct libpff_deflate_huffman_table
 	 */
 	uint8_t maximum_number_of_bits;
 
-/* TODO create initialize and set size? */
+/* TODO create initialize function that sets the size of codes array? */
 	/* The codes array
 	 */
 	int codes_array[ 288 ];
@@ -106,18 +106,24 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
      uint32_t *value_32bit,
      libcerror_error_t **error );
 
-int libpff_deflate_bit_stream_get_huffman_encoded_value(
+int libpff_deflate_initialize_dynamic_huffman_tables(
      libpff_deflate_bit_stream_t *bit_stream,
-     libpff_deflate_huffman_table_t *table,
-     uint32_t *value_32bit,
+     libpff_deflate_huffman_table_t *literals_table,
+     libpff_deflate_huffman_table_t *distances_table,
      libcerror_error_t **error );
 
-int libpff_deflate_bit_stream_get_huffman_encoded_codes_array(
+int libpff_deflate_initialize_fixed_huffman_tables(
+     libpff_deflate_huffman_table_t *literals_table,
+     libpff_deflate_huffman_table_t *distances_table,
+     libcerror_error_t **error );
+
+int libpff_deflate_decode_huffman(
      libpff_deflate_bit_stream_t *bit_stream,
-     libpff_deflate_huffman_table_t *code_size_table,
-     uint16_t *codes_array,
-     uint32_t maximum_number_of_codes,
-     uint32_t number_of_codes,
+     libpff_deflate_huffman_table_t *literals_table,
+     libpff_deflate_huffman_table_t *distances_table,
+     uint8_t *uncompressed_data,
+     size_t uncompressed_data_size,
+     size_t *uncompressed_data_offset,
      libcerror_error_t **error );
 
 int libpff_deflate_calculate_adler32(
@@ -127,7 +133,28 @@ int libpff_deflate_calculate_adler32(
      uint32_t initial_value,
      libcerror_error_t **error );
 
+int libpff_deflate_read_data_header(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     size_t *compressed_data_offset,
+     libcerror_error_t **error );
+
+int libpff_deflate_read_block(
+     libpff_deflate_bit_stream_t *bit_stream,
+     uint8_t *uncompressed_data,
+     size_t uncompressed_data_size,
+     size_t *uncompressed_data_offset,
+     uint8_t *last_block_flag,
+     libcerror_error_t **error );
+
 int libpff_deflate_decompress(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     uint8_t *uncompressed_data,
+     size_t *uncompressed_data_size,
+     libcerror_error_t **error );
+
+int libpff_deflate_decompress_zlib(
      const uint8_t *compressed_data,
      size_t compressed_data_size,
      uint8_t *uncompressed_data,

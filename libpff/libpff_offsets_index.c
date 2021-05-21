@@ -1,22 +1,22 @@
 /*
  * Offsets index functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -40,6 +40,8 @@
 int libpff_offsets_index_initialize(
      libpff_offsets_index_t **offsets_index,
      libpff_io_handle_t *io_handle,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
      libcerror_error_t **error )
 {
 	static char *function = "libpff_offsets_index_initialize";
@@ -105,7 +107,9 @@ int libpff_offsets_index_initialize(
 
 		goto on_error;
 	}
-	( *offsets_index )->io_handle = io_handle;
+	( *offsets_index )->io_handle          = io_handle;
+	( *offsets_index )->index_nodes_vector = index_nodes_vector;
+	( *offsets_index )->index_nodes_cache  = index_nodes_cache;
 
 	return( 1 );
 
@@ -145,7 +149,7 @@ int libpff_offsets_index_free(
 	{
 		if( ( *offsets_index )->index_tree != NULL )
 		{
-			if( libfdata_tree_free(
+			if( libpff_index_tree_free(
 			     &( ( *offsets_index )->index_tree ),
 			     error ) != 1 )
 			{
@@ -161,7 +165,7 @@ int libpff_offsets_index_free(
 		}
 		if( ( *offsets_index )->recovered_index_tree != NULL )
 		{
-			if( libfdata_tree_free(
+			if( libpff_index_tree_free(
 			     &( ( *offsets_index )->recovered_index_tree ),
 			     error ) != 1 )
 			{
@@ -209,7 +213,6 @@ int libpff_offsets_index_set_root_node(
      uint8_t recovered,
      libcerror_error_t **error )
 {
-	libpff_index_t *index = NULL;
 	static char *function = "libpff_offsets_index_set_root_node";
 
 	if( offsets_index == NULL )
@@ -225,20 +228,11 @@ int libpff_offsets_index_set_root_node(
 	}
 	if( recovered == 0 )
 	{
-		if( offsets_index->index_tree != NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-			 "%s: invalid offsets index - index tree value already set.",
-			 function );
-
-			return( -1 );
-		}
-		if( libpff_index_initialize(
-		     &index,
+		if( libpff_index_tree_initialize(
+		     &( offsets_index->index_tree ),
 		     offsets_index->io_handle,
+		     offsets_index->index_nodes_vector,
+		     offsets_index->index_nodes_cache,
 		     LIBPFF_INDEX_TYPE_OFFSET,
 		     root_node_offset,
 		     root_node_back_pointer,
@@ -249,43 +243,17 @@ int libpff_offsets_index_set_root_node(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index.",
+			 "%s: unable to create index tree.",
 			 function );
 
 			goto on_error;
 		}
-		if( libfdata_tree_initialize(
-		     &( offsets_index->index_tree ),
-		     (intptr_t *) index,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_free,
-		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_index_clone,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_node_data,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_sub_nodes,
-		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index tree",
-			 function );
-
-			goto on_error;
-		}
-		/* The index is now managed by the index tree
-		 */
-		index = NULL;
-
 		/* Point the root node data offset to LIBPFF_OFFSETS_INDEX_TREE_ROOT_OFFSET
 		 * otherwise it will mess up the caching of the first index value
 		 */
-		if( libfdata_tree_set_root_node(
+		if( libpff_index_tree_set_root_node(
 		     offsets_index->index_tree,
-		     0,
 		     LIBPFF_OFFSETS_INDEX_TREE_ROOT_OFFSET,
-		     0,
-		     0,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -300,20 +268,11 @@ int libpff_offsets_index_set_root_node(
 	}
 	else
 	{
-		if( offsets_index->recovered_index_tree != NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-			 "%s: invalid offsets index - recovered index tree value already set.",
-			 function );
-
-			return( -1 );
-		}
-		if( libpff_index_initialize(
-		     &index,
+		if( libpff_index_tree_initialize(
+		     &( offsets_index->recovered_index_tree ),
 		     offsets_index->io_handle,
+		     offsets_index->index_nodes_vector,
+		     offsets_index->index_nodes_cache,
 		     LIBPFF_INDEX_TYPE_OFFSET,
 		     0,
 		     0,
@@ -324,43 +283,17 @@ int libpff_offsets_index_set_root_node(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create recovered index.",
+			 "%s: unable to create index tree.",
 			 function );
 
 			goto on_error;
 		}
-		if( libfdata_tree_initialize(
-		     &( offsets_index->recovered_index_tree ),
-		     (intptr_t *) index,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_free,
-		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_index_clone,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_node_data,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_sub_nodes,
-		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create recovered index tree",
-			 function );
-
-			goto on_error;
-		}
-		/* The index is now managed by the index tree
-		 */
-		index = NULL;
-
 		/* Point the root node data offset to LIBPFF_RECOVERED_OFFSETS_INDEX_TREE_ROOT_OFFSET
 		 * otherwise it will mess up the caching of the first index value
 		 */
-		if( libfdata_tree_set_root_node(
+		if( libpff_index_tree_set_root_node(
 		     offsets_index->recovered_index_tree,
-		     0,
 		     LIBPFF_RECOVERED_OFFSETS_INDEX_TREE_ROOT_OFFSET,
-		     0,
-		     0,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -397,7 +330,7 @@ on_error:
 	{
 		if( offsets_index->index_tree != NULL )
 		{
-			libfdata_tree_free(
+			libpff_index_tree_free(
 			 &( offsets_index->index_tree ),
 			 NULL );
 		}
@@ -406,16 +339,10 @@ on_error:
 	{
 		if( offsets_index->recovered_index_tree != NULL )
 		{
-			libfdata_tree_free(
+			libpff_index_tree_free(
 			 &( offsets_index->recovered_index_tree ),
 			 NULL );
 		}
-	}
-	if( index != NULL )
-	{
-		libpff_index_free(
-		 &index,
-		 NULL );
 	}
 	return( -1 );
 }

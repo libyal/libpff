@@ -1,22 +1,22 @@
 /*
  * Name to ID map functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -866,6 +866,18 @@ int libpff_name_to_id_map_entry_read(
 		}
 		else
 		{
+			if( ( name_to_id_map_string_size == 0 )
+			 || ( name_to_id_map_string_size > (size32_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid name to id map string size value out of bounds.",
+				 function );
+
+				goto on_error;
+			}
 			result = libpff_value_type_string_contains_zero_bytes(
 				  name_to_id_map_string_data,
 				  (size_t) name_to_id_map_string_size,
@@ -886,10 +898,8 @@ int libpff_name_to_id_map_entry_read(
 			{
 				internal_name_to_id_map_entry->is_ascii_string = 1;
 			}
-			internal_name_to_id_map_entry->value_size = (size_t) name_to_id_map_string_size;
-
 			internal_name_to_id_map_entry->string_value = (uint8_t *) memory_allocate(
-			                                                           sizeof( uint8_t ) * internal_name_to_id_map_entry->value_size );
+			                                                           sizeof( uint8_t ) * (size_t) name_to_id_map_string_size );
 
 			if( internal_name_to_id_map_entry->string_value == NULL )
 			{
@@ -902,6 +912,8 @@ int libpff_name_to_id_map_entry_read(
 
 				goto on_error;
 			}
+			internal_name_to_id_map_entry->value_size = (size_t) name_to_id_map_string_size;
+
 			if( memory_copy(
 			     internal_name_to_id_map_entry->string_value,
 			     name_to_id_map_string_data,

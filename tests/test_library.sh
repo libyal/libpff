@@ -1,13 +1,13 @@
 #!/bin/bash
-# Tests C library functions and types.
+# Tests library functions and types.
 #
-# Version: 20190101
+# Version: 20200705
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="allocation_table attached_file_io_handle column_definition data_array data_array_entry data_block descriptors_index error index index_node index_value io_handle item item_descriptor item_tree item_values local_descriptor_node local_descriptor_value local_descriptors multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_index_value value_type";
+LIBRARY_TESTS="allocation_table attached_file_io_handle attachment column_definition data_array data_array_entry data_block deflate descriptors_index error file_header index index_node index_value io_handle io_handle2 index_tree item item_descriptor item_tree item_values local_descriptor_node local_descriptor_value local_descriptors multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_index_value value_type";
 LIBRARY_TESTS_WITH_INPUT="file support";
 OPTION_SETS="";
 
@@ -46,7 +46,7 @@ run_test_with_input()
 
 	if ! test -d "input";
 	then
-		echo "Test input directory: input not found.";
+		echo "Test input directory not found.";
 
 		return ${EXIT_IGNORE};
 	fi
@@ -54,7 +54,7 @@ run_test_with_input()
 
 	if test ${RESULT} -eq ${EXIT_SUCCESS};
 	then
-		echo "No files or directories found in the test input directory: input";
+		echo "No files or directories found in the test input directory";
 
 		return ${EXIT_IGNORE};
 	fi
@@ -129,7 +129,7 @@ run_test_with_input()
 	return ${RESULT};
 }
 
-if ! test -z ${SKIP_LIBRARY_TESTS};
+if test -n "${SKIP_LIBRARY_TESTS}";
 then
 	exit ${EXIT_IGNORE};
 fi

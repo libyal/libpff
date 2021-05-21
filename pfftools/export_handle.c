@@ -1,22 +1,22 @@
 /*
  * Export handle
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -2311,7 +2311,7 @@ int export_handle_export_record_entry_to_item_file(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free multi value.\n",
+			 "%s: unable to free multi value.",
 			 function );
 
 			goto on_error;
@@ -9789,6 +9789,8 @@ int export_handle_export_distribution_list(
 	libfmapi_entry_identifier_t *member_entry_identifier   = NULL;
 	libfmapi_one_off_entry_identifier_t *member_identifier = NULL;
 	libpff_multi_value_t *multi_value                      = NULL;
+	libpff_record_entry_t *record_entry                    = NULL;
+	libpff_record_set_t *record_set                        = NULL;
 	system_character_t *distribution_list_path             = NULL;
 	uint8_t *member_identifier_data                        = 0;
 	static char *function                                  = "export_handle_export_distribution_list";
@@ -10019,19 +10021,39 @@ int export_handle_export_distribution_list(
 		 error );
 	}
 /* TODO determine the distribution list properties */
-	if( libpff_item_get_entry_multi_value(
-	     distribution_list,
-	     0,
-	     LIBPFF_ENTRY_TYPE_DISTRIBUTION_LIST_MEMBER_ONE_OFF_ENTRY_IDENTIFIERS,
+	result = export_handle_item_get_record_entry_by_type(
+	          export_handle,
+	          distribution_list,
+	          0,
+	          LIBPFF_ENTRY_TYPE_DISTRIBUTION_LIST_MEMBER_ONE_OFF_ENTRY_IDENTIFIERS,
+	          LIBPFF_VALUE_TYPE_UNSPECIFIED,
+	          &record_set,
+	          &record_entry,
+	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve member one-off entry identifiers record entry: 0x%04" PRIx32 " from record set: 0.",
+		 function,
+		 LIBPFF_ENTRY_TYPE_DISTRIBUTION_LIST_MEMBER_ONE_OFF_ENTRY_IDENTIFIERS );
+
+		goto on_error;
+	}
+	if( libpff_record_entry_get_multi_value(
+	     record_entry,
 	     &multi_value,
-	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve member one-off entry identifiers.",
+		 "%s: unable to retrieve multi-value from member one-off entry identifiers record entry.",
 		 function );
 
 		goto on_error;
@@ -10195,7 +10217,33 @@ int export_handle_export_distribution_list(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free multi value.\n",
+		 "%s: unable to free multi value.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_record_entry_free(
+	     &record_entry,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record entry.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_record_set_free(
+	     &record_set,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free record set.",
 		 function );
 
 		goto on_error;
@@ -14054,6 +14102,7 @@ int export_handle_export_unknowns(
 			     unknown_iterator < number_of_unknowns;
 			     unknown_iterator++ )
 			{
+/* TODO implement */
 			}
 		}
 		if( libpff_item_free(

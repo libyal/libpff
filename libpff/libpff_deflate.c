@@ -1,22 +1,22 @@
 /*
  * Deflate (zlib) (un)compression functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -27,6 +27,11 @@
 #include "libpff_deflate.h"
 #include "libpff_libcerror.h"
 
+libpff_deflate_huffman_table_t libpff_deflate_fixed_huffman_distances_table;
+libpff_deflate_huffman_table_t libpff_deflate_fixed_huffman_literals_table;
+
+int libpff_deflate_fixed_huffman_tables_initialized = 0;
+
 /* Retrieves a value from the bit stream
  * Returns 1 on success or -1 on error
  */
@@ -36,7 +41,8 @@ int libpff_deflate_bit_stream_get_value(
      uint32_t *value_32bit,
      libcerror_error_t **error )
 {
-	static char *function = "libpff_deflate_bit_stream_get_value";
+	static char *function     = "libpff_deflate_bit_stream_get_value";
+	uint32_t safe_value_32bit = 0;
 
 	if( bit_stream == NULL )
 	{
@@ -90,16 +96,29 @@ int libpff_deflate_bit_stream_get_value(
 
 			return( -1 );
 		}
-		*value_32bit   = bit_stream->byte_stream[ bit_stream->byte_stream_offset++ ];
-		*value_32bit <<= bit_stream->bit_buffer_size;
+		safe_value_32bit   = bit_stream->byte_stream[ bit_stream->byte_stream_offset++ ];
+		safe_value_32bit <<= bit_stream->bit_buffer_size;
 
-		bit_stream->bit_buffer      |= *value_32bit;
+		bit_stream->bit_buffer      |= safe_value_32bit;
 		bit_stream->bit_buffer_size += 8;
 	}
-	*value_32bit = bit_stream->bit_buffer & ~( 0xffffffffUL << number_of_bits );
+	safe_value_32bit = bit_stream->bit_buffer;
 
-	bit_stream->bit_buffer     >>= number_of_bits;
-	bit_stream->bit_buffer_size -= number_of_bits;
+	if( number_of_bits < 32 )
+	{
+		/* On VS 2008 32-bit "~( 0xfffffffUL << 32 )" does not behave as expected
+		 */
+		safe_value_32bit &= ~( 0xffffffffUL << number_of_bits );
+
+		bit_stream->bit_buffer     >>= number_of_bits;
+		bit_stream->bit_buffer_size -= number_of_bits;
+	}
+	else
+	{
+		bit_stream->bit_buffer      = 0;
+		bit_stream->bit_buffer_size = 0;
+	}
+	*value_32bit = safe_value_32bit;
 
 	return( 1 );
 }
@@ -315,15 +334,16 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
      uint32_t *value_32bit,
      libcerror_error_t **error )
 {
-	static char *function  = "libpff_deflate_bit_stream_get_huffman_encoded_value";
-	uint32_t bit_buffer    = 0;
-	uint8_t bit_index      = 0;
-	uint8_t number_of_bits = 0;
-	int code_size_count    = 0;
-	int first_huffman_code = 0;
-	int first_index        = 0;
-	int huffman_code       = 0;
-	int result             = 0;
+	static char *function     = "libpff_deflate_bit_stream_get_huffman_encoded_value";
+	uint32_t bit_buffer       = 0;
+	uint32_t safe_value_32bit = 0;
+	uint8_t bit_index         = 0;
+	uint8_t number_of_bits    = 0;
+	int code_size_count       = 0;
+	int first_huffman_code    = 0;
+	int first_index           = 0;
+	int huffman_code          = 0;
+	int result                = 0;
 
 	if( bit_stream == NULL )
 	{
@@ -366,10 +386,10 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
 		{
 			break;
 		}
-		*value_32bit   = bit_stream->byte_stream[ bit_stream->byte_stream_offset++ ];
-		*value_32bit <<= bit_stream->bit_buffer_size;
+		safe_value_32bit   = bit_stream->byte_stream[ bit_stream->byte_stream_offset++ ];
+		safe_value_32bit <<= bit_stream->bit_buffer_size;
 
-		bit_stream->bit_buffer      |= *value_32bit;
+		bit_stream->bit_buffer      |= safe_value_32bit;
 		bit_stream->bit_buffer_size += 8;
 	}
 	if( table->maximum_number_of_bits < bit_stream->bit_buffer_size )
@@ -394,7 +414,7 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
 
 		if( ( huffman_code - code_size_count ) < first_huffman_code )
 		{
-			*value_32bit = table->codes_array[ first_index + ( huffman_code - first_huffman_code ) ];
+			safe_value_32bit = table->codes_array[ first_index + ( huffman_code - first_huffman_code ) ];
 
 			result = 1;
 
@@ -409,7 +429,20 @@ int libpff_deflate_bit_stream_get_huffman_encoded_value(
 		bit_stream->bit_buffer     >>= bit_index;
 		bit_stream->bit_buffer_size -= bit_index;
 	}
-	return( result );
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid huffman encoded value.",
+		 function );
+
+		return( -1 );
+	}
+	*value_32bit = safe_value_32bit;
+
+	return( 1 );
 }
 
 /* Initializes the dynamic Huffman tables
@@ -797,11 +830,11 @@ int libpff_deflate_decode_huffman(
 	uint16_t distance_codes_base[ 30 ] = {
 		1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,
 		257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193,
-		12289, 16385, 24577};
+		12289, 16385, 24577 };
 
 	uint16_t distance_codes_number_of_extra_bits[ 30 ] = {
 		0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6,
-		7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
+		7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13 };
 
 	static char *function         = "libpff_deflate_decode_huffman";
 	size_t data_offset            = 0;
@@ -858,7 +891,7 @@ int libpff_deflate_decode_huffman(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve listeral value from bit stream.",
+			 "%s: unable to retrieve literal value from bit stream.",
 			 function );
 
 			return( -1 );
@@ -1234,7 +1267,429 @@ int libpff_deflate_calculate_adler32(
 	return( 1 );
 }
 
-/* Decompresses data using zlib compression
+/* Reads the compressed data header
+ * Returns 1 on success or -1 on error
+ */
+int libpff_deflate_read_data_header(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     size_t *compressed_data_offset,
+     libcerror_error_t **error )
+{
+	static char *function                 = "libpff_deflate_read_data_header";
+	size_t safe_offset                    = 0;
+	uint32_t compression_window_size      = 0;
+	uint32_t preset_dictionary_identifier = 0;
+	uint8_t flags                         = 0;
+	uint8_t compression_data              = 0;
+	uint8_t compression_information       = 0;
+	uint8_t compression_method            = 0;
+	uint8_t compression_window_bits       = 0;
+
+	if( compressed_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid compressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid compressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data_offset == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid compressed data offset.",
+		 function );
+
+		return( -1 );
+	}
+	safe_offset = *compressed_data_offset;
+
+	if( ( compressed_data_size < 2 )
+	 || ( safe_offset > ( compressed_data_size - 2 ) ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: invalid compressed data value too small.",
+		 function );
+
+		return( -1 );
+	}
+	compression_data = compressed_data[ safe_offset++ ];
+	flags            = compressed_data[ safe_offset++ ];
+
+	compression_method      = compression_data & 0x0f;
+	compression_information = compression_data >> 4;
+
+/* TODO validate check bits */
+	if( ( flags & 0x20 ) != 0 )
+	{
+		if( ( compressed_data_size < 6 )
+		 || ( safe_offset > ( compressed_data_size - 6 ) ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 "%s: invalid compressed data value too small.",
+			 function );
+
+			return( -1 );
+		}
+		byte_stream_copy_to_uint32_big_endian(
+		 &( compressed_data[ 2 ] ),
+		 preset_dictionary_identifier );
+
+		safe_offset += 4;
+	}
+	if( compression_method != 8 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported compression method: %" PRIu8 ".",
+		 function,
+		 compression_method );
+
+		return( -1 );
+	}
+	compression_window_bits = (uint8_t) compression_information + 8;
+	compression_window_size = (uint32_t) 1UL << compression_window_bits;
+
+	if( compression_window_size > 32768 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported compression window size: %" PRIu32 ".",
+		 function,
+		 compression_window_size );
+
+		return( -1 );
+	}
+	*compressed_data_offset += safe_offset;
+
+	return( 1 );
+}
+
+/* Reads a block of compressed data
+ * Returns 1 on success or -1 on error
+ */
+int libpff_deflate_read_block(
+     libpff_deflate_bit_stream_t *bit_stream,
+     uint8_t *uncompressed_data,
+     size_t uncompressed_data_size,
+     size_t *uncompressed_data_offset,
+     uint8_t *last_block_flag,
+     libcerror_error_t **error )
+{
+	libpff_deflate_huffman_table_t dynamic_huffman_distances_table;
+	libpff_deflate_huffman_table_t dynamic_huffman_literals_table;
+
+	static char *function                = "libpff_deflate_read_block";
+	size_t safe_uncompressed_data_offset = 0;
+	uint32_t block_size                  = 0;
+	uint32_t block_size_copy             = 0;
+	uint32_t value_32bit                 = 0;
+	uint8_t block_type                   = 0;
+	uint8_t skip_bits                    = 0;
+
+	if( bit_stream == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid bit stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( uncompressed_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid uncompressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( uncompressed_data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid uncompressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( uncompressed_data_offset == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid uncompressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( last_block_flag == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid last block flag.",
+		 function );
+
+		return( -1 );
+	}
+	safe_uncompressed_data_offset = *uncompressed_data_offset;
+
+	if( libpff_deflate_fixed_huffman_tables_initialized == 0 )
+	{
+		if( libpff_deflate_initialize_fixed_huffman_tables(
+		     &libpff_deflate_fixed_huffman_literals_table,
+		     &libpff_deflate_fixed_huffman_distances_table,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to construct fixed Huffman tables.",
+			 function );
+
+			return( -1 );
+		}
+		libpff_deflate_fixed_huffman_tables_initialized = 1;
+	}
+/* TODO find optimized solution to read bit stream from bytes */
+
+	if( libpff_deflate_bit_stream_get_value(
+	     bit_stream,
+	     3,
+	     &value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value from bit stream.",
+		 function );
+
+		return( -1 );
+	}
+	*last_block_flag = (uint8_t) ( value_32bit & 0x00000001UL );
+	value_32bit    >>= 1;
+	block_type       = (uint8_t) value_32bit;
+
+	switch( block_type )
+	{
+		case LIBPFF_DEFLATE_BLOCK_TYPE_UNCOMPRESSED:
+			/* Ignore the bits in the buffer upto the next byte
+			 */
+			skip_bits = bit_stream->bit_buffer_size & 0x07;
+
+			if( skip_bits > 0 )
+			{
+				if( libpff_deflate_bit_stream_get_value(
+				     bit_stream,
+				     skip_bits,
+				     &value_32bit,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve value from bit stream.",
+					 function );
+
+					return( -1 );
+				}
+			}
+			if( libpff_deflate_bit_stream_get_value(
+			     bit_stream,
+			     32,
+			     &block_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve value from bit stream.",
+				 function );
+
+				return( -1 );
+			}
+			block_size_copy = ( block_size >> 16 ) ^ 0x0000ffffUL;
+			block_size     &= 0x0000ffffUL;
+
+			if( block_size != block_size_copy )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_INPUT,
+				 LIBCERROR_INPUT_ERROR_VALUE_MISMATCH,
+				 "%s: mismatch in block size ( %" PRIu32 " != %" PRIu32 " ).",
+				 function,
+				 block_size,
+				 block_size_copy );
+
+				return( -1 );
+			}
+			if( block_size == 0 )
+			{
+				break;
+			}
+			if( (size_t) block_size > ( bit_stream->byte_stream_size - bit_stream->byte_stream_offset ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 "%s: invalid compressed data value too small.",
+				 function );
+
+				return( -1 );
+			}
+			if( (size_t) block_size > ( uncompressed_data_size - safe_uncompressed_data_offset ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 "%s: invalid uncompressed data value too small.",
+				 function );
+
+				return( -1 );
+			}
+			if( memory_copy(
+			     &( uncompressed_data[ safe_uncompressed_data_offset ] ),
+			     &( bit_stream->byte_stream[ bit_stream->byte_stream_offset ] ),
+			     (size_t) block_size ) == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+				 "%s: unable to initialize lz buffer.",
+				 function );
+
+				return( -1 );
+			}
+			bit_stream->byte_stream_offset += block_size;
+			safe_uncompressed_data_offset  += block_size;
+
+			/* Flush the bit-stream buffer
+			 */
+			bit_stream->bit_buffer      = 0;
+			bit_stream->bit_buffer_size = 0;
+
+			break;
+
+		case LIBPFF_DEFLATE_BLOCK_TYPE_HUFFMAN_FIXED:
+			if( libpff_deflate_decode_huffman(
+			     bit_stream,
+			     &libpff_deflate_fixed_huffman_literals_table,
+			     &libpff_deflate_fixed_huffman_distances_table,
+			     uncompressed_data,
+			     uncompressed_data_size,
+			     &safe_uncompressed_data_offset,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to decode fixed Huffman encoded bit stream.",
+				 function );
+
+				return( -1 );
+			}
+			break;
+
+		case LIBPFF_DEFLATE_BLOCK_TYPE_HUFFMAN_DYNAMIC:
+			if( libpff_deflate_initialize_dynamic_huffman_tables(
+			     bit_stream,
+			     &dynamic_huffman_literals_table,
+			     &dynamic_huffman_distances_table,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to construct dynamic Huffman tables.",
+				 function );
+
+				return( -1 );
+			}
+			if( libpff_deflate_decode_huffman(
+			     bit_stream,
+			     &dynamic_huffman_literals_table,
+			     &dynamic_huffman_distances_table,
+			     uncompressed_data,
+			     uncompressed_data_size,
+			     &safe_uncompressed_data_offset,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to decode dynamic Huffman encoded bit stream.",
+				 function );
+
+				return( -1 );
+			}
+			break;
+
+		case LIBPFF_DEFLATE_BLOCK_TYPE_RESERVED:
+		default:
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported block type.",
+			 function );
+
+			return( -1 );
+	}
+	*uncompressed_data_offset = safe_uncompressed_data_offset;
+
+	return( 1 );
+}
+
+/* Decompresses data using deflate compression
  * Returns 1 on success or -1 on error
  */
 int libpff_deflate_decompress(
@@ -1245,27 +1700,11 @@ int libpff_deflate_decompress(
      libcerror_error_t **error )
 {
 	libpff_deflate_bit_stream_t bit_stream;
-	libpff_deflate_huffman_table_t dynamic_huffman_distances_table;
-	libpff_deflate_huffman_table_t dynamic_huffman_literals_table;
-	libpff_deflate_huffman_table_t fixed_huffman_distances_table;
-	libpff_deflate_huffman_table_t fixed_huffman_literals_table;
 
-	static char *function                 = "libpff_deflate_decompress";
-	size_t compressed_data_offset         = 0;
-	size_t uncompressed_data_offset       = 0;
-	uint32_t block_size                   = 0;
-	uint32_t block_size_copy              = 0;
-	uint32_t compression_window_size      = 0;
-	uint32_t calculated_checksum          = 0;
-	uint32_t preset_dictionary_identifier = 0;
-	uint32_t stored_checksum              = 0;
-	uint32_t value_32bit                  = 0;
-	uint8_t block_type                    = 0;
-	uint8_t compression_information       = 0;
-	uint8_t compression_method            = 0;
-	uint8_t compression_window_bits       = 0;
-	uint8_t last_block_flag               = 0;
-	uint8_t skip_bits                     = 0;
+	static char *function           = "libpff_deflate_decompress";
+	size_t compressed_data_offset   = 0;
+	size_t uncompressed_data_offset = 0;
+	uint8_t last_block_flag         = 0;
 
 	if( compressed_data == NULL )
 	{
@@ -1333,57 +1772,127 @@ int libpff_deflate_decompress(
 
 		return( -1 );
 	}
-	compression_method      = compressed_data[ 0 ] & 0x0f;
-	compression_information = compressed_data[ 0 ] >> 4;
+	bit_stream.byte_stream        = compressed_data;
+	bit_stream.byte_stream_size   = compressed_data_size;
+	bit_stream.byte_stream_offset = compressed_data_offset;
+	bit_stream.bit_buffer         = 0;
+	bit_stream.bit_buffer_size    = 0;
 
-/* TODO validate check bits */
-	if( ( compressed_data[ 1 ] & 0x20 ) != 0 )
+	while( bit_stream.byte_stream_offset < bit_stream.byte_stream_size )
 	{
-		if( compressed_data_size < 6 )
+		if( libpff_deflate_read_block(
+		     &bit_stream,
+		     uncompressed_data,
+		     *uncompressed_data_size,
+		     &uncompressed_data_offset,
+		     &last_block_flag,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-			 "%s: invalid compressed data value too small.",
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read block of compressed data.",
 			 function );
 
 			return( -1 );
 		}
-		byte_stream_copy_to_uint32_big_endian(
-		 &( compressed_data[ 2 ] ),
-		 preset_dictionary_identifier );
-
-		compressed_data_offset += 4;
-		compressed_data_size   -= 4;
+		if( last_block_flag != 0 )
+		{
+			break;
+		}
 	}
-	compressed_data_offset += 2;
-	compressed_data_size   -= 2;
+	*uncompressed_data_size = uncompressed_data_offset;
 
-	if( compression_method != 8 )
+	return( 1 );
+}
+
+/* Decompresses data using zlib compression
+ * Returns 1 on success or -1 on error
+ */
+int libpff_deflate_decompress_zlib(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     uint8_t *uncompressed_data,
+     size_t *uncompressed_data_size,
+     libcerror_error_t **error )
+{
+	libpff_deflate_bit_stream_t bit_stream;
+
+	static char *function           = "libpff_deflate_decompress_zlib";
+	size_t compressed_data_offset   = 0;
+	size_t uncompressed_data_offset = 0;
+	uint32_t calculated_checksum    = 0;
+	uint32_t stored_checksum        = 0;
+	uint8_t last_block_flag         = 0;
+
+	if( compressed_data == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported compression method: %" PRIu8 ".",
-		 function,
-		 compression_method );
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid compressed data.",
+		 function );
 
 		return( -1 );
 	}
-	compression_window_bits = (uint8_t) compression_information + 8;
-	compression_window_size = 1UL << compression_window_bits;
-
-	if( compression_window_size > 32768 )
+	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported compression window size: %" PRIu32 ".",
-		 function,
-		 compression_window_size );
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid compressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( uncompressed_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid uncompressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( uncompressed_data_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid uncompressed data size.",
+		 function );
+
+		return( -1 );
+	}
+	if( *uncompressed_data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid uncompressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_deflate_read_data_header(
+	     compressed_data,
+	     compressed_data_size,
+	     &compressed_data_offset,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read data header.",
+		 function );
 
 		return( -1 );
 	}
@@ -1404,216 +1913,24 @@ int libpff_deflate_decompress(
 	bit_stream.bit_buffer         = 0;
 	bit_stream.bit_buffer_size    = 0;
 
-	if( libpff_deflate_initialize_fixed_huffman_tables(
-	     &fixed_huffman_literals_table,
-	     &fixed_huffman_distances_table,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to construct fixed Huffman tables.",
-		 function );
-
-		return( -1 );
-	}
-
-/* TODO find optimized solution to read bit stream from bytes */
 	while( bit_stream.byte_stream_offset < bit_stream.byte_stream_size )
 	{
-		if( libpff_deflate_bit_stream_get_value(
+		if( libpff_deflate_read_block(
 		     &bit_stream,
-		     3,
-		     &value_32bit,
+		     uncompressed_data,
+		     *uncompressed_data_size,
+		     &uncompressed_data_offset,
+		     &last_block_flag,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value from bit stream.",
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read block of compressed data.",
 			 function );
 
 			return( -1 );
-		}
-		last_block_flag = (uint8_t) ( value_32bit & 0x00000001UL );
-		value_32bit   >>= 1;
-		block_type      = (uint8_t) value_32bit;
-
-		switch( block_type )
-		{
-			case LIBPFF_DEFLATE_BLOCK_TYPE_UNCOMPRESSED:
-				/* Ignore the bits in the buffer upto the next byte
-				 */
-				skip_bits = bit_stream.bit_buffer_size & 0x07;
-
-				if( skip_bits > 0 )
-				{
-					if( libpff_deflate_bit_stream_get_value(
-					     &bit_stream,
-					     skip_bits,
-					     &value_32bit,
-					     error ) != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable to retrieve value from bit stream.",
-						 function );
-
-						return( -1 );
-					}
-				}
-				if( libpff_deflate_bit_stream_get_value(
-				     &bit_stream,
-				     32,
-				     &block_size,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve value from bit stream.",
-					 function );
-
-					return( -1 );
-				}
-				block_size_copy = ( block_size >> 16 ) ^ 0x0000ffffUL;
-				block_size     &= 0x0000ffffUL;
-
-				if( block_size != block_size_copy )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_INPUT,
-					 LIBCERROR_INPUT_ERROR_VALUE_MISMATCH,
-					 "%s: mismatch in block size ( %" PRIu32 " != %" PRIu32 " ).",
-					 function,
-					 block_size,
-					 block_size_copy );
-
-					return( -1 );
-				}
-				if( block_size == 0 )
-				{
-					break;
-				}
-				if( (size_t) block_size > ( bit_stream.byte_stream_size - bit_stream.byte_stream_offset ) )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-					 "%s: invalid compressed data value too small.",
-					 function );
-
-					return( -1 );
-				}
-				if( (size_t) block_size > ( *uncompressed_data_size - uncompressed_data_offset ) )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-					 "%s: invalid uncompressed data value too small.",
-					 function );
-
-					return( -1 );
-				}
-				if( memory_copy(
-				     &( uncompressed_data[ uncompressed_data_offset ] ),
-				     &( compressed_data[ bit_stream.byte_stream_offset ] ),
-				     (size_t) block_size ) == NULL )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_MEMORY,
-					 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-					 "%s: unable to initialize lz buffer.",
-					 function );
-
-					return( -1 );
-				}
-				bit_stream.byte_stream_offset += block_size;
-				uncompressed_data_offset      += block_size;
-
-				/* Flush the bit-stream buffer
-				 */
-				bit_stream.bit_buffer      = 0;
-				bit_stream.bit_buffer_size = 0;
-
-				break;
-
-			case LIBPFF_DEFLATE_BLOCK_TYPE_HUFFMAN_FIXED:
-				if( libpff_deflate_decode_huffman(
-				     &bit_stream,
-				     &fixed_huffman_literals_table,
-				     &fixed_huffman_distances_table,
-				     uncompressed_data,
-				     *uncompressed_data_size,
-				     &uncompressed_data_offset,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to decode fixed Huffman encoded bit stream.",
-					 function );
-
-					return( -1 );
-				}
-				break;
-
-			case LIBPFF_DEFLATE_BLOCK_TYPE_HUFFMAN_DYNAMIC:
-				if( libpff_deflate_initialize_dynamic_huffman_tables(
-				     &bit_stream,
-				     &dynamic_huffman_literals_table,
-				     &dynamic_huffman_distances_table,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-					 "%s: unable to construct dynamic Huffman tables.",
-					 function );
-
-					return( -1 );
-				}
-				if( libpff_deflate_decode_huffman(
-				     &bit_stream,
-				     &dynamic_huffman_literals_table,
-				     &dynamic_huffman_distances_table,
-				     uncompressed_data,
-				     *uncompressed_data_size,
-				     &uncompressed_data_offset,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to decode dynamic Huffman encoded bit stream.",
-					 function );
-
-					return( -1 );
-				}
-				break;
-
-			case LIBPFF_DEFLATE_BLOCK_TYPE_RESERVED:
-			default:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported block type.",
-				 function );
-
-				return( -1 );
 		}
 		if( last_block_flag != 0 )
 		{

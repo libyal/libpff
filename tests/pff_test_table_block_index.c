@@ -1,22 +1,22 @@
 /*
  * Library table_block_index type testing program
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -57,7 +57,6 @@ int pff_test_table_block_index_initialize(
 	 */
 	result = libpff_table_block_index_initialize(
 	          &table_block_index,
-	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -94,7 +93,6 @@ int pff_test_table_block_index_initialize(
 	 */
 	result = libpff_table_block_index_initialize(
 	          NULL,
-	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -113,7 +111,6 @@ int pff_test_table_block_index_initialize(
 
 	result = libpff_table_block_index_initialize(
 	          &table_block_index,
-	          0,
 	          &error );
 
 	table_block_index = NULL;
@@ -142,7 +139,6 @@ int pff_test_table_block_index_initialize(
 
 		result = libpff_table_block_index_initialize(
 		          &table_block_index,
-		          0,
 		          &error );
 
 		if( pff_test_malloc_attempts_before_fail != -1 )
@@ -185,7 +181,6 @@ int pff_test_table_block_index_initialize(
 
 		result = libpff_table_block_index_initialize(
 		          &table_block_index,
-		          0,
 		          &error );
 
 		if( pff_test_memset_attempts_before_fail != -1 )
@@ -290,7 +285,6 @@ int pff_test_table_block_index_get_number_of_values(
 	 */
 	result = libpff_table_block_index_initialize(
 	          &table_block_index,
-	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -408,13 +402,13 @@ int pff_test_table_block_index_get_value_by_index(
 	libcerror_error_t *error                      = NULL;
 	libpff_table_block_index_t *table_block_index = NULL;
 	libpff_table_index_value_t *table_index_value = NULL;
+	uint16_t value_index                          = 0;
 	int result                                    = 0;
 
 	/* Initialize test
 	 */
 	result = libpff_table_block_index_initialize(
 	          &table_block_index,
-	          1,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -425,6 +419,26 @@ int pff_test_table_block_index_get_value_by_index(
 	PFF_TEST_ASSERT_IS_NOT_NULL(
 	 "table_block_index",
 	 table_block_index );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_table_block_index_append_value(
+	          table_block_index,
+	          &value_index,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_EQUAL_UINT16(
+	 "value_index",
+	 value_index,
+	 0 );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -521,22 +535,21 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libpff_table_block_index_set_value_by_index function
+/* Tests the libpff_table_block_index_append_value function
  * Returns 1 if successful or 0 if not
  */
-int pff_test_table_block_index_set_value_by_index(
+int pff_test_table_block_index_append_value(
      void )
 {
 	libcerror_error_t *error                      = NULL;
 	libpff_table_block_index_t *table_block_index = NULL;
-	libpff_table_index_value_t *table_index_value = NULL;
+	uint16_t value_index                          = 0;
 	int result                                    = 0;
 
 	/* Initialize test
 	 */
 	result = libpff_table_block_index_initialize(
 	          &table_block_index,
-	          1,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -554,10 +567,10 @@ int pff_test_table_block_index_set_value_by_index(
 
 	/* Test regular cases
 	 */
-	result = libpff_table_block_index_set_value_by_index(
+	result = libpff_table_block_index_append_value(
 	          table_block_index,
-	          0,
-	          table_index_value,
+	          &value_index,
+	          NULL,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -565,16 +578,21 @@ int pff_test_table_block_index_set_value_by_index(
 	 result,
 	 1 );
 
+	PFF_TEST_ASSERT_EQUAL_UINT16(
+	 "value_index",
+	 value_index,
+	 0 );
+
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
 	/* Test error cases
 	 */
-	result = libpff_table_block_index_set_value_by_index(
+	result = libpff_table_block_index_append_value(
 	          NULL,
-	          0,
-	          table_index_value,
+	          &value_index,
+	          NULL,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -589,10 +607,10 @@ int pff_test_table_block_index_set_value_by_index(
 	libcerror_error_free(
 	 &error );
 
-	result = libpff_table_block_index_set_value_by_index(
+	result = libpff_table_block_index_append_value(
 	          table_block_index,
-	          99,
-	          table_index_value,
+	          NULL,
+	          NULL,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -679,8 +697,8 @@ int main(
 	 pff_test_table_block_index_get_value_by_index );
 
 	PFF_TEST_RUN(
-	 "libpff_table_block_index_set_value_by_index",
-	 pff_test_table_block_index_set_value_by_index );
+	 "libpff_table_block_index_append_value",
+	 pff_test_table_block_index_append_value );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 

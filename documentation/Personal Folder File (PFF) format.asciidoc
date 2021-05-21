@@ -7,6 +7,7 @@ Analysis of the PFF format
 :numbered!:
 [abstract]
 == Summary
+
 PFF is short for Personal Folder File and is mainly used by Microsoft Outlook
 to store e-mails, appointments, contacts, tasks, etc. This specification is
 based on the work by libpst `[SMITH02]` started in 2002 and was enhanced by
@@ -19,6 +20,7 @@ to be able to process this file type.
 
 [preface]
 == Document information
+
 [cols="1,5"]
 |===
 | Author(s): | Joachim Metz <joachim.metz@gmail.com>
@@ -29,8 +31,9 @@ to be able to process this file type.
 
 [preface]
 == License
+
 ....
-Copyright (C) 2008-2018, Joachim Metz <joachim.metz@gmail.com>.
+Copyright (C) 2008-2020, Joachim Metz <joachim.metz@gmail.com>.
 Permission is granted to copy, distribute and/or modify this document under the
 terms of the GNU Free Documentation License, Version 1.3 or any later version
 published by the Free Software Foundation; with no Invariant Sections, no
@@ -40,6 +43,7 @@ in the section entitled "GNU Free Documentation License".
 
 [preface]
 == Revision history
+
 [cols="1,1,1,5",options="header"]
 |===
 | Version | Author | Date | Comments
@@ -99,6 +103,7 @@ Added missing information about 64-bit array type
 | 0.0.45 | J.B. Metz | August 2013 | Additional information about Outlook 2013 OST (64-bit 4k page) format with thanks to I. Rogov.
 | 0.0.46 | J.B. Metz | August 2013 | Additional information about Outlook 2013 OST (64-bit 4k page) format.
 | 0.0.47 | J.B. Metz | July 2018 | Switched to asciidoc format.
+| 0.0.48 | J.B. Metz | July 2020 | Changes for formatting.
 |===
 
 :numbered:
@@ -2576,49 +2581,49 @@ The e-mail item also can have the sub items:
 * attachments
 * recipients
 
-===  The sticky note item
+=== The sticky note item
 
 The task item can contain the values:
 
 * message class: 'IPM.StickyNote'
 
-===  The task item
+=== The task item
 
 The task item can contain the values:
 
 * message class: 'IPM.Task'
 
-===  The message manager (associated) item
+=== The message manager (associated) item
 
 The message manager (associated) item can contain the values:
 
 * message class: 'IPM.MessageManager'
 
-===  The migration status (associated) item
+=== The migration status (associated) item
 
 The migration status (associated) item can contain the values:
 
 * message class: 'IPM.Microsoft.MigrationStatus'
 
-===  The rule organizer (associated) item
+=== The rule organizer (associated) item
 
 The rule organizer (associated) item can contain the values:
 
 * message class: 'IPM.RuleOrganizer'
 
-===  The rule message (associated) item
+=== The rule message (associated) item
 
 The rule message (associated) item can contain the values:
 
 * message class: 'IPM.Rule.Message'
 
-===  The extended rule message (associated) item
+=== The extended rule message (associated) item
 
 The extended rule message (associated) item can contain the values:
 
 * message class: 'IPM.ExtendedRule.Message'
 
-===  The configuration RSS rule (associated) item
+=== The configuration RSS rule (associated) item
 
 The configuration RSS rule (associated) item can contain the values:
 
@@ -2890,6 +2895,7 @@ data.
 === Root items
 
 ==== PST
+
 ....
 33 message store
 97 name-to-id map
@@ -2955,6 +2961,7 @@ data.
 ....
 
 ===== Active searches list (513)
+
 ....
 00000000: 23 22 00 00 23 00 08 00 43 00 08 00 63 00 08 00 #"..#... C...c...
 00000010: 83 00 08 00 ....
@@ -2966,6 +2973,7 @@ data.
 List of descriptors?
 
 ===== Search criteria list (609)
+
 ....
 00000000: 43 21 00 00 63 21 00 00 83 21 00 00 a3 21 00 00 C!..c!.. .!...!..
 00000010: c3 21 00 00 23 80 00 00 43 80 00 00 63 80 00 00 .!..#... C...c...
@@ -2983,6 +2991,7 @@ List of descriptors?
 List of descriptors?
 
 ===== Search gatherer descriptor (673)
+
 ....
 00000000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ........ ........
 00000010: 01 00 00 00 00 00 00 00 01 00 00 00 01 00 00 00 ........ ........
@@ -3438,6 +3447,7 @@ record entry value guid : 5003c7c4-af96-4aa3-9d5b-e0c1e039d0ef
 
 [appendix]
 == GNU Free Documentation License
+
 Version 1.3, 3 November 2008
 Copyright © 2000, 2001, 2002, 2007, 2008 Free Software Foundation, Inc.
 <http://fsf.org/>
@@ -3446,6 +3456,7 @@ Everyone is permitted to copy and distribute verbatim copies of this license
 document, but changing it is not allowed.
 
 === 0. PREAMBLE
+
 The purpose of this License is to make a manual, textbook, or other functional
 and useful document "free" in the sense of freedom: to assure everyone the
 effective freedom to copy and redistribute it, with or without modifying it,
@@ -3466,6 +3477,7 @@ recommend this License principally for works whose purpose is instruction or
 reference.
 
 === 1. APPLICABILITY AND DEFINITIONS
+
 This License applies to any manual or other work, in any medium, that contains
 a notice placed by the copyright holder saying it can be distributed under the
 terms of this License. Such a notice grants a world-wide, royalty-free license,
@@ -3544,6 +3556,7 @@ disclaiming warranties: any other implication that these Warranty Disclaimers
 may have is void and has no effect on the meaning of this License.
 
 === 2. VERBATIM COPYING
+
 You may copy and distribute the Document in any medium, either commercially or
 noncommercially, provided that this License, the copyright notices, and the
 license notice saying this License applies to the Document are reproduced in
@@ -3557,6 +3570,7 @@ You may also lend copies, under the same conditions stated above, and you may
 publicly display copies.
 
 === 3. COPYING IN QUANTITY
+
 If you publish printed copies (or copies in media that commonly have printed
 covers) of the Document, numbering more than 100, and the Document's license
 notice requires Cover Texts, you must enclose the copies in covers that carry,
@@ -3590,6 +3604,7 @@ well before redistributing any large number of copies, to give them a chance to
 provide you with an updated version of the Document.
 
 === 4. MODIFICATIONS
+
 You may copy and distribute a Modified Version of the Document under the
 conditions of sections 2 and 3 above, provided that you release the Modified
 Version under precisely this License, with the Modified Version filling the
@@ -3682,6 +3697,7 @@ permission to use their names for publicity for or to assert or imply
 endorsement of any Modified Version.
 
 === 5. COMBINING DOCUMENTS
+
 You may combine the Document with other documents released under this License,
 under the terms defined in section 4 above for modified versions, provided that
 you include in the combination all of the Invariant Sections of all of the
@@ -3703,6 +3719,7 @@ combine any sections Entitled "Acknowledgements", and any sections Entitled
 "Dedications". You must delete all sections Entitled "Endorsements".
 
 === 6. COLLECTIONS OF DOCUMENTS
+
 You may make a collection consisting of the Document and other documents
 released under this License, and replace the individual copies of this License
 in the various documents with a single copy that is included in the collection,
@@ -3715,6 +3732,7 @@ into the extracted document, and follow this License in all other respects
 regarding verbatim copying of that document.
 
 === 7. AGGREGATION WITH INDEPENDENT WORKS
+
 A compilation of the Document or its derivatives with other separate and
 independent documents or works, in or on a volume of a storage or distribution
 medium, is called an "aggregate" if the copyright resulting from the
@@ -3731,6 +3749,7 @@ in electronic form. Otherwise they must appear on printed covers that bracket
 the whole aggregate.
 
 === 8. TRANSLATION
+
 Translation is considered a kind of modification, so you may distribute
 translations of the Document under the terms of section 4. Replacing Invariant
 Sections with translations requires special permission from their copyright
@@ -3748,6 +3767,7 @@ If a section in the Document is Entitled "Acknowledgements", "Dedications", or
 typically require changing the actual title.
 
 === 9. TERMINATION
+
 You may not copy, modify, sublicense, or distribute the Document except as
 expressly provided under this License. Any attempt otherwise to copy, modify,
 sublicense, or distribute it is void, and will automatically terminate your
@@ -3771,6 +3791,7 @@ your rights have been terminated and not permanently reinstated, receipt of a
 copy of some or all of the same material does not give you any rights to use it.
 
 === 10. FUTURE REVISIONS OF THIS LICENSE
+
 The Free Software Foundation may publish new, revised versions of the GNU Free
 Documentation License from time to time. Such new versions will be similar in
 spirit to the present version, but may differ in detail to address new problems
@@ -3788,6 +3809,7 @@ License can be used, that proxy's public statement of acceptance of a version
 permanently authorizes you to choose that version for the Document.
 
 === 11. RELICENSING
+
 "Massive Multiauthor Collaboration Site" (or "MMC Site") means any World Wide
 Web server that publishes copyrightable works and also provides prominent
 facilities for anybody to edit those works. A public wiki that anybody can edit

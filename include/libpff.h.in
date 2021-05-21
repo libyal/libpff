@@ -1,22 +1,22 @@
 /*
  * Library to access the Personal Folder File (PAB, PST and OST) format
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBPFF_H )
@@ -608,7 +608,7 @@ int libpff_item_get_entry_type(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_type instead
@@ -627,14 +627,14 @@ int libpff_item_get_value_type(
 
 /* Retrieves the value of a specific entry
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_set_get_entry_by_type or libpff_record_entry_get_data instead
@@ -693,7 +693,7 @@ int libpff_item_get_entry_value_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_boolean instead
@@ -746,7 +746,7 @@ int libpff_item_get_entry_value_boolean_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_16bit instead
@@ -799,7 +799,7 @@ int libpff_item_get_entry_value_16bit_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_32bit instead
@@ -852,7 +852,7 @@ int libpff_item_get_entry_value_32bit_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_64bit instead
@@ -905,7 +905,7 @@ int libpff_item_get_entry_value_64bit_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_filetime instead
@@ -958,7 +958,7 @@ int libpff_item_get_entry_value_filetime_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_size instead
@@ -1011,7 +1011,7 @@ int libpff_item_get_entry_value_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_floating_point instead
@@ -1065,7 +1065,7 @@ int libpff_item_get_entry_value_floating_point_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_utf8_string_size instead
@@ -1122,7 +1122,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_utf8_string instead
@@ -1181,7 +1181,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_utf16_string_size instead
@@ -1238,7 +1238,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_value_utf16_string instead
@@ -1296,7 +1296,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_data_size instead
@@ -1349,7 +1349,7 @@ int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_data instead
@@ -1405,7 +1405,7 @@ int libpff_item_get_entry_value_binary_data_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_data_as_guid instead
@@ -1428,7 +1428,7 @@ int libpff_item_get_entry_value_guid(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * This function deprecated use libpff_record_entry_get_multi_value instead
@@ -1630,14 +1630,14 @@ int libpff_record_set_get_entry_by_index(
 
 /* Retrieves the record entry matching the entry and value type pair from the record set
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1653,7 +1653,7 @@ int libpff_record_set_get_entry_by_type(
 
 /* Retrieves the record entry matching the UTF-8 encoded name from the record set.
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
@@ -1672,7 +1672,7 @@ int libpff_record_set_get_entry_by_utf8_name(
 
 /* Retrieves the record entry matching the UTF-16 encoded name from the record set.
  *
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type

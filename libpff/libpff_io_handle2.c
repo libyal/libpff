@@ -1,22 +1,22 @@
 /*
  * Input/Output (IO) handle functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -76,6 +76,7 @@ int libpff_io_handle_read_descriptor_data_list(
 	libpff_data_block_t *data_block          = NULL;
 	libpff_index_value_t *offset_index_value = NULL;
 	static char *function                    = "libpff_io_handle_read_descriptor_data_list";
+	uint32_t total_data_size                 = 0;
 	int element_index                        = 0;
 
 	if( io_handle == NULL )
@@ -290,7 +291,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		}
 		/* The data_array is now managed by the list */
 
-		if( libpff_data_array_read(
+		if( libpff_data_array_read_entries(
 		     data_array,
 		     io_handle,
 		     file_io_handle,
@@ -299,13 +300,14 @@ int libpff_io_handle_read_descriptor_data_list(
 		     recovered,
 		     data_block->data,
 		     (size_t) offset_index_value->data_size,
+		     &total_data_size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read data array.",
+			 "%s: unable to read data array entries.",
 			 function );
 
 			data_array = NULL;

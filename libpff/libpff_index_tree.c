@@ -1,28 +1,30 @@
 /*
  * Index tree functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
+#include <memory.h>
 #include <types.h>
 
 #include "libpff_definitions.h"
+#include "libpff_index.h"
 #include "libpff_index_tree.h"
 #include "libpff_index_value.h"
 #include "libpff_libbfio.h"
@@ -31,11 +33,312 @@
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 
+/* Creates an index tree
+ * Make sure the value index_tree is referencing, is set to NULL
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_tree_initialize(
+     libpff_index_tree_t **index_tree,
+     libpff_io_handle_t *io_handle,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
+     uint8_t index_type,
+     off64_t root_node_offset,
+     uint64_t root_node_back_pointer,
+     uint8_t recovered,
+     libcerror_error_t **error )
+{
+	libpff_index_t *index = NULL;
+	static char *function = "libpff_index_tree_initialize";
+
+	if( index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( *index_tree != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid index tree value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*index_tree = memory_allocate_structure(
+	               libpff_index_tree_t );
+
+	if( *index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create index tree.",
+		 function );
+
+		goto on_error;
+	}
+	if( memory_set(
+	     *index_tree,
+	     0,
+	     sizeof( libpff_index_tree_t ) ) == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear index tree.",
+		 function );
+
+		memory_free(
+		 *index_tree );
+
+		*index_tree = NULL;
+
+		return( -1 );
+	}
+	if( libpff_index_initialize(
+	     &index,
+	     io_handle,
+	     index_nodes_vector,
+	     index_nodes_cache,
+	     index_type,
+	     root_node_offset,
+	     root_node_back_pointer,
+	     recovered,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdata_tree_initialize(
+	     &( ( *index_tree )->tree ),
+	     (intptr_t *) index,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_free,
+	     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libpff_index_clone,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_node_data,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_index_read_sub_nodes,
+	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index tree.",
+		 function );
+
+		goto on_error;
+	}
+	/* The index is now managed by the index tree
+	 */
+	index = NULL;
+
+	return( 1 );
+
+on_error:
+	if( index != NULL )
+	{
+		libpff_index_free(
+		 &index,
+		 NULL );
+	}
+	if( *index_tree != NULL )
+	{
+		memory_free(
+		 *index_tree );
+
+		*index_tree = NULL;
+	}
+	return( -1 );
+}
+
+/* Frees an IO handle
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_tree_free(
+     libpff_index_tree_t **index_tree,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_index_tree_free";
+	int result            = 1;
+
+	if( index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( *index_tree != NULL )
+	{
+		if( libfdata_tree_free(
+		     &( ( *index_tree )->tree ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free tree.",
+			 function );
+
+			result = -1;
+		}
+		memory_free(
+		 *index_tree );
+
+		*index_tree = NULL;
+	}
+	return( result );
+}
+
+/* Retrieves the root node
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_tree_get_root_node(
+     libpff_index_tree_t *index_tree,
+     libfdata_tree_node_t **root_node,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_index_tree_get_root_node";
+
+	if( index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_tree_get_root_node(
+	     index_tree->tree,
+	     root_node,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to retrieve root node.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Sets the root node
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_tree_set_root_node(
+     libpff_index_tree_t *index_tree,
+     off64_t node_offset,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_index_tree_set_root_node";
+
+	if( index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_tree_set_root_node(
+	     index_tree->tree,
+	     0,
+	     node_offset,
+	     0,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set tree root node.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the number of leaf nodes in the index tree
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_tree_get_number_of_leaf_nodes(
+     libpff_index_tree_t *index_tree,
+     libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *cache,
+     int *number_of_leaf_nodes,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_index_tree_get_number_of_leaf_nodes";
+
+	if( index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_tree_get_number_of_leaf_nodes(
+	     index_tree->tree,
+	     (intptr_t *) file_io_handle,
+	     cache,
+	     number_of_leaf_nodes,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of leaf nodes from tree.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the number of leaf nodes for the specific identifier
  * Returns 1 if successful or -1 on error
  */
 int libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-     libfdata_tree_t *index_tree,
+     libpff_index_tree_t *index_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,
@@ -78,7 +381,7 @@ int libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
 	}
 #endif
 	if( libfdata_tree_get_root_node(
-	     index_tree,
+	     index_tree->tree,
 	     &index_tree_root_node,
 	     error ) != 1 )
 	{
@@ -371,11 +674,57 @@ int libpff_index_tree_node_get_number_of_leaf_nodes_by_identifier(
 	return( 1 );
 }
 
+/* Retrieves a leaf nodes at a specific index
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_tree_get_leaf_node_by_index(
+     libpff_index_tree_t *index_tree,
+     libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *cache,
+     int leaf_node_index,
+     libfdata_tree_node_t **leaf_node,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_index_tree_get_leaf_node_by_index";
+
+	if( index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_tree_get_leaf_node_by_index(
+	     index_tree->tree,
+	     (intptr_t *) file_io_handle,
+	     cache,
+	     leaf_node_index,
+	     leaf_node,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: unable to retrieve leaf node: %d.",
+		 function,
+		 leaf_node_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the leaf node for the specific identifier
  * Returns 1 if successful, 0 if no value was found or -1 on error
  */
 int libpff_index_tree_get_leaf_node_by_identifier(
-     libfdata_tree_t *index_tree,
+     libpff_index_tree_t *index_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,
@@ -420,7 +769,7 @@ int libpff_index_tree_get_leaf_node_by_identifier(
 	}
 #endif
 	if( libfdata_tree_get_root_node(
-	     index_tree,
+	     index_tree->tree,
 	     &index_tree_root_node,
 	     error ) != 1 )
 	{
@@ -440,6 +789,7 @@ int libpff_index_tree_get_leaf_node_by_identifier(
 		  identifier,
 		  leaf_node_index,
 		  leaf_index_tree_node,
+		  0,
 		  error );
 
 	if( result == -1 )
@@ -466,6 +816,7 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
      uint64_t identifier,
      int *leaf_node_index,
      libfdata_tree_node_t **leaf_index_tree_node,
+     int recursion_depth,
      libcerror_error_t **error )
 {
 	libfdata_tree_node_t *index_tree_sub_node       = NULL;
@@ -483,6 +834,18 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index tree node.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_INDEX_TREE_RECURSION_DEPTH ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -685,6 +1048,7 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
 					  identifier,
 					  leaf_node_index,
 					  leaf_index_tree_node,
+					  recursion_depth + 1,
 					  error );
 
 				if( result == -1 )
@@ -730,6 +1094,7 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
 					  identifier,
 					  leaf_node_index,
 					  leaf_index_tree_node,
+					  recursion_depth + 1,
 					  error );
 
 				if( result == -1 )
@@ -751,11 +1116,100 @@ int libpff_index_tree_node_get_leaf_node_by_identifier(
 	return( result );
 }
 
+/* Retrieves the number of deleted leaf nodes in the tree
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_tree_get_number_of_deleted_leaf_nodes(
+     libpff_index_tree_t *index_tree,
+     libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *cache,
+     int *number_of_deleted_leaf_nodes,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_index_tree_get_number_of_deleted_leaf_nodes";
+
+	if( index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_tree_get_number_of_deleted_leaf_nodes(
+	     index_tree->tree,
+	     (intptr_t *) file_io_handle,
+	     cache,
+	     number_of_deleted_leaf_nodes,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of deleted leaf nodes.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a deleted leaf nodes at a specific index
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_index_tree_get_deleted_leaf_node_by_index(
+     libpff_index_tree_t *index_tree,
+     libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *cache,
+     int deleted_leaf_node_index,
+     libfdata_tree_node_t **deleted_leaf_node,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_index_tree_get_deleted_leaf_node_by_index";
+
+	if( index_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_tree_get_deleted_leaf_node_by_index(
+	     index_tree->tree,
+	     (intptr_t *) file_io_handle,
+	     cache,
+	     deleted_leaf_node_index,
+	     deleted_leaf_node,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: unable to retrieve deleted leaf node: %d.",
+		 function,
+		 deleted_leaf_node_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the index value for the specific identifier
  * Returns 1 if successful, 0 if no value was found or -1 on error
  */
 int libpff_index_tree_get_value_by_identifier(
-     libfdata_tree_t *index_tree,
+     libpff_index_tree_t *index_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,
@@ -1186,7 +1640,7 @@ int libpff_index_tree_node_get_upper_branch_node_by_identifier(
  * Returns 1 if successful or -1 on error
  */
 int libpff_index_tree_insert_value(
-     libfdata_tree_t *index_tree,
+     libpff_index_tree_t *index_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,
@@ -1213,7 +1667,7 @@ int libpff_index_tree_insert_value(
 		return( -1 );
 	}
 	if( libfdata_tree_get_root_node(
-	     index_tree,
+	     index_tree->tree,
 	     &index_tree_root_node,
 	     error ) != 1 )
 	{

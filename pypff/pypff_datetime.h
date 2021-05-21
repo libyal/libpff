@@ -1,22 +1,22 @@
 /*
  * Date and time functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _PYPFF_DATETIME_H )
@@ -31,6 +31,14 @@
 extern "C" {
 #endif
 
+PyObject *pypff_datetime_new_from_time_elements(
+           uint16_t year,
+           uint64_t number_of_days,
+           uint8_t hours,
+           uint8_t minutes,
+           uint8_t seconds,
+           uint32_t micro_seconds );
+
 PyObject *pypff_datetime_new_from_fat_date_time(
            uint32_t fat_date_time );
 
@@ -40,8 +48,14 @@ PyObject *pypff_datetime_new_from_filetime(
 PyObject *pypff_datetime_new_from_floatingtime(
            uint64_t floatingtime );
 
+PyObject *pypff_datetime_new_from_hfs_time(
+           uint32_t hfs_time );
+
 PyObject *pypff_datetime_new_from_posix_time(
-           uint32_t posix_time );
+           int64_t posix_time );
+
+PyObject *pypff_datetime_new_from_posix_time_in_micro_seconds(
+           int64_t posix_time );
 
 #if defined( __cplusplus )
 }

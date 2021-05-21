@@ -1,22 +1,22 @@
 /*
- * Type and type-support defintions
+ * Type and type-support definitions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _TYPES_H )
@@ -214,7 +214,7 @@ typedef int system_integer_t;
 #define PRIx64 "llx"
 
 #endif
-#endif /*!defined( PRIx64 ) */
+#endif /* !defined( PRIx64 ) */
 
 /* Fallback for systems without printf %jd definition
  */
@@ -304,6 +304,16 @@ typedef int system_integer_t;
 #if !defined( UINT32_MAX )
 #define UINT32_MAX (0xffffffffUL)
 #endif
+
+/* The minimum signed 64-bit integer is -9223372036854775808 (0x8000000000000000)
+ */
+#if !defined( INT64_MIN )
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define INT64_MIN (0x8000000000000000UL)
+#else
+#define INT64_MIN (0x8000000000000000ULL)
+#endif
+#endif /* !defined( INT64_MIN ) */
 
 /* The maximum signed 64-bit integer is 9223372036854775807 (0x7fffffffffffffff)
  */

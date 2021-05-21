@@ -1,22 +1,22 @@
 /*
  * Attachment functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -72,17 +72,6 @@ int libpff_attachment_get_type(
 	}
 	internal_item = (libpff_internal_item_t *) attachment;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( attachment_type == NULL )
 	{
 		libcerror_error_set(
@@ -291,23 +280,12 @@ int libpff_attachment_get_data_size(
 	}
 	internal_item = (libpff_internal_item_t *) attachment;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid attachment - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          0,
 	          LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT,
 	          0,
@@ -440,23 +418,12 @@ ssize_t libpff_attachment_data_read_buffer(
 	}
 	internal_item = (libpff_internal_item_t *) attachment;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid attachment - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          0,
 	          LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT,
 	          0,
@@ -581,17 +548,6 @@ off64_t libpff_attachment_data_seek_offset(
 	}
 	internal_item = (libpff_internal_item_t *) attachment;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid attachment - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_values == NULL )
 	{
 		libcerror_error_set(
@@ -605,10 +561,10 @@ off64_t libpff_attachment_data_seek_offset(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          0,
 	          LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT,
 	          0,
@@ -775,7 +731,6 @@ int libpff_attachment_get_item(
 {
 	libcdata_tree_node_t *embedded_item_tree_node           = NULL;
 	libpff_internal_item_t *internal_item                   = NULL;
-	libpff_item_descriptor_t *embedded_item_descriptor      = NULL;
 	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
 	libpff_record_entry_t *record_entry                     = NULL;
 	libpff_record_set_t *record_set                         = NULL;
@@ -800,17 +755,6 @@ int libpff_attachment_get_item(
 	}
 	internal_item = (libpff_internal_item_t *) attachment;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid attachment - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_values == NULL )
 	{
 		libcerror_error_set(
@@ -902,8 +846,8 @@ int libpff_attachment_get_item(
 
 /* TODO add support for recovered embedded items */
 
-		result = libpff_item_tree_get_tree_node_by_identifier(
-			  internal_item->internal_file->item_tree_root_node,
+		result = libpff_item_tree_get_node_by_identifier(
+			  internal_item->item_tree,
 			  embedded_object_item_identifier,
 			  &embedded_item_tree_node,
 			  error );
@@ -1041,26 +985,15 @@ int libpff_attachment_get_item(
 				goto on_error;
 			}
 		}
-		if( libcdata_tree_node_get_value(
-		     embedded_item_tree_node,
-		     (intptr_t **) &embedded_item_descriptor,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve embedded item descriptor.",
-			 function );
-
-			goto on_error;
-		}
 		if( libpff_item_initialize(
 		     attached_item,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file,
+		     internal_item->name_to_id_map_list,
+		     internal_item->descriptors_index,
+		     internal_item->offsets_index,
+		     internal_item->item_tree,
 		     embedded_item_tree_node,
-		     embedded_item_descriptor,
 		     LIBPFF_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{

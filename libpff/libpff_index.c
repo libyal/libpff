@@ -1,22 +1,22 @@
 /*
  * Index functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -45,7 +45,9 @@
 int libpff_index_initialize(
      libpff_index_t **index,
      libpff_io_handle_t *io_handle,
-     uint8_t type,
+     libfdata_vector_t *index_nodes_vector,
+     libfcache_cache_t *index_nodes_cache,
+     uint8_t index_type,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,
      uint8_t recovered,
@@ -115,7 +117,9 @@ int libpff_index_initialize(
 		goto on_error;
 	}
 	( *index )->io_handle              = io_handle;
-	( *index )->type                   = type;
+	( *index )->index_nodes_vector     = index_nodes_vector;
+	( *index )->index_nodes_cache      = index_nodes_cache;
+	( *index )->type                   = index_type;
 	( *index )->root_node_offset       = root_node_offset;
 	( *index )->root_node_back_pointer = root_node_back_pointer;
 	( *index )->recovered              = recovered;
@@ -155,6 +159,8 @@ int libpff_index_free(
 	}
 	if( *index != NULL )
 	{
+		/* The io_handle, index_nodes_vector and index_nodes_cache reference are freed elsewhere
+		 */
 		memory_free(
 		 *index );
 
@@ -204,6 +210,8 @@ int libpff_index_clone(
 	if( libpff_index_initialize(
 	     destination_index,
 	     source_index->io_handle,
+	     source_index->index_nodes_vector,
+	     source_index->index_nodes_cache,
 	     source_index->type,
 	     source_index->root_node_offset,
 	     source_index->root_node_back_pointer,
@@ -234,15 +242,15 @@ int libpff_index_read_node(
      libcerror_error_t **error )
 {
 	libpff_index_node_t *index_node      = NULL;
-	static char *function                = "libpff_index_read_node";
 	uint8_t *node_entry_data             = NULL;
+	static char *function                = "libpff_index_read_node";
 	off64_t element_data_offset          = 0;
-	off64_t index_value_file_offset      = 0;
 	off64_t node_data_offset             = 0;
-	uint64_t index_value_identifier      = 0;
 	uint64_t index_value_data_identifier = 0;
-	uint16_t index_value_data_size       = 0;
+	uint64_t index_value_file_offset     = 0;
+	uint64_t index_value_identifier      = 0;
 	uint16_t entry_index                 = 0;
+	uint16_t index_value_data_size       = 0;
 	int sub_node_index                   = 0;
 
 	if( index == NULL )
@@ -279,9 +287,9 @@ int libpff_index_read_node(
 		return( -1 );
 	}
 	if( libfdata_vector_get_element_value_at_offset(
-	     index->io_handle->index_nodes_vector,
+	     index->index_nodes_vector,
 	     (intptr_t *) file_io_handle,
-	     (libfdata_cache_t *) index->io_handle->index_nodes_cache,
+	     (libfdata_cache_t *) index->index_nodes_cache,
 	     node_offset,
 	     &element_data_offset,
 	     (intptr_t **) &index_node,
@@ -489,7 +497,8 @@ int libpff_index_read_node(
 					}
 					/* Ignore offset index values without a file offset and data size
 					 */
-					if( ( index_value_file_offset <= 0 )
+					if( ( index_value_file_offset == 0 )
+					 || ( index_value_file_offset > (uint64_t) INT64_MAX )
 					 || ( index_value_data_size == 0 ) )
 					{
 						continue;
@@ -560,7 +569,8 @@ int libpff_index_read_node_entry(
 	uint8_t *node_entry_data        = NULL;
 	static char *function           = "libpff_index_read_node_entry";
 	off64_t element_data_offset     = 0;
-	off64_t sub_nodes_offset        = 0;
+	uint64_t safe_file_offset       = 0;
+	uint64_t sub_nodes_offset       = 0;
 	int result                      = 0;
 
 	if( index == NULL )
@@ -610,9 +620,9 @@ int libpff_index_read_node_entry(
 		return( -1 );
 	}
 	if( libfdata_vector_get_element_value_at_offset(
-	     index->io_handle->index_nodes_vector,
+	     index->index_nodes_vector,
 	     (intptr_t *) file_io_handle,
-	     (libfdata_cache_t *) index->io_handle->index_nodes_cache,
+	     (libfdata_cache_t *) index->index_nodes_cache,
 	     node_offset,
 	     &element_data_offset,
 	     (intptr_t **) &index_node,
@@ -738,7 +748,7 @@ int libpff_index_read_node_entry(
 			{
 				byte_stream_copy_to_uint32_little_endian(
 				 ( (pff_index_node_offset_entry_32bit_t *) node_entry_data )->file_offset,
-				 index_value->file_offset );
+				 safe_file_offset );
 				byte_stream_copy_to_uint16_little_endian(
 				 ( (pff_index_node_offset_entry_32bit_t *) node_entry_data )->data_size,
 				 index_value->data_size );
@@ -751,7 +761,7 @@ int libpff_index_read_node_entry(
 			{
 				byte_stream_copy_to_uint64_little_endian(
 				 ( (pff_index_node_offset_entry_64bit_t *) node_entry_data )->file_offset,
-				 index_value->file_offset );
+				 safe_file_offset );
 				byte_stream_copy_to_uint16_little_endian(
 				 ( (pff_index_node_offset_entry_64bit_t *) node_entry_data )->data_size,
 				 index_value->data_size );
@@ -759,6 +769,19 @@ int libpff_index_read_node_entry(
 				 ( (pff_index_node_offset_entry_64bit_t *) node_entry_data )->reference_count,
 				 index_value->reference_count );
 			}
+			if( safe_file_offset > (uint64_t) INT64_MAX )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid node entry: %" PRIu16 " offset value out of bounds.",
+				 function,
+				 entry_index );
+
+				return( -1 );
+			}
+			index_value->file_offset = (off64_t) safe_file_offset;
 		}
 		if( libfdata_tree_node_set_leaf(
 		     index_tree_node,
@@ -812,10 +835,21 @@ int libpff_index_read_node_entry(
 		}
 		else if( result == 0 )
 		{
+			if( sub_nodes_offset > (uint64_t) INT64_MAX )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid sub nodes offset value out of bounds.",
+				 function );
+
+				return( -1 );
+			}
 			if( libfdata_tree_node_set_sub_nodes_data_range(
 			     index_tree_node,
 			     0,
-			     sub_nodes_offset,
+			     (off64_t) sub_nodes_offset,
 			     0,
 			     0,
 			     error ) != 1 )

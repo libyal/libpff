@@ -1,22 +1,22 @@
 /*
  * Legacy functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -43,10 +43,9 @@ int libpff_file_get_orphan_item(
      libpff_item_t **orphan_item,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *orphan_item_tree_node      = NULL;
-	libpff_internal_file_t *internal_file            = NULL;
-	libpff_item_descriptor_t *orphan_item_descriptor = NULL;
-	static char *function                            = "libpff_file_get_orphan_item";
+	libcdata_tree_node_t *orphan_item_tree_node = NULL;
+	libpff_internal_file_t *internal_file       = NULL;
+	static char *function                       = "libpff_file_get_orphan_item";
 
 	if( file == NULL )
 	{
@@ -99,26 +98,15 @@ int libpff_file_get_orphan_item(
 
 		return( -1 );
 	}
-	if( libcdata_tree_node_get_value(
-	     orphan_item_tree_node,
-	     (intptr_t **) &orphan_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve orphan item descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libpff_item_initialize(
 	     orphan_item,
+	     internal_file->io_handle,
 	     internal_file->file_io_handle,
-	     internal_file,
+	     internal_file->name_to_id_map_list,
+	     internal_file->descriptors_index,
+	     internal_file->offsets_index,
+	     internal_file->item_tree,
 	     orphan_item_tree_node,
-	     orphan_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -143,10 +131,9 @@ int libpff_file_get_recovered_item(
      libpff_item_t **recovered_item,
      libcerror_error_t **error )
 {
-	libcdata_tree_node_t *recovered_item_tree_node      = NULL;
-	libpff_internal_file_t *internal_file               = NULL;
-	libpff_item_descriptor_t *recovered_item_descriptor = NULL;
-	static char *function                               = "libpff_file_get_recovered_item";
+	libcdata_tree_node_t *recovered_item_tree_node = NULL;
+	libpff_internal_file_t *internal_file          = NULL;
+	static char *function                          = "libpff_file_get_recovered_item";
 
 	if( file == NULL )
 	{
@@ -199,26 +186,15 @@ int libpff_file_get_recovered_item(
 
 		return( -1 );
 	}
-	if( libcdata_tree_node_get_value(
-	     recovered_item_tree_node,
-	     (intptr_t **) &recovered_item_descriptor,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve recovered item descriptor.",
-		 function );
-
-		return( -1 );
-	}
 	if( libpff_item_initialize(
 	     recovered_item,
+	     internal_file->io_handle,
 	     internal_file->file_io_handle,
-	     internal_file,
+	     internal_file->name_to_id_map_list,
+	     internal_file->descriptors_index,
+	     internal_file->offsets_index,
+	     internal_file->item_tree,
 	     recovered_item_tree_node,
-	     recovered_item_descriptor,
 	     LIBPFF_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -259,17 +235,6 @@ int libpff_item_get_number_of_sets(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_values == NULL )
 	{
 		libcerror_error_set(
@@ -296,10 +261,10 @@ int libpff_item_get_number_of_sets(
 	{
 		if( libpff_item_values_read(
 		     internal_item->item_values,
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
 		     error ) != 1 )
 		{
@@ -371,17 +336,6 @@ int libpff_item_get_entry_type(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_item->item_values == NULL )
 	{
 		libcerror_error_set(
@@ -397,10 +351,10 @@ int libpff_item_get_entry_type(
 	{
 		if( libpff_item_values_read(
 		     internal_item->item_values,
-		     internal_item->internal_file->name_to_id_map_list,
-		     internal_item->internal_file->io_handle,
+		     internal_item->name_to_id_map_list,
+		     internal_item->io_handle,
 		     internal_item->file_io_handle,
-		     internal_item->internal_file->offsets_index,
+		     internal_item->offsets_index,
 		     LIBPFF_DEBUG_ITEM_TYPE_DEFAULT,
 		     error ) != 1 )
 		{
@@ -450,7 +404,7 @@ int libpff_item_get_entry_type(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not such value or -1 on error
@@ -481,17 +435,6 @@ int libpff_item_get_value_type(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( value_type == NULL )
 	{
 		libcerror_error_set(
@@ -517,10 +460,10 @@ int libpff_item_get_value_type(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          *value_type,
@@ -562,14 +505,14 @@ int libpff_item_get_value_type(
 /* Retrieves the value of a specific entry
  *
  * The value type must be filled with the corresponding value type
- * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE is set
+ * When the LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE flag is set
  * the value type is ignored and set. The default behavior is a strict
  * matching of the value type. In this case the value type must be filled
  * with the corresponding value type
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not such value or -1 on error
@@ -602,17 +545,6 @@ int libpff_item_get_entry_value(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( value_type == NULL )
 	{
 		libcerror_error_set(
@@ -660,10 +592,10 @@ int libpff_item_get_entry_value(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          *value_type,
@@ -751,17 +683,6 @@ int libpff_item_get_entry_value_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( value_type == NULL )
 	{
 		libcerror_error_set(
@@ -797,10 +718,10 @@ int libpff_item_get_entry_value_by_utf8_name(
 	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -886,17 +807,6 @@ int libpff_item_get_entry_value_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( value_type == NULL )
 	{
 		libcerror_error_set(
@@ -932,10 +842,10 @@ int libpff_item_get_entry_value_by_utf16_name(
 	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -994,7 +904,7 @@ int libpff_item_get_entry_value_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1025,23 +935,12 @@ int libpff_item_get_entry_value_boolean(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          LIBPFF_VALUE_TYPE_BOOLEAN,
@@ -1109,23 +1008,12 @@ int libpff_item_get_entry_value_boolean_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -1194,23 +1082,12 @@ int libpff_item_get_entry_value_boolean_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -1254,7 +1131,7 @@ int libpff_item_get_entry_value_boolean_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1285,17 +1162,6 @@ int libpff_item_get_entry_value_16bit(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -1310,10 +1176,10 @@ int libpff_item_get_entry_value_16bit(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          LIBPFF_VALUE_TYPE_INTEGER_16BIT_SIGNED,
@@ -1381,23 +1247,12 @@ int libpff_item_get_entry_value_16bit_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -1466,23 +1321,12 @@ int libpff_item_get_entry_value_16bit_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -1526,7 +1370,7 @@ int libpff_item_get_entry_value_16bit_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1557,17 +1401,6 @@ int libpff_item_get_entry_value_32bit(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -1582,10 +1415,10 @@ int libpff_item_get_entry_value_32bit(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED,
@@ -1653,23 +1486,12 @@ int libpff_item_get_entry_value_32bit_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -1738,23 +1560,12 @@ int libpff_item_get_entry_value_32bit_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -1798,7 +1609,7 @@ int libpff_item_get_entry_value_32bit_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1829,17 +1640,6 @@ int libpff_item_get_entry_value_64bit(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -1854,10 +1654,10 @@ int libpff_item_get_entry_value_64bit(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          LIBPFF_VALUE_TYPE_INTEGER_64BIT_SIGNED,
@@ -1925,23 +1725,12 @@ int libpff_item_get_entry_value_64bit_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -2010,23 +1799,12 @@ int libpff_item_get_entry_value_64bit_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -2070,7 +1848,7 @@ int libpff_item_get_entry_value_64bit_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -2101,17 +1879,6 @@ int libpff_item_get_entry_value_filetime(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -2126,10 +1893,10 @@ int libpff_item_get_entry_value_filetime(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          LIBPFF_VALUE_TYPE_FILETIME,
@@ -2197,23 +1964,12 @@ int libpff_item_get_entry_value_filetime_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -2282,23 +2038,12 @@ int libpff_item_get_entry_value_filetime_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -2342,7 +2087,7 @@ int libpff_item_get_entry_value_filetime_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -2375,17 +2120,6 @@ int libpff_item_get_entry_value_size(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( entry_value == NULL )
 	{
 		libcerror_error_set(
@@ -2411,10 +2145,10 @@ int libpff_item_get_entry_value_size(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          0,
@@ -2512,23 +2246,12 @@ int libpff_item_get_entry_value_size_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -2619,23 +2342,12 @@ int libpff_item_get_entry_value_size_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -2699,7 +2411,7 @@ int libpff_item_get_entry_value_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -2731,17 +2443,6 @@ int libpff_item_get_entry_value_floating_point(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -2756,10 +2457,10 @@ int libpff_item_get_entry_value_floating_point(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          0,
@@ -2855,23 +2556,12 @@ int libpff_item_get_entry_value_floating_point_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -2960,23 +2650,12 @@ int libpff_item_get_entry_value_floating_point_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -3040,7 +2719,7 @@ int libpff_item_get_entry_value_floating_point_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -3072,28 +2751,6 @@ int libpff_item_get_entry_value_utf8_string_size(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -3108,10 +2765,10 @@ int libpff_item_get_entry_value_utf8_string_size(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          0,
@@ -3161,7 +2818,7 @@ int libpff_item_get_entry_value_utf8_string_size(
 		}
 		if( libpff_record_entry_get_data_as_utf8_string_size_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf8_string_size,
 		     error ) != 1 )
 		{
@@ -3209,34 +2866,12 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -3279,7 +2914,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf8_name(
 		}
 		if( libpff_record_entry_get_data_as_utf8_string_size_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf8_string_size,
 		     error ) != 1 )
 		{
@@ -3326,34 +2961,12 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -3396,7 +3009,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
 		}
 		if( libpff_record_entry_get_data_as_utf8_string_size_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf8_string_size,
 		     error ) != 1 )
 		{
@@ -3418,7 +3031,7 @@ int libpff_item_get_entry_value_utf8_string_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -3451,28 +3064,6 @@ int libpff_item_get_entry_value_utf8_string(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -3487,10 +3078,10 @@ int libpff_item_get_entry_value_utf8_string(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          0,
@@ -3540,7 +3131,7 @@ int libpff_item_get_entry_value_utf8_string(
 		}
 		if( libpff_record_entry_get_data_as_utf8_string_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf8_string,
 		     utf8_string_size,
 		     error ) != 1 )
@@ -3590,34 +3181,12 @@ int libpff_item_get_entry_value_utf8_string_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -3660,7 +3229,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf8_name(
 		}
 		if( libpff_record_entry_get_data_as_utf8_string_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf8_string,
 		     utf8_string_size,
 		     error ) != 1 )
@@ -3710,34 +3279,12 @@ int libpff_item_get_entry_value_utf8_string_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -3780,7 +3327,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf16_name(
 		}
 		if( libpff_record_entry_get_data_as_utf8_string_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf8_string,
 		     utf8_string_size,
 		     error ) != 1 )
@@ -3803,7 +3350,7 @@ int libpff_item_get_entry_value_utf8_string_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -3835,28 +3382,6 @@ int libpff_item_get_entry_value_utf16_string_size(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -3871,10 +3396,10 @@ int libpff_item_get_entry_value_utf16_string_size(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          0,
@@ -3924,7 +3449,7 @@ int libpff_item_get_entry_value_utf16_string_size(
 		}
 		if( libpff_record_entry_get_data_as_utf16_string_size_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf16_string_size,
 		     error ) != 1 )
 		{
@@ -3972,34 +3497,12 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -4042,7 +3545,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf8_name(
 		}
 		if( libpff_record_entry_get_data_as_utf16_string_size_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf16_string_size,
 		     error ) != 1 )
 		{
@@ -4089,34 +3592,12 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -4159,7 +3640,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
 		}
 		if( libpff_record_entry_get_data_as_utf16_string_size_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf16_string_size,
 		     error ) != 1 )
 		{
@@ -4181,7 +3662,7 @@ int libpff_item_get_entry_value_utf16_string_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -4214,28 +3695,6 @@ int libpff_item_get_entry_value_utf16_string(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -4250,10 +3709,10 @@ int libpff_item_get_entry_value_utf16_string(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          0,
@@ -4303,7 +3762,7 @@ int libpff_item_get_entry_value_utf16_string(
 		}
 		if( libpff_record_entry_get_data_as_utf16_string_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf16_string,
 		     utf16_string_size,
 		     error ) != 1 )
@@ -4353,34 +3812,12 @@ int libpff_item_get_entry_value_utf16_string_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -4423,7 +3860,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf8_name(
 		}
 		if( libpff_record_entry_get_data_as_utf16_string_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf16_string,
 		     utf16_string_size,
 		     error ) != 1 )
@@ -4473,34 +3910,12 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -4543,7 +3958,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
 		}
 		if( libpff_record_entry_get_data_as_utf16_string_with_codepage(
 		     record_entry,
-		     internal_item->internal_file->io_handle->ascii_codepage,
+		     internal_item->ascii_codepage,
 		     utf16_string,
 		     utf16_string_size,
 		     error ) != 1 )
@@ -4565,7 +3980,7 @@ int libpff_item_get_entry_value_utf16_string_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -4596,17 +4011,6 @@ int libpff_item_get_entry_value_binary_data_size(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -4621,10 +4025,10 @@ int libpff_item_get_entry_value_binary_data_size(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          LIBPFF_VALUE_TYPE_BINARY_DATA,
@@ -4692,23 +4096,12 @@ int libpff_item_get_entry_value_binary_data_size_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -4777,23 +4170,12 @@ int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -4837,7 +4219,7 @@ int libpff_item_get_entry_value_binary_data_size_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -4869,17 +4251,6 @@ int libpff_item_get_entry_value_binary_data(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -4894,10 +4265,10 @@ int libpff_item_get_entry_value_binary_data(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          LIBPFF_VALUE_TYPE_BINARY_DATA,
@@ -4967,23 +4338,12 @@ int libpff_item_get_entry_value_binary_data_by_utf8_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf8_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf8_entry_name,
 	          utf8_entry_name_length,
@@ -5054,23 +4414,12 @@ int libpff_item_get_entry_value_binary_data_by_utf16_name(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	result = libpff_item_values_get_record_entry_by_utf16_name(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          utf16_entry_name,
 	          utf16_entry_name_length,
@@ -5115,7 +4464,7 @@ int libpff_item_get_entry_value_binary_data_by_utf16_name(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -5147,17 +4496,6 @@ int libpff_item_get_entry_value_guid(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -5172,10 +4510,10 @@ int libpff_item_get_entry_value_guid(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          LIBPFF_VALUE_TYPE_GUID,
@@ -5220,7 +4558,7 @@ int libpff_item_get_entry_value_guid(
  *
  * When the LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP is set
  * the name to identifier mapping is ignored. The default behavior is
- * the use the mapped entry value. In this case named properties are not
+ * to use the mapped entry value. In this case named properties are not
  * retrieved.
  *
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -5251,28 +4589,6 @@ int libpff_item_get_entry_multi_value(
 	}
 	internal_item = (libpff_internal_item_t *) item;
 
-	if( internal_item->internal_file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_item->internal_file->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid item - invalid file - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( ( flags & ~( LIBPFF_ENTRY_VALUE_FLAG_IGNORE_NAME_TO_ID_MAP ) ) != 0 )
 	{
 		libcerror_error_set(
@@ -5287,10 +4603,10 @@ int libpff_item_get_entry_multi_value(
 	}
 	result = libpff_item_values_get_record_entry_by_type(
 	          internal_item->item_values,
-	          internal_item->internal_file->name_to_id_map_list,
-	          internal_item->internal_file->io_handle,
+	          internal_item->name_to_id_map_list,
+	          internal_item->io_handle,
 	          internal_item->file_io_handle,
-	          internal_item->internal_file->offsets_index,
+	          internal_item->offsets_index,
 	          set_index,
 	          entry_type,
 	          0,
