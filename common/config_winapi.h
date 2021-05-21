@@ -1,22 +1,22 @@
 /*
  * Configuration file for WINAPI
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _CONFIG_WINAPI_H )
@@ -37,6 +37,22 @@
 /* Define to the address where bug reports for this package should be sent.
  */
 #define PACKAGE_BUGREPORT		"joachim.metz@gmail.com"
+
+/* Define the size of the integer for WINAPI
+ */
+#if !defined( SIZEOF_INT )
+#define SIZEOF_INT			4
+#endif
+
+/* Define the size of size_t for WINAPI
+ */
+#if !defined( SIZEOF_SIZE_T )
+#if __WORDSIZE == 64
+#define SIZEOF_SIZE_T			8
+#else
+#define SIZEOF_SIZE_T			4
+#endif
+#endif
 
 /* Define the size of the wide character for WINAPI
  */

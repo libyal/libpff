@@ -1,22 +1,22 @@
 /*
  * Item values functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBPFF_ITEM_VALUES_H )
@@ -99,13 +99,6 @@ int libpff_item_values_read(
      int debug_item_type,
      libcerror_error_t **error );
 
-int libpff_item_values_get_local_descriptors_value_by_identifier(
-     libpff_item_values_t *item_values,
-     libbfio_handle_t *file_io_handle,
-     uint32_t descriptor_identifier,
-     libpff_local_descriptor_value_t **local_descriptor_value,
-     libcerror_error_t **error );
-
 int libpff_item_values_read_local_descriptor_data(
      libpff_item_values_t *item_values,
      libpff_io_handle_t *io_handle,
@@ -114,6 +107,13 @@ int libpff_item_values_read_local_descriptor_data(
      uint32_t descriptor_identifier,
      libfdata_list_t **descriptor_data_list,
      libfcache_cache_t **descriptor_data_cache,
+     libcerror_error_t **error );
+
+int libpff_item_values_get_local_descriptors_value_by_identifier(
+     libpff_item_values_t *item_values,
+     libbfio_handle_t *file_io_handle,
+     uint32_t descriptor_identifier,
+     libpff_local_descriptor_value_t **local_descriptor_value,
      libcerror_error_t **error );
 
 int libpff_item_values_get_number_of_record_sets(
@@ -145,8 +145,8 @@ int libpff_item_values_get_record_entry_by_utf8_name(
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
      int record_set_index,
-     const uint8_t *utf8_name,
-     size_t utf8_name_length,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,
@@ -159,8 +159,8 @@ int libpff_item_values_get_record_entry_by_utf16_name(
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
      int record_set_index,
-     const uint16_t *utf16_name,
-     size_t utf16_name_length,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      uint32_t value_type,
      libpff_record_entry_t **record_entry,
      uint8_t flags,

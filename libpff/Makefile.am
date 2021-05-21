@@ -43,6 +43,7 @@ libpff_la_SOURCES = \
 	libpff_error.c libpff_error.h \
 	libpff_extern.h \
 	libpff_file.c libpff_file.h \
+	libpff_file_header.c libpff_file_header.h \
 	libpff_folder.c libpff_folder.h \
 	libpff_free_map.c libpff_free_map.h \
 	libpff_index.c libpff_index.h \

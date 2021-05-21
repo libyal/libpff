@@ -1,22 +1,22 @@
 /*
  * Python object wrapper of libpff_file_t
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -328,94 +328,7 @@ PyTypeObject pypff_file_type_object = {
 	0
 };
 
-/* Creates a new file object
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pypff_file_new(
-           void )
-{
-	pypff_file_t *pypff_file = NULL;
-	static char *function    = "pypff_file_new";
-
-	pypff_file = PyObject_New(
-	              struct pypff_file,
-	              &pypff_file_type_object );
-
-	if( pypff_file == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize file.",
-		 function );
-
-		goto on_error;
-	}
-	if( pypff_file_init(
-	     pypff_file ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize file.",
-		 function );
-
-		goto on_error;
-	}
-	return( (PyObject *) pypff_file );
-
-on_error:
-	if( pypff_file != NULL )
-	{
-		Py_DecRef(
-		 (PyObject *) pypff_file );
-	}
-	return( NULL );
-}
-
-/* Creates a new file object and opens it
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pypff_file_new_open(
-           PyObject *self PYPFF_ATTRIBUTE_UNUSED,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	PyObject *pypff_file = NULL;
-
-	PYPFF_UNREFERENCED_PARAMETER( self )
-
-	pypff_file = pypff_file_new();
-
-	pypff_file_open(
-	 (pypff_file_t *) pypff_file,
-	 arguments,
-	 keywords );
-
-	return( pypff_file );
-}
-
-/* Creates a new file object and opens it using a file-like object
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pypff_file_new_open_file_object(
-           PyObject *self PYPFF_ATTRIBUTE_UNUSED,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	PyObject *pypff_file = NULL;
-
-	PYPFF_UNREFERENCED_PARAMETER( self )
-
-	pypff_file = pypff_file_new();
-
-	pypff_file_open_file_object(
-	 (pypff_file_t *) pypff_file,
-	 arguments,
-	 keywords );
-
-	return( pypff_file );
-}
-
-/* Intializes a file object
+/* Initializes a file object
  * Returns 0 if successful or -1 on error
  */
 int pypff_file_init(
@@ -473,15 +386,6 @@ void pypff_file_free(
 
 		return;
 	}
-	if( pypff_file->file == NULL )
-	{
-		PyErr_Format(
-		 PyExc_ValueError,
-		 "%s: invalid file - missing libpff file.",
-		 function );
-
-		return;
-	}
 	ob_type = Py_TYPE(
 	           pypff_file );
 
@@ -503,24 +407,27 @@ void pypff_file_free(
 
 		return;
 	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_file_free(
-	          &( pypff_file->file ),
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
+	if( pypff_file->file != NULL )
 	{
-		pypff_error_raise(
-		 error,
-		 PyExc_MemoryError,
-		 "%s: unable to free libpff file.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libpff_file_free(
+		          &( pypff_file->file ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free libpff file.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
 	ob_type->tp_free(
 	 (PyObject*) pypff_file );
@@ -823,6 +730,36 @@ PyObject *pypff_file_open_file_object(
 		 "%s: unsupported mode: %s.",
 		 function,
 		 mode );
+
+		return( NULL );
+	}
+	PyErr_Clear();
+
+	result = PyObject_HasAttrString(
+	          file_object,
+	          "read" );
+
+	if( result != 1 )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: unsupported file object - missing read attribute.",
+		 function );
+
+		return( NULL );
+	}
+	PyErr_Clear();
+
+	result = PyObject_HasAttrString(
+	          file_object,
+	          "seek" );
+
+	if( result != 1 )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: unsupported file object - missing seek attribute.",
+		 function );
 
 		return( NULL );
 	}
@@ -1530,12 +1467,11 @@ PyObject *pypff_file_get_root_item(
            pypff_file_t *pypff_file,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	PyObject *item_object     = NULL;
-	PyTypeObject *type_object = NULL;
-	libcerror_error_t *error  = NULL;
-	libpff_item_t *root_item  = NULL;
-	static char *function     = "pypff_file_get_root_item";
-	int result                = 0;
+	PyObject *item_object    = NULL;
+	libcerror_error_t *error = NULL;
+	libpff_item_t *root_item = NULL;
+	static char *function    = "pypff_file_get_root_item";
+	int result               = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1570,27 +1506,10 @@ PyObject *pypff_file_get_root_item(
 
 		goto on_error;
 	}
-	else if( result == 0 )
-	{
-		Py_IncRef(
-		 Py_None );
-
-		return( Py_None );
-	}
-	type_object = pypff_file_get_item_type_object(
-	               root_item );
-
-	if( type_object == NULL )
-	{
-		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to retrieve root item type object.",
-		 function );
-
-		goto on_error;
-	}
+	/* Note that libpff_item_get_type will fail on the root item
+	 */
 	item_object = pypff_item_new(
-	               type_object,
+	               &pypff_folder_type_object,
 	               root_item,
 	               (PyObject *) pypff_file );
 

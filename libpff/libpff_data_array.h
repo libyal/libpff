@@ -1,22 +1,22 @@
 /*
  * Data array functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBPFF_DATA_ARRAY_H )
@@ -79,17 +79,6 @@ int libpff_data_array_free(
 int libpff_data_array_clone(
      libpff_data_array_t **destination_data_array,
      libpff_data_array_t *source_data_array,
-     libcerror_error_t **error );
-
-int libpff_data_array_read(
-     libpff_data_array_t *data_array,
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     libpff_offsets_index_t *offsets_index,
-     libfdata_list_t *descriptor_data_list,
-     uint8_t recovered,
-     uint8_t *array_data,
-     size_t array_data_size,
      libcerror_error_t **error );
 
 int libpff_data_array_read_entries(

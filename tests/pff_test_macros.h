@@ -1,22 +1,22 @@
 /*
  * Macros for testing
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _PFF_TEST_MACROS_H )
@@ -99,6 +99,13 @@
 		goto on_error; \
 	}
 
+#define PFF_TEST_ASSERT_NOT_EQUAL_SSIZE( name, value, expected_value ) \
+	if( value == expected_value ) \
+	{ \
+		fprintf( stdout, "%s:%d %s (%" PRIzd ") == %" PRIzd "\n", __FILE__, __LINE__, name, value, expected_value ); \
+		goto on_error; \
+	}
+
 #define PFF_TEST_ASSERT_EQUAL_INT8( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
@@ -172,14 +179,14 @@
 #define PFF_TEST_ASSERT_EQUAL_UINT32( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s (%" PRIi32 ") != %" PRIu32 "\n", __FILE__, __LINE__, name, value, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIu32 ") != %" PRIu32 "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define PFF_TEST_ASSERT_LESS_THAN_UINT32( name, value, expected_value ) \
 	if( value >= expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s (%" PRIi32 ") >= %" PRIu32 "\n", __FILE__, __LINE__, name, value, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIu32 ") >= %" PRIu32 "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 

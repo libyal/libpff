@@ -1,22 +1,22 @@
 /*
  * Input/Output (IO) handle functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBPFF_IO_HANDLE_H )
@@ -42,14 +42,6 @@ typedef struct libpff_io_handle libpff_io_handle_t;
 
 struct libpff_io_handle
 {
-	/* The index nodes vector
-	 */
-	libfdata_vector_t *index_nodes_vector;
-
-	/* The index nodes cache
-	 */
-	libfcache_cache_t *index_nodes_cache;
-
 	/* The file size
 	 */
 	size64_t file_size;
@@ -89,16 +81,6 @@ int libpff_io_handle_free(
 
 int libpff_io_handle_clear(
      libpff_io_handle_t *io_handle,
-     libcerror_error_t **error );
-
-int libpff_io_handle_read_file_header(
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     int *file_content_type,
-     off64_t *descriptors_index_root_node_offset,
-     uint64_t *descriptors_index_root_node_back_pointer,
-     off64_t *offsets_index_root_node_offset,
-     uint64_t *offsets_index_root_node_back_pointer,
      libcerror_error_t **error );
 
 int libpff_io_handle_read_unallocated_data_blocks(

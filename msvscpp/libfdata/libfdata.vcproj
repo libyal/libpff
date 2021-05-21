@@ -155,18 +155,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfdata\libfdata_btree.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfdata\libfdata_btree_node.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfdata\libfdata_btree_range.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libfdata\libfdata_cache.c"
 				>
 			</File>
@@ -233,18 +221,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfdata\libfdata_btree.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfdata\libfdata_btree_node.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfdata\libfdata_btree_range.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libfdata\libfdata_cache.h"
 				>
 			</File>
@@ -258,10 +234,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libfdata\libfdata_extern.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfdata\libfdata_inline.h"
 				>
 			</File>
 			<File

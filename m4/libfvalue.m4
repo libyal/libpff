@@ -1,6 +1,6 @@
 dnl Checks for libfvalue required headers and functions
 dnl
-dnl Version: 20181117
+dnl Version: 20200711
 
 dnl Function to detect if libfvalue is available
 dnl ac_libfvalue_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -8,7 +8,8 @@ AC_DEFUN([AX_LIBFVALUE_CHECK_LIB],
   [AS_IF(
     [test "x$ac_cv_enable_shared_libs" = xno || test "x$ac_cv_with_libfvalue" = xno],
     [ac_cv_libfvalue=no],
-    [dnl Check if the directory provided as parameter exists
+    [ac_cv_libfvalue=check
+    dnl Check if the directory provided as parameter exists
     AS_IF(
       [test "x$ac_cv_with_libfvalue" != x && test "x$ac_cv_with_libfvalue" != xauto-detect],
       [AS_IF(
@@ -19,13 +20,13 @@ AC_DEFUN([AX_LIBFVALUE_CHECK_LIB],
           [no such directory: $ac_cv_with_libfvalue],
           [1])
         ])
-        ac_cv_libfvalue=check],
+      ],
       [dnl Check for a pkg-config file
       AS_IF(
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
         [PKG_CHECK_MODULES(
           [libfvalue],
-          [libfvalue >= 20160131],
+          [libfvalue >= 20200711],
           [ac_cv_libfvalue=yes],
           [ac_cv_libfvalue=check])
         ])

@@ -1,22 +1,22 @@
 /*
  * Local descriptor node functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -677,16 +677,16 @@ int libpff_local_descriptor_node_read(
 /* TODO implement error tollerance */
 		goto on_error;
 	}
-	if( local_descriptor_node->entries_data_size > (size32_t) SSIZE_MAX )
+	if( local_descriptor_node->entries_data_size > (size32_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: entries data size value exceeds maximum.",
+		 "%s: invalid local descriptor node - entries data size value exceeds maximum allocation size.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	/* Copy the entries data to the local descriptor node
 	 * to prevent loosing it when the data block is cached out.

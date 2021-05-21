@@ -1,22 +1,22 @@
 /*
  * Record entry functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -569,17 +569,6 @@ int libpff_record_entry_set_value_data(
 
 		return( -1 );
 	}
-	if( value_data_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid value data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
 	if( value_data_size > 0 )
 	{
 		if( value_data == NULL )
@@ -589,6 +578,17 @@ int libpff_record_entry_set_value_data(
 			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 			 "%s: invalid value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( value_data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid value data size value exceeds maximum allocation size.",
 			 function );
 
 			goto on_error;
@@ -761,30 +761,15 @@ int libpff_record_entry_set_value_data_from_stream(
 
 		return( -1 );
 	}
-	if( value_data_size > (size64_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid value data size value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
 	if( value_data_size > 0 )
 	{
-		if( libfdata_stream_seek_offset(
-		     value_data_stream,
-		     0,
-		     SEEK_SET,
-		     error ) == -1 )
+		if( value_data_size > (size64_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek offset: 0 in value data stream.",
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid value data size value exceeds maximum allocation size.",
 			 function );
 
 			goto on_error;
@@ -805,11 +790,12 @@ int libpff_record_entry_set_value_data_from_stream(
 		}
 		internal_record_entry->value_data_size = (size_t) value_data_size;
 
-		read_count = libfdata_stream_read_buffer(
+		read_count = libfdata_stream_read_buffer_at_offset(
 			      value_data_stream,
 			      (intptr_t *) file_io_handle,
 			      internal_record_entry->value_data,
 			      internal_record_entry->value_data_size,
+			      0,
 			      0,
 			      error );
 
@@ -819,7 +805,7 @@ int libpff_record_entry_set_value_data_from_stream(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read buffer from value data stream.",
+			 "%s: unable to read buffer from value data stream at offset: 0 (0x00000000).",
 			 function );
 
 			goto on_error;
@@ -2658,10 +2644,20 @@ int libpff_record_entry_get_multi_value(
 	 */
 	if( internal_record_entry->value_data != NULL )
 	{
-		internal_multi_value->value_data_size = internal_record_entry->value_data_size;
+		if( ( internal_record_entry->value_data_size == 0 )
+		 || ( internal_record_entry->value_data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid record entry - value data size value out of bounds.",
+			 function );
 
+			goto on_error;
+		}
 		internal_multi_value->value_data = (uint8_t *) memory_allocate(
-								sizeof( uint8_t ) * internal_multi_value->value_data_size );
+								sizeof( uint8_t ) * internal_record_entry->value_data_size );
 
 		if( internal_multi_value->value_data == NULL )
 		{
@@ -2674,6 +2670,8 @@ int libpff_record_entry_get_multi_value(
 
 			goto on_error;
 		}
+		internal_multi_value->value_data_size = internal_record_entry->value_data_size;
+
 		if( memory_copy(
 		     internal_multi_value->value_data,
 		     internal_record_entry->value_data,
@@ -2763,6 +2761,18 @@ int libpff_record_entry_get_multi_value(
 		}
 		if( internal_multi_value->number_of_values > 0 )
 		{
+			if( ( internal_multi_value->number_of_values > (size_t) ( MEMORY_MAXIMUM_ALLOCATION_SIZE / sizeof( uint32_t ) ) )
+			 || ( internal_multi_value->number_of_values > (size_t) ( MEMORY_MAXIMUM_ALLOCATION_SIZE / sizeof( size_t ) ) ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+				 "%s: invalid multi value - number of values exceeds maximum allocatio size.",
+				 function );
+
+				goto on_error;
+			}
 			internal_multi_value->value_offset = (uint32_t *) memory_allocate(
 									   sizeof( uint32_t ) * internal_multi_value->number_of_values );
 

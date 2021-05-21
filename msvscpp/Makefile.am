@@ -28,11 +28,14 @@ MSVSCPP_FILES = \
 	pff_test_descriptors_index/pff_test_descriptors_index.vcproj \
 	pff_test_error/pff_test_error.vcproj \
 	pff_test_file/pff_test_file.vcproj \
+	pff_test_file_header/pff_test_file_header.vcproj \
 	pff_test_folder/pff_test_folder.vcproj \
 	pff_test_index/pff_test_index.vcproj \
 	pff_test_index_node/pff_test_index_node.vcproj \
+	pff_test_index_tree/pff_test_index_tree.vcproj \
 	pff_test_index_value/pff_test_index_value.vcproj \
 	pff_test_io_handle/pff_test_io_handle.vcproj \
+	pff_test_io_handle2/pff_test_io_handle2.vcproj \
 	pff_test_item/pff_test_item.vcproj \
 	pff_test_item_descriptor/pff_test_item_descriptor.vcproj \
 	pff_test_item_tree/pff_test_item_tree.vcproj \
@@ -54,6 +57,9 @@ MSVSCPP_FILES = \
 	pff_test_table/pff_test_table.vcproj \
 	pff_test_table_block_index/pff_test_table_block_index.vcproj \
 	pff_test_table_index_value/pff_test_table_index_value.vcproj \
+	pff_test_tools_info_handle/pff_test_tools_info_handle.vcproj \
+	pff_test_tools_output/pff_test_tools_output.vcproj \
+	pff_test_tools_signal/pff_test_tools_signal.vcproj \
 	pff_test_value_type/pff_test_value_type.vcproj \
 	pffexport/pffexport.vcproj \
 	pffinfo/pffinfo.vcproj \

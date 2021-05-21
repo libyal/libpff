@@ -1,6 +1,6 @@
 dnl Checks for libbfio required headers and functions
 dnl
-dnl Version: 20181117
+dnl Version: 20201125
 
 dnl Function to detect if libbfio is available
 dnl ac_libbfio_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -8,7 +8,8 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
   [AS_IF(
     [test "x$ac_cv_enable_shared_libs" = xno || test "x$ac_cv_with_libbfio" = xno],
     [ac_cv_libbfio=no],
-    [dnl Check if the directory provided as parameter exists
+    [ac_cv_libbfio=check
+    dnl Check if the directory provided as parameter exists
     AS_IF(
       [test "x$ac_cv_with_libbfio" != x && test "x$ac_cv_with_libbfio" != xauto-detect],
       [AS_IF(
@@ -19,13 +20,13 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
           [no such directory: $ac_cv_with_libbfio],
           [1])
         ])
-        ac_cv_libbfio=check],
+      ],
       [dnl Check for a pkg-config file
       AS_IF(
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
         [PKG_CHECK_MODULES(
           [libbfio],
-          [libbfio >= 20160108],
+          [libbfio >= 20201125],
           [ac_cv_libbfio=yes],
           [ac_cv_libbfio=check])
         ])
@@ -101,7 +102,17 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
           [ac_cv_libbfio=no])
         AC_CHECK_LIB(
           bfio,
+          libbfio_handle_read_buffer_at_offset,
+          [ac_cv_libbfio_dummy=yes],
+          [ac_cv_libbfio=no])
+        AC_CHECK_LIB(
+          bfio,
           libbfio_handle_write_buffer,
+          [ac_cv_libbfio_dummy=yes],
+          [ac_cv_libbfio=no])
+        AC_CHECK_LIB(
+          bfio,
+          libbfio_handle_write_buffer_at_offset,
           [ac_cv_libbfio_dummy=yes],
           [ac_cv_libbfio=no])
         AC_CHECK_LIB(
@@ -262,7 +273,17 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
           [ac_cv_libbfio=no])
         AC_CHECK_LIB(
           bfio,
+          libbfio_pool_read_buffer_at_offset,
+          [ac_cv_libbfio_dummy=yes],
+          [ac_cv_libbfio=no])
+        AC_CHECK_LIB(
+          bfio,
           libbfio_pool_write_buffer,
+          [ac_cv_libbfio_dummy=yes],
+          [ac_cv_libbfio=no])
+        AC_CHECK_LIB(
+          bfio,
+          libbfio_pool_write_buffer_at_offset,
           [ac_cv_libbfio_dummy=yes],
           [ac_cv_libbfio=no])
         AC_CHECK_LIB(
@@ -280,6 +301,22 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
           libbfio_pool_get_size,
           [ac_cv_libbfio_dummy=yes],
           [ac_cv_libbfio=no])
+
+        dnl File pool functions
+        AC_CHECK_LIB(
+          bfio,
+          libbfio_file_pool_open,
+          [ac_cv_libbfio_dummy=yes],
+          [ac_cv_libbfio=no])
+
+        AS_IF(
+          [test "x$ac_cv_enable_wide_character_type" != xno],
+          [AC_CHECK_LIB(
+            bfio,
+            libbfio_file_pool_open_wide,
+            [ac_cv_libbfio_dummy=yes],
+            [ac_cv_libbfio=no])
+          ])
 
         ac_cv_libbfio_LIBADD="-lbfio"])
       ])

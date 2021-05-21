@@ -3,7 +3,7 @@ Version: @VERSION@
 Release: 1
 Summary: Library to access the Personal Folder File (OST, PAB and PST) format
 Group: System Environment/Libraries
-License: LGPL
+License: LGPLv3+
 Source: %{name}-%{version}.tar.gz
 URL: https://github.com/libyal/libpff
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -77,19 +77,19 @@ rm -rf %{buildroot}
 
 %files -n libpff
 %defattr(644,root,root,755)
-%license COPYING
+%license COPYING COPYING.LESSER
 %doc AUTHORS README
 %attr(755,root,root) %{_libdir}/*.so.*
 
 %files -n libpff-static
 %defattr(644,root,root,755)
-%license COPYING
+%license COPYING COPYING.LESSER
 %doc AUTHORS README
 %attr(755,root,root) %{_libdir}/*.a
 
 %files -n libpff-devel
 %defattr(644,root,root,755)
-%license COPYING
+%license COPYING COPYING.LESSER
 %doc AUTHORS README
 %{_libdir}/*.la
 %{_libdir}/*.so
@@ -99,7 +99,7 @@ rm -rf %{buildroot}
 
 %files -n libpff-python2
 %defattr(644,root,root,755)
-%license COPYING
+%license COPYING COPYING.LESSER
 %doc AUTHORS README
 %{_libdir}/python2*/site-packages/*.a
 %{_libdir}/python2*/site-packages/*.la
@@ -107,7 +107,7 @@ rm -rf %{buildroot}
 
 %files -n libpff-python3
 %defattr(644,root,root,755)
-%license COPYING
+%license COPYING COPYING.LESSER
 %doc AUTHORS README
 %{_libdir}/python3*/site-packages/*.a
 %{_libdir}/python3*/site-packages/*.la
@@ -115,7 +115,7 @@ rm -rf %{buildroot}
 
 %files -n libpff-tools
 %defattr(644,root,root,755)
-%license COPYING
+%license COPYING COPYING.LESSER
 %doc AUTHORS README
 %attr(755,root,root) %{_bindir}/*
 %{_mandir}/man1/*

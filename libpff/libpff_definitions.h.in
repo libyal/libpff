@@ -1,22 +1,22 @@
 /*
  * The internal definitions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBPFF_INTERNAL_DEFINITIONS_H )
@@ -414,7 +414,7 @@ enum LIBPFF_NAME_TO_ID_MAP_ENTRY_FLAGS
 #define LIBPFF_RECOVERED_DESCRIPTOR_INDEX_TREE_ROOT_OFFSET		3
 #define LIBPFF_RECOVERED_OFFSETS_INDEX_TREE_ROOT_OFFSET			4
 
-/* The maximum number of cache entries defintions
+/* The maximum number of cache entries definitions
  */
 #define LIBPFF_MAXIMUM_CACHE_ENTRIES_INDEX_NODES			16384
 #define LIBPFF_MAXIMUM_CACHE_ENTRIES_DESCRIPTOR_INDEX_VALUES		8192 - 3
@@ -432,6 +432,9 @@ enum LIBPFF_DESCRIPTOR_DATA_STREAM_DATA_HANDLE_FLAGS
 	LIBPFF_DESCRIPTOR_DATA_STREAM_DATA_HANDLE_FLAG_NON_MANAGED	= 0,
 	LIBPFF_DESCRIPTOR_DATA_STREAM_DATA_HANDLE_FLAG_MANAGED		= 1
 };
+
+#define LIBPFF_MAXIMUM_INDEX_TREE_RECURSION_DEPTH			256
+#define LIBPFF_MAXIMUM_ITEM_TREE_RECURSION_DEPTH			256
 
 #endif /* !defined( _LIBPFF_INTERNAL_DEFINITIONS_H ) */
 

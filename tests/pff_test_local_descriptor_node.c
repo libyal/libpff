@@ -1,22 +1,22 @@
 /*
  * Library local_descriptor_node type test program
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -270,6 +270,117 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_local_descriptor_node_read function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_local_descriptor_node_read(
+     void )
+{
+	libcerror_error_t *error                              = NULL;
+	libpff_local_descriptor_node_t *local_descriptor_node = NULL;
+	int result                                            = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_local_descriptor_node_initialize(
+	          &local_descriptor_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "local_descriptor_node",
+	 local_descriptor_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_local_descriptor_node_read(
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_local_descriptor_node_read(
+	          local_descriptor_node,
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_local_descriptor_node_free(
+	          &local_descriptor_node,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "local_descriptor_node",
+	 local_descriptor_node );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( local_descriptor_node != NULL )
+	{
+		libpff_local_descriptor_node_free(
+		 &local_descriptor_node,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -303,7 +414,9 @@ int main(
 
 	/* TODO: add tests for libpff_local_descriptor_node_get_entry_sub_node_identifier */
 
-	/* TODO: add tests for libpff_local_descriptor_node_read */
+	PFF_TEST_RUN(
+	 "libpff_local_descriptor_node_read",
+	 pff_test_local_descriptor_node_read );
 
 	/* TODO: add tests for libpff_local_descriptor_node_read_element_data */
 

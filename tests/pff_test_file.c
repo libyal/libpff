@@ -1,22 +1,22 @@
 /*
  * Library file type test program
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -30,13 +30,15 @@
 #include <stdlib.h>
 #endif
 
+#include "pff_test_functions.h"
 #include "pff_test_getopt.h"
+#include "pff_test_libbfio.h"
 #include "pff_test_libcerror.h"
-#include "pff_test_libclocale.h"
 #include "pff_test_libpff.h"
-#include "pff_test_libuna.h"
 #include "pff_test_macros.h"
 #include "pff_test_memory.h"
+
+#include "../libpff/libpff_file.h"
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER ) && SIZEOF_WCHAR_T != 2 && SIZEOF_WCHAR_T != 4
 #error Unsupported size of wchar_t
@@ -46,412 +48,28 @@
 #define PFF_TEST_FILE_VERBOSE
  */
 
-/* Retrieves source as a narrow string
- * Returns 1 if successful or -1 on error
- */
-int pff_test_file_get_narrow_source(
-     const system_character_t *source,
-     char *narrow_string,
-     size_t narrow_string_size,
-     libcerror_error_t **error )
-{
-	static char *function     = "pff_test_file_get_narrow_source";
-	size_t narrow_source_size = 0;
-	size_t source_length      = 0;
+#if !defined( LIBPFF_HAVE_BFIO )
 
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	int result                = 0;
-#endif
+LIBPFF_EXTERN \
+int libpff_check_file_signature_file_io_handle(
+     libbfio_handle_t *file_io_handle,
+     libcerror_error_t **error );
 
-	if( source == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid source.",
-		 function );
+LIBPFF_EXTERN \
+int libpff_file_open_file_io_handle(
+     libpff_file_t *file,
+     libbfio_handle_t *file_io_handle,
+     int access_flags,
+     libpff_error_t **error );
 
-		return( -1 );
-	}
-	if( narrow_string == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid narrow string.",
-		 function );
-
-		return( -1 );
-	}
-	if( narrow_string_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid narrow string size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	source_length = system_string_length(
-	                 source );
-
-	if( source_length > (size_t) ( SSIZE_MAX - 1 ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid source length value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libclocale_codepage == 0 )
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_utf8_string_size_from_utf32(
-		          (libuna_utf32_character_t *) source,
-		          source_length + 1,
-		          &narrow_source_size,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_utf8_string_size_from_utf16(
-		          (libuna_utf16_character_t *) source,
-		          source_length + 1,
-		          &narrow_source_size,
-		          error );
-#endif
-	}
-	else
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_byte_stream_size_from_utf32(
-		          (libuna_utf32_character_t *) source,
-		          source_length + 1,
-		          libclocale_codepage,
-		          &narrow_source_size,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_byte_stream_size_from_utf16(
-		          (libuna_utf16_character_t *) source,
-		          source_length + 1,
-		          libclocale_codepage,
-		          &narrow_source_size,
-		          error );
-#endif
-	}
-	if( result != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBCERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to determine narrow string size.",
-		 function );
-
-		return( -1 );
-	}
-#else
-	narrow_source_size = source_length + 1;
-
-#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
-
-	if( narrow_string_size < narrow_source_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: narrow string too small.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libclocale_codepage == 0 )
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_utf8_string_copy_from_utf32(
-		          (libuna_utf8_character_t *) narrow_string,
-		          narrow_string_size,
-		          (libuna_utf32_character_t *) source,
-		          source_length + 1,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_utf8_string_copy_from_utf16(
-		          (libuna_utf8_character_t *) narrow_string,
-		          narrow_string_size,
-		          (libuna_utf16_character_t *) source,
-		          source_length + 1,
-		          error );
-#endif
-	}
-	else
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_byte_stream_copy_from_utf32(
-		          (uint8_t *) narrow_string,
-		          narrow_string_size,
-		          libclocale_codepage,
-		          (libuna_utf32_character_t *) source,
-		          source_length + 1,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_byte_stream_copy_from_utf16(
-		          (uint8_t *) narrow_string,
-		          narrow_string_size,
-		          libclocale_codepage,
-		          (libuna_utf16_character_t *) source,
-		          source_length + 1,
-		          error );
-#endif
-	}
-	if( result != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBCERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set narrow string.",
-		 function );
-
-		return( -1 );
-	}
-#else
-	if( system_string_copy(
-	     narrow_string,
-	     source,
-	     source_length ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to set narrow string.",
-		 function );
-
-		return( -1 );
-	}
-	narrow_string[ source_length ] = 0;
-
-#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
-
-	return( 1 );
-}
-
-#if defined( HAVE_WIDE_CHARACTER_TYPE )
-
-/* Retrieves source as a wide string
- * Returns 1 if successful or -1 on error
- */
-int pff_test_file_get_wide_source(
-     const system_character_t *source,
-     wchar_t *wide_string,
-     size_t wide_string_size,
-     libcerror_error_t **error )
-{
-	static char *function   = "pff_test_file_get_wide_source";
-	size_t source_length    = 0;
-	size_t wide_source_size = 0;
-
-#if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	int result              = 0;
-#endif
-
-	if( source == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid source.",
-		 function );
-
-		return( -1 );
-	}
-	if( wide_string == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid wide string.",
-		 function );
-
-		return( -1 );
-	}
-	if( wide_string_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid wide string size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	source_length = system_string_length(
-	                 source );
-
-	if( source_length > (size_t) ( SSIZE_MAX - 1 ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid source length value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	wide_source_size = source_length + 1;
-#else
-	if( libclocale_codepage == 0 )
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_utf32_string_size_from_utf8(
-		          (libuna_utf8_character_t *) source,
-		          source_length + 1,
-		          &wide_source_size,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_utf16_string_size_from_utf8(
-		          (libuna_utf8_character_t *) source,
-		          source_length + 1,
-		          &wide_source_size,
-		          error );
-#endif
-	}
-	else
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_utf32_string_size_from_byte_stream(
-		          (uint8_t *) source,
-		          source_length + 1,
-		          libclocale_codepage,
-		          &wide_source_size,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_utf16_string_size_from_byte_stream(
-		          (uint8_t *) source,
-		          source_length + 1,
-		          libclocale_codepage,
-		          &wide_source_size,
-		          error );
-#endif
-	}
-	if( result != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBCERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to determine wide string size.",
-		 function );
-
-		return( -1 );
-	}
-
-#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
-
-	if( wide_string_size < wide_source_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: wide string too small.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	if( system_string_copy(
-	     wide_string,
-	     source,
-	     source_length ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to set wide string.",
-		 function );
-
-		return( -1 );
-	}
-	wide_string[ source_length ] = 0;
-#else
-	if( libclocale_codepage == 0 )
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_utf32_string_copy_from_utf8(
-		          (libuna_utf32_character_t *) wide_string,
-		          wide_string_size,
-		          (libuna_utf8_character_t *) source,
-		          source_length + 1,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_utf16_string_copy_from_utf8(
-		          (libuna_utf16_character_t *) wide_string,
-		          wide_string_size,
-		          (libuna_utf8_character_t *) source,
-		          source_length + 1,
-		          error );
-#endif
-	}
-	else
-	{
-#if SIZEOF_WCHAR_T == 4
-		result = libuna_utf32_string_copy_from_byte_stream(
-		          (libuna_utf32_character_t *) wide_string,
-		          wide_string_size,
-		          (uint8_t *) source,
-		          source_length + 1,
-		          libclocale_codepage,
-		          error );
-#elif SIZEOF_WCHAR_T == 2
-		result = libuna_utf16_string_copy_from_byte_stream(
-		          (libuna_utf16_character_t *) wide_string,
-		          wide_string_size,
-		          (uint8_t *) source,
-		          source_length + 1,
-		          libclocale_codepage,
-		          error );
-#endif
-	}
-	if( result != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBCERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set wide string.",
-		 function );
-
-		return( -1 );
-	}
-
-#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
-
-	return( 1 );
-}
-
-#endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
+#endif /* !defined( LIBPFF_HAVE_BFIO ) */
 
 /* Creates and opens a source file
  * Returns 1 if successful or -1 on error
  */
 int pff_test_file_open_source(
      libpff_file_t **file,
-     const system_character_t *source,
+     libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
 	static char *function = "pff_test_file_open_source";
@@ -468,13 +86,13 @@ int pff_test_file_open_source(
 
 		return( -1 );
 	}
-	if( source == NULL )
+	if( file_io_handle == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid source.",
+		 "%s: invalid file IO handle.",
 		 function );
 
 		return( -1 );
@@ -492,19 +110,12 @@ int pff_test_file_open_source(
 
 		goto on_error;
 	}
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-	result = libpff_file_open_wide(
+	result = libpff_file_open_file_io_handle(
 	          *file,
-	          source,
+	          file_io_handle,
 	          LIBPFF_OPEN_READ,
 	          error );
-#else
-	result = libpff_file_open(
-	          *file,
-	          source,
-	          LIBPFF_OPEN_READ,
-	          error );
-#endif
+
 	if( result != 1 )
 	{
 		libcerror_error_set(
@@ -825,7 +436,7 @@ int pff_test_file_open(
 
 	/* Initialize test
 	 */
-	result = pff_test_file_get_narrow_source(
+	result = pff_test_get_narrow_source(
 	          source,
 	          narrow_source,
 	          256,
@@ -875,6 +486,62 @@ int pff_test_file_open(
 	 error );
 
 	/* Test error cases
+	 */
+	result = libpff_file_open(
+	          NULL,
+	          narrow_source,
+	          LIBPFF_OPEN_READ,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_open(
+	          file,
+	          NULL,
+	          LIBPFF_OPEN_READ,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_open(
+	          file,
+	          narrow_source,
+	          -1,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test open when already opened
 	 */
 	result = libpff_file_open(
 	          file,
@@ -946,7 +613,7 @@ int pff_test_file_open_wide(
 
 	/* Initialize test
 	 */
-	result = pff_test_file_get_wide_source(
+	result = pff_test_get_wide_source(
 	          source,
 	          wide_source,
 	          256,
@@ -996,6 +663,62 @@ int pff_test_file_open_wide(
 	 error );
 
 	/* Test error cases
+	 */
+	result = libpff_file_open_wide(
+	          NULL,
+	          wide_source,
+	          LIBPFF_OPEN_READ,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_open_wide(
+	          file,
+	          NULL,
+	          LIBPFF_OPEN_READ,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_open_wide(
+	          file,
+	          wide_source,
+	          -1,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test open when already opened
 	 */
 	result = libpff_file_open_wide(
 	          file,
@@ -1052,6 +775,231 @@ on_error:
 }
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
+
+/* Tests the libpff_file_open_file_io_handle function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_open_file_io_handle(
+     const system_character_t *source )
+{
+	libbfio_handle_t *file_io_handle = NULL;
+	libcerror_error_t *error         = NULL;
+	libpff_file_t *file              = NULL;
+	size_t string_length             = 0;
+	int result                       = 0;
+
+	/* Initialize test
+	 */
+	result = libbfio_file_initialize(
+	          &file_io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	string_length = system_string_length(
+	                 source );
+
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libbfio_file_set_name_wide(
+	          file_io_handle,
+	          source,
+	          string_length,
+	          &error );
+#else
+	result = libbfio_file_set_name(
+	          file_io_handle,
+	          source,
+	          string_length,
+	          &error );
+#endif
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_file_initialize(
+	          &file,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "file",
+	 file );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test open
+	 */
+	result = libpff_file_open_file_io_handle(
+	          file,
+	          file_io_handle,
+	          LIBPFF_OPEN_READ,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_file_open_file_io_handle(
+	          NULL,
+	          file_io_handle,
+	          LIBPFF_OPEN_READ,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_open_file_io_handle(
+	          file,
+	          NULL,
+	          LIBPFF_OPEN_READ,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_open_file_io_handle(
+	          file,
+	          file_io_handle,
+	          -1,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test open when already opened
+	 */
+	result = libpff_file_open_file_io_handle(
+	          file,
+	          file_io_handle,
+	          LIBPFF_OPEN_READ,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libpff_file_free(
+	          &file,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "file",
+	 file );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libbfio_handle_free(
+	          &file_io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "file_io_handle",
+	 file_io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( file != NULL )
+	{
+		libpff_file_free(
+		 &file,
+		 NULL );
+	}
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
 
 /* Tests the libpff_file_close function
  * Returns 1 if successful or 0 if not
@@ -1259,6 +1207,59 @@ int pff_test_file_signal_abort(
 	/* Test error cases
 	 */
 	result = libpff_file_signal_abort(
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_is_corrupted function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_is_corrupted(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libpff_file_is_corrupted(
+	          file,
+	          &error );
+
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_file_is_corrupted(
 	          NULL,
 	          &error );
 
@@ -1740,9 +1741,9 @@ int pff_test_file_set_ascii_codepage(
 		 result,
 		 1 );
 
-	        PFF_TEST_ASSERT_IS_NULL(
-	         "error",
-	         error );
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 	}
 	/* Test error cases
 	 */
@@ -1779,9 +1780,9 @@ int pff_test_file_set_ascii_codepage(
 		 result,
 		 -1 );
 
-	        PFF_TEST_ASSERT_IS_NOT_NULL(
-	         "error",
-	         error );
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
 
 		libcerror_error_free(
 		 &error );
@@ -1820,9 +1821,8 @@ int pff_test_file_get_root_item(
      libpff_file_t *file )
 {
 	libcerror_error_t *error = NULL;
-	libpff_item_t *root_item = 0;
+	libpff_item_t *root_item = NULL;
 	int result               = 0;
-	int root_item_is_set     = 0;
 
 	/* Test regular cases
 	 */
@@ -1831,36 +1831,32 @@ int pff_test_file_get_root_item(
 	          &root_item,
 	          &error );
 
-	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	root_item_is_set = result;
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "root_item",
+	 root_item );
 
-	if( root_item_is_set != 0 )
-	{
-		PFF_TEST_ASSERT_IS_NOT_NULL(
-		 "root_item",
-		 root_item );
+	result = libpff_item_free(
+	          &root_item,
+	          &error );
 
-		result = libpff_item_free(
-		          &root_item,
-		          &error );
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
 
-		PFF_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 1 );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
-		PFF_TEST_ASSERT_IS_NULL(
-		 "error",
-		 error );
-	}
 	/* Test error cases
 	 */
 	result = libpff_file_get_root_item(
@@ -1884,29 +1880,27 @@ int pff_test_file_get_root_item(
 	libcerror_error_free(
 	 &error );
 
-	if( root_item_is_set != 0 )
-	{
-		result = libpff_file_get_root_item(
-		          file,
-		          NULL,
-		          &error );
+	result = libpff_file_get_root_item(
+	          file,
+	          NULL,
+	          &error );
 
-		PFF_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		PFF_TEST_ASSERT_IS_NULL(
-		 "root_item",
-		 root_item );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "root_item",
+	 root_item );
 
-		PFF_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:
@@ -1931,7 +1925,7 @@ int pff_test_file_get_message_store(
      libpff_file_t *file )
 {
 	libcerror_error_t *error     = NULL;
-	libpff_item_t *message_store = 0;
+	libpff_item_t *message_store = NULL;
 	int message_store_is_set     = 0;
 	int result                   = 0;
 
@@ -2042,7 +2036,7 @@ int pff_test_file_get_name_to_id_map(
      libpff_file_t *file )
 {
 	libcerror_error_t *error      = NULL;
-	libpff_item_t *name_to_id_map = 0;
+	libpff_item_t *name_to_id_map = NULL;
 	int name_to_id_map_is_set     = 0;
 	int result                    = 0;
 
@@ -2153,7 +2147,7 @@ int pff_test_file_get_root_folder(
      libpff_file_t *file )
 {
 	libcerror_error_t *error   = NULL;
-	libpff_item_t *root_folder = 0;
+	libpff_item_t *root_folder = NULL;
 	int result                 = 0;
 	int root_folder_is_set     = 0;
 
@@ -2263,10 +2257,9 @@ on_error:
 int pff_test_file_get_number_of_orphan_items(
      libpff_file_t *file )
 {
-	libcerror_error_t *error          = NULL;
-	int number_of_orphan_items        = 0;
-	int number_of_orphan_items_is_set = 0;
-	int result                        = 0;
+	libcerror_error_t *error   = NULL;
+	int number_of_orphan_items = 0;
+	int result                 = 0;
 
 	/* Test regular cases
 	 */
@@ -2275,16 +2268,14 @@ int pff_test_file_get_number_of_orphan_items(
 	          &number_of_orphan_items,
 	          &error );
 
-	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	number_of_orphan_items_is_set = result;
 
 	/* Test error cases
 	 */
@@ -2305,25 +2296,23 @@ int pff_test_file_get_number_of_orphan_items(
 	libcerror_error_free(
 	 &error );
 
-	if( number_of_orphan_items_is_set != 0 )
-	{
-		result = libpff_file_get_number_of_orphan_items(
-		          file,
-		          NULL,
-		          &error );
+	result = libpff_file_get_number_of_orphan_items(
+	          file,
+	          NULL,
+	          &error );
 
-		PFF_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		PFF_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:
@@ -2335,16 +2324,163 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_file_get_orphan_item_by_index function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_orphan_item_by_index(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error   = NULL;
+	libpff_item_t *orphan_item = NULL;
+	int number_of_orphan_items = 0;
+	int result                 = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_file_get_number_of_orphan_items(
+	          file,
+	          &number_of_orphan_items,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	if( number_of_orphan_items > 0 )
+	{
+		result = libpff_file_get_orphan_item_by_index(
+		          file,
+		          0,
+		          &orphan_item,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "orphan_item",
+		 orphan_item );
+
+		result = libpff_item_free(
+		          &orphan_item,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	/* Test error cases
+	 */
+	result = libpff_file_get_orphan_item_by_index(
+	          NULL,
+	          0,
+	          &orphan_item,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "orphan_item",
+	 orphan_item );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_get_orphan_item_by_index(
+	          file,
+	          -1,
+	          &orphan_item,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "orphan_item",
+	 orphan_item );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_get_orphan_item_by_index(
+	          file,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "orphan_item",
+	 orphan_item );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( orphan_item != NULL )
+	{
+		libpff_item_free(
+		 &orphan_item,
+		 NULL );
+	}
+	return( 0 );
+}
+
 /* Tests the libpff_file_get_number_of_recovered_items function
  * Returns 1 if successful or 0 if not
  */
 int pff_test_file_get_number_of_recovered_items(
      libpff_file_t *file )
 {
-	libcerror_error_t *error             = NULL;
-	int number_of_recovered_items        = 0;
-	int number_of_recovered_items_is_set = 0;
-	int result                           = 0;
+	libcerror_error_t *error      = NULL;
+	int number_of_recovered_items = 0;
+	int result                    = 0;
 
 	/* Test regular cases
 	 */
@@ -2353,16 +2489,14 @@ int pff_test_file_get_number_of_recovered_items(
 	          &number_of_recovered_items,
 	          &error );
 
-	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	number_of_recovered_items_is_set = result;
 
 	/* Test error cases
 	 */
@@ -2383,25 +2517,23 @@ int pff_test_file_get_number_of_recovered_items(
 	libcerror_error_free(
 	 &error );
 
-	if( number_of_recovered_items_is_set != 0 )
-	{
-		result = libpff_file_get_number_of_recovered_items(
-		          file,
-		          NULL,
-		          &error );
+	result = libpff_file_get_number_of_recovered_items(
+	          file,
+	          NULL,
+	          &error );
 
-		PFF_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		PFF_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:
@@ -2409,6 +2541,154 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_file_get_recovered_item_by_index function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_file_get_recovered_item_by_index(
+     libpff_file_t *file )
+{
+	libcerror_error_t *error      = NULL;
+	libpff_item_t *recovered_item = NULL;
+	int number_of_recovered_items = 0;
+	int result                    = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_file_get_number_of_recovered_items(
+	          file,
+	          &number_of_recovered_items,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	if( number_of_recovered_items > 0 )
+	{
+		result = libpff_file_get_recovered_item_by_index(
+		          file,
+		          0,
+		          &recovered_item,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "recovered_item",
+		 recovered_item );
+
+		result = libpff_item_free(
+		          &recovered_item,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	/* Test error cases
+	 */
+	result = libpff_file_get_recovered_item_by_index(
+	          NULL,
+	          0,
+	          &recovered_item,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "recovered_item",
+	 recovered_item );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_get_recovered_item_by_index(
+	          file,
+	          -1,
+	          &recovered_item,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "recovered_item",
+	 recovered_item );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_file_get_recovered_item_by_index(
+	          file,
+	          0,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "recovered_item",
+	 recovered_item );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( recovered_item != NULL )
+	{
+		libpff_item_free(
+		 &recovered_item,
+		 NULL );
 	}
 	return( 0 );
 }
@@ -2425,11 +2705,13 @@ int main(
      char * const argv[] )
 #endif
 {
-	libcerror_error_t *error   = NULL;
-	libpff_file_t *file        = NULL;
-	system_character_t *source = NULL;
-	system_integer_t option    = 0;
-	int result                 = 0;
+	libbfio_handle_t *file_io_handle = NULL;
+	libcerror_error_t *error         = NULL;
+	libpff_file_t *file              = NULL;
+	system_character_t *source       = NULL;
+	system_integer_t option          = 0;
+	size_t string_length             = 0;
+	int result                       = 0;
 
 	while( ( option = pff_test_getopt(
 	                   argc,
@@ -2471,6 +2753,63 @@ int main(
 #if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 	if( source != NULL )
 	{
+		result = libbfio_file_initialize(
+		          &file_io_handle,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+	        PFF_TEST_ASSERT_IS_NOT_NULL(
+	         "file_io_handle",
+	         file_io_handle );
+
+	        PFF_TEST_ASSERT_IS_NULL(
+	         "error",
+	         error );
+
+		string_length = system_string_length(
+		                 source );
+
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libbfio_file_set_name_wide(
+		          file_io_handle,
+		          source,
+		          string_length,
+		          &error );
+#else
+		result = libbfio_file_set_name(
+		          file_io_handle,
+		          source,
+		          string_length,
+		          &error );
+#endif
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+	        PFF_TEST_ASSERT_IS_NULL(
+	         "error",
+	         error );
+
+		result = libpff_check_file_signature_file_io_handle(
+		          file_io_handle,
+		          &error );
+
+		PFF_TEST_ASSERT_NOT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	if( result != 0 )
+	{
 		PFF_TEST_RUN_WITH_ARGS(
 		 "libpff_file_open",
 		 pff_test_file_open,
@@ -2485,11 +2824,10 @@ int main(
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
-#if defined( LIBPFF_HAVE_BFIO )
-
-		/* TODO add test for libpff_file_open_file_io_handle */
-
-#endif /* defined( LIBPFF_HAVE_BFIO ) */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_open_file_io_handle",
+		 pff_test_file_open_file_io_handle,
+		 source );
 
 		PFF_TEST_RUN(
 		 "libpff_file_close",
@@ -2500,11 +2838,11 @@ int main(
 		 pff_test_file_open_close,
 		 source );
 
-		/* Initialize test
+		/* Initialize file for tests
 		 */
 		result = pff_test_file_open_source(
 		          &file,
-		          source,
+		          file_io_handle,
 		          &error );
 
 		PFF_TEST_ASSERT_EQUAL_INT(
@@ -2512,13 +2850,13 @@ int main(
 		 result,
 		 1 );
 
-	        PFF_TEST_ASSERT_IS_NOT_NULL(
-	         "file",
-	         file );
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "file",
+		 file );
 
-	        PFF_TEST_ASSERT_IS_NULL(
-	         "error",
-	         error );
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 
 		PFF_TEST_RUN_WITH_ARGS(
 		 "libpff_file_signal_abort",
@@ -2527,13 +2865,16 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
-		/* TODO: add tests for libpff_file_open_read */
+		/* TODO: add tests for libpff_internal_file_open_read */
 
-		/* TODO: add tests for libpff_file_read_allocation_tables */
+		/* TODO: add tests for libpff_internal_file_read_allocation_tables */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
-		/* TODO: add tests for libpff_file_is_corrupted */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_is_corrupted",
+		 pff_test_file_is_corrupted,
+		 file );
 
 		/* TODO: add tests for libpff_file_recover_items */
 
@@ -2598,11 +2939,36 @@ int main(
 		 pff_test_file_get_number_of_orphan_items,
 		 file );
 
-		/* TODO: add tests for libpff_file_get_orphan_item */
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_orphan_item_by_index",
+		 pff_test_file_get_orphan_item_by_index,
+		 file );
 
-		/* TODO: add tests for libpff_file_get_number_of_recovered_items */
+/* TODO implement
+		result = libpff_file_recover_items(
+		          file,
+		          0,
+		          &error );
 
-		/* TODO: add tests for libpff_file_get_recovered_item */
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_number_of_recovered_items",
+		 pff_test_file_get_number_of_recovered_items,
+		 file );
+
+		PFF_TEST_RUN_WITH_ARGS(
+		 "libpff_file_get_recovered_item_by_index",
+		 pff_test_file_get_recovered_item_by_index,
+		 file );
+*/
 
 		/* Clean up
 		 */
@@ -2616,8 +2982,27 @@ int main(
 		 0 );
 
 		PFF_TEST_ASSERT_IS_NULL(
-	         "file",
-	         file );
+		 "file",
+		 file );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+	}
+	if( file_io_handle != NULL )
+	{
+		result = libbfio_handle_free(
+		          &file_io_handle,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+	         "file_io_handle",
+	         file_io_handle );
 
 	        PFF_TEST_ASSERT_IS_NULL(
 	         "error",
@@ -2635,8 +3020,14 @@ on_error:
 	}
 	if( file != NULL )
 	{
-		pff_test_file_close_source(
+		libpff_file_free(
 		 &file,
+		 NULL );
+	}
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
 		 NULL );
 	}
 	return( EXIT_FAILURE );

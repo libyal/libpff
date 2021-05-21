@@ -194,6 +194,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\tests\pff_test_libfcache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\pff_test_libfdata.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\pff_test_libpff.h"
 				>
 			</File>

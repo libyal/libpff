@@ -170,6 +170,10 @@
 				RelativePath="..\..\libcfile\libcfile_system_string.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\libcfile\libcfile_winapi.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -226,6 +230,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libcfile\libcfile_unused.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcfile\libcfile_winapi.h"
 				>
 			</File>
 		</Filter>

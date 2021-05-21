@@ -1,7 +1,7 @@
 #!/bin/bash
 # Export tool testing script
 #
-# Version: 20181111
+# Version: 20200705
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -32,29 +32,29 @@ test_callback()
 
 	if test "${PLATFORM}" = "Darwin";
 	then
-		(cd ${TMPDIR} && find "'${INPUT_NAME}.export'" -type f -exec md5 {} \; | sort -k 2 > "'${TEST_LOG}'");
+		(cd ${TMPDIR} && find "${INPUT_NAME}.export" -type f -exec md5 {} \; | sort -k 2 > "${TEST_LOG}");
 	else
-		(cd ${TMPDIR} && find "'${INPUT_NAME}.export'" -type f -exec md5sum {} \; | sort -k 2 > "'${TEST_LOG}'");
+		(cd ${TMPDIR} && find "${INPUT_NAME}.export" -type f -exec md5sum {} \; | sort -k 2 > "${TEST_LOG}");
 	fi
 
 	local TEST_RESULTS="${TMPDIR}/${TEST_LOG}";
 	local STORED_TEST_RESULTS="${TEST_SET_DIRECTORY}/${TEST_LOG}.gz";
 
-	if test -f "'${STORED_TEST_RESULTS}'";
+	if test -f "${STORED_TEST_RESULTS}";
 	then
 		# Using zcat here since zdiff has issues on Mac OS X.
 		# Note that zcat on Mac OS X requires the input from stdin.
-		zcat < "'${STORED_TEST_RESULTS}'" | diff "'${TEST_RESULTS}'" -;
+		zcat < "${STORED_TEST_RESULTS}" | diff "${TEST_RESULTS}" -;
 		RESULT=$?;
 	else
-		gzip "'${TEST_RESULTS}'";
+		gzip "${TEST_RESULTS}";
 
-		mv "'${TEST_RESULTS}.gz'" ${TEST_SET_DIRECTORY};
+		mv "${TEST_RESULTS}.gz" ${TEST_SET_DIRECTORY};
 	fi
 	return ${RESULT};
 }
 
-if ! test -z ${SKIP_TOOLS_TESTS};
+if test -n "${SKIP_TOOLS_TESTS}" || test -n "${SKIP_TOOLS_END_TO_END_TESTS}";
 then
 	exit ${EXIT_IGNORE};
 fi
@@ -102,17 +102,17 @@ fi
 
 if ! test -d "input";
 then
-	echo "Test input directory: input not found.";
+	echo "Test input directory not found.";
 
-	return ${EXIT_IGNORE};
+	exit ${EXIT_IGNORE};
 fi
 RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
 
 if test ${RESULT} -eq ${EXIT_SUCCESS};
 then
-	echo "No files or directories found in the test input directory: input";
+	echo "No files or directories found in the test input directory";
 
-	return ${EXIT_IGNORE};
+	exit ${EXIT_IGNORE};
 fi
 
 TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "input" "pffexport");
@@ -144,7 +144,7 @@ do
 	then
 		for INPUT_FILE in `cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?"`;
 		do
-			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
+			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS[@]}";
 			RESULT=$?;
 
 			if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -155,7 +155,7 @@ do
 	else
 		for INPUT_FILE in `ls -1 ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB}`;
 		do
-			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
+			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS[@]}";
 			RESULT=$?;
 
 			if test ${RESULT} -ne ${EXIT_SUCCESS};

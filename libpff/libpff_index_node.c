@@ -1,22 +1,22 @@
 /*
  * Index node functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <common.h>
@@ -612,7 +612,7 @@ int libpff_index_node_read_data(
 					 value_32bit );
 
 					libcnotify_printf(
-					 "%s: entry: %03" PRIu16 " unknown1\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+					 "%s: entry: %03" PRIu16 " unknown1\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 					 function,
 					 entry_index,
 					 value_32bit,
@@ -699,7 +699,7 @@ int libpff_index_node_read_data(
 						 value_16bit );
 					}
 					libcnotify_printf(
-					 "%s: entry: %03" PRIu16 " data size\t\t\t\t: %" PRIu16 "\n",
+					 "%s: entry: %03" PRIu16 " data size\t\t\t: %" PRIu16 "\n",
 					 function,
 					 entry_index,
 					 value_16bit );
@@ -731,7 +731,7 @@ int libpff_index_node_read_data(
 						 value_32bit );
 
 						libcnotify_printf(
-						 "%s: entry: %03" PRIu16 " data allocation table offset\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+						 "%s: entry: %03" PRIu16 " data allocation table offset\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 						 function,
 						 entry_index,
 						 value_32bit,
@@ -1147,27 +1147,11 @@ int libpff_index_node_read_file_io_handle(
 		 node_offset );
 	}
 #endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     node_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek index node offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 node_offset,
-		 node_offset );
-
-		goto on_error;
-	}
-	read_count = libbfio_handle_read_buffer(
+	read_count = libbfio_handle_read_buffer_at_offset(
 	              file_io_handle,
 	              index_node->data,
 	              index_node->data_size,
+	              node_offset,
 	              error );
 
 	if( read_count != (ssize_t) index_node->data_size )
@@ -1176,8 +1160,10 @@ int libpff_index_node_read_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read index node data.",
-		 function );
+		 "%s: unable to read index node data at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 node_offset,
+		 node_offset );
 
 		goto on_error;
 	}

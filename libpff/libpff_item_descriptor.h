@@ -1,22 +1,22 @@
 /*
  * Item descriptor functions
  *
- * Copyright (C) 2008-2019, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBPFF_ITEM_DESCRIPTOR_H )
@@ -80,6 +80,11 @@ int libpff_item_descriptor_clone(
 int libpff_item_descriptor_compare(
      libpff_item_descriptor_t *first_item_descriptor,
      libpff_item_descriptor_t *second_item_descriptor,
+     libcerror_error_t **error );
+
+int libpff_item_descriptor_get_descriptor_identifier(
+     libpff_item_descriptor_t *item_descriptor,
+     uint32_t *identifier,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

@@ -1,4 +1,8 @@
 TODO
+* libpff_item_tree_get_tree_node_by_identifier add recursion depth
+* add threads RW lock to item
+* remove libpff_item_clone
+* remove libpff_data_block_clone
 * pypff fix get_root_item
 
 IOError: pypff_file_get_item_type_object: unable to retrieve item type.
@@ -10,7 +14,6 @@ libpff_item_get_type: unable to determine item type.
 
 * refactor libpff_message_get_entry_value_utf8_string to match naming schema
 * add specific entry value flag for string types?
-* add fallback inflate implementation
 * add libpff_item_values_get_record_entry_by_type specific for string types?
 * API add
   - libpff_multi_value_get_value_16bit
