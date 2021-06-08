@@ -40,10 +40,12 @@
 extern "C" {
 #endif
 
-/* Note that 128 MiB is an arbitrary selected upper limit here
+/* We bumped this value from 128MiB, due to this bug:
+   https://podio.com/easyesicom/feature-roadmap/apps/bugs/items/17191
+   The 128MiB limit was rather arbitrary, so we set it back to it's old value, INT32_MAX
  */
 #define MEMORY_MAXIMUM_ALLOCATION_SIZE \
-	( 128 * 1024 * 1024 )
+	INT32_MAX
 
 /* Memory allocation
  */
