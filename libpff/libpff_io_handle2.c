@@ -301,6 +301,7 @@ int libpff_io_handle_read_descriptor_data_list(
 		     data_block->data,
 		     (size_t) offset_index_value->data_size,
 		     &total_data_size,
+		     0,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

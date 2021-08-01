@@ -91,6 +91,7 @@ int libpff_data_array_read_entries(
      uint8_t *array_data,
      size_t array_data_size,
      uint32_t *total_data_size,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_data_array_read_element_data(

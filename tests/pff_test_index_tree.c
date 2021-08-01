@@ -1651,6 +1651,23 @@ int main(
 	 "error",
 	 error );
 
+	result = libfdata_vector_free(
+	          &index_node_vector,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "index_node_vector",
+	 index_node_vector );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	result = libpff_io_handle_free(
 	          &io_handle,
 	          &error );

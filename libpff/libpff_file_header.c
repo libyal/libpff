@@ -159,7 +159,7 @@ int libpff_file_header_read_data(
 	uint64_t value_64bit                             = 0;
 	uint32_t value_32bit                             = 0;
 	uint16_t value_16bit                             = 0;
-	uint8_t sentinal                                 = 0;
+	uint8_t sentinel                                 = 0;
 	int value_iterator                               = 0;
 #endif
 
@@ -275,8 +275,8 @@ int libpff_file_header_read_data(
 	}
 	else
 	{
-		if( ( ( (pff_file_header_data_32bit_t *) file_header_data )->sentinal == 0x80 )
-		 && ( ( (pff_file_header_data_64bit_t *) file_header_data )->sentinal != 0x80 ) )
+		if( ( ( (pff_file_header_data_32bit_t *) file_header_data )->sentinel == 0x80 )
+		 && ( ( (pff_file_header_data_64bit_t *) file_header_data )->sentinel != 0x80 ) )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -289,8 +289,8 @@ int libpff_file_header_read_data(
 #endif
 			file_header->file_type = LIBPFF_FILE_TYPE_32BIT;
 		}
-		else if( ( ( (pff_file_header_data_32bit_t *) file_header_data )->sentinal != 0x80 )
-		      && ( ( (pff_file_header_data_64bit_t *) file_header_data )->sentinal == 0x80 ) )
+		else if( ( ( (pff_file_header_data_32bit_t *) file_header_data )->sentinel != 0x80 )
+		      && ( ( (pff_file_header_data_64bit_t *) file_header_data )->sentinel == 0x80 ) )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -472,7 +472,7 @@ int libpff_file_header_read_data(
 		 safe_offsets_index_root_node_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		sentinal = ( (pff_file_header_data_32bit_t *) file_header_data )->sentinal;
+		sentinel = ( (pff_file_header_data_32bit_t *) file_header_data )->sentinel;
 #endif
 		file_header->encryption_type = ( (pff_file_header_data_32bit_t *) file_header_data )->encryption_type;
 	}
@@ -500,7 +500,7 @@ int libpff_file_header_read_data(
 		 safe_offsets_index_root_node_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		sentinal = ( (pff_file_header_data_64bit_t *) file_header_data )->sentinal;
+		sentinel = ( (pff_file_header_data_64bit_t *) file_header_data )->sentinel;
 #endif
 		file_header->encryption_type = ( (pff_file_header_data_64bit_t *) file_header_data )->encryption_type;
 
@@ -787,9 +787,9 @@ int libpff_file_header_read_data(
 			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
 		libcnotify_printf(
-		 "%s: sentinal\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: sentinel\t\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
-		 sentinal );
+		 sentinel );
 
 		libcnotify_printf(
 		 "%s: encryption type\t\t\t\t: 0x%02" PRIx8 "\n",

@@ -847,9 +847,8 @@ int libpff_item_tree_create_node(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine if descriptor index tree sub node: %d is deleted.",
-		 function,
-		 sub_node_index );
+		 "%s: unable to determine if descriptor index tree node is deleted.",
+		 function );
 
 		goto on_error;
 	}
@@ -870,9 +869,8 @@ int libpff_item_tree_create_node(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine if descriptor index tree sub node: %d is a leaf node.",
-		 function,
-		 sub_node_index );
+		 "%s: unable to determine if descriptor index tree node is a leaf node.",
+		 function );
 
 		goto on_error;
 	}
@@ -894,8 +892,7 @@ int libpff_item_tree_create_node(
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create index tree from descriptor index tree leaf node.",
-			 function,
-			 sub_node_index );
+			 function );
 
 			goto on_error;
 		}

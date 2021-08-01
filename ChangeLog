@@ -1188,7 +1188,7 @@ offset
 * removed deprecated libpff_email_get_internet_headers_size and libpff_email_get_internet_headers
 * debug: added name-to-id-map identifiers
 * libpfmapi: changed value type identifiers to newer definitions
-* libpff not uses the sentinal to determine the file type of unknown PFF versions
+* libpff not uses the sentinel to determine the file type of unknown PFF versions
 
 20100128
 * worked on error tollerabilty and recovery

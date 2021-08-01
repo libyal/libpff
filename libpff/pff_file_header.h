@@ -178,11 +178,11 @@ struct pff_file_header_data_32bit
 	 */
 	uint8_t initial_page_free_map[ 128 ];
 
-	/* Sentinal
+	/* Sentinel
 	 * Consists of 1 byte
 	 * 0x80
 	 */
-	uint8_t sentinal;
+	uint8_t sentinel;
 
 	/* The encryption type
 	 * Consists of 1 byte
@@ -319,10 +319,10 @@ struct pff_file_header_data_64bit
 	 */
 	uint8_t initial_page_free_map[ 128 ];
 
-	/* Sentinal
+	/* Sentinel
 	 * Consists of 1 byte
 	 */
-	uint8_t sentinal;
+	uint8_t sentinel;
 
 	/* The encryption type
 	 * Consists of 1 byte
