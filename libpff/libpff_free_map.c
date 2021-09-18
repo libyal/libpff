@@ -34,10 +34,10 @@
 
 #include "pff_free_map.h"
 
-/* Reads an free map
+/* Reads a free map
  * Returns 1 if successful or -1 on error
  */
-int libpff_free_map_read(
+int libpff_free_map_read_file_io_handle(
      libcdata_range_list_t *unallocated_block_list,
      libbfio_handle_t *file_io_handle,
      off64_t free_map_offset,
@@ -46,7 +46,7 @@ int libpff_free_map_read(
 {
 	uint8_t *free_map_data       = NULL;
 	uint8_t *table_data          = NULL;
-	static char *function        = "libpff_free_map_read";
+	static char *function        = "libpff_free_map_read_file_io_handle";
 	off64_t back_pointer_offset  = 0;
 	off64_t unallocated_offset   = 0;
 	size_t read_size             = 0;
@@ -235,7 +235,7 @@ int libpff_free_map_read(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 	if( libfmapi_checksum_calculate_weak_crc32(
 	     &calculated_checksum,

@@ -43,7 +43,6 @@
 #include "libpff_mapi.h"
 #include "libpff_offsets_index.h"
 #include "libpff_record_entry.h"
-#include "libpff_refactor.h"
 #include "libpff_table.h"
 #include "libpff_types.h"
 #include "libpff_value_type.h"
@@ -2024,7 +2023,8 @@ int libpff_internal_item_get_embedded_object_data(
 		goto on_error;
 	}
 /* TODO handle multiple recovered offset index values */
-	if( libpff_io_handle_read_descriptor_data_list(
+	if( libpff_table_read_descriptor_data_list(
+	     internal_item->item_values->table,
 	     internal_item->io_handle,
 	     internal_item->file_io_handle,
 	     internal_item->offsets_index,

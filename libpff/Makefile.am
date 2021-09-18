@@ -82,7 +82,6 @@ libpff_la_SOURCES = \
 	libpff_record_entry_identifier.h \
 	libpff_record_set.c libpff_record_set.h \
 	libpff_recover.c libpff_recover.h \
-	libpff_refactor.c libpff_refactor.h \
 	libpff_reference_descriptor.c libpff_reference_descriptor.h \
 	libpff_support.c libpff_support.h \
 	libpff_table.c libpff_table.h \

@@ -56,6 +56,7 @@ check_PROGRAMS = \
 	pff_test_attached_file_io_handle \
 	pff_test_attachment \
 	pff_test_column_definition \
+	pff_test_compression \
 	pff_test_data_array \
 	pff_test_data_array_entry \
 	pff_test_data_block \
@@ -65,6 +66,7 @@ check_PROGRAMS = \
 	pff_test_file \
 	pff_test_file_header \
 	pff_test_folder \
+	pff_test_free_map \
 	pff_test_index \
 	pff_test_index_node \
 	pff_test_index_value \
@@ -152,6 +154,17 @@ pff_test_column_definition_SOURCES = \
 	pff_test_unused.h
 
 pff_test_column_definition_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_compression_SOURCES = \
+	pff_test_compression.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_compression_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
@@ -292,6 +305,29 @@ pff_test_folder_SOURCES = \
 	pff_test_unused.h
 
 pff_test_folder_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_free_map_SOURCES = \
+	pff_test_free_map.c \
+	pff_test_functions.c pff_test_functions.h \
+	pff_test_libbfio.h \
+	pff_test_libcdata.h \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_free_map_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 

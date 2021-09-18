@@ -38,7 +38,6 @@
 #include "libpff_local_descriptors.h"
 #include "libpff_offsets_index.h"
 #include "libpff_record_entry.h"
-#include "libpff_refactor.h"
 #include "libpff_table.h"
 #include "libpff_types.h"
 #include "libpff_value_type.h"

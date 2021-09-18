@@ -338,10 +338,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_refactor.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpff\libpff_reference_descriptor.c"
 				>
 			</File>
@@ -597,10 +593,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_recover.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libpff\libpff_refactor.h"
 				>
 			</File>
 			<File

@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-int libpff_free_map_read(
+int libpff_free_map_read_file_io_handle(
      libcdata_range_list_t *unallocated_block_list,
      libbfio_handle_t *file_io_handle,
      off64_t free_map_offset,
