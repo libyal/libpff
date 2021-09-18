@@ -43,6 +43,7 @@
 #include "libpff_mapi.h"
 #include "libpff_offsets_index.h"
 #include "libpff_record_entry.h"
+#include "libpff_refactor.h"
 #include "libpff_table.h"
 #include "libpff_types.h"
 #include "libpff_value_type.h"
@@ -1904,10 +1905,11 @@ int libpff_internal_item_get_embedded_object_data(
      libpff_record_entry_t *record_entry,
      libcerror_error_t **error )
 {
-	libfcache_cache_t *embedded_object_data_cache = NULL;
-	libfdata_list_t *embedded_object_data_list    = NULL;
-	static char *function                         = "libpff_internal_item_get_embedded_object_data";
-	uint32_t embedded_object_data_identifier      = 0;
+	libfcache_cache_t *embedded_object_data_cache           = NULL;
+	libfdata_list_t *embedded_object_data_list              = NULL;
+	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
+	static char *function                                   = "libpff_internal_item_get_embedded_object_data";
+	uint32_t embedded_object_data_identifier                = 0;
 
 	if( internal_item == NULL )
 	{
@@ -1916,6 +1918,28 @@ int libpff_internal_item_get_embedded_object_data(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid item.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->item_values == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - missing item values.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_item->item_values->table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid item - invalid item values - missing table.",
 		 function );
 
 		return( -1 );
@@ -1947,23 +1971,79 @@ int libpff_internal_item_get_embedded_object_data(
 	}
 	/* The descriptor identifier is located in the local descriptors tree
 	 */
-	if( libpff_item_values_read_local_descriptor_data(
-	     internal_item->item_values,
-	     internal_item->io_handle,
+	if( libpff_table_get_local_descriptors_value_by_identifier(
+	     internal_item->item_values->table,
 	     internal_item->file_io_handle,
-	     internal_item->offsets_index,
-	     embedded_object_data_identifier,
-	     &embedded_object_data_list,
-	     &embedded_object_data_cache,
+	     (uint64_t) embedded_object_data_identifier,
+	     &local_descriptor_value,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to read embedded object: %" PRIu32 ".",
+		 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
 		 function,
 		 embedded_object_data_identifier );
+
+		goto on_error;
+	}
+	if( local_descriptor_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid local descriptor values.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: identifier: %" PRIu64 " (%s), data: %" PRIu64 ", local descriptors: %" PRIu64 "\n",
+		 function,
+		 local_descriptor_value->identifier,
+		 libpff_debug_get_node_identifier_type(
+		  (uint8_t) ( local_descriptor_value->identifier & 0x0000001fUL ) ),
+		 local_descriptor_value->data_identifier,
+		 local_descriptor_value->local_descriptors_identifier );
+	}
+#endif
+	if( local_descriptor_value->data_identifier == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid local descriptor values - missing data identifier.",
+		 function );
+
+		goto on_error;
+	}
+/* TODO handle multiple recovered offset index values */
+	if( libpff_io_handle_read_descriptor_data_list(
+	     internal_item->io_handle,
+	     internal_item->file_io_handle,
+	     internal_item->offsets_index,
+	     embedded_object_data_identifier,
+	     local_descriptor_value->data_identifier,
+	     internal_item->item_values->recovered,
+	     0,
+	     &embedded_object_data_list,
+	     &embedded_object_data_cache,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read descriptor: %" PRIu32 " data: %" PRIu64 " list.",
+		 function,
+		 embedded_object_data_identifier,
+		 local_descriptor_value->data_identifier );
 
 		goto on_error;
 	}

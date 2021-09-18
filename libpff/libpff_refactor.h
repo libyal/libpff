@@ -19,8 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_IO_HANDLE2_H )
-#define _LIBPFF_IO_HANDLE2_H
+#if !defined( _LIBPFF_REFACTOR_H )
+#define _LIBPFF_REFACTOR_H
 
 #include <common.h>
 #include <types.h>
@@ -30,6 +30,7 @@
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_io_handle.h"
+#include "libpff_item_values.h"
 #include "libpff_offsets_index.h"
 
 #if defined( __cplusplus )
@@ -52,5 +53,5 @@ int libpff_io_handle_read_descriptor_data_list(
 }
 #endif
 
-#endif /* !defined( _LIBPFF_IO_HANDLE2_H ) */
+#endif /* !defined( _LIBPFF_REFACTOR_H ) */
 

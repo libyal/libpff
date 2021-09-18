@@ -62,6 +62,7 @@ int libpff_item_tree_get_tree_node_by_identifier(
      libcdata_tree_node_t *item_tree_node,
      uint32_t item_identifier,
      libcdata_tree_node_t **result_item_tree_node,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_item_tree_get_sub_node_by_identifier(

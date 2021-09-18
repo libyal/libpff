@@ -35,7 +35,6 @@ MSVSCPP_FILES = \
 	pff_test_index_tree/pff_test_index_tree.vcproj \
 	pff_test_index_value/pff_test_index_value.vcproj \
 	pff_test_io_handle/pff_test_io_handle.vcproj \
-	pff_test_io_handle2/pff_test_io_handle2.vcproj \
 	pff_test_item/pff_test_item.vcproj \
 	pff_test_item_descriptor/pff_test_item_descriptor.vcproj \
 	pff_test_item_tree/pff_test_item_tree.vcproj \

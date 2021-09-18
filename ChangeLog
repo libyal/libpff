@@ -1,5 +1,4 @@
 TODO
-* libpff_item_tree_get_tree_node_by_identifier add recursion depth
 * add threads RW lock to item
 * remove libpff_item_clone
 * remove libpff_data_block_clone
@@ -77,7 +76,6 @@ libpff
   - Add function to easily map a named entry type to it's numeric value
   - add libpff_message_get_number_of_recipients() convenience function?
 * refactor: 
-  - remove libpff_item_values_read_local_descriptor_data
   - fix libfdata_list_set_element_data
   - table refactor entries into stand-alone multi set array ?
   - table read should empty the record_sets_array on read ?

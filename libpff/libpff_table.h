@@ -277,6 +277,19 @@ int libpff_table_read(
      int debug_item_type,
      libcerror_error_t **error );
 
+int libpff_table_read_descriptor_data_list(
+     libpff_table_t *table,
+     libpff_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libpff_offsets_index_t *offsets_index,
+     uint32_t descriptor_identifier,
+     uint64_t data_identifier,
+     uint8_t recovered,
+     int recovered_value_index,
+     libfdata_list_t **descriptor_data_list,
+     libfcache_cache_t **descriptor_data_cache,
+     libcerror_error_t **error );
+
 int libpff_table_read_index_entries(
      libpff_table_t *table,
      libpff_data_block_t *data_block,

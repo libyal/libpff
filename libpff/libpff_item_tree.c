@@ -206,6 +206,7 @@ int libpff_item_tree_get_tree_node_by_identifier(
      libcdata_tree_node_t *item_tree_node,
      uint32_t item_identifier,
      libcdata_tree_node_t **result_item_tree_node,
+     int recursion_depth,
      libcerror_error_t **error )
 {
 	libcdata_tree_node_t *sub_tree_node       = NULL;
@@ -222,6 +223,18 @@ int libpff_item_tree_get_tree_node_by_identifier(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid item tree node.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_ITEM_TREE_RECURSION_DEPTH ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -330,6 +343,7 @@ int libpff_item_tree_get_tree_node_by_identifier(
 			          sub_tree_node,
 			          item_identifier,
 			          result_item_tree_node,
+			          recursion_depth + 1,
 			          error );
 
 			if( result == -1 )
@@ -1162,6 +1176,7 @@ int libpff_item_tree_create_leaf_node(
 			  item_tree->root_node,
 			  parent_identifier,
 			  &parent_node,
+			  0,
 			  error );
 
 		if( result == 0 )
@@ -1225,6 +1240,7 @@ int libpff_item_tree_create_leaf_node(
 					  item_tree->root_node,
 					  parent_identifier,
 					  &parent_node,
+					  0,
 					  error );
 			}
 		}
@@ -1390,6 +1406,7 @@ int libpff_item_tree_get_node_by_identifier(
 	          item_tree->root_node,
 	          item_identifier,
                   item_tree_node,
+                  0,
 	          error );
 
 	if( result == -1 )

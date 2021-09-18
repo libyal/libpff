@@ -327,6 +327,7 @@ int pff_test_item_tree_get_tree_node_by_identifier(
 	          NULL,
 	          0,
 	          &result_item_tree_node,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -345,6 +346,7 @@ int pff_test_item_tree_get_tree_node_by_identifier(
 	          item_tree_node,
 	          0,
 	          NULL,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -536,7 +538,11 @@ int main(
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 }
 

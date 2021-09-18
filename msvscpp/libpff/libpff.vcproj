@@ -266,10 +266,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_io_handle2.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpff\libpff_item.c"
 				>
 			</File>
@@ -339,6 +335,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_recover.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_refactor.c"
 				>
 			</File>
 			<File
@@ -476,10 +476,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_io_handle2.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpff\libpff_item.h"
 				>
 			</File>
@@ -601,6 +597,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_recover.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_refactor.h"
 				>
 			</File>
 			<File

@@ -37,6 +37,7 @@
 #include "libpff_index_value.h"
 #include "libpff_item_descriptor.h"
 #include "libpff_item_tree.h"
+#include "libpff_item_values.h"
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"

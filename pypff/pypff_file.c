@@ -407,6 +407,15 @@ void pypff_file_free(
 
 		return;
 	}
+	if( pypff_file->file_io_handle != NULL )
+	{
+		if( pypff_file_close(
+		     pypff_file,
+		     NULL ) == NULL )
+		{
+			return;
+		}
+	}
 	if( pypff_file->file != NULL )
 	{
 		Py_BEGIN_ALLOW_THREADS

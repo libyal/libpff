@@ -26,7 +26,6 @@
 #include "libpff_debug.h"
 #include "libpff_definitions.h"
 #include "libpff_io_handle.h"
-#include "libpff_io_handle2.h"
 #include "libpff_item_values.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
@@ -39,6 +38,7 @@
 #include "libpff_local_descriptors.h"
 #include "libpff_offsets_index.h"
 #include "libpff_record_entry.h"
+#include "libpff_refactor.h"
 #include "libpff_table.h"
 #include "libpff_types.h"
 #include "libpff_value_type.h"
@@ -314,119 +314,6 @@ on_error:
 		 NULL );
 	}
 	return( -1 );
-}
-
-/* Reads the local descriptor data
- * Returns 1 if successful or -1 on error
- */
-int libpff_item_values_read_local_descriptor_data(
-     libpff_item_values_t *item_values,
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     libpff_offsets_index_t *offsets_index,
-     uint32_t descriptor_identifier,
-     libfdata_list_t **descriptor_data_list,
-     libfcache_cache_t **descriptor_data_cache,
-     libcerror_error_t **error )
-{
-	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
-	static char *function                                   = "libpff_item_values_read_local_descriptor_data";
-	int result                                              = 0;
-
-	if( item_values == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid item values.",
-		 function );
-
-		return( -1 );
-	}
-	result = libpff_table_get_local_descriptors_value_by_identifier(
-		  item_values->table,
-		  file_io_handle,
-		  (uint64_t) descriptor_identifier,
-		  &local_descriptor_value,
-		  error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve local descriptor identifier: %" PRIu32 ".",
-		 function,
-		 descriptor_identifier );
-
-		return( -1 );
-	}
-	else if( result == 0 )
-	{
-		return( 0 );
-	}
-	if( local_descriptor_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid local descriptor values.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: identifier: %" PRIu64 " (%s), data: %" PRIu64 ", local descriptors: %" PRIu64 "\n",
-		 function,
-		 local_descriptor_value->identifier,
-		 libpff_debug_get_node_identifier_type(
-		  (uint8_t) ( local_descriptor_value->identifier & 0x0000001fUL ) ),
-		 local_descriptor_value->data_identifier,
-		 local_descriptor_value->local_descriptors_identifier );
-	}
-#endif
-	if( local_descriptor_value->data_identifier == 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid local descriptor values - missing data identifier.",
-		 function );
-
-		return( -1 );
-	}
-/* TODO handle multiple recovered offset index values */
-	if( libpff_io_handle_read_descriptor_data_list(
-	     io_handle,
-	     file_io_handle,
-	     offsets_index,
-	     descriptor_identifier,
-	     local_descriptor_value->data_identifier,
-	     item_values->recovered,
-	     0,
-	     descriptor_data_list,
-	     descriptor_data_cache,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read descriptor: %" PRIu32 " data: %" PRIu64 " list.",
-		 function,
-		 descriptor_identifier,
-		 local_descriptor_value->data_identifier );
-
-		return( -1 );
-	}
-	return( 1 );
 }
 
 /* Retrieves the local descriptor value for the specific identifier
