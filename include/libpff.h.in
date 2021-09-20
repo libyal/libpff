@@ -475,15 +475,6 @@ int libpff_file_get_recovered_item(
  * Item functions
  * ------------------------------------------------------------------------- */
 
-/* Clones an item
- * Returns 1 if successful or -1 on error
- */
-LIBPFF_EXTERN \
-int libpff_item_clone(
-     libpff_item_t **destination_item,
-     libpff_item_t *source_item,
-     libpff_error_t **error );
-
 /* Frees an item
  * Returns 1 if successful or -1 on error
  */
@@ -572,6 +563,19 @@ int libpff_item_get_sub_item_by_identifier(
 /* -------------------------------------------------------------------------
  * Item functions - deprecated
  * ------------------------------------------------------------------------- */
+
+/* Clones an item
+ *
+ * This function deprecated and has no replacement
+ *
+ * Returns 1 if successful or -1 on error
+ */
+LIBPFF_DEPRECATED \
+LIBPFF_EXTERN \
+int libpff_item_clone(
+     libpff_item_t **destination_item,
+     libpff_item_t *source_item,
+     libpff_error_t **error );
 
 /* Retrieves the number of sets values
  *

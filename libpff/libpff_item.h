@@ -136,12 +136,6 @@ int libpff_item_free(
      libpff_item_t **item,
      libcerror_error_t **error );
 
-LIBPFF_EXTERN \
-int libpff_item_clone(
-     libpff_item_t **destination_item,
-     libpff_item_t *source_item,
-     libcerror_error_t **error );
-
 int libpff_internal_item_determine_type(
      libpff_internal_item_t *internal_item,
      libcerror_error_t **error );

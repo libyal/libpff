@@ -1,6 +1,5 @@
 TODO
 * add threads RW lock to item
-* remove libpff_item_clone
 * remove libpff_data_block_clone
 * pypff fix get_root_item
 
