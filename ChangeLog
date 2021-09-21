@@ -1,4 +1,41 @@
 TODO
+libpff - clean up and refactoring
+* libpff_table
+  - move table header read functions into table header source file
+  - move column definition read functions into column definition source file
+  - cleaner reusable data structure? (libfdata)
+  - create 7c table read entry definitions function
+  - create ac table read entry definitions function
+* have multi type work with data reference (in libpff_item) ?
+* tree type implement use of initialize function (grep sizeof( libpff_tree_node_t ) )
+* refactor direct use of array, list, and tree value attributes
+* improve force decryption check
+* refactor
+  - create generic solution for data block handling for: individual blocks,
+    array blocks, local descriptor blocks, table blocks
+  - refactor libpff_local_descriptor_node_read to deal with compressed data
+  blocks. read from data block?
+    - fix libpff_local_descriptors_read_node_entry
+  - item tree: wrap direct access to descriptors_index
+  - recover: wrap direct access to descriptors and offsets_index
+  - implement libfdata_list_set_element_by_index_with_mapped_size
+  - 4k the back pointer of the array data block is the data identifier
+    not the identifier?
+    check for: "libpff_data_block_read: mismatch in data identifier:"
+  - add a generic method to read data blocks from the file
+  - local descriptors: cache local descriptor nodes ?
+  - fix libfdata_list_set_element_data
+  - table refactor entries into stand-alone multi set array ?
+  - table read should empty the record_sets_array on read ?
+  - record entry handle different data types on demand ?
+  - what about table block?
+  - use fvalue to store record entry data ?
+  - libpff_item_values_get_record_entry_by_type add generic STRING TYPE ?
+* code clean up
+  - refactor table index into fdata list? with table blocks
+  - does table index contain full copy of table data ? if so refactor
+* refactor libpff_message_get_entry_value_utf8_string to match naming schema
+
 * add threads RW lock to item
 * remove libpff_data_block_clone
 * pypff fix get_root_item
@@ -10,7 +47,6 @@ libpff_item_values_get_record_entry_by_type: unable to read item values.
 libpff_item_determine_type: unable to retrieve record entry: 0x001a.
 libpff_item_get_type: unable to determine item type.
 
-* refactor libpff_message_get_entry_value_utf8_string to match naming schema
 * add specific entry value flag for string types?
 * add libpff_item_values_get_record_entry_by_type specific for string types?
 * API add
@@ -40,20 +76,6 @@ libpff
 * local descriptor node caching
   - local descriptor node cache on top of data block cache ?
   - add cache timestamp
-* refactor
-  - create generic solution for data block handling for: individual blocks,
-    array blocks, local descriptor blocks, table blocks
-  - refactor libpff_local_descriptor_node_read to deal with compressed data
-  blocks. read from data block?
-    - fix libpff_local_descriptors_read_node_entry
-  - item tree: wrap direct access to descriptors_index
-  - recover: wrap direct access to descriptors and offsets_index
-  - implement libfdata_list_set_element_by_index_with_mapped_size
-  - 4k the back pointer of the array data block is the data identifier
-    not the identifier?
-    check for: "libpff_data_block_read: mismatch in data identifier:"
-  - add a generic method to read data blocks from the file
-  - local descriptors: cache local descriptor nodes ?
 * add IPM.Post support (more1/Me.pst)
 * corrupted
   - mark file with incorrect encryption as corrupted
@@ -74,17 +96,6 @@ libpff
   - check if libpff_item_get_entry_value_by_utf8_name works
   - Add function to easily map a named entry type to it's numeric value
   - add libpff_message_get_number_of_recipients() convenience function?
-* refactor: 
-  - fix libfdata_list_set_element_data
-  - table refactor entries into stand-alone multi set array ?
-  - table read should empty the record_sets_array on read ?
-  - record entry handle different data types on demand ?
-  - what about table block?
-  - use fvalue to store record entry data ?
-  - libpff_item_values_get_record_entry_by_type add generic STRING TYPE ?
-* code clean up
-  - refactor table index into fdata list? with table blocks
-  - does table index contain full copy of table data ? if so refactor
 * add get entry id by name function
 * add by_name functions (check corresponding TODO)
 * fdata stream rewrite
@@ -214,16 +225,6 @@ libpff - file format support
 * add support for cell existence
 * add support for cc table type
 * add support for the density list
-
-libpff - clean up and refactoring
-* libpff_table
-  - cleaner reusable data structure? (libfdata)
-  - create 7c table read entry definitions function
-  - create ac table read entry definitions function
-* have multi type work with data reference (in libpff_item) ?
-* tree type implement use of initialize function (grep sizeof( libpff_tree_node_t ) )
-* refactor direct use of array, list, and tree value attributes
-* improve force decryption check
 
 pfftools
 * pffinfo

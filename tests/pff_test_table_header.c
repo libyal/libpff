@@ -1,5 +1,5 @@
 /*
- * Library column_definition type test program
+ * Library table_header type test program
  *
  * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,18 +33,18 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
-#include "../libpff/libpff_column_definition.h"
+#include "../libpff/libpff_table_header.h"
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
-/* Tests the libpff_column_definition_initialize function
+/* Tests the libpff_table_header_initialize function
  * Returns 1 if successful or 0 if not
  */
-int pff_test_column_definition_initialize(
+int pff_test_table_header_initialize(
      void )
 {
 	libcerror_error_t *error                      = NULL;
-	libpff_column_definition_t *column_definition = NULL;
+	libpff_table_header_t *table_header = NULL;
 	int result                                    = 0;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
@@ -55,8 +55,8 @@ int pff_test_column_definition_initialize(
 
 	/* Test regular cases
 	 */
-	result = libpff_column_definition_initialize(
-	          &column_definition,
+	result = libpff_table_header_initialize(
+	          &table_header,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -65,15 +65,15 @@ int pff_test_column_definition_initialize(
 	 1 );
 
 	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "column_definition",
-	 column_definition );
+	 "table_header",
+	 table_header );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	result = libpff_column_definition_free(
-	          &column_definition,
+	result = libpff_table_header_free(
+	          &table_header,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -82,8 +82,8 @@ int pff_test_column_definition_initialize(
 	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
-	 "column_definition",
-	 column_definition );
+	 "table_header",
+	 table_header );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -91,7 +91,7 @@ int pff_test_column_definition_initialize(
 
 	/* Test error cases
 	 */
-	result = libpff_column_definition_initialize(
+	result = libpff_table_header_initialize(
 	          NULL,
 	          &error );
 
@@ -107,13 +107,13 @@ int pff_test_column_definition_initialize(
 	libcerror_error_free(
 	 &error );
 
-	column_definition = (libpff_column_definition_t *) 0x12345678UL;
+	table_header = (libpff_table_header_t *) 0x12345678UL;
 
-	result = libpff_column_definition_initialize(
-	          &column_definition,
+	result = libpff_table_header_initialize(
+	          &table_header,
 	          &error );
 
-	column_definition = NULL;
+	table_header = NULL;
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -133,22 +133,22 @@ int pff_test_column_definition_initialize(
 	     test_number < number_of_malloc_fail_tests;
 	     test_number++ )
 	{
-		/* Test libpff_column_definition_initialize with malloc failing
+		/* Test libpff_table_header_initialize with malloc failing
 		 */
 		pff_test_malloc_attempts_before_fail = test_number;
 
-		result = libpff_column_definition_initialize(
-		          &column_definition,
+		result = libpff_table_header_initialize(
+		          &table_header,
 		          &error );
 
 		if( pff_test_malloc_attempts_before_fail != -1 )
 		{
 			pff_test_malloc_attempts_before_fail = -1;
 
-			if( column_definition != NULL )
+			if( table_header != NULL )
 			{
-				libpff_column_definition_free(
-				 &column_definition,
+				libpff_table_header_free(
+				 &table_header,
 				 NULL );
 			}
 		}
@@ -160,8 +160,8 @@ int pff_test_column_definition_initialize(
 			 -1 );
 
 			PFF_TEST_ASSERT_IS_NULL(
-			 "column_definition",
-			 column_definition );
+			 "table_header",
+			 table_header );
 
 			PFF_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -175,22 +175,22 @@ int pff_test_column_definition_initialize(
 	     test_number < number_of_memset_fail_tests;
 	     test_number++ )
 	{
-		/* Test libpff_column_definition_initialize with memset failing
+		/* Test libpff_table_header_initialize with memset failing
 		 */
 		pff_test_memset_attempts_before_fail = test_number;
 
-		result = libpff_column_definition_initialize(
-		          &column_definition,
+		result = libpff_table_header_initialize(
+		          &table_header,
 		          &error );
 
 		if( pff_test_memset_attempts_before_fail != -1 )
 		{
 			pff_test_memset_attempts_before_fail = -1;
 
-			if( column_definition != NULL )
+			if( table_header != NULL )
 			{
-				libpff_column_definition_free(
-				 &column_definition,
+				libpff_table_header_free(
+				 &table_header,
 				 NULL );
 			}
 		}
@@ -202,8 +202,8 @@ int pff_test_column_definition_initialize(
 			 -1 );
 
 			PFF_TEST_ASSERT_IS_NULL(
-			 "column_definition",
-			 column_definition );
+			 "table_header",
+			 table_header );
 
 			PFF_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -223,19 +223,19 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( column_definition != NULL )
+	if( table_header != NULL )
 	{
-		libpff_column_definition_free(
-		 &column_definition,
+		libpff_table_header_free(
+		 &table_header,
 		 NULL );
 	}
 	return( 0 );
 }
 
-/* Tests the libpff_column_definition_free function
+/* Tests the libpff_table_header_free function
  * Returns 1 if successful or 0 if not
  */
-int pff_test_column_definition_free(
+int pff_test_table_header_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -243,7 +243,7 @@ int pff_test_column_definition_free(
 
 	/* Test error cases
 	 */
-	result = libpff_column_definition_free(
+	result = libpff_table_header_free(
 	          NULL,
 	          &error );
 
@@ -290,12 +290,12 @@ int main(
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	PFF_TEST_RUN(
-	 "libpff_column_definition_initialize",
-	 pff_test_column_definition_initialize );
+	 "libpff_table_header_initialize",
+	 pff_test_table_header_initialize );
 
 	PFF_TEST_RUN(
-	 "libpff_column_definition_free",
-	 pff_test_column_definition_free );
+	 "libpff_table_header_free",
+	 pff_test_table_header_free );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 

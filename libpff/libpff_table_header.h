@@ -1,5 +1,5 @@
 /*
- * Column definition functions
+ * Table header functions
  *
  * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,61 +19,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_COLUMN_DEFINITION_H )
-#define _LIBPFF_COLUMN_DEFINITION_H
+#if !defined( _LIBPFF_TABLE_HEADER_H )
+#define _LIBPFF_TABLE_HEADER_H
 
 #include <common.h>
 #include <types.h>
 
 #include "libpff_libcerror.h"
-#include "libpff_name_to_id_map.h"
-#include "libpff_table.h"
-#include "libpff_types.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libpff_column_definition libpff_column_definition_t;
+typedef struct libpff_table_header libpff_table_header_t;
 
-struct libpff_column_definition
+struct libpff_table_header
 {
 	/* The entry type
 	 */
 	uint16_t entry_type;
-
-	/* The value type
-	 */
-	uint16_t value_type;
-
-	/* The values array entry offset
-	 */
-	uint16_t values_array_offset;
-
-	/* The value array entry size
-	 */
-	uint16_t values_array_size;
-
-	/* The record entry values table
-	 */
-	libpff_table_t *record_entry_values_table;
-
-	/* The name to id map entry
-	 */
-	libpff_internal_name_to_id_map_entry_t *name_to_id_map_entry;
 };
 
-int libpff_column_definition_initialize(
-     libpff_column_definition_t **column_definition,
+int libpff_table_header_initialize(
+     libpff_table_header_t **table_header,
      libcerror_error_t **error );
 
-int libpff_column_definition_free(
-     libpff_column_definition_t **column_definition,
+int libpff_table_header_free(
+     libpff_table_header_t **table_header,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _LIBPFF_COLUMN_DEFINITION_H ) */
+#endif /* !defined( _LIBPFF_TABLE_HEADER_H ) */
 

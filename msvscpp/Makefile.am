@@ -57,6 +57,7 @@ MSVSCPP_FILES = \
 	pff_test_support/pff_test_support.vcproj \
 	pff_test_table/pff_test_table.vcproj \
 	pff_test_table_block_index/pff_test_table_block_index.vcproj \
+	pff_test_table_header/pff_test_table_header.vcproj \
 	pff_test_table_index_value/pff_test_table_index_value.vcproj \
 	pff_test_tools_info_handle/pff_test_tools_info_handle.vcproj \
 	pff_test_tools_output/pff_test_tools_output.vcproj \

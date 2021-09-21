@@ -5426,6 +5426,7 @@ int libpff_table_read_6c_header_data(
 		  (uint8_t) ( *values_array_reference & 0x0000001fUL ) ) );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 }
 
@@ -5915,12 +5916,12 @@ int libpff_table_read_ac_header_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: table header type\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: table header type\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 ( (pff_table_header_ac_t *) data )->type );
 
 		libcnotify_printf(
-		 "%s: padding1\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: padding1\t\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 ( (pff_table_header_ac_t *) data )->padding1 );
 
@@ -5928,7 +5929,7 @@ int libpff_table_read_ac_header_data(
 		 ( (pff_table_header_ac_t *) data )->values_array_end_offset_32bit_values,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: values array end offset 32-bit values\t: %" PRIu16 "\n",
+		 "%s: values array end offset 32-bit values\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
@@ -5936,7 +5937,7 @@ int libpff_table_read_ac_header_data(
 		 ( (pff_table_header_ac_t *) data )->values_array_end_offset_16bit_values,
 		 value_16bit );
 		libcnotify_printf(
-		 "%s: values array end offset 16-bit values\t: %" PRIu16 "\n",
+		 "%s: values array end offset 16-bit values\t\t: %" PRIu16 "\n",
 		 function,
 		 value_16bit );
 
@@ -5957,14 +5958,14 @@ int libpff_table_read_ac_header_data(
 		 value_16bit );
 
 		libcnotify_printf(
-		 "%s: b5 table header reference\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
+		 "%s: b5 table header reference\t\t\t: 0x%08" PRIx32 " (%s)\n",
 		 function,
 		 *b5_table_header_reference,
 		 libpff_debug_get_node_identifier_type(
 		  (uint8_t) ( *b5_table_header_reference & 0x0000001fUL ) ) );
 
 		libcnotify_printf(
-		 "%s: values array reference\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
+		 "%s: values array reference\t\t\t: 0x%08" PRIx32 " (%s)\n",
 		 function,
 		 *values_array_reference,
 		 libpff_debug_get_node_identifier_type(
@@ -5999,6 +6000,7 @@ int libpff_table_read_ac_header_data(
 		 0 );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 }
 
@@ -6107,6 +6109,18 @@ int libpff_table_read_b5_header(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: b5 table header data:\n",
+		 function );
+		libcnotify_print_data(
+		 table_header_data,
+		 sizeof( pff_table_header_b5_t ),
+		 0 );
+	}
+#endif
 	if( ( (pff_table_header_b5_t *) table_header_data )->type != 0xb5 )
 	{
 		libcerror_error_set(
@@ -6160,7 +6174,8 @@ int libpff_table_read_b5_header(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 }
 

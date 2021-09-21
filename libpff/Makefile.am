@@ -86,6 +86,7 @@ libpff_la_SOURCES = \
 	libpff_support.c libpff_support.h \
 	libpff_table.c libpff_table.h \
 	libpff_table_block_index.c libpff_table_block_index.h \
+	libpff_table_header.c libpff_table_header.h \
 	libpff_table_index_value.c libpff_table_index_value.h \
 	libpff_types.h \
 	libpff_unused.h \

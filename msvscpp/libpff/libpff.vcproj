@@ -354,6 +354,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_table_header.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_table_index_value.c"
 				>
 			</File>
@@ -609,6 +613,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_table_block_index.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_table_header.h"
 				>
 			</File>
 			<File

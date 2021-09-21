@@ -92,6 +92,7 @@ check_PROGRAMS = \
 	pff_test_support \
 	pff_test_table \
 	pff_test_table_block_index \
+	pff_test_table_header \
 	pff_test_table_index_value \
 	pff_test_tools_info_handle \
 	pff_test_tools_output \
@@ -663,6 +664,18 @@ pff_test_table_block_index_SOURCES = \
 	pff_test_unused.h
 
 pff_test_table_block_index_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_table_header_SOURCES = \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_table_header.c \
+	pff_test_unused.h
+
+pff_test_table_header_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
