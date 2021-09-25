@@ -378,45 +378,12 @@ int libpff_table_read_bc_values(
      int debug_item_type,
      libcerror_error_t **error );
 
-int libpff_table_read_header_data(
-     libpff_table_t *table,
-     const uint8_t *data,
-     size_t data_size,
-     uint32_t *table_value_reference,
-     libcerror_error_t **error );
-
-int libpff_table_read_6c_header_data(
-     libpff_table_t *table,
-     const uint8_t *data,
-     size_t data_size,
-     uint32_t *b5_table_header_reference,
-     uint32_t *values_array_reference,
-     libcerror_error_t **error );
-
 int libpff_table_read_7c_header_data(
      libpff_table_t *table,
      const uint8_t *data,
      size_t data_size,
      uint32_t *b5_table_header_reference,
      uint32_t *values_array_reference,
-     uint16_t *values_array_entry_size,
-     int *number_of_column_definitions,
-     libcerror_error_t **error );
-
-int libpff_table_read_9c_header_data(
-     libpff_table_t *table,
-     const uint8_t *data,
-     size_t data_size,
-     uint32_t *b5_table_header_reference,
-     libcerror_error_t **error );
-
-int libpff_table_read_ac_header_data(
-     libpff_table_t *table,
-     const uint8_t *data,
-     size_t data_size,
-     uint32_t *b5_table_header_reference,
-     uint32_t *values_array_reference,
-     uint32_t *column_definitions_reference,
      uint16_t *values_array_entry_size,
      int *number_of_column_definitions,
      libcerror_error_t **error );
