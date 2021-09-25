@@ -37,8 +37,30 @@
 extern "C" {
 #endif
 
+typedef struct libpff_local_descriptors_tree libpff_local_descriptors_tree_t;
+
+struct libpff_local_descriptors_tree
+{
+	/* The tree
+	 */
+	libfdata_tree_t *tree;
+};
+
+int libpff_local_descriptors_tree_initialize(
+     libpff_local_descriptors_tree_t **local_descriptors_tree,
+     libcerror_error_t **error );
+
+int libpff_local_descriptors_tree_free(
+     libpff_local_descriptors_tree_t **local_descriptors_tree,
+     libcerror_error_t **error );
+
+int libpff_local_descriptors_tree_clone(
+     libpff_local_descriptors_tree_t **destination_local_descriptors_tree,
+     libpff_local_descriptors_tree_t *source_local_descriptors_tree,
+     libcerror_error_t **error );
+
 int libpff_local_descriptors_tree_get_leaf_node_by_identifier(
-     libfdata_tree_t *local_descriptors_tree,
+     libpff_local_descriptors_tree_t *local_descriptors_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,
@@ -54,7 +76,7 @@ int libpff_local_descriptors_tree_node_get_leaf_node_by_identifier(
      libcerror_error_t **error );
 
 int libpff_local_descriptors_tree_get_value_by_identifier(
-     libfdata_tree_t *local_descriptors_tree,
+     libpff_local_descriptors_tree_t *local_descriptors_tree,
      libbfio_handle_t *file_io_handle,
      libfcache_cache_t *cache,
      uint64_t identifier,
@@ -62,7 +84,7 @@ int libpff_local_descriptors_tree_get_value_by_identifier(
      libcerror_error_t **error );
 
 int libpff_local_descriptors_tree_read(
-     libfdata_tree_t **local_descriptors_tree,
+     libpff_local_descriptors_tree_t **local_descriptors_tree,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,

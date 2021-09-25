@@ -255,7 +255,7 @@ int libpff_table_free(
 		}
 		if( ( *table )->local_descriptors_tree != NULL )
 		{
-			if( libfdata_tree_free(
+			if( libpff_local_descriptors_tree_free(
 			     &( ( *table )->local_descriptors_tree ),
 			     error ) != 1 )
 			{
@@ -462,7 +462,7 @@ int libpff_table_clone(
 /* TODO is this necessary or should it be re-read on demand ? */
 	if( source_table->local_descriptors_tree != NULL )
 	{
-		if( libfdata_tree_clone(
+		if( libpff_local_descriptors_tree_clone(
 		     &( ( *destination_table )->local_descriptors_tree ),
 		     source_table->local_descriptors_tree,
 		     error ) != 1 )
@@ -2168,7 +2168,7 @@ int libpff_table_read(
 
 			if( table->local_descriptors_tree != NULL )
 			{
-				libfdata_tree_free(
+				libpff_local_descriptors_tree_free(
 				 &( table->local_descriptors_tree ),
 				 NULL );
 			}

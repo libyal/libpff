@@ -33,6 +33,7 @@
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_local_descriptor_value.h"
+#include "libpff_local_descriptors_tree.h"
 #include "libpff_name_to_id_map.h"
 #include "libpff_offsets_index.h"
 #include "libpff_table_block_index.h"
@@ -86,7 +87,7 @@ struct libpff_table
 
 	/* The local descriptors tree
 	 */
-	libfdata_tree_t *local_descriptors_tree;
+	libpff_local_descriptors_tree_t *local_descriptors_tree;
 
 	/* The local descriptors cache
 	 */

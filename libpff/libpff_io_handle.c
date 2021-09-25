@@ -103,7 +103,7 @@ int libpff_io_handle_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear file.",
+		 "%s: unable to clear IO handle.",
 		 function );
 
 		goto on_error;

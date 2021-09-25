@@ -33,9 +33,320 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
+#include "../libpff/libpff_io_handle.h"
 #include "../libpff/libpff_local_descriptors.h"
+#include "../libpff/libpff_offsets_index.h"
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
+/* Tests the libpff_local_descriptors_initialize function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_local_descriptors_initialize(
+     void )
+{
+	libcerror_error_t *error                      = NULL;
+	libpff_io_handle_t *io_handle                 = NULL;
+	libpff_local_descriptors_t *local_descriptors = NULL;
+	libpff_offsets_index_t *offsets_index         = NULL;
+	int result                                    = 0;
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+	int number_of_malloc_fail_tests               = 1;
+	int number_of_memset_fail_tests               = 1;
+	int test_number                               = 0;
+#endif
+
+	/* Initialize test
+	 */
+	result = libpff_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_offsets_index_initialize(
+	          &offsets_index,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "offsets_index",
+	 offsets_index );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_local_descriptors_initialize(
+	          &local_descriptors,
+	          io_handle,
+	          offsets_index,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "local_descriptors",
+	 local_descriptors );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_local_descriptors_free(
+	          &local_descriptors,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "local_descriptors",
+	 local_descriptors );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_local_descriptors_initialize(
+	          NULL,
+	          io_handle,
+	          offsets_index,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	local_descriptors = (libpff_local_descriptors_t *) 0x12345678UL;
+
+	result = libpff_local_descriptors_initialize(
+	          &local_descriptors,
+	          io_handle,
+	          offsets_index,
+	          0,
+	          0,
+	          0,
+	          &error );
+
+	local_descriptors = NULL;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_local_descriptors_initialize with malloc failing
+		 */
+		pff_test_malloc_attempts_before_fail = test_number;
+
+		result = libpff_local_descriptors_initialize(
+		          &local_descriptors,
+		          io_handle,
+		          offsets_index,
+		          0,
+		          0,
+		          0,
+		          &error );
+
+		if( pff_test_malloc_attempts_before_fail != -1 )
+		{
+			pff_test_malloc_attempts_before_fail = -1;
+
+			if( local_descriptors != NULL )
+			{
+				libpff_local_descriptors_free(
+				 &local_descriptors,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "local_descriptors",
+			 local_descriptors );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libpff_local_descriptors_initialize with memset failing
+		 */
+		pff_test_memset_attempts_before_fail = test_number;
+
+		result = libpff_local_descriptors_initialize(
+		          &local_descriptors,
+		          io_handle,
+		          offsets_index,
+		          0,
+		          0,
+		          0,
+		          &error );
+
+		if( pff_test_memset_attempts_before_fail != -1 )
+		{
+			pff_test_memset_attempts_before_fail = -1;
+
+			if( local_descriptors != NULL )
+			{
+				libpff_local_descriptors_free(
+				 &local_descriptors,
+				 NULL );
+			}
+		}
+		else
+		{
+			PFF_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			PFF_TEST_ASSERT_IS_NULL(
+			 "local_descriptors",
+			 local_descriptors );
+
+			PFF_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
+	/* Clean up
+	 */
+	result = libpff_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( local_descriptors != NULL )
+	{
+		libpff_local_descriptors_free(
+		 &local_descriptors,
+		 NULL );
+	}
+	if( offsets_index != NULL )
+	{
+		libpff_offsets_index_free(
+		 &offsets_index,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libpff_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
 
 /* Tests the libpff_local_descriptors_free function
  * Returns 1 if successful or 0 if not
@@ -94,7 +405,9 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
-	/* TODO: add tests for libpff_local_descriptors_initialize */
+	PFF_TEST_RUN(
+	 "libpff_local_descriptors_initialize",
+	 pff_test_local_descriptors_initialize );
 
 	PFF_TEST_RUN(
 	 "libpff_local_descriptors_free",
@@ -116,7 +429,11 @@ int main(
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 }
 

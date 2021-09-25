@@ -1,5 +1,6 @@
 TODO
 libpff - clean up and refactoring
+* remove libfdata_tree
 * libpff_table
   - move table header read functions into table header source file
   - move column definition read functions into column definition source file

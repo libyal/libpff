@@ -236,6 +236,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pff_test_local_descriptors"
 		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pff_test_local_descriptors_tree", "pff_test_local_descriptors_tree\pff_test_local_descriptors_tree.vcproj", "{3B102BD7-BA05-43ED-86DD-B115578E7C8D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AF5BD1AB-6303-4227-8257-5E9CCBCA72D6} = {AF5BD1AB-6303-4227-8257-5E9CCBCA72D6}
+		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pff_test_mapi_value", "pff_test_mapi_value\pff_test_mapi_value.vcproj", "{3F7E08D9-3658-4BD5-AC9E-4F76083392E4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AF5BD1AB-6303-4227-8257-5E9CCBCA72D6} = {AF5BD1AB-6303-4227-8257-5E9CCBCA72D6}
@@ -654,6 +660,10 @@ Global
 		{E74B66CF-843D-4BB4-9EF7-2A882E0D79F6}.Release|Win32.Build.0 = Release|Win32
 		{E74B66CF-843D-4BB4-9EF7-2A882E0D79F6}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
 		{E74B66CF-843D-4BB4-9EF7-2A882E0D79F6}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{3B102BD7-BA05-43ED-86DD-B115578E7C8D}.Release|Win32.ActiveCfg = Release|Win32
+		{3B102BD7-BA05-43ED-86DD-B115578E7C8D}.Release|Win32.Build.0 = Release|Win32
+		{3B102BD7-BA05-43ED-86DD-B115578E7C8D}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{3B102BD7-BA05-43ED-86DD-B115578E7C8D}.VSDebug|Win32.Build.0 = VSDebug|Win32
 		{3F7E08D9-3658-4BD5-AC9E-4F76083392E4}.Release|Win32.ActiveCfg = Release|Win32
 		{3F7E08D9-3658-4BD5-AC9E-4F76083392E4}.Release|Win32.Build.0 = Release|Win32
 		{3F7E08D9-3658-4BD5-AC9E-4F76083392E4}.VSDebug|Win32.ActiveCfg = VSDebug|Win32

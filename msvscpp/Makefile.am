@@ -44,6 +44,7 @@ MSVSCPP_FILES = \
 	pff_test_local_descriptor_node/pff_test_local_descriptor_node.vcproj \
 	pff_test_local_descriptor_value/pff_test_local_descriptor_value.vcproj \
 	pff_test_local_descriptors/pff_test_local_descriptors.vcproj \
+	pff_test_local_descriptors_tree/pff_test_local_descriptors_tree.vcproj \
 	pff_test_mapi_value/pff_test_mapi_value.vcproj \
 	pff_test_message/pff_test_message.vcproj \
 	pff_test_multi_value/pff_test_multi_value.vcproj \

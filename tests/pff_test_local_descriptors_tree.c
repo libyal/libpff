@@ -1,5 +1,5 @@
 /*
- * Library io_handle type test program
+ * Library local_descriptors_tree type test program
  *
  * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,18 +33,18 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
-#include "../libpff/libpff_io_handle.h"
+#include "../libpff/libpff_local_descriptors_tree.h"
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
-/* Tests the libpff_io_handle_initialize function
+/* Tests the libpff_local_descriptors_tree_initialize function
  * Returns 1 if successful or 0 if not
  */
-int pff_test_io_handle_initialize(
+int pff_test_local_descriptors_tree_initialize(
      void )
 {
 	libcerror_error_t *error        = NULL;
-	libpff_io_handle_t *io_handle   = NULL;
+	libpff_local_descriptors_tree_t *local_descriptors_tree   = NULL;
 	int result                      = 0;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
@@ -55,8 +55,8 @@ int pff_test_io_handle_initialize(
 
 	/* Test regular cases
 	 */
-	result = libpff_io_handle_initialize(
-	          &io_handle,
+	result = libpff_local_descriptors_tree_initialize(
+	          &local_descriptors_tree,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -65,15 +65,15 @@ int pff_test_io_handle_initialize(
 	 1 );
 
 	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
+	 "local_descriptors_tree",
+	 local_descriptors_tree );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	result = libpff_io_handle_free(
-	          &io_handle,
+	result = libpff_local_descriptors_tree_free(
+	          &local_descriptors_tree,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -82,8 +82,8 @@ int pff_test_io_handle_initialize(
 	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
+	 "local_descriptors_tree",
+	 local_descriptors_tree );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -91,7 +91,7 @@ int pff_test_io_handle_initialize(
 
 	/* Test error cases
 	 */
-	result = libpff_io_handle_initialize(
+	result = libpff_local_descriptors_tree_initialize(
 	          NULL,
 	          &error );
 
@@ -107,13 +107,13 @@ int pff_test_io_handle_initialize(
 	libcerror_error_free(
 	 &error );
 
-	io_handle = (libpff_io_handle_t *) 0x12345678UL;
+	local_descriptors_tree = (libpff_local_descriptors_tree_t *) 0x12345678UL;
 
-	result = libpff_io_handle_initialize(
-	          &io_handle,
+	result = libpff_local_descriptors_tree_initialize(
+	          &local_descriptors_tree,
 	          &error );
 
-	io_handle = NULL;
+	local_descriptors_tree = NULL;
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -133,22 +133,22 @@ int pff_test_io_handle_initialize(
 	     test_number < number_of_malloc_fail_tests;
 	     test_number++ )
 	{
-		/* Test libpff_io_handle_initialize with malloc failing
+		/* Test libpff_local_descriptors_tree_initialize with malloc failing
 		 */
 		pff_test_malloc_attempts_before_fail = test_number;
 
-		result = libpff_io_handle_initialize(
-		          &io_handle,
+		result = libpff_local_descriptors_tree_initialize(
+		          &local_descriptors_tree,
 		          &error );
 
 		if( pff_test_malloc_attempts_before_fail != -1 )
 		{
 			pff_test_malloc_attempts_before_fail = -1;
 
-			if( io_handle != NULL )
+			if( local_descriptors_tree != NULL )
 			{
-				libpff_io_handle_free(
-				 &io_handle,
+				libpff_local_descriptors_tree_free(
+				 &local_descriptors_tree,
 				 NULL );
 			}
 		}
@@ -160,8 +160,8 @@ int pff_test_io_handle_initialize(
 			 -1 );
 
 			PFF_TEST_ASSERT_IS_NULL(
-			 "io_handle",
-			 io_handle );
+			 "local_descriptors_tree",
+			 local_descriptors_tree );
 
 			PFF_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -175,22 +175,22 @@ int pff_test_io_handle_initialize(
 	     test_number < number_of_memset_fail_tests;
 	     test_number++ )
 	{
-		/* Test libpff_io_handle_initialize with memset failing
+		/* Test libpff_local_descriptors_tree_initialize with memset failing
 		 */
 		pff_test_memset_attempts_before_fail = test_number;
 
-		result = libpff_io_handle_initialize(
-		          &io_handle,
+		result = libpff_local_descriptors_tree_initialize(
+		          &local_descriptors_tree,
 		          &error );
 
 		if( pff_test_memset_attempts_before_fail != -1 )
 		{
 			pff_test_memset_attempts_before_fail = -1;
 
-			if( io_handle != NULL )
+			if( local_descriptors_tree != NULL )
 			{
-				libpff_io_handle_free(
-				 &io_handle,
+				libpff_local_descriptors_tree_free(
+				 &local_descriptors_tree,
 				 NULL );
 			}
 		}
@@ -202,8 +202,8 @@ int pff_test_io_handle_initialize(
 			 -1 );
 
 			PFF_TEST_ASSERT_IS_NULL(
-			 "io_handle",
-			 io_handle );
+			 "local_descriptors_tree",
+			 local_descriptors_tree );
 
 			PFF_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -223,19 +223,19 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( io_handle != NULL )
+	if( local_descriptors_tree != NULL )
 	{
-		libpff_io_handle_free(
-		 &io_handle,
+		libpff_local_descriptors_tree_free(
+		 &local_descriptors_tree,
 		 NULL );
 	}
 	return( 0 );
 }
 
-/* Tests the libpff_io_handle_free function
+/* Tests the libpff_local_descriptors_tree_free function
  * Returns 1 if successful or 0 if not
  */
-int pff_test_io_handle_free(
+int pff_test_local_descriptors_tree_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -243,7 +243,7 @@ int pff_test_io_handle_free(
 
 	/* Test error cases
 	 */
-	result = libpff_io_handle_free(
+	result = libpff_local_descriptors_tree_free(
 	          NULL,
 	          &error );
 
@@ -266,134 +266,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	return( 0 );
-}
-
-/* Tests the libpff_io_handle_clear function
- * Returns 1 if successful or 0 if not
- */
-int pff_test_io_handle_clear(
-     void )
-{
-	libcerror_error_t *error      = NULL;
-	libpff_io_handle_t *io_handle = NULL;
-	int result                    = 0;
-
-	/* Initialize test
-	 */
-	result = libpff_io_handle_initialize(
-	          &io_handle,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	/* Test regular cases
-	 */
-	result = libpff_io_handle_clear(
-	          io_handle,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	/* Test error cases
-	 */
-	result = libpff_io_handle_clear(
-	          NULL,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-#if defined( HAVE_PFF_TEST_MEMORY )
-
-	/* Test libpff_io_handle_clear with memset failing
-	 */
-	pff_test_memset_attempts_before_fail = 0;
-
-	result = libpff_io_handle_clear(
-	          io_handle,
-	          &error );
-
-	if( pff_test_memset_attempts_before_fail != -1 )
-	{
-		pff_test_memset_attempts_before_fail = -1;
-	}
-	else
-	{
-		PFF_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		PFF_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
-
-	/* Clean up
-	 */
-	result = libpff_io_handle_free(
-	          &io_handle,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	if( io_handle != NULL )
-	{
-		libpff_io_handle_free(
-		 &io_handle,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -418,22 +290,12 @@ int main(
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
 	PFF_TEST_RUN(
-	 "libpff_io_handle_initialize",
-	 pff_test_io_handle_initialize );
+	 "libpff_local_descriptors_tree_initialize",
+	 pff_test_local_descriptors_tree_initialize );
 
 	PFF_TEST_RUN(
-	 "libpff_io_handle_free",
-	 pff_test_io_handle_free );
-
-	PFF_TEST_RUN(
-	 "libpff_io_handle_clear",
-	 pff_test_io_handle_clear );
-
-	/* TODO: add tests for libpff_io_handle_read_unallocated_data_blocks */
-
-	/* TODO: add tests for libpff_io_handle_read_unallocated_page_blocks */
-
-	/* TODO: add tests for libpff_io_handle_read_index_node */
+	 "libpff_local_descriptors_tree_free",
+	 pff_test_local_descriptors_tree_free );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
