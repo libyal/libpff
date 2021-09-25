@@ -62,6 +62,30 @@ struct libpff_table_header
 	/* The number of column definitions
 	 */
 	int number_of_column_definitions;
+
+	/* The column definitions data
+	 */
+	uint8_t *column_definitions_data;
+
+	/* The column definitions data size
+	 */
+	size_t column_definitions_data_size;
+
+	/* The record entry identifier size
+	 */
+	uint8_t record_entry_identifier_size;
+
+	/* The record entry value size
+	 */
+	uint8_t record_entry_value_size;
+
+	/* The record entries level
+	 */
+	uint8_t record_entries_level;
+
+	/* The record entries reference
+	 */
+	uint32_t record_entries_reference;
 };
 
 int libpff_table_header_initialize(
@@ -97,6 +121,12 @@ int libpff_table_header_read_9c_data(
      libcerror_error_t **error );
 
 int libpff_table_header_read_ac_data(
+     libpff_table_header_t *table_header,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
+int libpff_table_header_read_b5_data(
      libpff_table_header_t *table_header,
      const uint8_t *data,
      size_t data_size,

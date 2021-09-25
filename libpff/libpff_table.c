@@ -119,6 +119,24 @@ int libpff_table_initialize(
 		 "%s: unable to clear table.",
 		 function );
 
+		memory_free(
+		 *table );
+
+		*table = NULL;
+
+		return( -1 );
+	}
+	if( libpff_table_header_initialize(
+	     &( ( *table )->header ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create table header.",
+		 function );
+
 		goto on_error;
 	}
 	if( libcdata_array_initialize(
@@ -159,6 +177,19 @@ int libpff_table_initialize(
 on_error:
 	if( *table != NULL )
 	{
+		if( ( *table )->index_array != NULL )
+		{
+			libcdata_array_free(
+			 &( ( *table )->index_array ),
+			 NULL,
+			 NULL );
+		}
+		if( ( *table )->header != NULL )
+		{
+			libpff_table_header_free(
+			 &( ( *table )->header ),
+			 NULL );
+		}
 		memory_free(
 		 *table );
 
@@ -287,6 +318,20 @@ int libpff_table_free(
 			}
 		}
 		if( libcdata_array_free(
+		     &( ( *table )->record_sets_array ),
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_internal_record_set_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index array.",
+			 function );
+
+			result = -1;
+		}
+		if( libcdata_array_free(
 		     &( ( *table )->index_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_table_block_index_free,
 		     error ) != 1 )
@@ -300,16 +345,15 @@ int libpff_table_free(
 
 			result = -1;
 		}
-		if( libcdata_array_free(
-		     &( ( *table )->record_sets_array ),
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_internal_record_set_free,
+		if( libpff_table_header_free(
+		     &( ( *table )->header ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free index array.",
+			 "%s: unable to free table header.",
 			 function );
 
 			result = -1;
@@ -2019,7 +2063,6 @@ int libpff_table_read(
      libcerror_error_t **error )
 {
 	libpff_data_block_t *data_block               = NULL;
-	libpff_table_header_t *table_header           = NULL;
 	static char *function                         = "libpff_table_read";
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -2221,21 +2264,8 @@ int libpff_table_read(
 
 		return( -1 );
 	}
-	if( libpff_table_header_initialize(
-	     &table_header,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create table header.",
-		 function );
-
-		goto on_error;
-	}
 	if( libpff_table_header_read_data(
-	     table_header,
+	     table->header,
 	     data_block->data,
 	     data_block->uncompressed_data_size,
 	     error ) != 1 )
@@ -2247,29 +2277,7 @@ int libpff_table_read(
 		 "%s: unable to read table header.",
 		 function );
 
-		goto on_error;
-	}
-	table->type = table_header->type;
-
-/* TODO refactor to pass table_header as argument or set in table */
-
-	if( ( table->type != 0x6c )
-	 && ( table->type != 0x7c )
-	 && ( table->type != 0x8c )
-	 && ( table->type != 0x9c )
-	 && ( table->type != 0xa5 )
-	 && ( table->type != 0xac )
-	 && ( table->type != 0xbc ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported table type: 0x%02" PRIx8 ".",
-		 function,
-		 table->type );
-
-		goto on_error;
+		return( -1 );
 	}
 	if( libpff_table_read_index(
 	     table,
@@ -2283,7 +2291,7 @@ int libpff_table_read(
 		 "%s: unable to read table index.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -2300,7 +2308,7 @@ int libpff_table_read(
 			 "%s: unable to retrieve number of table index array entries.",
 			 function );
 
-			goto on_error;
+			return( -1 );
 		}
 		for( table_index_array_iterator = 0;
 		     table_index_array_iterator < number_of_table_index_array_entries;
@@ -2325,7 +2333,7 @@ int libpff_table_read(
 				 function,
 				 table_index_array_iterator );
 
-				goto on_error;
+				return( -1 );
 			}
 			if( libpff_table_block_index_get_number_of_values(
 			     table_block_index,
@@ -2339,7 +2347,7 @@ int libpff_table_read(
 				 "%s: unable to retrieve number of table block index values.",
 				 function );
 
-				goto on_error;
+				return( -1 );
 			}
 			for( table_index_value_iterator = 0;
 			     table_index_value_iterator < number_of_table_index_values;
@@ -2359,7 +2367,7 @@ int libpff_table_read(
 					 function,
 					 table_index_value_iterator );
 
-					goto on_error;
+					return( -1 );
 				}
 				if( table_index_value == NULL )
 				{
@@ -2371,7 +2379,7 @@ int libpff_table_read(
 					 function,
 					 table_index_value_iterator );
 
-					goto on_error;
+					return( -1 );
 				}
 				if( libpff_table_get_value_data_by_index_value(
 				     table,
@@ -2389,7 +2397,7 @@ int libpff_table_read(
 					 function,
 					 table_index_value_iterator );
 
-					goto on_error;
+					return( -1 );
 				}
 				libcnotify_printf(
 				 "%s: table value: %" PRIu16 " at offset: %" PRIu16 " of size: %" PRIu16 "\n",
@@ -2410,7 +2418,6 @@ int libpff_table_read(
 
 	if( libpff_table_read_values(
 	     table,
-	     table_header->table_value_reference,
 	     io_handle,
 	     file_io_handle,
 	     offsets_index,
@@ -2425,7 +2432,7 @@ int libpff_table_read(
 		 "%s: unable to read table values.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -2434,29 +2441,7 @@ int libpff_table_read(
 		 "\n" );
 	}
 #endif
-	if( libpff_table_header_free(
-	     &table_header,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free table header.",
-		 function );
-
-		goto on_error;
-	}
 	return( 1 );
-
-on_error:
-	if( table_header != NULL )
-	{
-		libpff_table_header_free(
-		 &table_header,
-		 NULL );
-	}
-	return( -1 );
 }
 
 /* Reads the data list of a descriptor
@@ -3756,7 +3741,6 @@ on_error:
  */
 int libpff_table_read_values(
      libpff_table_t *table,
-     uint32_t table_value_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
@@ -3764,8 +3748,11 @@ int libpff_table_read_values(
      int debug_item_type,
      libcerror_error_t **error )
 {
-	static char *function = "libpff_table_read_values";
-	int result            = 0;
+	uint8_t *table_header_data         = NULL;
+	static char *function              = "libpff_table_read_values";
+	size_t table_header_data_size      = 0;
+	uint32_t b5_table_header_reference = 0;
+	int result                         = 0;
 
 	if( table == NULL )
 	{
@@ -3778,12 +3765,193 @@ int libpff_table_read_values(
 
 		return( -1 );
 	}
-	switch( table->type )
+	if( table->header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table - missing header.",
+		 function );
+
+		return( -1 );
+	}
+	/* Read type specific table header
+	 */
+	if( ( table->header->type == 0x8c )
+	 || ( table->header->type == 0xa5 )
+	 || ( table->header->type == 0xbc ) )
+	{
+		b5_table_header_reference = table->header->table_value_reference;
+	}
+	else
+	{
+		if( ( table->header->table_value_reference & 0x0000001fUL ) != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported table header reference: 0x%08" PRIx32 " (0x%08" PRIx32 ").",
+			 function,
+			 table->header->table_value_reference & 0x0000001fUL,
+			 table->header->table_value_reference );
+
+			return( -1 );
+		}
+		if( libpff_table_get_value_data_by_reference(
+		     table,
+		     io_handle,
+		     file_io_handle,
+		     table->header->table_value_reference,
+		     &table_header_data,
+		     &table_header_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve table header data.",
+			 function );
+
+			return( -1 );
+		}
+		switch( table->header->type )
+		{
+			case 0x6c:
+				result = libpff_table_header_read_6c_data(
+					  table->header,
+					  table_header_data,
+					  table_header_data_size,
+					  error );
+				break;
+
+			case 0x7c:
+				result = libpff_table_header_read_7c_data(
+					  table->header,
+					  table_header_data,
+					  table_header_data_size,
+					  error );
+				break;
+
+			case 0x9c:
+				result = libpff_table_header_read_9c_data(
+					  table->header,
+					  table_header_data,
+					  table_header_data_size,
+					  error );
+				break;
+
+			case 0xac:
+				result = libpff_table_header_read_ac_data(
+					  table->header,
+					  table_header_data,
+					  table_header_data_size,
+					  error );
+				break;
+		}
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read %02" PRIx8 " table header.",
+			 function,
+			 table->header->type );
+
+			return( -1 );
+		}
+		b5_table_header_reference = table->header->b5_table_header_reference;
+	}
+	/* Read b5 table header
+	 */
+	if( table->header->type == 0xa5 )
+	{
+		/* The a5 table contains no b5 table header
+		 */
+		if( b5_table_header_reference != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported table header reference: 0x%08" PRIx32 ".",
+			 function,
+			 b5_table_header_reference );
+
+			return( -1 );
+		}
+	}
+	else
+	{
+		if( ( b5_table_header_reference & 0x0000001fUL ) != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported b5 table header reference: 0x%08" PRIx32 " (0x%08" PRIx32 ").",
+			 function,
+			 b5_table_header_reference & 0x0000001fUL,
+			 b5_table_header_reference );
+
+			return( -1 );
+		}
+		if( libpff_table_get_value_data_by_reference(
+		     table,
+		     io_handle,
+		     file_io_handle,
+		     b5_table_header_reference,
+		     &table_header_data,
+		     &table_header_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve b5 table header data.",
+			 function );
+
+			return( -1 );
+		}
+		if( ( table_header_data == NULL )
+		 || ( table_header_data_size == 0 ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing b5 table header data.",
+			 function );
+
+			return( -1 );
+		}
+		if( libpff_table_header_read_b5_data(
+		     table->header,
+		     table_header_data,
+		     table_header_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read b5 table header.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	/* Read table values
+	 */
+	switch( table->header->type )
 	{
 		case 0x6c:
 			result = libpff_table_read_6c_values(
 				  table,
-				  table_value_reference,
 				  io_handle,
 				  file_io_handle,
 				  error );
@@ -3792,7 +3960,6 @@ int libpff_table_read_values(
 		case 0x7c:
 			result = libpff_table_read_7c_values(
 				  table,
-				  table_value_reference,
 				  io_handle,
 				  file_io_handle,
 				  offsets_index,
@@ -3803,7 +3970,6 @@ int libpff_table_read_values(
 		case 0x8c:
 			result = libpff_table_read_8c_values(
 				  table,
-				  table_value_reference,
 				  io_handle,
 				  file_io_handle,
 				  error );
@@ -3812,7 +3978,6 @@ int libpff_table_read_values(
 		case 0x9c:
 			result = libpff_table_read_9c_values(
 				  table,
-				  table_value_reference,
 				  io_handle,
 				  file_io_handle,
 				  error );
@@ -3821,7 +3986,6 @@ int libpff_table_read_values(
 		case 0xa5:
 			result = libpff_table_read_a5_values(
 				  table,
-				  table_value_reference,
 				  io_handle,
 				  file_io_handle,
 				  error );
@@ -3830,7 +3994,6 @@ int libpff_table_read_values(
 		case 0xac:
 			result = libpff_table_read_ac_values(
 				  table,
-				  table_value_reference,
 				  io_handle,
 				  file_io_handle,
 				  offsets_index,
@@ -3841,7 +4004,6 @@ int libpff_table_read_values(
 		case 0xbc:
 			result = libpff_table_read_bc_values(
 				  table,
-				  table_value_reference,
 				  io_handle,
 				  file_io_handle,
 				  offsets_index,
@@ -3856,8 +4018,9 @@ int libpff_table_read_values(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read table values.",
-		 function );
+		 "%s: unable to read %02" PRIx8 " table values.",
+		 function,
+		 table->header->type );
 
 		return( -1 );
 	}
@@ -3869,102 +4032,37 @@ int libpff_table_read_values(
  */
 int libpff_table_read_6c_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
 	libcdata_array_t *record_entries_references_array = NULL;
-	libpff_table_header_t *table_header               = NULL;
-	uint8_t *table_header_data                        = NULL;
 	static char *function                             = "libpff_table_read_6c_values";
-	size_t table_header_data_size                     = 0;
-	uint32_t record_entries_reference                 = 0;
-	uint8_t record_entries_level                      = 0;
-	uint8_t record_entry_identifier_size              = 0;
-	uint8_t record_entry_value_size                   = 0;
 
-	if( ( table_header_reference & 0x0000001fUL ) != 0 )
+	if( table == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported table header reference: 0x%08" PRIx32 " (0x%08" PRIx32 ").",
-		 function,
-		 table_header_reference & 0x0000001fUL,
-		 table_header_reference );
-
-		return( -1 );
-	}
-	if( libpff_table_get_value_data_by_reference(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     table_header_reference,
-	     &table_header_data,
-	     &table_header_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve table header data.",
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
 		 function );
 
 		return( -1 );
 	}
-	if( libpff_table_header_initialize(
-	     &table_header,
-	     error ) != 1 )
+	if( table->header == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create table header.",
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table - missing header.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	if( libpff_table_header_read_6c_data(
-	     table_header,
-	     table_header_data,
-	     table_header_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read 6c table header.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_table_read_b5_header(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     table_header->b5_table_header_reference,
-	     &record_entry_identifier_size,
-	     &record_entry_value_size,
-	     &record_entries_level,
-	     &record_entries_reference,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read b5 table header.",
-		 function );
-
-		goto on_error;
-	}
-	if( ( record_entry_identifier_size != 16 )
-	 || ( record_entry_value_size != 2 ) )
+	if( ( table->header->record_entry_identifier_size != 16 )
+	 || ( table->header->record_entry_value_size != 2 ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -3972,15 +4070,15 @@ int libpff_table_read_6c_values(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported record entry identifier size: %" PRIu8 " and record entry value size: %" PRIu8 ".",
 		 function,
-		 record_entry_identifier_size,
-		 record_entry_value_size );
+		 table->header->record_entry_identifier_size,
+		 table->header->record_entry_value_size );
 
 		goto on_error;
 	}
 	/* Check if the table contains any entries
 	 */
-	if( ( record_entries_reference == 0 )
-	 && ( table_header->values_array_reference == 0 ) )
+	if( ( table->header->record_entries_reference == 0 )
+	 && ( table->header->values_array_reference == 0 ) )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
@@ -3992,7 +4090,7 @@ int libpff_table_read_6c_values(
 #endif
 		goto on_error;
 	}
-	if( record_entries_reference == 0 )
+	if( table->header->record_entries_reference == 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -4003,7 +4101,7 @@ int libpff_table_read_6c_values(
 
 		goto on_error;
 	}
-	if( table_header->values_array_reference == 0 )
+	if( table->header->values_array_reference == 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -4031,9 +4129,9 @@ int libpff_table_read_6c_values(
 	if( libpff_table_read_record_entries(
 	     table,
 	     record_entries_references_array,
-	     record_entries_level,
-	     record_entry_identifier_size,
-	     record_entries_reference,
+	     table->header->record_entries_level,
+	     table->header->record_entry_identifier_size,
+	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
 	     error ) != 1 )
@@ -4050,7 +4148,7 @@ int libpff_table_read_6c_values(
 	if( libpff_table_read_6c_record_entries(
 	     table,
 	     record_entries_references_array,
-	     table_header->values_array_reference,
+	     table->header->values_array_reference,
 	     io_handle,
 	     file_io_handle,
 	     error ) != 1 )
@@ -4078,19 +4176,6 @@ int libpff_table_read_6c_values(
 
 		goto on_error;
 	}
-	if( libpff_table_header_free(
-	     &table_header,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free table header.",
-		 function );
-
-		goto on_error;
-	}
 	return( 1 );
 
 on_error:
@@ -4101,12 +4186,6 @@ on_error:
 		 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_reference_descriptor_free,
 		 NULL );
 	}
-	if( table_header != NULL )
-	{
-		libpff_table_header_free(
-		 &table_header,
-		 NULL );
-	}
 	return( -1 );
 }
 
@@ -4115,7 +4194,6 @@ on_error:
  */
 int libpff_table_read_7c_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
@@ -4124,172 +4202,33 @@ int libpff_table_read_7c_values(
 {
 	libcdata_array_t *column_definitions_array        = NULL;
 	libcdata_array_t *record_entries_references_array = NULL;
-	libpff_table_header_t *table_header               = NULL;
-	uint8_t *column_definitions_data                  = NULL;
-	uint8_t *table_header_data                        = NULL;
 	static char *function                             = "libpff_table_read_7c_values";
-	size_t column_definitions_data_size               = 0;
-	size_t table_header_data_size                     = 0;
-	uint32_t record_entries_reference                 = 0;
-	uint8_t record_entries_level                      = 0;
-	uint8_t record_entry_identifier_size              = 0;
-	uint8_t record_entry_value_size                   = 0;
 
-	if( ( table_header_reference & 0x0000001fUL ) != 0 )
+	if( table == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported table header reference: 0x%08" PRIx32 " (0x%08" PRIx32 ").",
-		 function,
-		 table_header_reference & 0x0000001fUL,
-		 table_header_reference );
-
-		return( -1 );
-	}
-	if( libpff_table_get_value_data_by_reference(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     table_header_reference,
-	     &table_header_data,
-	     &table_header_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve table header data.",
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
 		 function );
 
 		return( -1 );
 	}
-	if( libpff_table_header_initialize(
-	     &table_header,
-	     error ) != 1 )
+	if( table->header == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create table header.",
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table - missing header.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	if( libpff_table_header_read_7c_data(
-	     table_header,
-	     table_header_data,
-	     table_header_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read 7c table header.",
-		 function );
-
-		goto on_error;
-	}
-	table_header_data      += sizeof( pff_table_header_7c_t );
-	table_header_data_size -= sizeof( pff_table_header_7c_t );
-
-	/* Read the column definitions in the 7c table header
-	 */
-	if( (size_t) table_header->number_of_column_definitions != ( table_header_data_size / sizeof( pff_table_column_definition_7c_t ) ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: mismatch in number of the column definitions and data size.",
-		 function );
-
-		goto on_error;
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: 7c column definitions data:\n",
-		 function );
-		libcnotify_print_data(
-		 table_header_data,
-		 table_header_data_size,
-		 0 );
-	}
-#endif
-	/* Copy the column definitions data otherwise the data block can cache out
-	 * while processing
-	 */
-	column_definitions_data_size = table_header_data_size;
-
-	if( ( column_definitions_data_size == 0 )
-	 || ( column_definitions_data_size > (size_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid column definitions data size value out of bounds.",
-		 function );
-
-		goto on_error;
-	}
-	column_definitions_data = (uint8_t *) memory_allocate(
-	                                       column_definitions_data_size );
-
-	if( column_definitions_data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create column definitions data.",
-		 function );
-
-		goto on_error;
-	}
-	if( memory_copy(
-	     column_definitions_data,
-	     table_header_data,
-	     table_header_data_size ) == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to copy column definitions data.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_table_read_b5_header(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     table_header->b5_table_header_reference,
-	     &record_entry_identifier_size,
-	     &record_entry_value_size,
-	     &record_entries_level,
-	     &record_entries_reference,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read b5 table header.",
-		 function );
-
-		goto on_error;
-	}
-	if( ( record_entry_identifier_size != 4 )
-	 || ( ( record_entry_value_size != 2 )
-	  &&  ( record_entry_value_size != 4 ) ) )
+	if( ( table->header->record_entry_identifier_size != 4 )
+	 || ( ( table->header->record_entry_value_size != 2 )
+	  &&  ( table->header->record_entry_value_size != 4 ) ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -4297,8 +4236,8 @@ int libpff_table_read_7c_values(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported record entry identifier size: 0x%02" PRIx8 " and record entry value size: 0x%02" PRIx8 ".",
 		 function,
-		 record_entry_identifier_size,
-		 record_entry_value_size );
+		 table->header->record_entry_identifier_size,
+		 table->header->record_entry_value_size );
 
 		goto on_error;
 	}
@@ -4321,9 +4260,9 @@ int libpff_table_read_7c_values(
 	if( libpff_table_read_7c_column_definitions(
 	     table,
 	     column_definitions_array,
-	     column_definitions_data,
-	     column_definitions_data_size,
-	     table_header->number_of_column_definitions,
+	     table->header->column_definitions_data,
+	     table->header->column_definitions_data_size,
+	     table->header->number_of_column_definitions,
 	     file_io_handle,
 	     name_to_id_map_list,
 	     error ) != 1 )
@@ -4354,9 +4293,9 @@ int libpff_table_read_7c_values(
 	if( libpff_table_read_record_entries(
 	     table,
 	     record_entries_references_array,
-	     record_entries_level,
-	     record_entry_identifier_size,
-	     record_entries_reference,
+	     table->header->record_entries_level,
+	     table->header->record_entry_identifier_size,
+	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
 	     error ) != 1 )
@@ -4370,15 +4309,15 @@ int libpff_table_read_7c_values(
 
 		goto on_error;
 	}
-	if( table_header->number_of_column_definitions > 0 )
+	if( table->header->number_of_column_definitions > 0 )
 	{
 		if( libpff_table_read_values_array(
 		     table,
 		     record_entries_references_array,
-		     table_header->values_array_reference,
-		     record_entry_identifier_size,
-		     record_entry_value_size,
-		     table_header->values_array_entry_size,
+		     table->header->values_array_reference,
+		     table->header->record_entry_identifier_size,
+		     table->header->record_entry_value_size,
+		     table->header->values_array_entry_size,
 		     column_definitions_array,
 		     io_handle,
 		     file_io_handle,
@@ -4423,22 +4362,6 @@ int libpff_table_read_7c_values(
 
 		goto on_error;
 	}
-	memory_free(
-	 column_definitions_data );
-
-	if( libpff_table_header_free(
-	     &table_header,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free table header.",
-		 function );
-
-		goto on_error;
-	}
 	return( 1 );
 
 on_error:
@@ -4456,17 +4379,6 @@ on_error:
 		 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_column_definition_free,
 		 NULL );
 	}
-	if( column_definitions_data != NULL )
-	{
-		memory_free(
-		 column_definitions_data );
-	}
-	if( table_header != NULL )
-	{
-		libpff_table_header_free(
-		 &table_header,
-		 NULL );
-	}
 	return( -1 );
 }
 
@@ -4475,42 +4387,37 @@ on_error:
  */
 int libpff_table_read_8c_values(
      libpff_table_t *table,
-     uint32_t b5_table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
 	libcdata_array_t *record_entries_references_array = NULL;
 	static char *function                             = "libpff_table_read_8c_values";
-	uint32_t record_entries_reference                 = 0;
-	uint8_t record_entry_identifier_size              = 0;
-	uint8_t record_entry_value_size                   = 0;
-	uint8_t record_entries_level                      = 0;
 
-	/* Read the b5 table header
-	 */
-	if( libpff_table_read_b5_header(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     b5_table_header_reference,
-	     &record_entry_identifier_size,
-	     &record_entry_value_size,
-	     &record_entries_level,
-	     &record_entries_reference,
-	     error ) != 1 )
+	if( table == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read b5 table header.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	if( ( record_entry_identifier_size != 8 )
-	 || ( record_entry_value_size != 4 ) )
+	if( table->header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table - missing header.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( table->header->record_entry_identifier_size != 8 )
+	 || ( table->header->record_entry_value_size != 4 ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -4518,8 +4425,8 @@ int libpff_table_read_8c_values(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported record entry identifier size: 0x%02" PRIx8 " and record entry value size: 0x%02" PRIx8 ".",
 		 function,
-		 record_entry_identifier_size,
-		 record_entry_value_size );
+		 table->header->record_entry_identifier_size,
+		 table->header->record_entry_value_size );
 
 		goto on_error;
 	}
@@ -4540,9 +4447,9 @@ int libpff_table_read_8c_values(
 	if( libpff_table_read_record_entries(
 	     table,
 	     record_entries_references_array,
-	     record_entries_level,
-	     record_entry_identifier_size,
-	     record_entries_reference,
+	     table->header->record_entries_level,
+	     table->header->record_entry_identifier_size,
+	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
 	     error ) != 1 )
@@ -4604,102 +4511,37 @@ on_error:
  */
 int libpff_table_read_9c_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
 	libcdata_array_t *record_entries_references_array = NULL;
-	libpff_table_header_t *table_header               = NULL;
-	uint8_t *table_header_data                        = NULL;
 	static char *function                             = "libpff_table_read_9c_values";
-	size_t table_header_data_size                     = 0;
-	uint32_t record_entries_reference                 = 0;
-	uint8_t record_entries_level                      = 0;
-	uint8_t record_entry_identifier_size              = 0;
-	uint8_t record_entry_value_size                   = 0;
 
-	if( ( table_header_reference & 0x0000001fUL ) != 0 )
+	if( table == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported table header reference: 0x%08" PRIx32 " (0x%08" PRIx32 ").",
-		 function,
-		 table_header_reference & 0x0000001fUL,
-		 table_header_reference );
-
-		return( -1 );
-	}
-	if( libpff_table_get_value_data_by_reference(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     table_header_reference,
-	     &table_header_data,
-	     &table_header_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve table header data.",
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
 		 function );
 
 		return( -1 );
 	}
-	if( libpff_table_header_initialize(
-	     &table_header,
-	     error ) != 1 )
+	if( table->header == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create table header.",
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table - missing header.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	if( libpff_table_header_read_9c_data(
-	     table_header,
-	     table_header_data,
-	     table_header_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read 9c table header.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_table_read_b5_header(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     table_header->b5_table_header_reference,
-	     &record_entry_identifier_size,
-	     &record_entry_value_size,
-	     &record_entries_level,
-	     &record_entries_reference,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read b5 table header.",
-		 function );
-
-		goto on_error;
-	}
-	if( ( record_entry_identifier_size != 16 )
-	 || ( record_entry_value_size != 4 ) )
+	if( ( table->header->record_entry_identifier_size != 16 )
+	 || ( table->header->record_entry_value_size != 4 ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -4707,8 +4549,8 @@ int libpff_table_read_9c_values(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported record entry identifier size: 0x%02" PRIx8 " and record entry value size: 0x%02" PRIx8 ".",
 		 function,
-		 record_entry_identifier_size,
-		 record_entry_value_size );
+		 table->header->record_entry_identifier_size,
+		 table->header->record_entry_value_size );
 
 		goto on_error;
 	}
@@ -4729,9 +4571,9 @@ int libpff_table_read_9c_values(
 	if( libpff_table_read_record_entries(
 	     table,
 	     record_entries_references_array,
-	     record_entries_level,
-	     record_entry_identifier_size,
-	     record_entries_reference,
+	     table->header->record_entries_level,
+	     table->header->record_entry_identifier_size,
+	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
 	     error ) != 1 )
@@ -4775,19 +4617,6 @@ int libpff_table_read_9c_values(
 
 		goto on_error;
 	}
-	if( libpff_table_header_free(
-	     &table_header,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free table header.",
-		 function );
-
-		goto on_error;
-	}
 	return( 1 );
 
 on_error:
@@ -4798,12 +4627,6 @@ on_error:
 		 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_reference_descriptor_free,
 		 NULL );
 	}
-	if( table_header != NULL )
-	{
-		libpff_table_header_free(
-		 &table_header,
-		 NULL );
-	}
 	return( -1 );
 }
 
@@ -4812,7 +4635,6 @@ on_error:
  */
 int libpff_table_read_a5_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
@@ -4821,17 +4643,25 @@ int libpff_table_read_a5_values(
 	static char *function                         = "libpff_table_read_a5_values";
 	uint16_t number_of_table_index_values         = 0;
 
-	/* The a5 table contains no b5 table header
-	 */
-	if( table_header_reference != 0 )
+	if( table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	if( table->header == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported table header reference: 0x%08" PRIx32 ".",
-		 function,
-		 table_header_reference );
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table - missing header.",
+		 function );
 
 		return( -1 );
 	}
@@ -4910,7 +4740,6 @@ int libpff_table_read_a5_values(
  */
 int libpff_table_read_ac_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
@@ -4919,97 +4748,33 @@ int libpff_table_read_ac_values(
 {
 	libcdata_array_t *column_definitions_array        = NULL;
 	libcdata_array_t *record_entries_references_array = NULL;
-	libpff_table_header_t *table_header               = NULL;
-	uint8_t *table_header_data                        = NULL;
 	static char *function                             = "libpff_table_read_ac_values";
-	size_t table_header_data_size                     = 0;
-	uint32_t record_entries_reference                 = 0;
-	uint8_t record_entries_level                      = 0;
-	uint8_t record_entry_identifier_size              = 0;
-	uint8_t record_entry_value_size                   = 0;
 	int number_of_column_definitions                  = 0;
 
-	if( ( table_header_reference & 0x0000001fUL ) != 0 )
+	if( table == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported table header reference: 0x%08" PRIx32 " (0x%08" PRIx32 ").",
-		 function,
-		 table_header_reference & 0x0000001fUL,
-		 table_header_reference );
-
-		return( -1 );
-	}
-	if( libpff_table_get_value_data_by_reference(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     table_header_reference,
-	     &table_header_data,
-	     &table_header_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve table header data.",
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
 		 function );
 
 		return( -1 );
 	}
-	if( libpff_table_header_initialize(
-	     &table_header,
-	     error ) != 1 )
+	if( table->header == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create table header.",
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table - missing header.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	if( libpff_table_header_read_ac_data(
-	     table_header,
-	     table_header_data,
-	     table_header_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read ac table header.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_table_read_b5_header(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     table_header->b5_table_header_reference,
-	     &record_entry_identifier_size,
-	     &record_entry_value_size,
-	     &record_entries_level,
-	     &record_entries_reference,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read b5 table header.",
-		 function );
-
-		goto on_error;
-	}
-	if( ( record_entry_identifier_size != 4 )
-	 || ( record_entry_value_size != 4 ) )
+	if( ( table->header->record_entry_identifier_size != 4 )
+	 || ( table->header->record_entry_value_size != 4 ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -5017,8 +4782,8 @@ int libpff_table_read_ac_values(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported record entry identifier size: 0x%02" PRIx8 " and record entry value size: 0x%02" PRIx8 ".",
 		 function,
-		 record_entry_identifier_size,
-		 record_entry_value_size );
+		 table->header->record_entry_identifier_size,
+		 table->header->record_entry_value_size );
 
 		goto on_error;
 	}
@@ -5041,8 +4806,8 @@ int libpff_table_read_ac_values(
 	if( libpff_table_read_ac_column_definitions(
 	     table,
 	     column_definitions_array,
-	     table_header->column_definitions_reference,
-	     table_header->number_of_column_definitions,
+	     table->header->column_definitions_reference,
+	     table->header->number_of_column_definitions,
 	     io_handle,
 	     file_io_handle,
 	     offsets_index,
@@ -5075,9 +4840,9 @@ int libpff_table_read_ac_values(
 	if( libpff_table_read_record_entries(
 	     table,
 	     record_entries_references_array,
-	     record_entries_level,
-	     record_entry_identifier_size,
-	     record_entries_reference,
+	     table->header->record_entries_level,
+	     table->header->record_entry_identifier_size,
+	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
 	     error ) != 1 )
@@ -5110,10 +4875,10 @@ int libpff_table_read_ac_values(
 		if( libpff_table_read_values_array(
 		     table,
 		     record_entries_references_array,
-		     table_header->values_array_reference,
-		     record_entry_identifier_size,
-		     record_entry_value_size,
-		     table_header->values_array_entry_size,
+		     table->header->values_array_reference,
+		     table->header->record_entry_identifier_size,
+		     table->header->record_entry_value_size,
+		     table->header->values_array_entry_size,
 		     column_definitions_array,
 		     io_handle,
 		     file_io_handle,
@@ -5158,19 +4923,6 @@ int libpff_table_read_ac_values(
 
 		goto on_error;
 	}
-	if( libpff_table_header_free(
-	     &table_header,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free table header.",
-		 function );
-
-		goto on_error;
-	}
 	return( 1 );
 
 on_error:
@@ -5188,12 +4940,6 @@ on_error:
 		 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_column_definition_free,
 		 NULL );
 	}
-	if( table_header != NULL )
-	{
-		libpff_table_header_free(
-		 &table_header,
-		 NULL );
-	}
 	return( -1 );
 }
 
@@ -5202,7 +4948,6 @@ on_error:
  */
 int libpff_table_read_bc_values(
      libpff_table_t *table,
-     uint32_t b5_table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
@@ -5212,35 +4957,31 @@ int libpff_table_read_bc_values(
 {
 	libcdata_array_t *record_entries_references_array = NULL;
 	static char *function                             = "libpff_table_read_bc_values";
-	uint32_t record_entries_reference                 = 0;
-	uint8_t record_entry_identifier_size              = 0;
-	uint8_t record_entry_value_size                   = 0;
-	uint8_t record_entries_level                      = 0;
 
-	/* Read the b5 table header
-	 */
-	if( libpff_table_read_b5_header(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     b5_table_header_reference,
-	     &record_entry_identifier_size,
-	     &record_entry_value_size,
-	     &record_entries_level,
-	     &record_entries_reference,
-	     error ) != 1 )
+	if( table == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read b5 table header.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	if( ( record_entry_identifier_size != 2 )
-	 || ( record_entry_value_size != 6 ) )
+	if( table->header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table - missing header.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( table->header->record_entry_identifier_size != 2 )
+	 || ( table->header->record_entry_value_size != 6 ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -5248,8 +4989,8 @@ int libpff_table_read_bc_values(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported record entry identifier size: 0x%02" PRIx8 " and record entry value size: 0x%02" PRIx8 ".",
 		 function,
-		 record_entry_identifier_size,
-		 record_entry_value_size );
+		 table->header->record_entry_identifier_size,
+		 table->header->record_entry_value_size );
 
 		goto on_error;
 	}
@@ -5270,9 +5011,9 @@ int libpff_table_read_bc_values(
 	if( libpff_table_read_record_entries(
 	     table,
 	     record_entries_references_array,
-	     record_entries_level,
-	     record_entry_identifier_size,
-	     record_entries_reference,
+	     table->header->record_entries_level,
+	     table->header->record_entry_identifier_size,
+	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
 	     error ) != 1 )
@@ -5330,181 +5071,6 @@ on_error:
 		 NULL );
 	}
 	return( -1 );
-}
-
-/* Reads the b5 table header
- * Returns 1 if successful or -1 on error
- */
-int libpff_table_read_b5_header(
-     libpff_table_t *table,
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     uint32_t table_header_reference,
-     uint8_t *record_entry_identifier_size,
-     uint8_t *record_entry_value_size,
-     uint8_t *record_entries_level,
-     uint32_t *record_entries_reference,
-     libcerror_error_t **error )
-{
-	uint8_t *table_header_data    = NULL;
-	static char *function         = "libpff_table_read_b5_header";
-	size_t table_header_data_size = 0;
-
-	if( record_entry_identifier_size == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record entry identifier size.",
-		 function );
-
-		return( -1 );
-	}
-	if( record_entry_value_size == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record entry value size.",
-		 function );
-
-		return( -1 );
-	}
-	if( record_entries_level == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record entries level.",
-		 function );
-
-		return( -1 );
-	}
-	if( record_entries_reference == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record entries reference.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( table_header_reference & 0x0000001fUL ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported table header reference: 0x%08" PRIx32 " (0x%08" PRIx32 ").",
-		 function,
-		 table_header_reference & 0x0000001fUL,
-		 table_header_reference );
-
-		return( -1 );
-	}
-	if( libpff_table_get_value_data_by_reference(
-	     table,
-	     io_handle,
-	     file_io_handle,
-	     table_header_reference,
-	     &table_header_data,
-	     &table_header_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve table header data.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( table_header_data == NULL )
-	 || ( table_header_data_size == 0 ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing table header data.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: b5 table header data:\n",
-		 function );
-		libcnotify_print_data(
-		 table_header_data,
-		 sizeof( pff_table_header_b5_t ),
-		 0 );
-	}
-#endif
-	if( ( (pff_table_header_b5_t *) table_header_data )->type != 0xb5 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported table header type: 0x%02x.",
-		 function,
-		 ( (pff_table_header_b5_t *) table_header_data )->type );
-
-		return( -1 );
-	}
-	*record_entry_identifier_size = ( (pff_table_header_b5_t *) table_header_data )->record_entry_identifier_size;
-	*record_entry_value_size      = ( (pff_table_header_b5_t *) table_header_data )->record_entry_value_size;
-	*record_entries_level         = ( (pff_table_header_b5_t *) table_header_data )->record_entries_level;
-
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (pff_table_header_b5_t *) table_header_data )->record_entries_reference,
-	 *record_entries_reference );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: table header type\t\t\t\t: 0x%02" PRIx8 "\n",
-		 function,
-		 ( (pff_table_header_b5_t *) table_header_data )->type );
-
-		libcnotify_printf(
-		 "%s: record entry identifier size\t\t: %" PRIu8 "\n",
-		 function,
-		 *record_entry_identifier_size );
-
-		libcnotify_printf(
-		 "%s: record entry value size\t\t\t: %" PRIu8 "\n",
-		 function,
-		 *record_entry_value_size );
-
-		libcnotify_printf(
-		 "%s: record entries level\t\t\t: %" PRIu8 "\n",
-		 function,
-		 ( (pff_table_header_b5_t *) table_header_data )->record_entries_level );
-
-		libcnotify_printf(
-		 "%s: record entries reference\t\t\t: 0x%08" PRIx32 " (%s)\n",
-		 function,
-		 *record_entries_reference,
-		 libpff_debug_get_node_identifier_type(
-		  (uint8_t) ( *record_entries_reference & 0x0000001fUL ) ) );
-
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif /* defined( HAVE_DEBUG_OUTPUT ) */
-
-	return( 1 );
 }
 
 /* Reads the 6c table record entries and their values
