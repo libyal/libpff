@@ -2662,7 +2662,7 @@ int libpff_recover_local_descriptors(
 
 		return( -1 );
 	}
-	if( libpff_local_descriptor_node_read(
+	if( libpff_local_descriptor_node_read_file_io_handle(
 	     local_descriptor_node,
 	     io_handle,
 	     file_io_handle,

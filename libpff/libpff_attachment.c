@@ -38,7 +38,6 @@
 #include "libpff_libfdata.h"
 #include "libpff_libfmapi.h"
 #include "libpff_local_descriptor_value.h"
-#include "libpff_local_descriptors_tree.h"
 #include "libpff_mapi.h"
 #include "libpff_record_entry.h"
 #include "libpff_record_set.h"

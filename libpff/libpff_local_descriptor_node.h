@@ -86,7 +86,14 @@ int libpff_local_descriptor_node_get_entry_sub_node_identifier(
      uint64_t *entry_sub_node_identifier,
      libcerror_error_t **error );
 
-int libpff_local_descriptor_node_read(
+int libpff_local_descriptor_node_read_data(
+     libpff_local_descriptor_node_t *local_descriptor_node,
+     libpff_io_handle_t *io_handle,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
+int libpff_local_descriptor_node_read_file_io_handle(
      libpff_local_descriptor_node_t *local_descriptor_node,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,

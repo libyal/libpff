@@ -472,7 +472,7 @@ int libpff_local_descriptors_read_local_descriptor_node(
 
 			return( -1 );
 		}
-		if( libpff_local_descriptor_node_read(
+		if( libpff_local_descriptor_node_read_file_io_handle(
 		     *local_descriptor_node,
 		     local_descriptors->io_handle,
 		     file_io_handle,

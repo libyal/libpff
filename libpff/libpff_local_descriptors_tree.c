@@ -658,7 +658,7 @@ int libpff_local_descriptors_tree_get_value_by_identifier(
 	return( result );
 }
 
-/* Reads a specifi local descriptors tree
+/* Reads a specific local descriptors tree
  * Returns 1 if successful or -1 on error
  */
 int libpff_local_descriptors_tree_read(

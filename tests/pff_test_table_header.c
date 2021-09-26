@@ -393,6 +393,54 @@ int pff_test_table_header_read_data(
 	libcerror_error_free(
 	 &error );
 
+	/* Test error case where signature is invalid
+	 */
+	pff_test_table_header_data[ 2 ] = 0xff;
+
+	result = libpff_table_header_read_data(
+	          table_header,
+	          pff_test_table_header_data,
+	          12,
+	          &error );
+
+	pff_test_table_header_data[ 2 ] = 0xec;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test error case where type is invalid
+	 */
+	pff_test_table_header_data[ 3 ] = 0xff;
+
+	result = libpff_table_header_read_data(
+	          table_header,
+	          pff_test_table_header_data,
+	          12,
+	          &error );
+
+	pff_test_table_header_data[ 3 ] = 0xbc;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 	/* Clean up
 	 */
 	result = libpff_table_header_free(
@@ -669,6 +717,30 @@ int pff_test_table_header_read_7c_data(
 	libcerror_error_free(
 	 &error );
 
+	/* Test error case where type is invalid
+	 */
+	pff_test_table_header_7c_data[ 0 ] = 0xff;
+
+	result = libpff_table_header_read_7c_data(
+	          table_header,
+	          pff_test_table_header_7c_data,
+	          78,
+	          &error );
+
+	pff_test_table_header_7c_data[ 0 ] = 0x7c;
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 	/* Clean up
 	 */
 	result = libpff_table_header_free(
@@ -932,6 +1004,30 @@ int pff_test_table_header_read_ac_data(
 	          pff_test_table_header_ac_data,
 	          (size_t) SSIZE_MAX + 1,
 	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test error case where type is invalid
+	 */
+	pff_test_table_header_ac_data[ 0 ] = 0xff;
+
+	result = libpff_table_header_read_ac_data(
+	          table_header,
+	          pff_test_table_header_ac_data,
+	          40,
+	          &error );
+
+	pff_test_table_header_ac_data[ 0 ] = 0xac;
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
