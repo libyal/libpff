@@ -41,6 +41,30 @@ typedef struct libpff_local_descriptors_tree libpff_local_descriptors_tree_t;
 
 struct libpff_local_descriptors_tree
 {
+	/* The IO handle
+	 */
+	libpff_io_handle_t *io_handle;
+
+	/* The offsets index
+	 */
+	libpff_offsets_index_t *offsets_index;
+
+	/* The descriptor identifier
+	 */
+	uint32_t descriptor_identifier;
+
+	/* The root data identifier
+	 */
+	uint64_t root_data_identifier;
+
+	/* Value to indicate if the local descriptors were recovered
+	 */
+	uint8_t recovered;
+
+	/* Recovered value index
+	 */
+	int recovered_value_index;
+
 	/* The tree
 	 */
 	libfdata_tree_t *tree;
@@ -48,6 +72,12 @@ struct libpff_local_descriptors_tree
 
 int libpff_local_descriptors_tree_initialize(
      libpff_local_descriptors_tree_t **local_descriptors_tree,
+     libpff_io_handle_t *io_handle,
+     libpff_offsets_index_t *offsets_index,
+     uint32_t descriptor_identifier,
+     uint64_t root_data_identifier,
+     uint8_t recovered,
+     int recovered_value_index,
      libcerror_error_t **error );
 
 int libpff_local_descriptors_tree_free(

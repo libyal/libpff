@@ -285,8 +285,8 @@ int pff_test_local_descriptors_initialize(
 
 	/* Clean up
 	 */
-	result = libpff_io_handle_free(
-	          &io_handle,
+	result = libpff_offsets_index_free(
+	          &offsets_index,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -295,8 +295,8 @@ int pff_test_local_descriptors_initialize(
 	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
+	 "offsets_index",
+	 offsets_index );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",

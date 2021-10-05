@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #endif
 
+#include "pff_test_functions.h"
+#include "pff_test_libbfio.h"
 #include "pff_test_libcerror.h"
 #include "pff_test_libpff.h"
 #include "pff_test_macros.h"
@@ -37,11 +39,13 @@
 #include "../libpff/libpff_io_handle.h"
 #include "../libpff/libpff_local_descriptor_node.h"
 
-uint8_t pff_test_local_descriptor_node_data[ 56 ] = {
-	0x02, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5f, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0xfc, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x7f, 0x80, 0x00, 0x00, 0x68, 0x00, 0x61, 0x00, 0xf6, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+uint8_t pff_test_local_descriptor_node_data[ 64 ] = {
+	0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x92, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x48, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	/* data block padding */
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	/* data block footer */
+	0x20, 0x00, 0x0e, 0x76, 0x62, 0x68, 0x10, 0xe6, 0x4e, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
@@ -333,7 +337,7 @@ int pff_test_local_descriptor_node_read_data(
 	          local_descriptor_node,
 	          io_handle,
 	          pff_test_local_descriptor_node_data,
-	          56,
+	          32,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -351,7 +355,7 @@ int pff_test_local_descriptor_node_read_data(
 	          NULL,
 	          io_handle,
 	          pff_test_local_descriptor_node_data,
-	          56,
+	          32,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -370,7 +374,7 @@ int pff_test_local_descriptor_node_read_data(
 	          local_descriptor_node,
 	          NULL,
 	          pff_test_local_descriptor_node_data,
-	          56,
+	          32,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -389,7 +393,7 @@ int pff_test_local_descriptor_node_read_data(
 	          local_descriptor_node,
 	          io_handle,
 	          NULL,
-	          56,
+	          32,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -488,6 +492,7 @@ on_error:
 int pff_test_local_descriptor_node_read_file_io_handle(
      void )
 {
+	libbfio_handle_t *file_io_handle                      = NULL;
 	libcerror_error_t *error                              = NULL;
 	libpff_io_handle_t *io_handle                         = NULL;
 	libpff_local_descriptor_node_t *local_descriptor_node = NULL;
@@ -531,16 +536,58 @@ int pff_test_local_descriptor_node_read_file_io_handle(
 	 "error",
 	 error );
 
+	/* Initialize file IO handle
+	 */
+	result = pff_test_open_file_io_handle(
+	          &file_io_handle,
+	          pff_test_local_descriptor_node_data,
+	          64,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_local_descriptor_node_read_file_io_handle(
+	          local_descriptor_node,
+	          io_handle,
+	          file_io_handle,
+	          0,
+	          0,
+	          0,
+	          32,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	/* Test error cases
 	 */
 	result = libpff_local_descriptor_node_read_file_io_handle(
 	          NULL,
-	          NULL,
-	          NULL,
+	          io_handle,
+	          file_io_handle,
 	          0,
 	          0,
 	          0,
-	          0,
+	          32,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -558,11 +605,11 @@ int pff_test_local_descriptor_node_read_file_io_handle(
 	result = libpff_local_descriptor_node_read_file_io_handle(
 	          local_descriptor_node,
 	          NULL,
-	          NULL,
+	          file_io_handle,
 	          0,
 	          0,
 	          0,
-	          0,
+	          32,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -576,6 +623,43 @@ int pff_test_local_descriptor_node_read_file_io_handle(
 
 	libcerror_error_free(
 	 &error );
+
+	result = libpff_local_descriptor_node_read_file_io_handle(
+	          local_descriptor_node,
+	          io_handle,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          32,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up file IO handle
+	 */
+	result = pff_test_close_file_io_handle(
+	          &file_io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Clean up
 	 */
@@ -620,6 +704,12 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
+	}
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
 	}
 	if( local_descriptor_node != NULL )
 	{
@@ -1012,8 +1102,6 @@ int main(
 	 "libpff_local_descriptor_node_read_file_io_handle",
 	 pff_test_local_descriptor_node_read_file_io_handle );
 
-	/* TODO: add tests for libpff_local_descriptor_node_read_element_data */
-
 #if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
 
 	/* Initialize test
@@ -1058,7 +1146,7 @@ int main(
 	          local_descriptor_node,
 	          io_handle,
 	          pff_test_local_descriptor_node_data,
-	          56,
+	          32,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(

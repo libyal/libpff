@@ -33,7 +33,9 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
+#include "../libpff/libpff_io_handle.h"
 #include "../libpff/libpff_local_descriptors_tree.h"
+#include "../libpff/libpff_offsets_index.h"
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
@@ -43,20 +45,67 @@
 int pff_test_local_descriptors_tree_initialize(
      void )
 {
-	libcerror_error_t *error        = NULL;
-	libpff_local_descriptors_tree_t *local_descriptors_tree   = NULL;
-	int result                      = 0;
+	libcerror_error_t *error                                = NULL;
+	libpff_io_handle_t *io_handle                           = NULL;
+	libpff_local_descriptors_tree_t *local_descriptors_tree = NULL;
+	libpff_offsets_index_t *offsets_index                   = NULL;
+	int result                                              = 0;
 
 #if defined( HAVE_PFF_TEST_MEMORY )
-	int number_of_malloc_fail_tests = 1;
-	int number_of_memset_fail_tests = 1;
-	int test_number                 = 0;
+	int number_of_malloc_fail_tests                         = 1;
+	int number_of_memset_fail_tests                         = 1;
+	int test_number                                         = 0;
 #endif
+
+	/* Initialize test
+	 */
+	result = libpff_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_offsets_index_initialize(
+	          &offsets_index,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "offsets_index",
+	 offsets_index );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test regular cases
 	 */
 	result = libpff_local_descriptors_tree_initialize(
 	          &local_descriptors_tree,
+	          io_handle,
+	          offsets_index,
+	          0,
+	          0,
+	          0,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -93,6 +142,12 @@ int pff_test_local_descriptors_tree_initialize(
 	 */
 	result = libpff_local_descriptors_tree_initialize(
 	          NULL,
+	          io_handle,
+	          offsets_index,
+	          0,
+	          0,
+	          0,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -111,6 +166,12 @@ int pff_test_local_descriptors_tree_initialize(
 
 	result = libpff_local_descriptors_tree_initialize(
 	          &local_descriptors_tree,
+	          io_handle,
+	          offsets_index,
+	          0,
+	          0,
+	          0,
+	          0,
 	          &error );
 
 	local_descriptors_tree = NULL;
@@ -139,6 +200,12 @@ int pff_test_local_descriptors_tree_initialize(
 
 		result = libpff_local_descriptors_tree_initialize(
 		          &local_descriptors_tree,
+		          io_handle,
+		          offsets_index,
+		          0,
+		          0,
+		          0,
+		          0,
 		          &error );
 
 		if( pff_test_malloc_attempts_before_fail != -1 )
@@ -181,6 +248,12 @@ int pff_test_local_descriptors_tree_initialize(
 
 		result = libpff_local_descriptors_tree_initialize(
 		          &local_descriptors_tree,
+		          io_handle,
+		          offsets_index,
+		          0,
+		          0,
+		          0,
+		          0,
 		          &error );
 
 		if( pff_test_memset_attempts_before_fail != -1 )
@@ -215,6 +288,42 @@ int pff_test_local_descriptors_tree_initialize(
 	}
 #endif /* defined( HAVE_PFF_TEST_MEMORY ) */
 
+	/* Clean up
+	 */
+	result = libpff_offsets_index_free(
+	          &offsets_index,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "offsets_index",
+	 offsets_index );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	return( 1 );
 
 on_error:
@@ -227,6 +336,18 @@ on_error:
 	{
 		libpff_local_descriptors_tree_free(
 		 &local_descriptors_tree,
+		 NULL );
+	}
+	if( offsets_index != NULL )
+	{
+		libpff_offsets_index_free(
+		 &offsets_index,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libpff_io_handle_free(
+		 &io_handle,
 		 NULL );
 	}
 	return( 0 );

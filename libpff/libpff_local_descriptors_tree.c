@@ -41,6 +41,12 @@
  */
 int libpff_local_descriptors_tree_initialize(
      libpff_local_descriptors_tree_t **local_descriptors_tree,
+     libpff_io_handle_t *io_handle,
+     libpff_offsets_index_t *offsets_index,
+     uint32_t descriptor_identifier,
+     uint64_t root_data_identifier,
+     uint8_t recovered,
+     int recovered_value_index,
      libcerror_error_t **error )
 {
 	static char *function = "libpff_local_descriptors_tree_initialize";
@@ -95,6 +101,13 @@ int libpff_local_descriptors_tree_initialize(
 
 		goto on_error;
 	}
+	( *local_descriptors_tree )->io_handle             = io_handle;
+	( *local_descriptors_tree )->offsets_index         = offsets_index;
+	( *local_descriptors_tree )->descriptor_identifier = descriptor_identifier;
+	( *local_descriptors_tree )->root_data_identifier  = root_data_identifier;
+	( *local_descriptors_tree )->recovered             = recovered;
+	( *local_descriptors_tree )->recovered_value_index = recovered_value_index;
+
 	return( 1 );
 
 on_error:
@@ -196,6 +209,12 @@ int libpff_local_descriptors_tree_clone(
 	}
 	if( libpff_local_descriptors_tree_initialize(
 	     destination_local_descriptors_tree,
+	     source_local_descriptors_tree->io_handle,
+	     source_local_descriptors_tree->offsets_index,
+	     source_local_descriptors_tree->descriptor_identifier,
+	     source_local_descriptors_tree->root_data_identifier,
+	     source_local_descriptors_tree->recovered,
+	     source_local_descriptors_tree->recovered_value_index,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -774,6 +793,12 @@ int libpff_local_descriptors_tree_read(
 	}
 	if( libpff_local_descriptors_tree_initialize(
 	     local_descriptors_tree,
+	     io_handle,
+	     offsets_index,
+	     descriptor_identifier,
+	     data_identifier,
+	     recovered,
+	     recovered_value_index,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

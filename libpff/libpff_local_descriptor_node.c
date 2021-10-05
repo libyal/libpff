@@ -30,9 +30,7 @@
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
 #include "libpff_local_descriptor_node.h"
-#include "libpff_unused.h"
 
 #include "pff_local_descriptor_node.h"
 
@@ -919,114 +917,6 @@ on_error:
 	{
 		libpff_data_block_free(
 		 &data_block,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Reads a local descriptor node
- * Callback for the local descriptor nodes list
- * Returns 1 if successful or -1 on error
- */
-int libpff_local_descriptor_node_read_element_data(
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     libfdata_list_element_t *list_element,
-     libfdata_cache_t *cache,
-     int data_range_file_index LIBPFF_ATTRIBUTE_UNUSED,
-     off64_t data_range_offset,
-     size64_t data_range_size,
-     uint32_t data_range_flags LIBPFF_ATTRIBUTE_UNUSED,
-     uint8_t read_flags LIBPFF_ATTRIBUTE_UNUSED,
-     libcerror_error_t **error )
-{
-	libpff_local_descriptor_node_t *local_descriptor_node = NULL;
-	static char *function                                 = "libpff_local_descriptor_node_read_element_data";
-
-	LIBPFF_UNREFERENCED_PARAMETER( data_range_file_index )
-	LIBPFF_UNREFERENCED_PARAMETER( data_range_flags )
-	LIBPFF_UNREFERENCED_PARAMETER( read_flags )
-
-	if( io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_range_size > (size64_t) UINT32_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: data range size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( libpff_local_descriptor_node_initialize(
-	     &local_descriptor_node,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create local descriptor node.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_local_descriptor_node_read_file_io_handle(
-	     local_descriptor_node,
-	     io_handle,
-	     file_io_handle,
-	     0,
-	     0,
-	     data_range_offset,
-	     (size32_t) data_range_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read local descriptor node at offset: 0x%08" PRIx64 ".",
-		 function,
-		 data_range_offset );
-
-		goto on_error;
-	}
-	if( libfdata_list_element_set_element_value(
-	     list_element,
-	     (intptr_t *) file_io_handle,
-	     cache,
-	     (intptr_t *) local_descriptor_node,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_local_descriptor_node_free,
-	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_MANAGED,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set local descriptor node as element value.",
-		 function );
-
-		goto on_error;
-	}
-	return( 1 );
-
-on_error:
-	if( local_descriptor_node != NULL )
-	{
-		libpff_local_descriptor_node_free(
-		 &local_descriptor_node,
 		 NULL );
 	}
 	return( -1 );

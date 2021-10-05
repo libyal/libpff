@@ -1,6 +1,7 @@
 TODO
 libpff - clean up and refactoring
 * remove libfdata_tree
+** replace libpff_local_descriptors_read_local_descriptor_node by libpff_local_descriptors_tree_read_node
 * libpff_table
   - move table header read functions into table header source file
   - move column definition read functions into column definition source file

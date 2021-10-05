@@ -295,30 +295,6 @@ int libpff_local_descriptors_read_local_descriptor_node(
 
 		return( -1 );
 	}
-	if( local_descriptors->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid local descriptors - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_32BIT )
-	 && ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT )
-	 && ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported file type.",
-		 function );
-
-		return( -1 );
-	}
 	if( local_descriptor_node == NULL )
 	{
 		libcerror_error_set(

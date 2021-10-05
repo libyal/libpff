@@ -29,7 +29,6 @@
 
 #include "pff_test_libcerror.h"
 #include "pff_test_libfcache.h"
-#include "pff_test_libfdata.h"
 #include "pff_test_libpff.h"
 #include "pff_test_macros.h"
 #include "pff_test_memory.h"
@@ -37,6 +36,7 @@
 
 #include "../libpff/libpff_data_block.h"
 #include "../libpff/libpff_io_handle.h"
+#include "../libpff/libpff_local_descriptors_tree.h"
 #include "../libpff/libpff_table.h"
 #include "../libpff/libpff_table_block_index.h"
 
@@ -1357,7 +1357,7 @@ int pff_test_table_read(
 	libcerror_error_free(
 	 &error );
 
-	table->local_descriptors_tree = (libfdata_tree_t *) 0x12345678UL;
+	table->local_descriptors_tree = (libpff_local_descriptors_tree_t *) 0x12345678UL;
 
 	result = libpff_table_read(
 	          table,
