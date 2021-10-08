@@ -142,6 +142,25 @@ const char *libpff_debug_get_name_to_id_map_property_type_description(
 	return( "UNKNOWN" );
 }
 
+/* Retrieves a string containing the encryption type
+ */
+const char *libpff_debug_get_encryption_type(
+             uint8_t encryption_type )
+{
+	switch( encryption_type )
+	{
+		case LIBPFF_ENCRYPTION_TYPE_NONE:
+			return( "None" );
+
+		case LIBPFF_ENCRYPTION_TYPE_COMPRESSIBLE:
+			return( "Compressible" );
+
+		case LIBPFF_ENCRYPTION_TYPE_HIGH:
+			return( "High" );
+	}
+	return( "UNKNOWN" );
+}
+
 /* Retrieves a string containing the node identifier type
  */
 const char *libpff_debug_get_node_identifier_type(

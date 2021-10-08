@@ -27,6 +27,7 @@ MSVSCPP_FILES = \
 	pff_test_data_block/pff_test_data_block.vcproj \
 	pff_test_deflate/pff_test_deflate.vcproj \
 	pff_test_descriptors_index/pff_test_descriptors_index.vcproj \
+	pff_test_encryption/pff_test_encryption.vcproj \
 	pff_test_error/pff_test_error.vcproj \
 	pff_test_file/pff_test_file.vcproj \
 	pff_test_file_header/pff_test_file_header.vcproj \

@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libpff_debug.h"
 #include "libpff_definitions.h"
 #include "libpff_file_header.h"
 #include "libpff_io_handle.h"
@@ -792,9 +793,11 @@ int libpff_file_header_read_data(
 		 sentinel );
 
 		libcnotify_printf(
-		 "%s: encryption type\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: encryption type\t\t\t\t: 0x%02" PRIx8 " (%s)\n",
 		 function,
-		 file_header->encryption_type );
+		 file_header->encryption_type,
+		 libpff_debug_get_encryption_type(
+		  file_header->encryption_type ) );
 
 		if( file_header->file_type == LIBPFF_FILE_TYPE_32BIT )
 		{

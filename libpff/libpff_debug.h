@@ -53,6 +53,9 @@ const char *libpff_debug_get_name_to_id_map_property_type_description(
              uint32_t entry_type,
              uint32_t value_type );
 
+const char *libpff_debug_get_encryption_type(
+             uint8_t encryption_type );
+
 const char *libpff_debug_get_node_identifier_type(
              uint8_t node_identifier_type );
 
