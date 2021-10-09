@@ -346,10 +346,48 @@ int pff_test_encryption_decrypt(
 	/* Test error cases
 	 */
 	result = libpff_encryption_decrypt(
+	          -1,
+	          0,
+	          data,
+	          2984,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_SSIZE(
+	 "result",
+	 result,
+	 (ssize_t) -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_encryption_decrypt(
 	          LIBPFF_ENCRYPTION_TYPE_COMPRESSIBLE,
 	          0,
 	          NULL,
 	          2984,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_SSIZE(
+	 "result",
+	 result,
+	 (ssize_t) -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_encryption_decrypt(
+	          LIBPFF_ENCRYPTION_TYPE_COMPRESSIBLE,
+	          0,
+	          data,
+	          (size_t) SSIZE_MAX + 1,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_SSIZE(

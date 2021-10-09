@@ -527,7 +527,10 @@ pff_test_local_descriptors_LDADD = \
 	@LIBCERROR_LIBADD@
 
 pff_test_local_descriptors_tree_SOURCES = \
+	pff_test_functions.c pff_test_functions.h \
+	pff_test_libbfio.h \
 	pff_test_libcerror.h \
+	pff_test_libfdata.h \
 	pff_test_libpff.h \
 	pff_test_local_descriptors_tree.c \
 	pff_test_macros.h \
@@ -535,6 +538,14 @@ pff_test_local_descriptors_tree_SOURCES = \
 	pff_test_unused.h
 
 pff_test_local_descriptors_tree_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 

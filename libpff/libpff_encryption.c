@@ -35,7 +35,7 @@
 
 /* For compressible encryption
  */
-static uint8_t libpff_encryption_compressible[] = {
+static uint8_t libpff_encryption_compressible[ 256 ] = {
 	0x47, 0xf1, 0xb4, 0xe6, 0x0b, 0x6a, 0x72, 0x48, 0x85, 0x4e, 0x9e, 0xeb, 0xe2, 0xf8, 0x94, 0x53,
 	0xe0, 0xbb, 0xa0, 0x02, 0xe8, 0x5a, 0x09, 0xab, 0xdb, 0xe3, 0xba, 0xc6, 0x7c, 0xc3, 0x10, 0xdd,
 	0x39, 0x05, 0x96, 0x30, 0xf5, 0x37, 0x60, 0x82, 0x8c, 0xc9, 0x13, 0x4a, 0x6b, 0x1d, 0xf3, 0xfb,
@@ -56,7 +56,7 @@ static uint8_t libpff_encryption_compressible[] = {
 
 /* For high encryption
  */
-static uint8_t libpff_encryption_high1[] = {
+static uint8_t libpff_encryption_high1[ 256 ] = {
 	0x41, 0x36, 0x13, 0x62, 0xa8, 0x21, 0x6e, 0xbb, 0xf4, 0x16, 0xcc, 0x04, 0x7f, 0x64, 0xe8, 0x5d,
 	0x1e, 0xf2, 0xcb, 0x2a, 0x74, 0xc5, 0x5e, 0x35, 0xd2, 0x95, 0x47, 0x9e, 0x96, 0x2d, 0x9a, 0x88,
 	0x4c, 0x7d, 0x84, 0x3f, 0xdb, 0xac, 0x31, 0xb6, 0x48, 0x5f, 0xf6, 0xc4, 0xd8, 0x39, 0x8b, 0xe7,
@@ -75,7 +75,7 @@ static uint8_t libpff_encryption_high1[] = {
 	0xa2, 0x01, 0xf7, 0x2e, 0xbc, 0x24, 0x68, 0x75, 0x0d, 0xfe, 0xba, 0x2f, 0xb5, 0xd0, 0xda, 0x3d
 };
 
-static uint8_t libpff_encryption_high2[] = {
+static uint8_t libpff_encryption_high2[ 256 ] = {
 	0x14, 0x53, 0x0f, 0x56, 0xb3, 0xc8, 0x7a, 0x9c, 0xeb, 0x65, 0x48, 0x17, 0x16, 0x15, 0x9f, 0x02,
 	0xcc, 0x54, 0x7c, 0x83, 0x00, 0x0d, 0x0c, 0x0b, 0xa2, 0x62, 0xa8, 0x76, 0xdb, 0xd9, 0xed, 0xc7,
 	0xc5, 0xa4, 0xdc, 0xac, 0x85, 0x74, 0xd6, 0xd0, 0xa7, 0x9b, 0xae, 0x9a, 0x96, 0x71, 0x66, 0xc3,
@@ -101,11 +101,11 @@ ssize_t libpff_encryption_decrypt(
          uint8_t encryption_type,
          uint32_t key,
          uint8_t *data,
-         size_t size,
+         size_t data_size,
          libcerror_error_t **error )
 {
 	static char *function = "libpff_encryption_decrypt";
-	size_t iterator       = 0;
+	size_t data_offset    = 0;
 	uint16_t salt         = 0;
 	uint8_t index         = 0;
 	uint8_t upper_salt    = 0;
@@ -135,50 +135,54 @@ ssize_t libpff_encryption_decrypt(
 
 		return( -1 );
 	}
-	if( size > (size_t) SSIZE_MAX )
+	if( data_size > (size_t) SSIZE_MAX )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid size value exceeds maximum.",
+		 "%s: invalid data size value exceeds maximum.",
 		 function );
 
 		return( -1 );
 	}
 	if( encryption_type == LIBPFF_ENCRYPTION_TYPE_COMPRESSIBLE )
 	{
-		for( iterator = 0; iterator < size; iterator++ )
+		for( data_offset = 0;
+		     data_offset < data_size;
+		     data_offset++ )
 		{
-			index            = data[ iterator ];
-			data[ iterator ] = libpff_encryption_compressible[ index ];
+			index               = data[ data_offset ];
+			data[ data_offset ] = libpff_encryption_compressible[ index ];
 		}
 	}
 	else if( encryption_type == LIBPFF_ENCRYPTION_TYPE_NONE )
 	{
-		iterator = size;
+		data_offset = data_size;
 	}
 	else if( encryption_type == LIBPFF_ENCRYPTION_TYPE_HIGH )
 	{
 		salt = (uint16_t) ( ( ( key & 0xffff0000 ) >> 16 ) ^ ( key & 0x0000ffff ) );
 
-		for( iterator = 0; iterator < size; iterator++ )
+		for( data_offset = 0;
+		     data_offset < data_size;
+		     data_offset++ )
 		{
-			lower_salt       = salt & 0x00ff;
-			upper_salt       = ( salt & 0xff00 ) >> 8;
-			index            =  data[ iterator ];
-			index           += lower_salt;
-			index            = libpff_encryption_high1[ index ];
-			index           += upper_salt;
-			index            = libpff_encryption_high2[ index ];
-			index           -= upper_salt;
-			index            = libpff_encryption_compressible[ index ];
-			index           -= lower_salt;
-			data[ iterator ] = index;
+			lower_salt          = salt & 0x00ff;
+			upper_salt          = ( salt & 0xff00 ) >> 8;
+			index               = data[ data_offset ];
+			index              += lower_salt;
+			index               = libpff_encryption_high1[ index ];
+			index              += upper_salt;
+			index               = libpff_encryption_high2[ index ];
+			index              -= upper_salt;
+			index               = libpff_encryption_compressible[ index ];
+			index              -= lower_salt;
+			data[ data_offset ] = index;
 
 			salt++;
 		}
 	}
-	return( (ssize_t) iterator );
+	return( (ssize_t) data_offset );
 }
 
