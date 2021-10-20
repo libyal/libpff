@@ -586,18 +586,18 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_record_entry_get_entry_type(
-     void )
+     libpff_record_entry_t *record_entry )
 {
-	libcerror_error_t *error            = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	uint32_t entry_type                 = 0;
-	int result                          = 0;
+	libcerror_error_t *error = NULL;
+	uint32_t entry_type      = 0;
+	int result               = 0;
 
-	/* Initialize test
+	/* Test regular cases
 	 */
-	result = libpff_record_entry_initialize(
-	          &record_entry,
-	          LIBPFF_CODEPAGE_WINDOWS_1251,
+/* TODO
+	result = libpff_record_entry_get_entry_type(
+	          record_entry,
+	          &entry_type,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -605,13 +605,10 @@ int pff_test_record_entry_get_entry_type(
 	 result,
 	 1 );
 
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "record_entry",
-	 record_entry );
-
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
+*/
 
 	/* Test error cases
 	 */
@@ -649,25 +646,6 @@ int pff_test_record_entry_get_entry_type(
 	libcerror_error_free(
 	 &error );
 
-	/* Clean up
-	 */
-	result = libpff_internal_record_entry_free(
-	          (libpff_internal_record_entry_t **) &record_entry,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -675,12 +653,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( record_entry != NULL )
-	{
-		libpff_internal_record_entry_free(
-		 (libpff_internal_record_entry_t **) &record_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -2992,6 +2964,16 @@ int main(
      char * const argv[] PFF_TEST_ATTRIBUTE_UNUSED )
 #endif
 {
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	int result                          = 0;
+
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
+
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
@@ -3018,8 +3000,37 @@ int main(
 	 pff_test_record_entry_clone );
 
 	PFF_TEST_RUN(
+	 "libpff_record_entry_set_value_data",
+	 pff_test_record_entry_set_value_data );
+
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
+	/* Initialize test
+	 */
+	result = libpff_record_entry_initialize(
+	          &record_entry,
+	          LIBPFF_CODEPAGE_WINDOWS_1251,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "record_entry",
+	 record_entry );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_record_entry_get_entry_type",
-	 pff_test_record_entry_get_entry_type );
+	 pff_test_record_entry_get_entry_type,
+	 record_entry );
+
+/* TODO use PFF_TEST_RUN_WITH_ARGS */
 
 	PFF_TEST_RUN(
 	 "libpff_record_entry_get_value_type",
@@ -3036,10 +3047,6 @@ int main(
 	PFF_TEST_RUN(
 	 "libpff_record_entry_get_value_data",
 	 pff_test_record_entry_get_value_data );
-
-	PFF_TEST_RUN(
-	 "libpff_record_entry_set_value_data",
-	 pff_test_record_entry_set_value_data );
 
 	/* TODO: add tests for libpff_record_entry_set_value_data_from_list */
 
@@ -3125,11 +3132,49 @@ int main(
 
 	/* TODO: add tests for libpff_record_entry_get_multi_value */
 
+	/* Clean up
+	 */
+	result = libpff_internal_record_entry_free(
+	          (libpff_internal_record_entry_t **) &record_entry,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "record_entry",
+	 record_entry );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
 on_error:
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_internal_record_entry_free(
+		 (libpff_internal_record_entry_t **) &record_entry,
+		 NULL );
+	}
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 }
 
