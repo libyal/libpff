@@ -594,7 +594,7 @@ int pff_test_record_entry_get_entry_type(
 
 	/* Test regular cases
 	 */
-/* TODO
+/* TODO add test that returns entry type */
 	result = libpff_record_entry_get_entry_type(
 	          record_entry,
 	          &entry_type,
@@ -603,12 +603,11 @@ int pff_test_record_entry_get_entry_type(
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 1 );
+	 0 );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-*/
 
 	/* Test error cases
 	 */
@@ -956,7 +955,20 @@ int pff_test_record_entry_set_value_data(
 
 	/* Test regular cases
 	 */
-/* TODO implement */
+	result = libpff_record_entry_set_value_data(
+	          record_entry,
+	          (uint8_t *) "test value",
+	          11,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -2496,6 +2508,21 @@ int main(
 	PFF_TEST_ASSERT_IS_NOT_NULL(
 	 "record_entry",
 	 record_entry );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_record_entry_set_value_data(
+	          record_entry,
+	          (uint8_t *) "test value",
+	          11,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
 
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
