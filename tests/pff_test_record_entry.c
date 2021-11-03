@@ -1642,32 +1642,11 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_record_entry_get_data_as_utf8_string_size_with_codepage(
-     void )
+     libpff_record_entry_t *record_entry )
 {
-	libcerror_error_t *error            = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	size_t utf8_string_size             = 0;
-	int result                          = 0;
-
-	/* Initialize test
-	 */
-	result = libpff_record_entry_initialize(
-	          &record_entry,
-	          LIBPFF_CODEPAGE_WINDOWS_1251,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+	libcerror_error_t *error = NULL;
+	size_t utf8_string_size  = 0;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
@@ -1711,25 +1690,6 @@ int pff_test_record_entry_get_data_as_utf8_string_size_with_codepage(
 	libcerror_error_free(
 	 &error );
 
-	/* Clean up
-	 */
-	result = libpff_internal_record_entry_free(
-	          (libpff_internal_record_entry_t **) &record_entry,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -1738,12 +1698,6 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( record_entry != NULL )
-	{
-		libpff_internal_record_entry_free(
-		 (libpff_internal_record_entry_t **) &record_entry,
-		 NULL );
-	}
 	return( 0 );
 }
 
@@ -1751,32 +1705,15 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_record_entry_get_data_as_utf8_string_size(
-     void )
+     libpff_record_entry_t *record_entry )
 {
-	libcerror_error_t *error            = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	size_t utf8_string_size             = 0;
-	int result                          = 0;
+	libcerror_error_t *error = NULL;
+	size_t utf8_string_size  = 0;
+	int result               = 0;
 
-	/* Initialize test
+	/* Test regular cases
 	 */
-	result = libpff_record_entry_initialize(
-	          &record_entry,
-	          LIBPFF_CODEPAGE_WINDOWS_1251,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+/* TODO implement */
 
 	/* Test error cases
 	 */
@@ -1814,25 +1751,6 @@ int pff_test_record_entry_get_data_as_utf8_string_size(
 	libcerror_error_free(
 	 &error );
 
-	/* Clean up
-	 */
-	result = libpff_internal_record_entry_free(
-	          (libpff_internal_record_entry_t **) &record_entry,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -1840,12 +1758,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( record_entry != NULL )
-	{
-		libpff_internal_record_entry_free(
-		 (libpff_internal_record_entry_t **) &record_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -1854,33 +1766,16 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_record_entry_get_data_as_utf8_string(
-     void )
+     libpff_record_entry_t *record_entry )
 {
 	uint8_t utf8_string[ 32 ];
 
-	libcerror_error_t *error            = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	int result                          = 0;
+	libcerror_error_t *error = NULL;
+	int result               = 0;
 
-	/* Initialize test
+	/* Test regular cases
 	 */
-	result = libpff_record_entry_initialize(
-	          &record_entry,
-	          LIBPFF_CODEPAGE_WINDOWS_1251,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+/* TODO implement */
 
 	/* Test error cases
 	 */
@@ -1938,25 +1833,6 @@ int pff_test_record_entry_get_data_as_utf8_string(
 	libcerror_error_free(
 	 &error );
 
-	/* Clean up
-	 */
-	result = libpff_internal_record_entry_free(
-	          (libpff_internal_record_entry_t **) &record_entry,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -1964,12 +1840,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( record_entry != NULL )
-	{
-		libpff_internal_record_entry_free(
-		 (libpff_internal_record_entry_t **) &record_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -1978,32 +1848,15 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_record_entry_get_data_as_utf16_string_size_with_codepage(
-     void )
+     libpff_record_entry_t *record_entry )
 {
-	libcerror_error_t *error            = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	size_t utf16_string_size            = 0;
-	int result                          = 0;
+	libcerror_error_t *error = NULL;
+	size_t utf16_string_size = 0;
+	int result               = 0;
 
-	/* Initialize test
+	/* Test regular cases
 	 */
-	result = libpff_record_entry_initialize(
-	          &record_entry,
-	          LIBPFF_CODEPAGE_WINDOWS_1251,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+/* TODO implement */
 
 	/* Test error cases
 	 */
@@ -2043,25 +1896,6 @@ int pff_test_record_entry_get_data_as_utf16_string_size_with_codepage(
 	libcerror_error_free(
 	 &error );
 
-	/* Clean up
-	 */
-	result = libpff_internal_record_entry_free(
-	          (libpff_internal_record_entry_t **) &record_entry,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -2069,12 +1903,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( record_entry != NULL )
-	{
-		libpff_internal_record_entry_free(
-		 (libpff_internal_record_entry_t **) &record_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -2083,32 +1911,15 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_record_entry_get_data_as_utf16_string_size(
-     void )
+     libpff_record_entry_t *record_entry )
 {
-	libcerror_error_t *error            = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	size_t utf16_string_size            = 0;
-	int result                          = 0;
+	libcerror_error_t *error = NULL;
+	size_t utf16_string_size = 0;
+	int result               = 0;
 
-	/* Initialize test
+	/* Test regular cases
 	 */
-	result = libpff_record_entry_initialize(
-	          &record_entry,
-	          LIBPFF_CODEPAGE_WINDOWS_1251,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+/* TODO implement */
 
 	/* Test error cases
 	 */
@@ -2146,25 +1957,6 @@ int pff_test_record_entry_get_data_as_utf16_string_size(
 	libcerror_error_free(
 	 &error );
 
-	/* Clean up
-	 */
-	result = libpff_internal_record_entry_free(
-	          (libpff_internal_record_entry_t **) &record_entry,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -2172,12 +1964,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( record_entry != NULL )
-	{
-		libpff_internal_record_entry_free(
-		 (libpff_internal_record_entry_t **) &record_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -2186,33 +1972,16 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_record_entry_get_data_as_utf16_string(
-     void )
+     libpff_record_entry_t *record_entry )
 {
 	uint16_t utf16_string[ 32 ];
 
-	libcerror_error_t *error            = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	int result                          = 0;
+	libcerror_error_t *error = NULL;
+	int result               = 0;
 
-	/* Initialize test
+	/* Test regular cases
 	 */
-	result = libpff_record_entry_initialize(
-	          &record_entry,
-	          LIBPFF_CODEPAGE_WINDOWS_1251,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+/* TODO implement */
 
 	/* Test error cases
 	 */
@@ -2270,25 +2039,6 @@ int pff_test_record_entry_get_data_as_utf16_string(
 	libcerror_error_free(
 	 &error );
 
-	/* Clean up
-	 */
-	result = libpff_internal_record_entry_free(
-	          (libpff_internal_record_entry_t **) &record_entry,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -2296,12 +2046,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( record_entry != NULL )
-	{
-		libpff_internal_record_entry_free(
-		 (libpff_internal_record_entry_t **) &record_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -2310,33 +2054,16 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int pff_test_record_entry_get_data_as_guid(
-     void )
+     libpff_record_entry_t *record_entry )
 {
 	uint8_t guid_data[ 16 ];
 
-	libcerror_error_t *error            = NULL;
-	libpff_record_entry_t *record_entry = NULL;
-	int result                          = 0;
+	libcerror_error_t *error = NULL;
+	int result               = 0;
 
-	/* Initialize test
+	/* Test regular cases
 	 */
-	result = libpff_record_entry_initialize(
-	          &record_entry,
-	          LIBPFF_CODEPAGE_WINDOWS_1251,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
+/* TODO implement */
 
 	/* Test error cases
 	 */
@@ -2394,25 +2121,6 @@ int pff_test_record_entry_get_data_as_guid(
 	libcerror_error_free(
 	 &error );
 
-	/* Clean up
-	 */
-	result = libpff_internal_record_entry_free(
-	          (libpff_internal_record_entry_t **) &record_entry,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "record_entry",
-	 record_entry );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -2420,12 +2128,6 @@ on_error:
 	{
 		libcerror_error_free(
 		 &error );
-	}
-	if( record_entry != NULL )
-	{
-		libpff_internal_record_entry_free(
-		 (libpff_internal_record_entry_t **) &record_entry,
-		 NULL );
 	}
 	return( 0 );
 }
@@ -2598,43 +2300,49 @@ int main(
 	 pff_test_record_entry_get_data_as_floating_point,
 	 record_entry );
 
-/* TODO use PFF_TEST_RUN_WITH_ARGS */
-
-	PFF_TEST_RUN(
+	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_record_entry_get_data_as_utf8_string_size_with_codepage",
-	 pff_test_record_entry_get_data_as_utf8_string_size_with_codepage );
+	 pff_test_record_entry_get_data_as_utf8_string_size_with_codepage,
+	 record_entry );
 
 	/* TODO: add tests for libpff_record_entry_get_data_as_utf8_string_with_codepage */
 
 	/* TODO: add tests for libpff_record_entry_compare_value_with_utf8_string_with_codepage */
 
-	PFF_TEST_RUN(
+	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_record_entry_get_data_as_utf8_string_size",
-	 pff_test_record_entry_get_data_as_utf8_string_size );
+	 pff_test_record_entry_get_data_as_utf8_string_size,
+	 record_entry );
 
-	PFF_TEST_RUN(
+	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_record_entry_get_data_as_utf8_string",
-	 pff_test_record_entry_get_data_as_utf8_string );
+	 pff_test_record_entry_get_data_as_utf8_string,
+	 record_entry );
 
-	PFF_TEST_RUN(
+	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_record_entry_get_data_as_utf16_string_size_with_codepage",
-	 pff_test_record_entry_get_data_as_utf16_string_size_with_codepage );
+	 pff_test_record_entry_get_data_as_utf16_string_size_with_codepage,
+	 record_entry );
 
 	/* TODO: add tests for libpff_record_entry_get_data_as_utf16_string_with_codepage */
 
 	/* TODO: add tests for libpff_record_entry_compare_value_with_utf16_string_with_codepage */
 
-	PFF_TEST_RUN(
+	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_record_entry_get_data_as_utf16_string_size",
-	 pff_test_record_entry_get_data_as_utf16_string_size );
+	 pff_test_record_entry_get_data_as_utf16_string_size,
+	 record_entry );
 
-	PFF_TEST_RUN(
+	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_record_entry_get_data_as_utf16_string",
-	 pff_test_record_entry_get_data_as_utf16_string );
+	 pff_test_record_entry_get_data_as_utf16_string,
+	 record_entry );
 
-	PFF_TEST_RUN(
+
+	PFF_TEST_RUN_WITH_ARGS(
 	 "libpff_record_entry_get_data_as_guid",
-	 pff_test_record_entry_get_data_as_guid );
+	 pff_test_record_entry_get_data_as_guid,
+	 record_entry );
 
 	/* TODO: add tests for libpff_record_entry_copy_object_identifier */
 
