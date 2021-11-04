@@ -33,6 +33,8 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
+#include "../libpff/libpff_definitions.h"
+#include "../libpff/libpff_mapi.h"
 #include "../libpff/libpff_record_set.h"
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
@@ -864,6 +866,73 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_record_set_get_entry_by_type function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_record_set_get_entry_by_type(
+     libpff_record_set_t *record_set )
+{
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	int result                          = 0;
+
+	/* Test regular cases
+	 */
+/* TODO implement */
+
+	/* Test error cases
+	 */
+	result = libpff_record_set_get_entry_by_type(
+	          NULL,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CLASS,
+	          LIBPFF_VALUE_TYPE_STRING_UNICODE,
+	          &record_entry,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_record_set_get_entry_by_type(
+	          record_set,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_CLASS,
+	          LIBPFF_VALUE_TYPE_STRING_UNICODE,
+	          NULL,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -950,7 +1019,10 @@ int main(
 	 pff_test_record_set_get_entry_by_index,
 	 record_set );
 
-	/* TODO: add tests for libpff_record_set_get_entry_by_type */
+	PFF_TEST_RUN_WITH_ARGS(
+	 "libpff_record_set_get_entry_by_type",
+	 pff_test_record_set_get_entry_by_type,
+	 record_set );
 
 	/* TODO: add tests for libpff_record_set_get_entry_by_utf8_name */
 
