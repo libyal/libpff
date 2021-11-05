@@ -933,6 +933,146 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_record_set_get_entry_by_utf8_name function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_record_set_get_entry_by_utf8_name(
+     libpff_record_set_t *record_set )
+{
+	uint8_t utf8_name[ 5 ]              = { 'T', 'e', 's', 't', 0 };
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	int result                          = 0;
+
+	/* Test regular cases
+	 */
+/* TODO implement */
+
+	/* Test error cases
+	 */
+	result = libpff_record_set_get_entry_by_utf8_name(
+	          NULL,
+	          utf8_name,
+	          4,
+	          LIBPFF_VALUE_TYPE_STRING_UNICODE,
+	          &record_entry,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_record_set_get_entry_by_utf8_name(
+	          record_set,
+	          utf8_name,
+	          4,
+	          LIBPFF_VALUE_TYPE_STRING_UNICODE,
+	          NULL,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libpff_record_set_get_entry_by_utf16_name function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_record_set_get_entry_by_utf16_name(
+     libpff_record_set_t *record_set )
+{
+	uint16_t utf16_name[ 5 ]            = { 'T', 'e', 's', 't', 0 };
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	int result                          = 0;
+
+	/* Test regular cases
+	 */
+/* TODO implement */
+
+	/* Test error cases
+	 */
+	result = libpff_record_set_get_entry_by_utf16_name(
+	          NULL,
+	          utf16_name,
+	          4,
+	          LIBPFF_VALUE_TYPE_STRING_UNICODE,
+	          &record_entry,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_record_set_get_entry_by_utf16_name(
+	          record_set,
+	          utf16_name,
+	          4,
+	          LIBPFF_VALUE_TYPE_STRING_UNICODE,
+	          NULL,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -1024,9 +1164,15 @@ int main(
 	 pff_test_record_set_get_entry_by_type,
 	 record_set );
 
-	/* TODO: add tests for libpff_record_set_get_entry_by_utf8_name */
+	PFF_TEST_RUN_WITH_ARGS(
+	 "libpff_record_set_get_entry_by_utf8_name",
+	 pff_test_record_set_get_entry_by_utf8_name,
+	 record_set );
 
-	/* TODO: add tests for libpff_record_set_get_entry_by_utf16_name */
+	PFF_TEST_RUN_WITH_ARGS(
+	 "libpff_record_set_get_entry_by_utf16_name",
+	 pff_test_record_set_get_entry_by_utf16_name,
+	 record_set );
 
 	/* Clean up
 	 */
