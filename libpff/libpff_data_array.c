@@ -457,7 +457,8 @@ int libpff_data_array_read_entries(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	if( array_entries_level == 0 )
 	{
 		libcerror_error_set(

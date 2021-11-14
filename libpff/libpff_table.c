@@ -2698,7 +2698,7 @@ int libpff_table_read_descriptor_data_list(
 		     *descriptor_data_list,
 		     recovered,
 		     data_block->data,
-		     (size_t) offset_index_value->data_size,
+		     (size_t) data_block->uncompressed_data_size,
 		     &total_data_size,
 		     0,
 		     error ) != 1 )
