@@ -3012,6 +3012,8 @@ int libpff_table_read_index_entries(
 	 */
 	if( table_number_of_index_offsets > 0 )
 	{
+		table_index_offsets_data_size = (uint32_t) table_number_of_index_offsets * 2;
+
 		if( ( table_index_offsets_data_size > ( data_block->uncompressed_data_size - 4 ) )
 		 || ( (uint32_t) table_index_offset >= ( data_block->uncompressed_data_size - 4 - table_index_offsets_data_size ) ) )
 		{
