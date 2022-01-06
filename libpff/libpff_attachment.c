@@ -1,7 +1,7 @@
 /*
  * Attachment functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -147,7 +147,7 @@ int libpff_attachment_get_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve record entry: 0x%04 " PRIx32 ".",
+			 "%s: unable to retrieve record entry: 0x%04" PRIx32 ".",
 			 function,
 			 LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT );
 
@@ -814,7 +814,7 @@ int libpff_attachment_get_item(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x%04 " PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 ".",
 		 function,
 		 LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT );
 

@@ -1,7 +1,7 @@
 /*
  * Export handle
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -6143,7 +6143,7 @@ int export_handle_export_message_conversation_index_to_item_file(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x%04 " PRIx32 " 0x%04" PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 " 0x%04" PRIx32 ".",
 		 function,
 		 LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_INDEX,
 		 LIBPFF_VALUE_TYPE_BINARY_DATA );
