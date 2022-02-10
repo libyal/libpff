@@ -55,7 +55,7 @@ int libpff_attachment_get_type(
 	libpff_record_entry_t *record_entry   = NULL;
 	libpff_record_set_t *record_set       = NULL;
 	static char *function                 = "libpff_attachment_get_type";
-	uint32_t attachment_method            = 0;
+	uint32_t attachment_method            = LIBPFF_ATTACHMENT_TYPE_UNDEFINED;
 	uint32_t value_type                   = 0;
 
 	if( attachment == NULL )
@@ -97,7 +97,8 @@ int libpff_attachment_get_type(
 
 		goto on_error;
 	}
-	if( ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_VALUE )
+	if( ( attachment_method != LIBPFF_ATTACHMENT_METHOD_NONE )
+	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_VALUE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_REFERENCE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_EMBEDDED_MESSAGE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_OLE ) )
