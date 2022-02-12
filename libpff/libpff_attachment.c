@@ -97,7 +97,8 @@ int libpff_attachment_get_type(
 
 		goto on_error;
 	}
-	if( ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_VALUE )
+	if( ( attachment_method != LIBPFF_ATTACHMENT_METHOD_NONE )
+	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_VALUE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_REFERENCE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_EMBEDDED_MESSAGE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_OLE ) )
