@@ -29,17 +29,6 @@ Requires: libpff = %{version}-%{release}
 %description -n libpff-devel
 Header files and libraries for developing applications for libpff.
 
-%package -n libpff-python2
-Obsoletes: libpff-python < %{version}
-Provides: libpff-python = %{version}
-Summary: Python 2 bindings for libpff
-Group: System Environment/Libraries
-Requires: libpff = %{version}-%{release} python2
-BuildRequires: python2-devel
-
-%description -n libpff-python2
-Python 2 bindings for libpff
-
 %package -n libpff-python3
 Summary: Python 3 bindings for libpff
 Group: System Environment/Libraries
@@ -61,7 +50,7 @@ Several tools for reading Personal Folder Files (OST, PAB and PST)
 %setup -q
 
 %build
-%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python2 --enable-python3
+%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python3
 make %{?_smp_mflags}
 
 %install
@@ -96,14 +85,6 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/libpff.pc
 %{_includedir}/*
 %{_mandir}/man3/*
-
-%files -n libpff-python2
-%defattr(644,root,root,755)
-%license COPYING COPYING.LESSER
-%doc AUTHORS README
-%{_libdir}/python2*/site-packages/*.a
-%{_libdir}/python2*/site-packages/*.la
-%{_libdir}/python2*/site-packages/*.so
 
 %files -n libpff-python3
 %defattr(644,root,root,755)
