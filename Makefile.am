@@ -41,7 +41,6 @@ DPKG_FILES = \
 	dpkg/rules \
 	dpkg/libpff.install \
 	dpkg/libpff-dev.install \
-	dpkg/libpff-python.install \
 	dpkg/libpff-python3.install \
 	dpkg/libpff-tools.install \
 	dpkg/source/format
