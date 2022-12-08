@@ -20,6 +20,7 @@ MSVSCPP_FILES = \
 	pff_test_allocation_table/pff_test_allocation_table.vcproj \
 	pff_test_attached_file_io_handle/pff_test_attached_file_io_handle.vcproj \
 	pff_test_attachment/pff_test_attachment.vcproj \
+	pff_test_bit_stream/pff_test_bit_stream.vcproj \
 	pff_test_column_definition/pff_test_column_definition.vcproj \
 	pff_test_compression/pff_test_compression.vcproj \
 	pff_test_data_array/pff_test_data_array.vcproj \
@@ -33,6 +34,7 @@ MSVSCPP_FILES = \
 	pff_test_file_header/pff_test_file_header.vcproj \
 	pff_test_folder/pff_test_folder.vcproj \
 	pff_test_free_map/pff_test_free_map.vcproj \
+	pff_test_huffman_tree/pff_test_huffman_tree.vcproj \
 	pff_test_index/pff_test_index.vcproj \
 	pff_test_index_node/pff_test_index_node.vcproj \
 	pff_test_index_tree/pff_test_index_tree.vcproj \

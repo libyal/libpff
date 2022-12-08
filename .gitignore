@@ -133,6 +133,7 @@ stamp-h[1-9]
 /tests/pff_test_allocation_table
 /tests/pff_test_attached_file_io_handle
 /tests/pff_test_attachment
+/tests/pff_test_bit_stream
 /tests/pff_test_column_definition
 /tests/pff_test_compression
 /tests/pff_test_data_array
@@ -146,6 +147,7 @@ stamp-h[1-9]
 /tests/pff_test_file_header
 /tests/pff_test_folder
 /tests/pff_test_free_map
+/tests/pff_test_huffman_tree
 /tests/pff_test_index
 /tests/pff_test_index_node
 /tests/pff_test_index_tree

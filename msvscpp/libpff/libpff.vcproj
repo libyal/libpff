@@ -186,6 +186,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_bit_stream.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_column_definition.c"
 				>
 			</File>
@@ -243,6 +247,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_free_map.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_huffman_tree.c"
 				>
 			</File>
 			<File
@@ -384,6 +392,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_bit_stream.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_codepage.h"
 				>
 			</File>
@@ -453,6 +465,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_free_map.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_huffman_tree.h"
 				>
 			</File>
 			<File

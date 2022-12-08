@@ -28,6 +28,7 @@ libpff_la_SOURCES = \
 	libpff_allocation_table.c libpff_allocation_table.h \
 	libpff_attached_file_io_handle.c libpff_attached_file_io_handle.h \
 	libpff_attachment.c libpff_attachment.h \
+	libpff_bit_stream.c libpff_bit_stream.h \
 	libpff_codepage.h \
 	libpff_column_definition.c libpff_column_definition.h \
 	libpff_compression.c libpff_compression.h \
@@ -46,6 +47,7 @@ libpff_la_SOURCES = \
 	libpff_file_header.c libpff_file_header.h \
 	libpff_folder.c libpff_folder.h \
 	libpff_free_map.c libpff_free_map.h \
+	libpff_huffman_tree.c libpff_huffman_tree.h \
 	libpff_index.c libpff_index.h \
 	libpff_index_node.c libpff_index_node.h \
 	libpff_index_tree.c libpff_index_tree.h \

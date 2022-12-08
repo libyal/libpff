@@ -55,6 +55,7 @@ check_PROGRAMS = \
 	pff_test_allocation_table \
 	pff_test_attached_file_io_handle \
 	pff_test_attachment \
+	pff_test_bit_stream \
 	pff_test_column_definition \
 	pff_test_compression \
 	pff_test_data_array \
@@ -68,6 +69,7 @@ check_PROGRAMS = \
 	pff_test_file_header \
 	pff_test_folder \
 	pff_test_free_map \
+	pff_test_huffman_tree \
 	pff_test_index \
 	pff_test_index_node \
 	pff_test_index_value \
@@ -145,6 +147,18 @@ pff_test_attachment_SOURCES = \
 
 pff_test_attachment_LDADD = \
 	@LIBCDATA_LIBADD@ \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_bit_stream_SOURCES = \
+	pff_test_bit_stream.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_bit_stream_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
@@ -342,6 +356,18 @@ pff_test_free_map_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_huffman_tree_SOURCES = \
+	pff_test_huffman_tree.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_huffman_tree_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
