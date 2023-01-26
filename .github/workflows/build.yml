@@ -25,6 +25,9 @@ jobs:
           configure_options: '--enable-wide-character-type'
         - architecture: 'x64'
           compiler: 'gcc'
+          configure_options: '--with-zlib=no'
+        - architecture: 'x64'
+          compiler: 'gcc'
           configure_options: '--enable-static-executables=yes --enable-multi-threading-support=no'
     steps:
     - uses: actions/checkout@v2
