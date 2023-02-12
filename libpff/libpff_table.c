@@ -3370,6 +3370,7 @@ int libpff_table_read_record_entries(
      uint32_t record_entries_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     int recursion_depth,
      libcerror_error_t **error )
 {
 	libpff_reference_descriptor_t *reference_descriptor = NULL;
@@ -3377,8 +3378,9 @@ int libpff_table_read_record_entries(
 	uint8_t *record_entry_data                          = NULL;
 	static char *function                               = "libpff_table_read_record_entries";
 	size_t number_of_record_entries                     = 0;
-	size_t record_entry_size                            = 0;
 	size_t record_entries_data_size                     = 0;
+	size_t record_entry_size                            = 0;
+	uint32_t sub_record_entries_reference               = 0;
 	int record_entry_index                              = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -3413,7 +3415,19 @@ int libpff_table_read_record_entries(
 		 function,
 		 record_entry_identifier_size );
 
-		goto on_error;
+		return( -1 );
+	}
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_TABLE_RECORD_ENTRIES_RECURSION_DEPTH ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
+		 function );
+
+		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -3650,13 +3664,14 @@ int libpff_table_read_record_entries(
 					 guid_string );
 				}
 			}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 /* TODO use the record entry identifier to validate sub level record entries */
 			record_entry_data += record_entry_identifier_size;
 
 			byte_stream_copy_to_uint32_little_endian(
 			 record_entry_data,
-			 record_entries_reference );
+			 sub_record_entries_reference );
 
 			record_entry_data += 4;
 
@@ -3668,22 +3683,34 @@ int libpff_table_read_record_entries(
 				 function,
 				 record_entry_index,
 				 record_entries_level,
-				 record_entries_reference,
+				 sub_record_entries_reference,
 				 libpff_debug_get_node_identifier_type(
-				  (uint8_t) ( record_entries_reference & 0x0000001fUL ) ) );
+				  (uint8_t) ( sub_record_entries_reference & 0x0000001fUL ) ) );
 
 				libcnotify_printf(
 				 "\n" );
 			}
 #endif
+			if( sub_record_entries_reference == record_entries_reference )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: invalid sub record entries reference same as parent.",
+				 function );
+
+				goto on_error;
+			}
 			if( libpff_table_read_record_entries(
 			     table,
 			     record_entries_references_array,
 			     record_entries_level - 1,
 			     record_entry_identifier_size,
-			     record_entries_reference,
+			     sub_record_entries_reference,
 			     io_handle,
 			     file_io_handle,
+			     recursion_depth + 1,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -4136,6 +4163,7 @@ int libpff_table_read_6c_values(
 	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -4300,6 +4328,7 @@ int libpff_table_read_7c_values(
 	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -4454,6 +4483,7 @@ int libpff_table_read_8c_values(
 	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -4578,6 +4608,7 @@ int libpff_table_read_9c_values(
 	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -4847,6 +4878,7 @@ int libpff_table_read_ac_values(
 	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -5018,6 +5050,7 @@ int libpff_table_read_bc_values(
 	     table->header->record_entries_reference,
 	     io_handle,
 	     file_io_handle,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

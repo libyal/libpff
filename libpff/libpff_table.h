@@ -312,6 +312,7 @@ int libpff_table_read_record_entries(
      uint32_t record_entries_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_table_read_values(

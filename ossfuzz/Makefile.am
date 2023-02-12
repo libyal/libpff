@@ -13,7 +13,8 @@ AM_CPPFLAGS = \
 
 bin_PROGRAMS = \
 	file_fuzzer \
-	item_fuzzer
+	item_fuzzer \
+	record_set_fuzzer
 
 file_fuzzer_SOURCES = \
 	file_fuzzer.cc \
@@ -50,6 +51,24 @@ item_fuzzer_LDADD = \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	@LIBINTL@
+
+record_set_fuzzer_SOURCES = \
+	ossfuzz_libbfio.h \
+	ossfuzz_libpff.h \
+	record_set_fuzzer.cc
+
+record_set_fuzzer_LDADD = \
+	@LIB_FUZZING_ENGINE@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
+	../libpff/libpff.la \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCERROR_LIBADD@ \
+	@LIBINTL@
 endif
 
 MAINTAINERCLEANFILES = \
@@ -63,4 +82,6 @@ splint:
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(file_fuzzer_SOURCES)
 	@echo "Running splint on item_fuzzer ..."
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(item_fuzzer_SOURCES)
+	@echo "Running splint on record_set_fuzzer ..."
+	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(record_set_fuzzer_SOURCES)
 
