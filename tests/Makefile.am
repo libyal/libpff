@@ -56,6 +56,9 @@ check_PROGRAMS = \
 	pff_test_attached_file_io_handle \
 	pff_test_attachment \
 	pff_test_bit_stream \
+	pff_test_block_descriptor \
+	pff_test_block_tree \
+	pff_test_block_tree_node \
 	pff_test_column_definition \
 	pff_test_compression \
 	pff_test_data_array \
@@ -158,6 +161,42 @@ pff_test_bit_stream_SOURCES = \
 	pff_test_unused.h
 
 pff_test_bit_stream_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_block_descriptor_SOURCES = \
+	pff_test_block_descriptor.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_block_descriptor_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_block_tree_SOURCES = \
+	pff_test_block_tree.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_block_tree_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_block_tree_node_SOURCES = \
+	pff_test_block_tree_node.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_block_tree_node_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 

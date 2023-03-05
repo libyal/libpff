@@ -134,6 +134,9 @@ stamp-h[1-9]
 /tests/pff_test_attached_file_io_handle
 /tests/pff_test_attachment
 /tests/pff_test_bit_stream
+/tests/pff_test_block_descriptor
+/tests/pff_test_block_tree
+/tests/pff_test_block_tree_node
 /tests/pff_test_column_definition
 /tests/pff_test_compression
 /tests/pff_test_data_array

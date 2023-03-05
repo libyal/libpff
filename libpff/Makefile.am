@@ -29,6 +29,9 @@ libpff_la_SOURCES = \
 	libpff_attached_file_io_handle.c libpff_attached_file_io_handle.h \
 	libpff_attachment.c libpff_attachment.h \
 	libpff_bit_stream.c libpff_bit_stream.h \
+	libpff_block_descriptor.c libpff_block_descriptor.h \
+	libpff_block_tree.c libpff_block_tree.h \
+	libpff_block_tree_node.c libpff_block_tree_node.h \
 	libpff_codepage.h \
 	libpff_column_definition.c libpff_column_definition.h \
 	libpff_compression.c libpff_compression.h \
