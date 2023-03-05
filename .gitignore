@@ -150,7 +150,6 @@ stamp-h[1-9]
 /tests/pff_test_huffman_tree
 /tests/pff_test_index
 /tests/pff_test_index_node
-/tests/pff_test_index_tree
 /tests/pff_test_index_value
 /tests/pff_test_io_handle
 /tests/pff_test_item

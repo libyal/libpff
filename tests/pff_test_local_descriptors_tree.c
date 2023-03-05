@@ -84,6 +84,8 @@ int pff_test_local_descriptors_tree_initialize(
 	          io_handle,
 	          NULL,
 	          NULL,
+	          0,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -433,6 +435,8 @@ int pff_test_local_descriptors_tree_get_leaf_node_by_identifier(
 	          io_handle,
 	          NULL,
 	          NULL,
+	          0,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(

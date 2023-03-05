@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libpff_index_value.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
 

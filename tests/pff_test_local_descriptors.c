@@ -81,6 +81,8 @@ int pff_test_local_descriptors_initialize(
 	          io_handle,
 	          NULL,
 	          NULL,
+	          0,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(

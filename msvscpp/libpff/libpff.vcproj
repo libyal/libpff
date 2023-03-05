@@ -262,11 +262,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_index_tree.c"
+				RelativePath="..\..\libpff\libpff_index_value.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_index_value.c"
+				RelativePath="..\..\libpff\libpff_index_values_list.c"
 				>
 			</File>
 			<File
@@ -480,11 +480,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_index_tree.h"
+				RelativePath="..\..\libpff\libpff_index_value.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_index_value.h"
+				RelativePath="..\..\libpff\libpff_index_values_list.h"
 				>
 			</File>
 			<File

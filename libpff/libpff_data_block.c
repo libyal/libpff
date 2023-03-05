@@ -532,7 +532,6 @@ int libpff_data_block_read_file_io_handle(
 	uint8_t *uncompressed_data            = NULL;
 	static char *function                 = "libpff_data_block_read_file_io_handle";
 	size_t data_block_footer_offset       = 0;
-	size_t data_block_padding_size        = 0;
 	size_t uncompressed_data_size         = 0;
 	ssize_t read_count                    = 0;
 	uint64_t data_block_back_pointer      = 0;
@@ -543,6 +542,7 @@ int libpff_data_block_read_file_io_handle(
 	uint32_t maximum_data_block_size      = 0;
 
 #if defined( HAVE_VERBOSE_OUTPUT )
+	size_t data_block_padding_size        = 0;
 	uint32_t maximum_data_block_data_size = 0;
 #endif
 
@@ -689,11 +689,12 @@ int libpff_data_block_read_file_io_handle(
 			goto on_error;
 		}
 		data_block_footer_offset = data_block->data_size - data_block_footer_size;
-		data_block_padding_size  = data_block_footer_offset - data_size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
+			data_block_padding_size = data_block_footer_offset - data_size;
+
 			libcnotify_printf(
 			 "%s: data block padding size\t\t: %" PRIzd "\n",
 			 function,

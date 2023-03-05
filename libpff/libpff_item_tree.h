@@ -26,12 +26,11 @@
 #include <types.h>
 
 #include "libpff_descriptors_index.h"
-#include "libpff_index_tree.h"
+#include "libpff_index_node.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libfcache.h"
-#include "libpff_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -87,23 +86,21 @@ int libpff_item_tree_create(
      libcdata_tree_node_t **root_folder_item_tree_node,
      libcerror_error_t **error );
 
-int libpff_item_tree_create_node(
+int libpff_item_tree_create_node_from_descriptor_index_node(
      libpff_item_tree_t *item_tree,
      libbfio_handle_t *file_io_handle,
-     libpff_index_tree_t *descriptor_index_tree,
-     libfdata_tree_node_t *descriptor_index_tree_node,
-     libfcache_cache_t *index_tree_cache,
+     libpff_descriptors_index_t *descriptors_index,
+     off64_t node_offset,
      libcdata_list_t *orphan_node_list,
      libcdata_tree_node_t **root_folder_item_tree_node,
      int recursion_depth,
      libcerror_error_t **error );
 
-int libpff_item_tree_create_leaf_node(
+int libpff_item_tree_create_leaf_node_from_descriptor_index_value(
      libpff_item_tree_t *item_tree,
      libbfio_handle_t *file_io_handle,
-     libpff_index_tree_t *descriptor_index_tree,
-     libfdata_tree_node_t *descriptor_index_tree_node,
-     libfcache_cache_t *index_tree_cache,
+     libpff_descriptors_index_t *descriptors_index,
+     libpff_index_value_t *descriptor_index_value,
      libcdata_list_t *orphan_node_list,
      libcdata_tree_node_t **root_folder_item_tree_node,
      int recursion_depth,

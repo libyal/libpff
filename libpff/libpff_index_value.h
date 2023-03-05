@@ -19,12 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_INDEX_VALUES_H )
-#define _LIBPFF_INDEX_VALUES_H
+#if !defined( _LIBPFF_INDEX_VALUE_H )
+#define _LIBPFF_INDEX_VALUE_H
 
 #include <common.h>
 #include <types.h>
 
+#include "libpff_io_handle.h"
 #include "libpff_libcerror.h"
 
 #if defined( __cplusplus )
@@ -41,15 +42,6 @@ struct libpff_index_value
 
 	union
 	{
-		/* Definition for branch node
-		 */
-		struct
-		{
-			/* The back pointer
-			 */
-			uint64_t back_pointer;
-		};
-
 		/* Definition for offset index leaf node
 		 */
 		struct
@@ -102,9 +94,17 @@ int libpff_index_value_compare(
      libpff_index_value_t *second_index_value,
      libcerror_error_t **error );
 
+int libpff_index_value_read_data(
+     libpff_index_value_t *index_value,
+     libpff_io_handle_t *io_handle,
+     uint8_t index_node_type,
+     const uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _LIBPFF_INDEX_VALUES_H ) */
+#endif /* !defined( _LIBPFF_INDEX_VALUE_H ) */
 

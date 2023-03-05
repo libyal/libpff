@@ -790,6 +790,19 @@ int libpff_data_array_read_entries(
 
 			goto on_error;
 		}
+		if( libpff_index_value_free(
+		     &offset_index_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free offsets index value.",
+			 function );
+
+			goto on_error;
+		}
 		element_index++;
 	}
 	if( *total_data_size != calculated_total_data_size )
@@ -818,6 +831,12 @@ on_error:
 	{
 		libpff_data_array_entry_free(
 		 &data_array_entry,
+		 NULL );
+	}
+	if( offset_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &offset_index_value,
 		 NULL );
 	}
 	return( -1 );

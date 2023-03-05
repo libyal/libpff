@@ -289,6 +289,19 @@ int libpff_name_to_id_map_read(
 
 		goto on_error;
 	}
+	if( libpff_index_value_free(
+	     &descriptor_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free descriptor index value.",
+		 function );
+
+		goto on_error;
+	}
 	if( libpff_item_values_read(
 	     item_values,
 	     NULL,
@@ -562,6 +575,12 @@ on_error:
 	{
 		libpff_item_values_free(
 		 &item_values,
+		 NULL );
+	}
+	if( descriptor_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &descriptor_index_value,
 		 NULL );
 	}
 	libcdata_list_empty(

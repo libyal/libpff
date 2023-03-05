@@ -846,6 +846,19 @@ int libpff_local_descriptors_tree_read(
 
 		goto on_error;
 	}
+	if( libpff_index_value_free(
+	     &offset_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free offsets index value.",
+		 function );
+
+		goto on_error;
+	}
 	return( 1 );
 
 on_error:
@@ -859,6 +872,12 @@ on_error:
 	{
 		libpff_local_descriptors_free(
 		 &local_descriptors,
+		 NULL );
+	}
+	if( offset_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &offset_index_value,
 		 NULL );
 	}
 	return( -1 );

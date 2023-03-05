@@ -1122,6 +1122,8 @@ int libpff_internal_file_open_read(
 	     internal_file->io_handle,
 	     internal_file->index_nodes_vector,
 	     internal_file->index_nodes_cache,
+	     internal_file->file_header->descriptors_index_root_node_offset,
+	     internal_file->file_header->descriptors_index_root_node_back_pointer,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1133,27 +1135,13 @@ int libpff_internal_file_open_read(
 
 		goto on_error;
 	}
-	if( libpff_descriptors_index_set_root_node(
-	     internal_file->descriptors_index,
-	     internal_file->file_header->descriptors_index_root_node_offset,
-	     internal_file->file_header->descriptors_index_root_node_back_pointer,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set descriptors index root node.",
-		 function );
-
-		goto on_error;
-	}
 	if( libpff_offsets_index_initialize(
 	     &( internal_file->offsets_index ),
 	     internal_file->io_handle,
 	     internal_file->index_nodes_vector,
 	     internal_file->index_nodes_cache,
+	     internal_file->file_header->offsets_index_root_node_offset,
+	     internal_file->file_header->offsets_index_root_node_back_pointer,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1161,22 +1149,6 @@ int libpff_internal_file_open_read(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create offsets index.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_offsets_index_set_root_node(
-	     internal_file->offsets_index,
-	     internal_file->file_header->offsets_index_root_node_offset,
-	     internal_file->file_header->offsets_index_root_node_back_pointer,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set offsets index root node.",
 		 function );
 
 		goto on_error;
@@ -1643,6 +1615,8 @@ int libpff_file_recover_items(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to recover items.",
 		 function );
+
+		return( -1 );
 	}
         if( internal_file->io_handle->abort != 0 )
         {

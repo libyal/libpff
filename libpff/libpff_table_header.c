@@ -948,7 +948,7 @@ int libpff_table_header_read_b5_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: table header type\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: table header type\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
 		 ( (pff_table_header_b5_t *) data )->type );
 
@@ -958,7 +958,7 @@ int libpff_table_header_read_b5_data(
 		 table_header->record_entry_identifier_size );
 
 		libcnotify_printf(
-		 "%s: record entry value size\t\t\t: %" PRIu8 "\n",
+		 "%s: record entry value size\t\t: %" PRIu8 "\n",
 		 function,
 		 table_header->record_entry_value_size );
 
@@ -968,7 +968,7 @@ int libpff_table_header_read_b5_data(
 		 ( (pff_table_header_b5_t *) data )->record_entries_level );
 
 		libcnotify_printf(
-		 "%s: record entries reference\t\t\t: 0x%08" PRIx32 " (%s)\n",
+		 "%s: record entries reference\t\t: 0x%08" PRIx32 " (%s)\n",
 		 function,
 		 table_header->record_entries_reference,
 		 libpff_debug_get_node_identifier_type(

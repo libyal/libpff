@@ -198,7 +198,7 @@ int libpff_index_node_get_entry_data(
 
 		return( -1 );
 	}
-	entry_offset = (size_t) ( index_node->entry_size * entry_index );
+	entry_offset = (size_t) index_node->entry_size * entry_index;
 
 	if( entry_offset > (size_t) index_node->maximum_entries_data_size )
 	{
@@ -860,6 +860,7 @@ int libpff_index_node_read_footer_data(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_index_node_32bit_footer_t *) data )->back_pointer,
 		 index_node->back_pointer );
+
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_index_node_32bit_footer_t *) data )->checksum,
 		 index_node->stored_checksum );
@@ -877,6 +878,7 @@ int libpff_index_node_read_footer_data(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_index_node_64bit_footer_t *) data )->checksum,
 		 index_node->stored_checksum );
+
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_index_node_64bit_footer_t *) data )->back_pointer,
 		 index_node->back_pointer );
@@ -894,6 +896,7 @@ int libpff_index_node_read_footer_data(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->checksum,
 		 index_node->stored_checksum );
+
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->back_pointer,
 		 index_node->back_pointer );
@@ -901,6 +904,7 @@ int libpff_index_node_read_footer_data(
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->number_of_entries,
 		 index_node->number_of_entries );
+
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->maximum_number_of_entries,
 		 index_node->maximum_number_of_entries );

@@ -26,9 +26,11 @@
 #include "libpff_definitions.h"
 #include "libpff_descriptors_index.h"
 #include "libpff_index.h"
-#include "libpff_index_tree.h"
+#include "libpff_index_value.h"
+#include "libpff_index_values_list.h"
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
+#include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
@@ -42,6 +44,8 @@ int libpff_descriptors_index_initialize(
      libpff_io_handle_t *io_handle,
      libfdata_vector_t *index_nodes_vector,
      libfcache_cache_t *index_nodes_cache,
+     off64_t root_node_offset,
+     uint64_t root_node_back_pointer,
      libcerror_error_t **error )
 {
 	static char *function = "libpff_descriptors_index_initialize";
@@ -105,6 +109,57 @@ int libpff_descriptors_index_initialize(
 		 "%s: unable to clear descriptors index.",
 		 function );
 
+		memory_free(
+		 *descriptors_index );
+
+		*descriptors_index = NULL;
+
+		return( -1 );
+	}
+	if( libpff_index_initialize(
+	     &( ( *descriptors_index )->index ),
+	     index_nodes_vector,
+	     index_nodes_cache,
+	     LIBPFF_INDEX_TYPE_DESCRIPTOR,
+	     root_node_offset,
+	     root_node_back_pointer,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index.",
+		 function );
+
+		goto on_error;
+	}
+	if( libcdata_btree_initialize(
+	     &( ( *descriptors_index )->recovered_index_values_tree ),
+	     257,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create recovered index values B-tree.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfcache_cache_initialize(
+	     &( ( *descriptors_index )->index_cache ),
+	     LIBPFF_MAXIMUM_CACHE_ENTRIES_DESCRIPTOR_INDEX_VALUES,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index values cache.",
+		 function );
+
 		goto on_error;
 	}
 	( *descriptors_index )->io_handle          = io_handle;
@@ -116,6 +171,19 @@ int libpff_descriptors_index_initialize(
 on_error:
 	if( *descriptors_index != NULL )
 	{
+		if( ( *descriptors_index )->recovered_index_values_tree != NULL )
+		{
+			libcdata_btree_free(
+			 &( ( *descriptors_index )->recovered_index_values_tree ),
+			 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_values_list_free,
+			 NULL );
+		}
+		if( ( *descriptors_index )->index != NULL )
+		{
+			libpff_index_free(
+			 &( ( *descriptors_index )->index ),
+			 NULL );
+		}
 		memory_free(
 		 *descriptors_index );
 
@@ -147,53 +215,45 @@ int libpff_descriptors_index_free(
 	}
 	if( *descriptors_index != NULL )
 	{
-		if( ( *descriptors_index )->index_tree != NULL )
+		if( libfcache_cache_free(
+		     &( ( *descriptors_index )->index_cache ),
+		     error ) != 1 )
 		{
-			if( libpff_index_tree_free(
-			     &( ( *descriptors_index )->index_tree ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free index tree.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index values cache.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
 		}
-		if( ( *descriptors_index )->recovered_index_tree != NULL )
+		if( libcdata_btree_free(
+		     &( ( *descriptors_index )->recovered_index_values_tree ),
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_values_list_free,
+		     error ) != 1 )
 		{
-			if( libpff_index_tree_free(
-			     &( ( *descriptors_index )->recovered_index_tree ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free recovered index tree.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free recovered index values tree.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
 		}
-		if( ( *descriptors_index )->index_cache != NULL )
+		if( libpff_index_free(
+		     &( ( *descriptors_index )->index ),
+		     error ) != 1 )
 		{
-			if( libfcache_cache_free(
-			     &( ( *descriptors_index )->index_cache ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free index cache.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
 		}
 		memory_free(
 		 *descriptors_index );
@@ -201,150 +261,6 @@ int libpff_descriptors_index_free(
 		*descriptors_index = NULL;
 	}
 	return( result );
-}
-
-/* Sets the root node
- * Returns 1 if successful or -1 on error
- */
-int libpff_descriptors_index_set_root_node(
-     libpff_descriptors_index_t *descriptors_index,
-     off64_t root_node_offset,
-     uint64_t root_node_back_pointer,
-     uint8_t recovered,
-     libcerror_error_t **error )
-{
-	static char *function = "libpff_descriptors_index_set_root_node";
-
-	if( descriptors_index == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid descriptors index.",
-		 function );
-
-		return( -1 );
-	}
-	if( recovered == 0 )
-	{
-		if( libpff_index_tree_initialize(
-		     &( descriptors_index->index_tree ),
-		     descriptors_index->io_handle,
-		     descriptors_index->index_nodes_vector,
-		     descriptors_index->index_nodes_cache,
-		     LIBPFF_INDEX_TYPE_DESCRIPTOR,
-		     root_node_offset,
-		     root_node_back_pointer,
-		     recovered,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index tree.",
-			 function );
-
-			goto on_error;
-		}
-		/* Point the root node data offset to LIBPFF_DESCRIPTOR_INDEX_TREE_ROOT_OFFSET
-		 * otherwise it will mess up the caching of the first index value
-		 */
-		if( libpff_index_tree_set_root_node(
-		     descriptors_index->index_tree,
-		     LIBPFF_DESCRIPTOR_INDEX_TREE_ROOT_OFFSET,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set index tree root node.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	else
-	{
-		if( libpff_index_tree_initialize(
-		     &( descriptors_index->recovered_index_tree ),
-		     descriptors_index->io_handle,
-		     descriptors_index->index_nodes_vector,
-		     descriptors_index->index_nodes_cache,
-		     LIBPFF_INDEX_TYPE_DESCRIPTOR,
-		     0,
-		     0,
-		     recovered,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index tree.",
-			 function );
-
-			goto on_error;
-		}
-		/* Point the root node data offset to LIBPFF_RECOVERED_DESCRIPTOR_INDEX_TREE_ROOT_OFFSET
-		 * otherwise it will mess up the caching of the first index value
-		 */
-		if( libpff_index_tree_set_root_node(
-		     descriptors_index->recovered_index_tree,
-		     LIBPFF_RECOVERED_DESCRIPTOR_INDEX_TREE_ROOT_OFFSET,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set recovered index tree root node.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	if( descriptors_index->index_cache == NULL )
-	{
-		if( libfcache_cache_initialize(
-		     &( descriptors_index->index_cache ),
-		     LIBPFF_MAXIMUM_CACHE_ENTRIES_OFFSET_INDEX_VALUES,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index tree cache.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	return( 1 );
-
-on_error:
-	if( recovered == 0 )
-	{
-		if( descriptors_index->index_tree != NULL )
-		{
-			libpff_index_tree_free(
-			 &( descriptors_index->index_tree ),
-			 NULL );
-		}
-	}
-	else
-	{
-		if( descriptors_index->recovered_index_tree != NULL )
-		{
-			libpff_index_tree_free(
-			 &( descriptors_index->recovered_index_tree ),
-			 NULL );
-		}
-	}
-	return( -1 );
 }
 
 /* Retrieves an index value for a specific identifier
@@ -358,9 +274,12 @@ int libpff_descriptors_index_get_index_value_by_identifier(
      libpff_index_value_t **index_value,
      libcerror_error_t **error )
 {
-	static char *function      = "libpff_descriptors_index_get_index_value_by_identifier";
-	int number_of_index_values = 0;
-	int result                 = 0;
+	libcdata_tree_node_t *upper_node              = NULL;
+	libpff_index_value_t *lookup_index_value      = NULL;
+	libpff_index_value_t *safe_index_value        = NULL;
+	libpff_index_values_list_t *index_values_list = NULL;
+	static char *function                         = "libpff_descriptors_index_get_index_value_by_identifier";
+	int result                                    = 0;
 
 	if( descriptors_index == NULL )
 	{
@@ -373,14 +292,24 @@ int libpff_descriptors_index_get_index_value_by_identifier(
 
 		return( -1 );
 	}
+	if( index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index value.",
+		 function );
+
+		return( -1 );
+	}
 	if( recovered == 0 )
 	{
-		result = libpff_index_tree_get_value_by_identifier(
-			  descriptors_index->index_tree,
+		result = libpff_index_get_value_by_identifier(
+			  descriptors_index->index,
+			  descriptors_index->io_handle,
 			  file_io_handle,
-			  descriptors_index->index_cache,
 			  descriptor_identifier,
-			  0,
 			  index_value,
 			  error );
 
@@ -390,42 +319,37 @@ int libpff_descriptors_index_get_index_value_by_identifier(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve index value: %" PRIu32 ".",
+			 "%s: unable to retrieve index value: %" PRIu32 " from index.",
 			 function,
 			 descriptor_identifier );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	else
 	{
-		if( libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-		     descriptors_index->recovered_index_tree,
-		     file_io_handle,
-		     descriptors_index->index_cache,
-		     descriptor_identifier,
-		     &number_of_index_values,
+		if( libpff_index_value_initialize(
+		     &lookup_index_value,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve number of recovered index values for identifier: %" PRIu32 ".",
-			 function,
-			 descriptor_identifier );
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create lookup index value.",
+			 function );
 
-			return( -1 );
+			goto on_error;
 		}
-/* TODO is it necessary to lookup removed descriptors with a value index > 0 ? */
-		result = libpff_index_tree_get_value_by_identifier(
-			  descriptors_index->recovered_index_tree,
-			  file_io_handle,
-			  descriptors_index->index_cache,
-			  descriptor_identifier,
-			  0,
-			  index_value,
-			  error );
+		lookup_index_value->identifier = descriptor_identifier;
+
+		result = libcdata_btree_get_value_by_value(
+		          descriptors_index->recovered_index_values_tree,
+		          (intptr_t *) lookup_index_value,
+		          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
+		          &upper_node,
+		          (intptr_t **) &index_values_list,
+		          error );
 
 		if( result == -1 )
 		{
@@ -433,13 +357,178 @@ int libpff_descriptors_index_get_index_value_by_identifier(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve recovered index value: %" PRIu32 ".",
+			 "%s: unable to retrieve recovered index value: %" PRIu32 " list from tree.",
 			 function,
 			 descriptor_identifier );
 
-			return( -1 );
+			goto on_error;
+		}
+		else if( result != 0 )
+		{
+			if( libpff_index_values_list_get_value_by_index(
+			     index_values_list,
+			     0,
+			     &safe_index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve retrieve recovered index value: %" PRIu32 " list entry: 0.",
+				 function,
+				 descriptor_identifier );
+
+				goto on_error;
+			}
+			if( safe_index_value == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing recovered index value: %" PRIu32 " list entry: 0.",
+				 function,
+				 descriptor_identifier );
+
+				goto on_error;
+			}
+			lookup_index_value->data_identifier              = lookup_index_value->data_identifier;
+			lookup_index_value->local_descriptors_identifier = lookup_index_value->local_descriptors_identifier;
+			lookup_index_value->parent_identifier            = lookup_index_value->parent_identifier;
+
+			*index_value = lookup_index_value;
 		}
 	}
 	return( result );
+
+on_error:
+	if( lookup_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &lookup_index_value,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Inserts a recovered index value into the descriptors index
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_descriptors_index_insert_recovered_index_value(
+     libpff_descriptors_index_t *descriptors_index,
+     libpff_index_value_t *index_value,
+     libcerror_error_t **error )
+{
+	libcdata_tree_node_t *upper_node                       = NULL;
+	libpff_index_values_list_t *existing_index_values_list = NULL;
+	libpff_index_values_list_t *index_values_list          = NULL;
+	static char *function                                  = "libpff_descriptors_index_insert_recovered_index_value";
+	int result                                             = 0;
+	int value_index                                        = 0;
+
+	if( descriptors_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index value.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_index_values_list_initialize(
+	     &index_values_list,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index values list.",
+		 function );
+
+		goto on_error;
+	}
+	index_values_list->identifier = index_value->identifier;
+
+	result = libcdata_btree_insert_value(
+	          descriptors_index->recovered_index_values_tree,
+	          &value_index,
+	          (intptr_t *) index_values_list,
+	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
+	          &upper_node,
+	          (intptr_t **) &existing_index_values_list,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to insert recovered descriptors index value: %" PRIu64 " list.",
+		 function,
+		 index_value->identifier );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		existing_index_values_list = index_values_list;
+		index_values_list          = NULL;
+	}
+	else
+	{
+		if( libpff_index_values_list_free(
+		     &index_values_list,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index values list.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libpff_index_values_list_append_value(
+	     existing_index_values_list,
+	     index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append index value to list.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( index_values_list != NULL )
+	{
+		libpff_index_values_list_free(
+		 &index_values_list,
+		 NULL );
+	}
+	return( -1 );
 }
 

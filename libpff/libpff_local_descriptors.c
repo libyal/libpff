@@ -275,14 +275,15 @@ int libpff_local_descriptors_read_local_descriptor_node(
      libpff_local_descriptor_node_t **local_descriptor_node,
      libcerror_error_t **error )
 {
-	libfcache_cache_value_t *cache_value     = NULL;
-	libpff_index_value_t *offset_index_value = NULL;
-	static char *function                    = "libpff_local_descriptors_read_local_descriptor_node";
-	off64_t cache_value_offset               = 0;
-	int64_t cache_value_timestamp            = 0;
-	int cache_value_file_index               = 0;
-	int cache_value_index                    = 0;
-	int is_cached                            = 0;
+	libfcache_cache_value_t *cache_value                       = NULL;
+	libpff_index_value_t *offset_index_value                   = NULL;
+	libpff_local_descriptor_node_t *safe_local_descriptor_node = NULL;
+	static char *function                                      = "libpff_local_descriptors_read_local_descriptor_node";
+	off64_t cache_value_offset                                 = 0;
+	int64_t cache_value_timestamp                              = 0;
+	int cache_value_file_index                                 = 0;
+	int cache_value_index                                      = 0;
+	int is_cached                                              = 0;
 
 	if( local_descriptors == NULL )
 	{
@@ -331,7 +332,7 @@ int libpff_local_descriptors_read_local_descriptor_node(
 		 function,
 		 data_identifier );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( cache_value != NULL )
 	{
@@ -349,7 +350,7 @@ int libpff_local_descriptors_read_local_descriptor_node(
 			 "%s: unable to retrieve cache value identifier.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( (uint64_t) cache_value_offset == data_identifier )
 		{
@@ -378,7 +379,7 @@ int libpff_local_descriptors_read_local_descriptor_node(
 			 function,
 			 data_identifier );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( offset_index_value == NULL )
 		{
@@ -390,7 +391,7 @@ int libpff_local_descriptors_read_local_descriptor_node(
 			 function,
 			 data_identifier );
 
-			return( -1 );
+			goto on_error;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
@@ -419,13 +420,13 @@ int libpff_local_descriptors_read_local_descriptor_node(
 			 "%s: unable to retrieve local descriptor node from cache value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	else
 	{
 		if( libpff_local_descriptor_node_initialize(
-		     local_descriptor_node,
+		     &safe_local_descriptor_node,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -435,21 +436,10 @@ int libpff_local_descriptors_read_local_descriptor_node(
 			 "%s: unable to create local descriptor node.",
 			 function );
 
-			return( -1 );
-		}
-		if( local_descriptor_node == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing local descriptor node.",
-			 function );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libpff_local_descriptor_node_read_file_io_handle(
-		     *local_descriptor_node,
+		     safe_local_descriptor_node,
 		     local_descriptors->io_handle,
 		     file_io_handle,
 		     local_descriptors->descriptor_identifier,
@@ -466,11 +456,7 @@ int libpff_local_descriptors_read_local_descriptor_node(
 			 function,
 			 offset_index_value->file_offset );
 
-			libpff_local_descriptor_node_free(
-			 local_descriptor_node,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libfcache_cache_set_value_by_index(
 		     local_descriptors->local_descriptor_nodes_cache,
@@ -478,7 +464,7 @@ int libpff_local_descriptors_read_local_descriptor_node(
 		     0,
 		     (off64_t) data_identifier,
 		     0,
-		     (intptr_t *) *local_descriptor_node,
+		     (intptr_t *) safe_local_descriptor_node,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_local_descriptor_node_free,
 		     LIBFCACHE_CACHE_VALUE_FLAG_MANAGED,
 		     error ) != 1 )
@@ -490,14 +476,40 @@ int libpff_local_descriptors_read_local_descriptor_node(
 			 "%s: unable to set local descriptor node in cache.",
 			 function );
 
-			libpff_local_descriptor_node_free(
-			 local_descriptor_node,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
+		*local_descriptor_node     = safe_local_descriptor_node;
+		safe_local_descriptor_node = NULL;
+	}
+	if( libpff_index_value_free(
+	     &offset_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free offsets index value.",
+		 function );
+
+		goto on_error;
 	}
 	return( 1 );
+
+on_error:
+	if( safe_local_descriptor_node != NULL )
+	{
+		libpff_local_descriptor_node_free(
+		 &safe_local_descriptor_node,
+		 NULL );
+	}
+	if( offset_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &offset_index_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads the local descriptor node tree node
@@ -602,7 +614,7 @@ int libpff_local_descriptors_read_tree_node(
 			 "%s: unable to resize number of sub nodes.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		for( entry_index = 0;
 		     entry_index < local_descriptor_node->number_of_entries;
@@ -625,7 +637,7 @@ int libpff_local_descriptors_read_tree_node(
 					 function,
 					 entry_index );
 
-					return( -1 );
+					goto on_error;
 				}
 				/* Check if the local descriptor sub node identifier exists
 				 */
@@ -647,7 +659,7 @@ int libpff_local_descriptors_read_tree_node(
 					 function,
 					 local_descriptor_sub_node_identifier );
 
-					return( -1 );
+					goto on_error;
 				}
 				if( offset_index_value == NULL )
 				{
@@ -658,7 +670,7 @@ int libpff_local_descriptors_read_tree_node(
 					 "%s: missing offset index value.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 #if defined( HAVE_DEBUG_OUTPUT )
 				if( libcnotify_verbose != 0 )
@@ -674,6 +686,19 @@ int libpff_local_descriptors_read_tree_node(
 					 offset_index_value->data_size );
 				}
 #endif
+				if( libpff_index_value_free(
+				     &offset_index_value,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free offsets index value.",
+					 function );
+
+					goto on_error;
+				}
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -708,7 +733,7 @@ int libpff_local_descriptors_read_tree_node(
 				 function,
 				 entry_index );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( local_descriptor_node->level == LIBPFF_LOCAL_DESCRIPTOR_NODE_LEVEL_LEAF )
 			{
@@ -725,13 +750,22 @@ int libpff_local_descriptors_read_tree_node(
 					 function,
 					 entry_index );
 
-					return( -1 );
+					goto on_error;
 				}
 			}
 			node_offset += local_descriptor_node->entry_size;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( offset_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &offset_index_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads the local descriptor value
@@ -812,7 +846,7 @@ int libpff_local_descriptors_read_local_descriptor_value(
 		 "%s: unable to retrieve local descriptor node.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( local_descriptor_node == NULL )
 	{
@@ -823,7 +857,7 @@ int libpff_local_descriptors_read_local_descriptor_value(
 		 "%s: missing local descriptor node.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libpff_local_descriptor_node_get_entry_identifier(
 	     local_descriptor_node,
@@ -840,7 +874,7 @@ int libpff_local_descriptors_read_local_descriptor_value(
 		 function,
 		 entry_index );
 
-		return( -1 );
+		goto on_error;
 	}
 	/* Ignore the upper 32-bit of local descriptor identifiers
 	 */
@@ -863,7 +897,7 @@ int libpff_local_descriptors_read_local_descriptor_value(
 			 function,
 			 entry_index );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( node_entry_data == NULL )
 		{
@@ -875,7 +909,7 @@ int libpff_local_descriptors_read_local_descriptor_value(
 			 function,
 			 entry_index );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( local_descriptors->io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
@@ -941,7 +975,7 @@ int libpff_local_descriptors_read_local_descriptor_value(
 			 function,
 			 entry_index );
 
-			return( -1 );
+			goto on_error;
 		}
 /* TODO handle multiple recovered offset index values */
 		if( libpff_offsets_index_get_index_value_by_identifier(
@@ -961,7 +995,7 @@ int libpff_local_descriptors_read_local_descriptor_value(
 			 function,
 			 local_descriptor_value->sub_node_identifier );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( offset_index_value == NULL )
 		{
@@ -972,7 +1006,7 @@ int libpff_local_descriptors_read_local_descriptor_value(
 			 "%s: missing offset index value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
@@ -1001,7 +1035,7 @@ int libpff_local_descriptors_read_local_descriptor_value(
 			 "%s: unable to determine if sub nodes data range is set.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		else if( result == 0 )
 		{
@@ -1020,11 +1054,33 @@ int libpff_local_descriptors_read_local_descriptor_value(
 				 "%s: unable to set sub nodes data range.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
+		}
+		if( libpff_index_value_free(
+		     &offset_index_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free offsets index value.",
+			 function );
+
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( offset_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &offset_index_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads the local descriptors node

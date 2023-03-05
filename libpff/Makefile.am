@@ -50,8 +50,8 @@ libpff_la_SOURCES = \
 	libpff_huffman_tree.c libpff_huffman_tree.h \
 	libpff_index.c libpff_index.h \
 	libpff_index_node.c libpff_index_node.h \
-	libpff_index_tree.c libpff_index_tree.h \
 	libpff_index_value.c libpff_index_value.h \
+	libpff_index_values_list.c libpff_index_values_list.h \
 	libpff_io_handle.c libpff_io_handle.h \
 	libpff_item.c libpff_item.h \
 	libpff_item_descriptor.c libpff_item_descriptor.h \

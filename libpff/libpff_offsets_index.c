@@ -24,13 +24,14 @@
 #include <types.h>
 
 #include "libpff_definitions.h"
+#include "libpff_index.h"
+#include "libpff_index_value.h"
+#include "libpff_index_values_list.h"
 #include "libpff_libbfio.h"
+#include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
-#include "libpff_index.h"
-#include "libpff_index_tree.h"
-#include "libpff_index_value.h"
 #include "libpff_offsets_index.h"
 
 /* Creates an offsets index
@@ -42,6 +43,8 @@ int libpff_offsets_index_initialize(
      libpff_io_handle_t *io_handle,
      libfdata_vector_t *index_nodes_vector,
      libfcache_cache_t *index_nodes_cache,
+     off64_t root_node_offset,
+     uint64_t root_node_back_pointer,
      libcerror_error_t **error )
 {
 	static char *function = "libpff_offsets_index_initialize";
@@ -105,6 +108,57 @@ int libpff_offsets_index_initialize(
 		 "%s: unable to clear offsets index.",
 		 function );
 
+		memory_free(
+		 *offsets_index );
+
+		*offsets_index = NULL;
+
+		return( -1 );
+	}
+	if( libpff_index_initialize(
+	     &( ( *offsets_index )->index ),
+	     index_nodes_vector,
+	     index_nodes_cache,
+	     LIBPFF_INDEX_TYPE_OFFSET,
+	     root_node_offset,
+	     root_node_back_pointer,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index.",
+		 function );
+
+		goto on_error;
+	}
+	if( libcdata_btree_initialize(
+	     &( ( *offsets_index )->recovered_index_values_tree ),
+	     257,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create recovered index values B-tree.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfcache_cache_initialize(
+	     &( ( *offsets_index )->index_cache ),
+	     LIBPFF_MAXIMUM_CACHE_ENTRIES_OFFSET_INDEX_VALUES,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index values cache.",
+		 function );
+
 		goto on_error;
 	}
 	( *offsets_index )->io_handle          = io_handle;
@@ -116,6 +170,19 @@ int libpff_offsets_index_initialize(
 on_error:
 	if( *offsets_index != NULL )
 	{
+		if( ( *offsets_index )->recovered_index_values_tree != NULL )
+		{
+			libcdata_btree_free(
+			 &( ( *offsets_index )->recovered_index_values_tree ),
+			 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_values_list_free,
+			 NULL );
+		}
+		if( ( *offsets_index )->index != NULL )
+		{
+			libpff_index_free(
+			 &( ( *offsets_index )->index ),
+			 NULL );
+		}
 		memory_free(
 		 *offsets_index );
 
@@ -147,53 +214,45 @@ int libpff_offsets_index_free(
 	}
 	if( *offsets_index != NULL )
 	{
-		if( ( *offsets_index )->index_tree != NULL )
+		if( libfcache_cache_free(
+		     &( ( *offsets_index )->index_cache ),
+		     error ) != 1 )
 		{
-			if( libpff_index_tree_free(
-			     &( ( *offsets_index )->index_tree ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free index tree.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index values cache.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
 		}
-		if( ( *offsets_index )->recovered_index_tree != NULL )
+		if( libcdata_btree_free(
+		     &( ( *offsets_index )->recovered_index_values_tree ),
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_values_list_free,
+		     error ) != 1 )
 		{
-			if( libpff_index_tree_free(
-			     &( ( *offsets_index )->recovered_index_tree ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free recovered index tree.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free recovered index values tree.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
 		}
-		if( ( *offsets_index )->index_cache != NULL )
+		if( libpff_index_free(
+		     &( ( *offsets_index )->index ),
+		     error ) != 1 )
 		{
-			if( libfcache_cache_free(
-			     &( ( *offsets_index )->index_cache ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free index cache.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
 		}
 		memory_free(
 		 *offsets_index );
@@ -201,150 +260,6 @@ int libpff_offsets_index_free(
 		*offsets_index = NULL;
 	}
 	return( result );
-}
-
-/* Sets the root node
- * Returns 1 if successful or -1 on error
- */
-int libpff_offsets_index_set_root_node(
-     libpff_offsets_index_t *offsets_index,
-     off64_t root_node_offset,
-     uint64_t root_node_back_pointer,
-     uint8_t recovered,
-     libcerror_error_t **error )
-{
-	static char *function = "libpff_offsets_index_set_root_node";
-
-	if( offsets_index == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid offsets index.",
-		 function );
-
-		return( -1 );
-	}
-	if( recovered == 0 )
-	{
-		if( libpff_index_tree_initialize(
-		     &( offsets_index->index_tree ),
-		     offsets_index->io_handle,
-		     offsets_index->index_nodes_vector,
-		     offsets_index->index_nodes_cache,
-		     LIBPFF_INDEX_TYPE_OFFSET,
-		     root_node_offset,
-		     root_node_back_pointer,
-		     recovered,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index tree.",
-			 function );
-
-			goto on_error;
-		}
-		/* Point the root node data offset to LIBPFF_OFFSETS_INDEX_TREE_ROOT_OFFSET
-		 * otherwise it will mess up the caching of the first index value
-		 */
-		if( libpff_index_tree_set_root_node(
-		     offsets_index->index_tree,
-		     LIBPFF_OFFSETS_INDEX_TREE_ROOT_OFFSET,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set index tree root node.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	else
-	{
-		if( libpff_index_tree_initialize(
-		     &( offsets_index->recovered_index_tree ),
-		     offsets_index->io_handle,
-		     offsets_index->index_nodes_vector,
-		     offsets_index->index_nodes_cache,
-		     LIBPFF_INDEX_TYPE_OFFSET,
-		     0,
-		     0,
-		     recovered,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index tree.",
-			 function );
-
-			goto on_error;
-		}
-		/* Point the root node data offset to LIBPFF_RECOVERED_OFFSETS_INDEX_TREE_ROOT_OFFSET
-		 * otherwise it will mess up the caching of the first index value
-		 */
-		if( libpff_index_tree_set_root_node(
-		     offsets_index->recovered_index_tree,
-		     LIBPFF_RECOVERED_OFFSETS_INDEX_TREE_ROOT_OFFSET,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set recovered index tree root node.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	if( offsets_index->index_cache == NULL )
-	{
-		if( libfcache_cache_initialize(
-		     &( offsets_index->index_cache ),
-		     LIBPFF_MAXIMUM_CACHE_ENTRIES_OFFSET_INDEX_VALUES,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index tree cache.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	return( 1 );
-
-on_error:
-	if( recovered == 0 )
-	{
-		if( offsets_index->index_tree != NULL )
-		{
-			libpff_index_tree_free(
-			 &( offsets_index->index_tree ),
-			 NULL );
-		}
-	}
-	else
-	{
-		if( offsets_index->recovered_index_tree != NULL )
-		{
-			libpff_index_tree_free(
-			 &( offsets_index->recovered_index_tree ),
-			 NULL );
-		}
-	}
-	return( -1 );
 }
 
 /* Retrieves an index value for a specific identifier
@@ -359,9 +274,13 @@ int libpff_offsets_index_get_index_value_by_identifier(
      libpff_index_value_t **index_value,
      libcerror_error_t **error )
 {
-	static char *function      = "libpff_offsets_index_get_index_value_by_identifier";
-	int number_of_index_values = 0;
-	int result                 = 0;
+	libcdata_tree_node_t *upper_node              = NULL;
+	libpff_index_value_t *lookup_index_value      = NULL;
+	libpff_index_value_t *safe_index_value        = NULL;
+	libpff_index_values_list_t *index_values_list = NULL;
+	static char *function                         = "libpff_offsets_index_get_index_value_by_identifier";
+	uint64_t lookup_data_identifier               = 0;
+	int result                                    = 0;
 
 	if( offsets_index == NULL )
 	{
@@ -374,14 +293,15 @@ int libpff_offsets_index_get_index_value_by_identifier(
 
 		return( -1 );
 	}
+	lookup_data_identifier = data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK;
+
 	if( recovered == 0 )
 	{
-		result = libpff_index_tree_get_value_by_identifier(
-			  offsets_index->index_tree,
+		result = libpff_index_get_value_by_identifier(
+			  offsets_index->index,
+			  offsets_index->io_handle,
 			  file_io_handle,
-			  offsets_index->index_cache,
-			  data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK,
-			  0,
+			  lookup_data_identifier,
 			  index_value,
 			  error );
 
@@ -391,65 +311,37 @@ int libpff_offsets_index_get_index_value_by_identifier(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to find offsets index value identifier: %" PRIu64 ".",
+			 "%s: unable to retrieve index value: %" PRIu64 " from index.",
 			 function,
-			 data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
+			 lookup_data_identifier );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	else
 	{
-		if( libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-		     offsets_index->recovered_index_tree,
-		     file_io_handle,
-		     offsets_index->index_cache,
-		     data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK,
-		     &number_of_index_values,
+		if( libpff_index_value_initialize(
+		     &lookup_index_value,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve number of recovered offsets index values for identifier: %" PRIu64 ".",
-			 function,
-			 data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
-
-			return( -1 );
-		}
-		if( number_of_index_values <= 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: no recovered offsets index values for identifier: %" PRIu64 ".",
-			 function,
-			 data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
-
-			return( -1 );
-		}
-		if( ( recovered_value_index < 0 )
-		 || ( recovered_value_index >= number_of_index_values ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid recovered value index value out of bounds.",
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create lookup index value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
-		result = libpff_index_tree_get_value_by_identifier(
-			  offsets_index->recovered_index_tree,
-			  file_io_handle,
-			  offsets_index->index_cache,
-			  data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK,
-			  recovered_value_index,
-			  index_value,
-			  error );
+		lookup_index_value->identifier = lookup_data_identifier;
+
+		result = libcdata_btree_get_value_by_value(
+		          offsets_index->recovered_index_values_tree,
+		          (intptr_t *) lookup_index_value,
+		          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
+		          &upper_node,
+		          (intptr_t **) &index_values_list,
+		          error );
 
 		if( result == -1 )
 		{
@@ -457,13 +349,180 @@ int libpff_offsets_index_get_index_value_by_identifier(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to find recovered offsets index value identifier: %" PRIu64 ".",
+			 "%s: unable to retrieve recovered index value: %" PRIu64 " list from tree.",
 			 function,
-			 data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
+			 lookup_data_identifier );
 
-			return( -1 );
+			goto on_error;
+		}
+		else if( result != 0 )
+		{
+			if( libpff_index_values_list_get_value_by_index(
+			     index_values_list,
+			     recovered_value_index,
+			     &safe_index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve retrieve recovered index value: %" PRIu64 " list entry: %d.",
+				 function,
+				 lookup_data_identifier,
+				 recovered_value_index );
+
+				goto on_error;
+			}
+			if( safe_index_value == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing recovered index value: %" PRIu64 " list entry: %d.",
+				 function,
+				 lookup_data_identifier,
+				 recovered_value_index );
+
+				goto on_error;
+			}
+			lookup_index_value->file_offset     = lookup_index_value->file_offset;
+			lookup_index_value->data_size       = lookup_index_value->data_size;
+			lookup_index_value->reference_count = lookup_index_value->reference_count;
+
+			*index_value = lookup_index_value;
 		}
 	}
 	return( result );
+
+on_error:
+	if( lookup_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &lookup_index_value,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Inserts a recovered index value into the offsets index
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_offsets_index_insert_recovered_index_value(
+     libpff_offsets_index_t *offsets_index,
+     libpff_index_value_t *index_value,
+     libcerror_error_t **error )
+{
+	libcdata_tree_node_t *upper_node                       = NULL;
+	libpff_index_values_list_t *existing_index_values_list = NULL;
+	libpff_index_values_list_t *index_values_list          = NULL;
+	static char *function                                  = "libpff_offsets_index_insert_recovered_index_value";
+	int result                                             = 0;
+	int value_index                                        = 0;
+
+	if( offsets_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index value.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_index_values_list_initialize(
+	     &index_values_list,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index values list.",
+		 function );
+
+		goto on_error;
+	}
+	index_values_list->identifier = index_value->identifier;
+
+	result = libcdata_btree_insert_value(
+	          offsets_index->recovered_index_values_tree,
+	          &value_index,
+	          (intptr_t *) index_values_list,
+	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
+	          &upper_node,
+	          (intptr_t **) &existing_index_values_list,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to insert recovered offsets index value: %" PRIu64 " list.",
+		 function,
+		 index_value->identifier );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		existing_index_values_list = index_values_list;
+		index_values_list          = NULL;
+	}
+	else
+	{
+		if( libpff_index_values_list_free(
+		     &index_values_list,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index values list.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libpff_index_values_list_append_value(
+	     existing_index_values_list,
+	     index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append index value to list.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( index_values_list != NULL )
+	{
+		libpff_index_values_list_free(
+		 &index_values_list,
+		 NULL );
+	}
+	return( -1 );
 }
 
