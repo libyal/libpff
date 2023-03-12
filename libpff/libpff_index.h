@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libpff_block_tree.h"
 #include "libpff_index_node.h"
 #include "libpff_index_value.h"
 #include "libpff_io_handle.h"
@@ -75,10 +76,18 @@ int libpff_index_free(
      libpff_index_t **index,
      libcerror_error_t **error );
 
+int libpff_index_check_if_index_node_block_first_read(
+     libpff_index_t *index,
+     libpff_block_tree_t *index_node_block_tree,
+     off64_t node_offset,
+     uint64_t identifier,
+     libcerror_error_t **error );
+
 int libpff_index_get_leaf_node_from_node_by_identifier(
      libpff_index_t *index,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     libpff_block_tree_t *index_node_block_tree,
      off64_t node_offset,
      uint64_t node_back_pointer,
      uint64_t identifier,

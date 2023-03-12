@@ -1118,7 +1118,7 @@ int libpff_index_node_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( (file_type == LIBPFF_FILE_TYPE_32BIT )
+	if( ( file_type == LIBPFF_FILE_TYPE_32BIT )
 	 || ( file_type == LIBPFF_FILE_TYPE_64BIT ) )
 	{
 		index_node->data_size = 512;

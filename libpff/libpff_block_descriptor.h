@@ -35,9 +35,9 @@ typedef struct libpff_block_descriptor libpff_block_descriptor_t;
 
 struct libpff_block_descriptor
 {
-	/* The block number
+	/* The identifier
 	 */
-	uint32_t block_number;
+	uint64_t identifier;
 };
 
 int libpff_block_descriptor_initialize(
