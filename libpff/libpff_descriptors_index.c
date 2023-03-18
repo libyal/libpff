@@ -32,8 +32,6 @@
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
-#include "libpff_libfcache.h"
-#include "libpff_libfdata.h"
 
 /* Creates a descriptors index
  * Make sure the value descriptors_index is referencing, is set to NULL
@@ -41,9 +39,6 @@
  */
 int libpff_descriptors_index_initialize(
      libpff_descriptors_index_t **descriptors_index,
-     libpff_io_handle_t *io_handle,
-     libfdata_vector_t *index_nodes_vector,
-     libfcache_cache_t *index_nodes_cache,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,
      libcerror_error_t **error )
@@ -68,17 +63,6 @@ int libpff_descriptors_index_initialize(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid descriptors index value already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -118,8 +102,6 @@ int libpff_descriptors_index_initialize(
 	}
 	if( libpff_index_initialize(
 	     &( ( *descriptors_index )->index ),
-	     index_nodes_vector,
-	     index_nodes_cache,
 	     LIBPFF_INDEX_TYPE_DESCRIPTOR,
 	     root_node_offset,
 	     root_node_back_pointer,
@@ -148,24 +130,6 @@ int libpff_descriptors_index_initialize(
 
 		goto on_error;
 	}
-	if( libfcache_cache_initialize(
-	     &( ( *descriptors_index )->index_cache ),
-	     LIBPFF_MAXIMUM_CACHE_ENTRIES_DESCRIPTOR_INDEX_VALUES,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index values cache.",
-		 function );
-
-		goto on_error;
-	}
-	( *descriptors_index )->io_handle          = io_handle;
-	( *descriptors_index )->index_nodes_vector = index_nodes_vector;
-	( *descriptors_index )->index_nodes_cache  = index_nodes_cache;
-
 	return( 1 );
 
 on_error:
@@ -215,19 +179,6 @@ int libpff_descriptors_index_free(
 	}
 	if( *descriptors_index != NULL )
 	{
-		if( libfcache_cache_free(
-		     &( ( *descriptors_index )->index_cache ),
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free index values cache.",
-			 function );
-
-			result = -1;
-		}
 		if( libcdata_btree_free(
 		     &( ( *descriptors_index )->recovered_index_values_tree ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_values_list_free,
@@ -268,6 +219,7 @@ int libpff_descriptors_index_free(
  */
 int libpff_descriptors_index_get_index_value_by_identifier(
      libpff_descriptors_index_t *descriptors_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint32_t descriptor_identifier,
      uint8_t recovered,
@@ -307,7 +259,7 @@ int libpff_descriptors_index_get_index_value_by_identifier(
 	{
 		result = libpff_index_get_value_by_identifier(
 			  descriptors_index->index,
-			  descriptors_index->io_handle,
+			  io_handle,
 			  file_io_handle,
 			  descriptor_identifier,
 			  index_value,

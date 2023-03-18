@@ -495,6 +495,7 @@ int libpff_folder_determine_sub_folders(
 
 		result = libpff_descriptors_index_get_index_value_by_identifier(
 			  internal_item->descriptors_index,
+			  internal_item->io_handle,
 			  internal_item->file_io_handle,
 			  sub_folders_descriptor_identifier,
 			  internal_item->item_descriptor->recovered,
@@ -625,6 +626,7 @@ int libpff_folder_determine_sub_messages(
 
 		result = libpff_descriptors_index_get_index_value_by_identifier(
 			  internal_item->descriptors_index,
+			  internal_item->io_handle,
 			  internal_item->file_io_handle,
 			  sub_messages_descriptor_identifier,
 			  internal_item->item_descriptor->recovered,
@@ -755,6 +757,7 @@ int libpff_folder_determine_sub_associated_contents(
 
 		result = libpff_descriptors_index_get_index_value_by_identifier(
 			  internal_item->descriptors_index,
+			  internal_item->io_handle,
 			  internal_item->file_io_handle,
 			  sub_associated_contents_descriptor_identifier,
 			  internal_item->item_descriptor->recovered,
@@ -1059,6 +1062,19 @@ int libpff_folder_determine_unknowns(
 
 			goto on_error;
 		}
+		if( libpff_local_descriptor_value_free(
+		     &local_descriptor_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free local descriptor values.",
+			 function );
+
+			goto on_error;
+		}
 		if( unknowns_item_descriptor == NULL )
 		{
 			libcerror_error_set(
@@ -1117,6 +1133,12 @@ on_error:
 	{
 		libpff_item_descriptor_free(
 		 &unknowns_item_descriptor,
+		 NULL );
+	}
+	if( local_descriptor_value != NULL )
+	{
+		libpff_local_descriptor_value_free(
+		 &local_descriptor_value,
 		 NULL );
 	}
 	return( -1 );

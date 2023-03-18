@@ -78,9 +78,6 @@ int pff_test_local_descriptors_initialize(
 
 	result = libpff_offsets_index_initialize(
 	          &offsets_index,
-	          io_handle,
-	          NULL,
-	          NULL,
 	          0,
 	          0,
 	          &error );

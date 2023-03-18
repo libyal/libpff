@@ -70,6 +70,7 @@ int libpff_recover_analyze_data_block_back_pointer(
 
 int libpff_recover_analyze_descriptors_index_value(
      libpff_descriptors_index_t *descriptors_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_index_value_t *descriptors_index_value,
      libcerror_error_t **error );
@@ -81,6 +82,7 @@ int libpff_recover_check_descriptors_index_for_recovered_value(
 
 int libpff_recover_descriptors_index_values(
      libpff_descriptors_index_t *descriptors_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t node_offset,
      uint64_t node_back_pointer,
@@ -89,6 +91,7 @@ int libpff_recover_descriptors_index_values(
 
 int libpff_recover_analyze_offsets_index_value(
      libpff_offsets_index_t *offsets_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_index_value_t *offsets_index_value,
      uint32_t maximum_data_block_data_size,
@@ -101,6 +104,7 @@ int libpff_recover_check_offsets_index_for_recovered_value(
 
 int libpff_recover_analyze_offsets_index_node(
      libpff_offsets_index_t *offsets_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t node_offset,
      uint64_t node_back_pointer,

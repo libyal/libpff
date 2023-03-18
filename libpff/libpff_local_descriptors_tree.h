@@ -28,9 +28,8 @@
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
-#include "libpff_libfcache.h"
-#include "libpff_libfdata.h"
 #include "libpff_local_descriptor_value.h"
+#include "libpff_local_descriptors.h"
 #include "libpff_offsets_index.h"
 
 #if defined( __cplusplus )
@@ -57,6 +56,10 @@ struct libpff_local_descriptors_tree
 	 */
 	uint64_t root_data_identifier;
 
+	/* The local descriptors
+	 */
+	libpff_local_descriptors_t *local_descriptors;
+
 	/* Value to indicate if the local descriptors were recovered
 	 */
 	uint8_t recovered;
@@ -64,10 +67,6 @@ struct libpff_local_descriptors_tree
 	/* Recovered value index
 	 */
 	int recovered_value_index;
-
-	/* The tree
-	 */
-	libfdata_tree_t *tree;
 };
 
 int libpff_local_descriptors_tree_initialize(
@@ -89,39 +88,11 @@ int libpff_local_descriptors_tree_clone(
      libpff_local_descriptors_tree_t *source_local_descriptors_tree,
      libcerror_error_t **error );
 
-int libpff_local_descriptors_tree_get_leaf_node_by_identifier(
-     libpff_local_descriptors_tree_t *local_descriptors_tree,
-     libbfio_handle_t *file_io_handle,
-     libfcache_cache_t *cache,
-     uint64_t identifier,
-     libfdata_tree_node_t **leaf_local_descriptors_tree_node,
-     libcerror_error_t **error );
-
-int libpff_local_descriptors_tree_node_get_leaf_node_by_identifier(
-     libfdata_tree_node_t *local_descriptors_tree_node,
-     libbfio_handle_t *file_io_handle,
-     libfcache_cache_t *cache,
-     uint64_t identifier,
-     libfdata_tree_node_t **leaf_local_descriptors_tree_node,
-     libcerror_error_t **error );
-
 int libpff_local_descriptors_tree_get_value_by_identifier(
      libpff_local_descriptors_tree_t *local_descriptors_tree,
      libbfio_handle_t *file_io_handle,
-     libfcache_cache_t *cache,
      uint64_t identifier,
      libpff_local_descriptor_value_t **local_descriptor_value,
-     libcerror_error_t **error );
-
-int libpff_local_descriptors_tree_read(
-     libpff_local_descriptors_tree_t **local_descriptors_tree,
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     libpff_offsets_index_t *offsets_index,
-     uint32_t descriptor_identifier,
-     uint64_t data_identifier,
-     uint8_t recovered,
-     int recovered_value_index,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

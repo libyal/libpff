@@ -269,17 +269,17 @@ int libpff_table_free(
 				result = -1;
 			}
 		}
-		if( ( *table )->local_descriptors_cache != NULL )
+		if( ( *table )->local_descriptor_values_cache != NULL )
 		{
 			if( libfcache_cache_free(
-			     &( ( *table )->local_descriptors_cache ),
+			     &( ( *table )->local_descriptor_values_cache ),
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free local descriptors cache.",
+				 "%s: unable to free local descriptor values cache.",
 				 function );
 
 				result = -1;
@@ -477,15 +477,15 @@ int libpff_table_clone(
 			goto on_error;
 		}
 		if( libfcache_cache_clone(
-		     &( ( *destination_table )->local_descriptors_cache ),
-		     source_table->local_descriptors_cache,
+		     &( ( *destination_table )->local_descriptor_values_cache ),
+		     source_table->local_descriptor_values_cache,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create destination local descriptors cache.",
+			 "%s: unable to create destination local descriptor values cache.",
 			 function );
 
 			goto on_error;
@@ -902,7 +902,6 @@ int libpff_table_get_local_descriptors_value_by_identifier(
 		result = libpff_local_descriptors_tree_get_value_by_identifier(
 			  table->local_descriptors_tree,
 			  file_io_handle,
-			  table->local_descriptors_cache,
 			  (uint64_t) descriptor_identifier,
 			  local_descriptor_value,
 			  error );
@@ -2109,13 +2108,13 @@ int libpff_table_read(
 
 		return( -1 );
 	}
-	if( table->local_descriptors_cache != NULL )
+	if( table->local_descriptor_values_cache != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid table - local descriptors cache already set.",
+		 "%s: invalid table - local descriptor values cache already set.",
 		 function );
 
 		return( -1 );
@@ -2133,10 +2132,9 @@ int libpff_table_read(
 	}
 	if( table->local_descriptors_identifier > 0 )
 	{
-		if( libpff_local_descriptors_tree_read(
+		if( libpff_local_descriptors_tree_initialize(
 		     &( table->local_descriptors_tree ),
 		     io_handle,
-		     file_io_handle,
 		     offsets_index,
 		     table->descriptor_identifier,
 		     table->local_descriptors_identifier,
@@ -2155,7 +2153,7 @@ int libpff_table_read(
 			return( -1 );
 		}
 		if( libfcache_cache_initialize(
-		     &( table->local_descriptors_cache ),
+		     &( table->local_descriptor_values_cache ),
 		     LIBPFF_MAXIMUM_CACHE_ENTRIES_LOCAL_DESCRIPTORS_VALUES,
 		     error ) != 1 )
 		{
@@ -2163,7 +2161,7 @@ int libpff_table_read(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create local descriptors cache.",
+			 "%s: unable to create local descriptor values cache.",
 			 function );
 
 			if( table->local_descriptors_tree != NULL )
@@ -2535,6 +2533,7 @@ int libpff_table_read_descriptor_data_list(
 	}
 	if( libpff_offsets_index_get_index_value_by_identifier(
 	     offsets_index,
+	     io_handle,
 	     file_io_handle,
 	     data_identifier,
 	     recovered,
@@ -6954,7 +6953,6 @@ int libpff_table_read_ac_column_definitions(
 	result = libpff_local_descriptors_tree_get_value_by_identifier(
 		  table->local_descriptors_tree,
 		  file_io_handle,
-		  table->local_descriptors_cache,
 		  column_definitions_reference,
 		  &local_descriptor_value,
 	          error );
@@ -6990,8 +6988,10 @@ int libpff_table_read_ac_column_definitions(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid local descriptor value.",
-		 function );
+		 "%s: invalid column definitions descriptor: 0x%08" PRIx32 " (%" PRIu32 ") local descriptor value.",
+		 function,
+		 column_definitions_reference,
+		 column_definitions_reference );
 
 		goto on_error;
 	}
@@ -7030,6 +7030,21 @@ int libpff_table_read_ac_column_definitions(
 		 function,
 		 column_definitions_reference,
 		 local_descriptor_value->data_identifier );
+
+		goto on_error;
+	}
+	if( libpff_local_descriptor_value_free(
+	     &local_descriptor_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free column definitions descriptor: 0x%08" PRIx32 " (%" PRIu32 ") local descriptor value.",
+		 function,
+		 column_definitions_reference,
+		 column_definitions_reference );
 
 		goto on_error;
 	}
@@ -7362,7 +7377,6 @@ int libpff_table_read_ac_column_definitions(
 			result = libpff_local_descriptors_tree_get_value_by_identifier(
 				  table->local_descriptors_tree,
 				  file_io_handle,
-				  table->local_descriptors_cache,
 				  record_entry_values_table_descriptor,
 				  &local_descriptor_value,
 				  error );
@@ -7440,6 +7454,19 @@ int libpff_table_read_ac_column_definitions(
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 				 "%s: unable to create record entry values table.",
+				 function );
+
+				goto on_error;
+			}
+			if( libpff_local_descriptor_value_free(
+			     &local_descriptor_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free local descriptor values.",
 				 function );
 
 				goto on_error;
@@ -7556,6 +7583,12 @@ on_error:
 	{
 		libfdata_list_free(
 		 &column_definitions_data_list,
+		 NULL );
+	}
+	if( local_descriptor_value != NULL )
+	{
+		libpff_local_descriptor_value_free(
+		 &local_descriptor_value,
 		 NULL );
 	}
 	return( -1 );
@@ -7872,7 +7905,6 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 			result = libpff_local_descriptors_tree_get_value_by_identifier(
 				  table->local_descriptors_tree,
 				  file_io_handle,
-				  table->local_descriptors_cache,
 				  values_array_reference,
 				  &local_descriptor_value,
 				  error );
@@ -7887,7 +7919,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 				 function,
 				 values_array_reference );
 
-				return( -1 );
+				goto on_error;
 			}
 			else if( result == 0 )
 			{
@@ -7900,7 +7932,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 				 values_array_reference,
 				 values_array_reference );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( local_descriptor_value == NULL )
 			{
@@ -7911,7 +7943,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 				 "%s: invalid local descriptor value.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -7949,7 +7981,22 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 				 values_array_reference,
 				 local_descriptor_value->data_identifier );
 
-				return( -1 );
+				goto on_error;
+			}
+			if( libpff_local_descriptor_value_free(
+			     &local_descriptor_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free values array descriptor: 0x%08" PRIx32 " (%" PRIu32 ") local descriptor value.",
+				 function,
+				 values_array_reference,
+				 values_array_reference );
+
+				goto on_error;
 			}
 			if( libfdata_list_get_mapped_size_by_index(
 			     table->values_array_data_list,
@@ -7964,7 +8011,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 				 "%s: unable to retrieve mapped size of data block: 0.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			table->value_array_entries_per_block = (int) ( values_array_block_size / values_array_entry_size );
 		}
@@ -7977,7 +8024,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 			 "%s: invalid table - missing value array entries per block value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		values_array_block_index = values_array_entry_number / table->value_array_entries_per_block;
 
@@ -8000,7 +8047,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 			 function,
 			 values_array_block_index );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( data_block == NULL )
 		{
@@ -8012,7 +8059,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 			 function,
 			 values_array_block_index );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( data_block->data == NULL )
 		{
@@ -8024,7 +8071,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 			 function,
 			 values_array_block_index );
 
-			return( -1 );
+			goto on_error;
 		}
 		values_array_data_offset = ( values_array_entry_number % table->value_array_entries_per_block )
 		                         * values_array_entry_size;
@@ -8062,7 +8109,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 			 "%s: unable to retrieve value data by reference.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( ( *values_array_data == NULL )
 		 || ( *values_array_data_size == 0 ) )
@@ -8074,7 +8121,7 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 			 "%s: missing values array data.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		values_array_data_offset = (size_t) values_array_entry_number * (size_t) values_array_entry_size;
 
@@ -8109,6 +8156,15 @@ int libpff_table_values_array_get_value_data_by_entry_number(
 	}
 #endif
 	return( 1 );
+
+on_error:
+	if( local_descriptor_value != NULL )
+	{
+		libpff_local_descriptor_value_free(
+		 &local_descriptor_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads the table values array
@@ -9069,7 +9125,6 @@ int libpff_table_read_entry_value(
 			result = libpff_local_descriptors_tree_get_value_by_identifier(
 				  table->local_descriptors_tree,
 				  file_io_handle,
-				  table->local_descriptors_cache,
 				  (uint32_t) entry_value,
 				  &local_descriptor_value,
 				  error );
@@ -9165,6 +9220,19 @@ int libpff_table_read_entry_value(
 					 */
 					record_entry->flags |= LIBPFF_RECORD_ENTRY_FLAG_MISSING_DATA_DESCRIPTOR;
 					table->flags        |= LIBPFF_TABLE_FLAG_MISSING_RECORD_ENTRY_DATA;
+				}
+				if( libpff_local_descriptor_value_free(
+				     &local_descriptor_value,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free local descriptor values.",
+					 function );
+
+					goto on_error;
 				}
 			}
 		}
@@ -9446,7 +9514,6 @@ int libpff_table_read_entry_value(
 				result = libpff_local_descriptors_tree_get_value_by_identifier(
 					  table->local_descriptors_tree,
 					  file_io_handle,
-					  table->local_descriptors_cache,
 					  (uint32_t) entry_value,
 					  &local_descriptor_value,
 					  error );
@@ -9542,6 +9609,19 @@ int libpff_table_read_entry_value(
 						 */
 						record_entry->flags |= LIBPFF_RECORD_ENTRY_FLAG_MISSING_DATA_DESCRIPTOR;
 						table->flags        |= LIBPFF_TABLE_FLAG_MISSING_RECORD_ENTRY_DATA;
+					}
+					if( libpff_local_descriptor_value_free(
+					     &local_descriptor_value,
+					     error ) != 1 )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+						 "%s: unable to free local descriptor values.",
+						 function );
+
+						goto on_error;
 					}
 				}
 			}
@@ -9758,6 +9838,12 @@ on_error:
 	{
 		libfdata_list_free(
 		 &value_data_list,
+		 NULL );
+	}
+	if( local_descriptor_value != NULL )
+	{
+		libpff_local_descriptor_value_free(
+		 &local_descriptor_value,
 		 NULL );
 	}
 	return( -1 );

@@ -89,9 +89,9 @@ struct libpff_table
 	 */
 	libpff_local_descriptors_tree_t *local_descriptors_tree;
 
-	/* The local descriptors cache
+	/* The local descriptor values cache
 	 */
-	libfcache_cache_t *local_descriptors_cache;
+	libfcache_cache_t *local_descriptor_values_cache;
 
 	/* The values array data list
 	 */

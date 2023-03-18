@@ -28,8 +28,6 @@
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
-#include "libpff_libfcache.h"
-#include "libpff_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -92,19 +90,6 @@ int libpff_io_handle_read_unallocated_page_blocks(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcdata_range_list_t *unallocated_page_block_list,
-     libcerror_error_t **error );
-
-int libpff_io_handle_read_index_node(
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     libfdata_vector_t *vector,
-     libfdata_cache_t *cache,
-     int element_index,
-     int element_data_file_index,
-     off64_t element_data_offset,
-     size64_t element_data_size,
-      uint32_t element_data_flags,
-     uint8_t read_flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

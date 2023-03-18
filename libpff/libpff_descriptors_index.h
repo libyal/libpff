@@ -31,8 +31,6 @@
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
-#include "libpff_libfcache.h"
-#include "libpff_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -42,18 +40,6 @@ typedef struct libpff_descriptors_index libpff_descriptors_index_t;
 
 struct libpff_descriptors_index
 {
-	/* The IO handle
-	 */
-	libpff_io_handle_t *io_handle;
-
-	/* The index nodes vector
-	 */
-	libfdata_vector_t *index_nodes_vector;
-
-	/* The index nodes cache
-	 */
-	libfcache_cache_t *index_nodes_cache;
-
 	/* The index
 	 */
 	libpff_index_t *index;
@@ -61,17 +47,10 @@ struct libpff_descriptors_index
 	/* The recovered index values B-tree
 	 */
 	libcdata_btree_t *recovered_index_values_tree;
-
-	/* The index cache
-	 */
-	libfcache_cache_t *index_cache;
 };
 
 int libpff_descriptors_index_initialize(
      libpff_descriptors_index_t **descriptors_index,
-     libpff_io_handle_t *io_handle,
-     libfdata_vector_t *index_nodes_vector,
-     libfcache_cache_t *index_nodes_cache,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,
      libcerror_error_t **error );
@@ -82,6 +61,7 @@ int libpff_descriptors_index_free(
 
 int libpff_descriptors_index_get_index_value_by_identifier(
      libpff_descriptors_index_t *descriptors_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint32_t descriptor_identifier,
      uint8_t recovered,

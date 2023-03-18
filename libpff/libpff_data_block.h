@@ -28,6 +28,8 @@
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
+#include "libpff_libfcache.h"
+#include "libpff_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {

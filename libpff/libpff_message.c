@@ -965,6 +965,19 @@ int libpff_message_determine_attachment(
 
 		goto on_error;
 	}
+	if( libpff_local_descriptor_value_free(
+	     &local_descriptor_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free local descriptor values.",
+		 function );
+
+		goto on_error;
+	}
 	return( 1 );
 
 on_error:
@@ -972,6 +985,12 @@ on_error:
 	{
 		libpff_record_entry_free(
 		 &record_entry,
+		 NULL );
+	}
+	if( local_descriptor_value != NULL )
+	{
+		libpff_local_descriptor_value_free(
+		 &local_descriptor_value,
 		 NULL );
 	}
 	return( -1 );
@@ -1064,7 +1083,7 @@ int libpff_message_determine_attachments(
 			 "%s: unable to read item values.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( internal_item->item_values->table == NULL )
 		{
@@ -1075,7 +1094,7 @@ int libpff_message_determine_attachments(
 			 "%s: invalid item values - missing table.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	/* Determine if the item has attachments
@@ -1097,7 +1116,7 @@ int libpff_message_determine_attachments(
 		 function,
 		 (uint32_t) LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_ATTACHMENTS );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -1114,7 +1133,20 @@ int libpff_message_determine_attachments(
 			 "%s: unable to create sub item attachments.",
 			 function );
 
-			return( -1 );
+			goto on_error;
+		}
+		if( libpff_local_descriptor_value_free(
+		     &local_descriptor_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free local descriptor values.",
+			 function );
+
+			goto on_error;
 		}
 		if( libpff_item_values_get_number_of_record_sets(
 		     internal_item->sub_item_values[ LIBPFF_MESSAGE_SUB_ITEM_ATTACHMENTS ],
@@ -1132,7 +1164,7 @@ int libpff_message_determine_attachments(
 			 "%s: unable to determine the number of attachments.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		for( attachment_index = 0;
 		     attachment_index < number_of_attachments;
@@ -1152,11 +1184,20 @@ int libpff_message_determine_attachments(
 				 function,
 				 attachment_index );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( local_descriptor_value != NULL )
+	{
+		libpff_local_descriptor_value_free(
+		 &local_descriptor_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the number of attachments from a message item
@@ -1690,7 +1731,7 @@ int libpff_message_determine_recipients(
 			 "%s: unable to read item values.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( internal_item->item_values->table == NULL )
 		{
@@ -1701,7 +1742,7 @@ int libpff_message_determine_recipients(
 			 "%s: invalid item values - missing table.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	/* Determine if the item has recipients
@@ -1723,7 +1764,7 @@ int libpff_message_determine_recipients(
 		 function,
 		 (uint32_t) LIBPFF_LOCAL_DESCRIPTOR_IDENTIFIER_RECIPIENTS );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -1740,13 +1781,35 @@ int libpff_message_determine_recipients(
 			 "%s: unable to create sub item recipients.",
 			 function );
 
-			return( -1 );
+			goto on_error;
+		}
+		if( libpff_local_descriptor_value_free(
+		     &local_descriptor_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free local descriptor values.",
+			 function );
+
+			goto on_error;
 		}
 		/* All the recipient data is in the recipients item
 		 * there are no sub items like for the attachments item
 		 */
 	}
 	return( 1 );
+
+on_error:
+	if( local_descriptor_value != NULL )
+	{
+		libpff_local_descriptor_value_free(
+		 &local_descriptor_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the recipients from a message item

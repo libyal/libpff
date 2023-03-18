@@ -190,9 +190,9 @@ int libpff_index_value_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function        = "libpff_index_value_read_data";
-	size_t index_node_entry_size = 0;
-	uint64_t file_offset         = 0;
+	static char *function = "libpff_index_value_read_data";
+	size_t value_size     = 0;
+	uint64_t file_offset  = 0;
 
 	if( index_value == NULL )
 	{
@@ -220,24 +220,24 @@ int libpff_index_value_read_data(
 	{
 		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
-			index_node_entry_size = sizeof( pff_index_node_descriptor_entry_32bit_t );
+			value_size = sizeof( pff_index_node_descriptor_entry_32bit_t );
 		}
 		else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
 		      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 		{
-			index_node_entry_size = sizeof( pff_index_node_descriptor_entry_64bit_t );
+			value_size = sizeof( pff_index_node_descriptor_entry_64bit_t );
 		}
 	}
 	else if( index_node_type == LIBPFF_INDEX_TYPE_OFFSET )
 	{
 		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
-			index_node_entry_size = sizeof( pff_index_node_offset_entry_32bit_t );
+			value_size = sizeof( pff_index_node_offset_entry_32bit_t );
 		}
 		else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
 		      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 		{
-			index_node_entry_size = sizeof( pff_index_node_offset_entry_64bit_t );
+			value_size = sizeof( pff_index_node_offset_entry_64bit_t );
 		}
 	}
 	if( data == NULL )
@@ -251,7 +251,7 @@ int libpff_index_value_read_data(
 
 		return( -1 );
 	}
-	if( ( data_size < index_node_entry_size )
+	if( ( data_size < value_size )
 	 || ( data_size > SSIZE_MAX ) )
 	{
 		libcerror_error_set(
@@ -267,11 +267,11 @@ int libpff_index_value_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: index node entry data:\n",
+		 "%s: index value data:\n",
 		 function );
 		libcnotify_print_data(
 		 data,
-		 index_node_entry_size,
+		 value_size,
 		 0 );
 	}
 #endif
@@ -357,18 +357,6 @@ int libpff_index_value_read_data(
 			 ( (pff_index_node_offset_entry_64bit_t *) data )->reference_count,
 			 index_value->reference_count );
 		}
-		if( file_offset > (uint64_t) INT64_MAX )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid file offset value out of bounds.",
-			 function );
-
-			return( -1 );
-		}
-		index_value->file_offset = file_offset;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -402,13 +390,13 @@ int libpff_index_value_read_data(
 		else if( index_node_type == LIBPFF_INDEX_TYPE_OFFSET )
 		{
 			libcnotify_printf(
-			 "%s: file offset\t\t\t\t: %" PRIi64 " (0x%08" PRIx64 ")\n",
+			 "%s: file offset\t\t\t\t: %" PRIu64 " (0x%08" PRIx64 ")\n",
 			 function,
-			 index_value->file_offset,
-			 index_value->file_offset );
+			 file_offset,
+			 file_offset );
 
 			libcnotify_printf(
-			 "%s: data size\t\t\t\t: %" PRIu64 "\n",
+			 "%s: data size\t\t\t\t\t: %" PRIu64 "\n",
 			 function,
 			 index_value->data_size );
 
@@ -422,6 +410,21 @@ int libpff_index_value_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	if( index_node_type == LIBPFF_INDEX_TYPE_OFFSET )
+	{
+		if( file_offset > (uint64_t) INT64_MAX )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid file offset value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
+		index_value->file_offset = file_offset;
+	}
 	return( 1 );
 }
 

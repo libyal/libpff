@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="pff_test_local_descriptor_node"
-	ProjectGUID="{58B898C4-F3D5-44E7-BAA9-E28664C8A014}"
-	RootNamespace="pff_test_local_descriptor_node"
+	Name="pff_test_local_descriptors_node"
+	ProjectGUID="{906D9A07-C996-4B38-A309-0E42898D0E90}"
+	RootNamespace="pff_test_local_descriptors_node"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -180,7 +180,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\pff_test_local_descriptor_node.c"
+				RelativePath="..\..\tests\pff_test_local_descriptors_node.c"
 				>
 			</File>
 			<File

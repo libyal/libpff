@@ -306,15 +306,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_local_descriptor_node.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpff\libpff_local_descriptor_value.c"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_local_descriptors.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_local_descriptors_node.c"
 				>
 			</File>
 			<File
@@ -580,15 +580,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_local_descriptor_node.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpff\libpff_local_descriptor_value.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_local_descriptors.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_local_descriptors_node.h"
 				>
 			</File>
 			<File
@@ -700,7 +700,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\pff_local_descriptor_node.h"
+				RelativePath="..\..\libpff\pff_local_descriptors_node.h"
 				>
 			</File>
 			<File

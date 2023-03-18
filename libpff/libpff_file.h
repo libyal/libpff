@@ -74,14 +74,6 @@ struct libpff_internal_file
 	 */
 	libpff_file_header_t *file_header;
 
-	/* The index nodes vector
-	 */
-	libfdata_vector_t *index_nodes_vector;
-
-	/* The index nodes cache
-	 */
-	libfcache_cache_t *index_nodes_cache;
-
 	/* The descriptors index
 	 */
 	libpff_descriptors_index_t *descriptors_index;

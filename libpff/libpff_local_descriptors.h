@@ -30,7 +30,7 @@
 #include "libpff_libcerror.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
-#include "libpff_local_descriptor_node.h"
+#include "libpff_local_descriptors_node.h"
 #include "libpff_local_descriptor_value.h"
 #include "libpff_offsets_index.h"
 
@@ -54,9 +54,9 @@ struct libpff_local_descriptors
 	 */
 	uint32_t descriptor_identifier;
 
-	/* The root node offset
+	/* The root node data identifier
 	 */
-	off64_t root_node_offset;
+	uint64_t root_node_data_identifier;
 
 	/* Value to indicate if the local descriptors were recovered
 	 */
@@ -64,7 +64,7 @@ struct libpff_local_descriptors
 
 	/* The local descriptor nodes cache
 	 */
-	libfcache_cache_t *local_descriptor_nodes_cache;
+	libfcache_cache_t *local_descriptors_nodes_cache;
 };
 
 int libpff_local_descriptors_initialize(
@@ -72,7 +72,7 @@ int libpff_local_descriptors_initialize(
      libpff_io_handle_t *io_handle,
      libpff_offsets_index_t *offsets_index,
      uint32_t descriptor_identifier,
-     off64_t root_node_offset,
+     uint64_t root_node_data_identifier,
      uint8_t recovered,
      libcerror_error_t **error );
 
@@ -85,52 +85,24 @@ int libpff_local_descriptors_clone(
      libpff_local_descriptors_t *source_local_descriptors,
      libcerror_error_t **error );
 
-int libpff_local_descriptors_read_local_descriptor_node(
+/* TODO add recursion depth or block tree */
+
+int libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
      libpff_local_descriptors_t *local_descriptors,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     uint64_t identifier,
      uint64_t data_identifier,
-     libpff_local_descriptor_node_t **local_descriptor_node,
+     libpff_local_descriptors_node_t **leaf_node,
+     uint16_t *leaf_node_entry_index,
      libcerror_error_t **error );
 
-int libpff_local_descriptors_read_tree_node(
+int libpff_local_descriptors_get_value_by_identifier(
      libpff_local_descriptors_t *local_descriptors,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     off64_t node_offset,
-     uint64_t data_identifier,
-     libfdata_tree_node_t *local_descriptors_tree_node,
-     libcerror_error_t **error );
-
-int libpff_local_descriptors_read_local_descriptor_value(
-     libpff_local_descriptors_t *local_descriptors,
-     libbfio_handle_t *file_io_handle,
-     uint64_t data_identifier,
-     uint16_t entry_index,
-     libfdata_tree_node_t *local_descriptors_tree_node,
-     libpff_local_descriptor_value_t *local_descriptor_value,
-     libcerror_error_t **error );
-
-int libpff_local_descriptors_read_node(
-     libpff_local_descriptors_t *local_descriptors,
-     libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
-     libfdata_cache_t *cache,
-     int node_file_index,
-     off64_t node_offset,
-     size64_t node_size,
-     uint32_t node_flags,
-     uint8_t read_flags,
-     libcerror_error_t **error );
-
-int libpff_local_descriptors_read_sub_nodes(
-     libpff_local_descriptors_t *local_descriptors,
-     libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
-     libfdata_cache_t *cache,
-     int sub_nodes_file_index,
-     off64_t sub_nodes_offset,
-     size64_t sub_nodes_size,
-     uint32_t sub_nodes_flags,
-     uint8_t read_flags,
+     uint64_t identifier,
+     libpff_local_descriptor_value_t **local_descriptor_value,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

@@ -31,8 +31,6 @@
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfcache.h"
-#include "libpff_libfdata.h"
 #include "libpff_item_descriptor.h"
 #include "libpff_item_tree.h"
 
@@ -629,6 +627,7 @@ on_error:
  */
 int libpff_item_tree_create(
      libpff_item_tree_t *item_tree,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_descriptors_index_t *descriptors_index,
      libcdata_list_t *orphan_node_list,
@@ -732,6 +731,7 @@ int libpff_item_tree_create(
 
 	if( libpff_item_tree_create_node_from_descriptor_index_node(
 	     item_tree,
+	     io_handle,
 	     file_io_handle,
 	     descriptors_index,
 	     descriptors_index->index->root_node_offset,
@@ -776,6 +776,7 @@ on_error:
  */
 int libpff_item_tree_create_node_from_descriptor_index_node(
      libpff_item_tree_t *item_tree,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_descriptors_index_t *descriptors_index,
      off64_t node_offset,
@@ -784,15 +785,13 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
      int recursion_depth,
      libcerror_error_t **error )
 {
-	libfcache_cache_t *index_nodes_cache = NULL;
-	libpff_index_node_t *index_node      = NULL;
-	libpff_index_value_t *index_value    = NULL;
-	uint8_t *node_entry_data             = NULL;
-	static char *function                = "libpff_item_tree_create_node_from_descriptor_index_node";
-	off64_t element_data_offset          = 0;
-	uint64_t sub_node_back_pointer       = 0;
-	uint64_t sub_node_offset             = 0;
-	uint16_t entry_index                 = 0;
+	libpff_index_node_t *index_node   = NULL;
+	libpff_index_value_t *index_value = NULL;
+	uint8_t *node_entry_data          = NULL;
+	static char *function             = "libpff_item_tree_create_node_from_descriptor_index_node";
+	uint64_t sub_node_back_pointer    = 0;
+	uint64_t sub_node_offset          = 0;
+	uint16_t entry_index              = 0;
 
 	if( item_tree == NULL )
 	{
@@ -805,6 +804,17 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 
 		return( -1 );
 	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( descriptors_index == NULL )
 	{
 		libcerror_error_set(
@@ -812,17 +822,6 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid descriptors index.",
-		 function );
-
-		return( -1 );
-	}
-	if( descriptors_index->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid descriptors index - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -850,50 +849,31 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 
 		return( -1 );
 	}
-	if( libfcache_cache_initialize(
-	     &index_nodes_cache,
-	     1,
+	if( libpff_index_node_initialize(
+	     &index_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index nodes cache.",
+		 "%s: unable to create index node.",
 		 function );
 
 		goto on_error;
 	}
-	/* Cache the index node locally to prevent it being cached out when reading sub nodes
-	 */
-	if( libfdata_vector_get_element_value_at_offset(
-	     descriptors_index->index_nodes_vector,
-	     (intptr_t *) file_io_handle,
-	     (libfdata_cache_t *) index_nodes_cache,
+	if( libpff_index_node_read_file_io_handle(
+	     index_node,
+	     file_io_handle,
 	     node_offset,
-	     &element_data_offset,
-	     (intptr_t **) &index_node,
-	     0,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve descriptor index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 node_offset,
-		 node_offset );
-
-		goto on_error;
-	}
-	if( index_node == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing descriptor index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 		 function,
 		 node_offset,
 		 node_offset );
@@ -949,7 +929,7 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 			}
 			if( libpff_index_value_read_data(
 			     index_value,
-			     descriptors_index->io_handle,
+			     io_handle,
 			     LIBPFF_INDEX_TYPE_DESCRIPTOR,
 			     node_entry_data,
 			     (size_t) index_node->entry_size,
@@ -966,6 +946,7 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 			}
 			if( libpff_item_tree_create_leaf_node_from_descriptor_index_value(
 			     item_tree,
+			     io_handle,
 			     file_io_handle,
 			     descriptors_index,
 			     index_value,
@@ -999,7 +980,7 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 		}
 		else
 		{
-			if( descriptors_index->io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+			if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 			{
 				byte_stream_copy_to_uint32_little_endian(
 				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->file_offset,
@@ -1009,8 +990,8 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->back_pointer,
 				 sub_node_back_pointer );
 			}
-			else if( ( descriptors_index->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-			      || ( descriptors_index->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+			else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+			      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 			{
 				byte_stream_copy_to_uint64_little_endian(
 				 ( (pff_index_node_branch_entry_64bit_t *) node_entry_data )->file_offset,
@@ -1034,6 +1015,7 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 
 			if( libpff_item_tree_create_node_from_descriptor_index_node(
 			     item_tree,
+			     io_handle,
 			     file_io_handle,
 			     descriptors_index,
 			     sub_node_offset,
@@ -1055,15 +1037,15 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 			}
 		}
 	}
-	if( libfcache_cache_free(
-	     &index_nodes_cache,
+	if( libpff_index_node_free(
+	     &index_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free index nodes cache.",
+		 "%s: unable to free index node.",
 		 function );
 
 		goto on_error;
@@ -1077,10 +1059,10 @@ on_error:
 		 &index_value,
 		 NULL );
 	}
-	if( index_nodes_cache != NULL )
+	if( index_node != NULL )
 	{
-		libfcache_cache_free(
-		 &index_nodes_cache,
+		libpff_index_node_free(
+		 &index_node,
 		 NULL );
 	}
 	if( *root_folder_item_tree_node != NULL )
@@ -1101,6 +1083,7 @@ on_error:
  */
 int libpff_item_tree_create_leaf_node_from_descriptor_index_value(
      libpff_item_tree_t *item_tree,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_descriptors_index_t *descriptors_index,
      libpff_index_value_t *descriptor_index_value,
@@ -1297,7 +1280,7 @@ int libpff_item_tree_create_leaf_node_from_descriptor_index_value(
 #endif
 			result = libpff_index_get_value_by_identifier(
 				  descriptors_index->index,
-				  descriptors_index->io_handle,
+				  io_handle,
 				  file_io_handle,
 				  descriptor_index_value->parent_identifier,
 				  &parent_descriptor_index_value,
@@ -1318,6 +1301,7 @@ int libpff_item_tree_create_leaf_node_from_descriptor_index_value(
 				}
 				if( libpff_item_tree_create_leaf_node_from_descriptor_index_value(
 				     item_tree,
+				     io_handle,
 				     file_io_handle,
 				     descriptors_index,
 				     parent_descriptor_index_value,

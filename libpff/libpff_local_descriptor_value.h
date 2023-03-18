@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libpff_io_handle.h"
 #include "libpff_libcerror.h"
 
 #if defined( __cplusplus )
@@ -73,9 +74,11 @@ int libpff_local_descriptor_value_free(
      libpff_local_descriptor_value_t **local_descriptor_value,
      libcerror_error_t **error );
 
-int libpff_local_descriptor_value_clone(
-     libpff_local_descriptor_value_t **destination_local_descriptor_value,
-     libpff_local_descriptor_value_t *source_local_descriptor_value,
+int libpff_local_descriptor_value_read_data(
+     libpff_local_descriptor_value_t *local_descriptor_value,
+     libpff_io_handle_t *io_handle,
+     const uint8_t *data,
+     size_t data_size,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

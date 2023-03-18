@@ -27,6 +27,7 @@
 
 #include "libpff_descriptors_index.h"
 #include "libpff_index_node.h"
+#include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
@@ -80,6 +81,7 @@ int libpff_item_tree_append_identifier(
 
 int libpff_item_tree_create(
      libpff_item_tree_t *item_tree,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_descriptors_index_t *descriptors_index,
      libcdata_list_t *orphan_node_list,
@@ -88,6 +90,7 @@ int libpff_item_tree_create(
 
 int libpff_item_tree_create_node_from_descriptor_index_node(
      libpff_item_tree_t *item_tree,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_descriptors_index_t *descriptors_index,
      off64_t node_offset,
@@ -98,6 +101,7 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 
 int libpff_item_tree_create_leaf_node_from_descriptor_index_value(
      libpff_item_tree_t *item_tree,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_descriptors_index_t *descriptors_index,
      libpff_index_value_t *descriptor_index_value,

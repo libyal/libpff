@@ -34,7 +34,13 @@
 #include "pff_test_memory.h"
 #include "pff_test_unused.h"
 
+#include "../libpff/libpff_definitions.h"
 #include "../libpff/libpff_index_value.h"
+#include "../libpff/libpff_io_handle.h"
+
+uint8_t pff_test_index_value_data1[ 32 ] = {
+	0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x74, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 };
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
@@ -429,6 +435,269 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libpff_index_value_read_data function
+ * Returns 1 if successful or 0 if not
+ */
+int pff_test_index_value_read_data(
+     void )
+{
+	libcerror_error_t *error          = NULL;
+	libpff_index_value_t *index_value = NULL;
+	libpff_io_handle_t *io_handle     = NULL;
+	int result                        = 0;
+
+	/* Initialize test
+	 */
+	result = libpff_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	io_handle->file_type = LIBPFF_FILE_TYPE_64BIT;
+
+	result = libpff_index_value_initialize(
+	          &index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "index_value",
+	 index_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libpff_index_value_read_data(
+	          index_value,
+	          io_handle,
+	          LIBPFF_INDEX_TYPE_DESCRIPTOR,
+	          pff_test_index_value_data1,
+	          32,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libpff_index_value_read_data(
+	          NULL,
+	          io_handle,
+	          LIBPFF_INDEX_TYPE_DESCRIPTOR,
+	          pff_test_index_value_data1,
+	          32,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_index_value_read_data(
+	          index_value,
+	          NULL,
+	          LIBPFF_INDEX_TYPE_DESCRIPTOR,
+	          pff_test_index_value_data1,
+	          32,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_index_value_read_data(
+	          index_value,
+	          io_handle,
+	          LIBPFF_INDEX_TYPE_DESCRIPTOR,
+	          NULL,
+	          32,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_index_value_read_data(
+	          index_value,
+	          io_handle,
+	          LIBPFF_INDEX_TYPE_DESCRIPTOR,
+	          pff_test_index_value_data1,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_index_value_read_data(
+	          index_value,
+	          io_handle,
+	          LIBPFF_INDEX_TYPE_DESCRIPTOR,
+	          pff_test_index_value_data1,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_PFF_TEST_MEMORY )
+
+	/* Test pff_test_index_value_read_data with memcpy failing
+	 */
+	pff_test_memcpy_attempts_before_fail = 0;
+
+	result = libpff_index_value_read_data(
+	          index_value,
+	          io_handle,
+	          LIBPFF_INDEX_TYPE_DESCRIPTOR,
+	          pff_test_index_value_data1,
+	          32,
+	          &error );
+
+	if( pff_test_memcpy_attempts_before_fail != -1 )
+	{
+		pff_test_memcpy_attempts_before_fail = -1;
+	}
+	else
+	{
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_PFF_TEST_MEMORY ) */
+
+	/* Clean up
+	 */
+	result = libpff_index_value_free(
+	          &index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "index_value",
+	 index_value );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &index_value,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libpff_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -459,6 +728,10 @@ int main(
 	PFF_TEST_RUN(
 	 "libpff_index_value_compare",
 	 pff_test_index_value_compare );
+
+	PFF_TEST_RUN(
+	 "libpff_index_value_read_data",
+	 pff_test_index_value_read_data );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 

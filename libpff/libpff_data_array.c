@@ -563,6 +563,7 @@ int libpff_data_array_read_entries(
 /* TODO handle multiple recovered offset index values */
 		if( libpff_offsets_index_get_index_value_by_identifier(
 		     offsets_index,
+		     io_handle,
 		     file_io_handle,
 		     array_entry_identifier,
 		     recovered,

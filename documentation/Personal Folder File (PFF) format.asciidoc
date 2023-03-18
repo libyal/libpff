@@ -234,13 +234,13 @@ The file offset to the last data allocation table
 | 176 | 4 | | Total available data size
 | 180 | 4 | | Total available page size
 | 184 | 4 | | The descriptor index back pointer +
-the value that should appear in the parent offset of the root node of the descriptor index b-tree
+the value that should appear in the parent offset of the root node of the descriptor index B-tree
 | 188 | 4 | | The descriptor index file offset +
-File offset of the the of the descriptor index b-tree
+File offset of the the of the descriptor index B-tree
 | 192 | 4 | | The (file) offset index back pointer +
-the value that should appear in the parent offset of the root node of the (file) offset index b-tree
+the value that should appear in the parent offset of the root node of the (file) offset index B-tree
 | 196 | 4 | | The (file) offset index file offset +
-File offset of the the of the (file) offset index b-tree
+File offset of the the of the (file) offset index B-tree
 | 200 | 1 | | Allocation table validation type +
 See section: <<allocation_table_validation_types,Allocation table validation types>>
 | 201 | 1 | 0 | [yellow-background]*Unknown (Reserved)*
@@ -301,13 +301,13 @@ The file offset to the last data allocation table
 | 200 | 8 | | Total available data size
 | 208 | 8 | | Total available page size
 | 216 | 8 | | The descriptor index back pointer +
-The value that should appear in the parent offset of the root node of the descriptor index b-tree
+The value that should appear in the parent offset of the root node of the descriptor index B-tree
 | 224 | 8 | | The descriptor index file offset +
-File offset of the the of the descriptor index b-tree
+File offset of the the of the descriptor index B-tree
 | 232 | 8 | | The (file) offset index back pointer +
-The value that should appear in the parent offset of the root node of the (file) offset index b-tree
+The value that should appear in the parent offset of the root node of the (file) offset index B-tree
 | 240 | 8 | | The (file) offset index file offset +
-File offset of the the of the (file) offset index b-tree
+File offset of the the of the (file) offset index B-tree
 | 248 | 1 | | Allocation table validation type +
 See section: <<allocation_table_validation_types,Allocation table validation types>>
 | 249 | 1 | 0 | [yellow-background]*Unknown (bARVec)* +
@@ -395,7 +395,7 @@ According to `[MS-PST]` this is encryption with 'cyclic algorithm', which is sim
 == Pages
 
 `[MS-PST]` defines a common structure for the allocation table, the index
-b-tree, the free map and the density list as the page.
+B-tree, the free map and the density list as the page.
 
 === The 32-bit page
 
@@ -451,8 +451,8 @@ See section: <<page_types,Page types>>
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
-| 0x80 | ptypeBBT | Offset index b-tree node
-| 0x81 | ptypeNBT | Descriptor index b-tree node
+| 0x80 | ptypeBBT | Offset index B-tree node
+| 0x81 | ptypeNBT | Descriptor index B-tree node
 | 0x82 | ptypeFMap | Free map
 | 0x83 | ptypePMap | Page allocation table
 | 0x84 | ptypeAMap | Data allocation table
@@ -546,21 +546,21 @@ tables is as following:
 [NOTE]
 Page type 0x83 not yet been seen to be used with the 64-bit Unicode format with 4k format.
 
-== The index b-tree
+== The index B-tree
 
-The PFF consists of multiple index b-trees.
+The PFF consists of multiple index B-trees.
 
-* The (file) offset index b-tree (Block B-Tree (BBT))
-* The (item) descriptor index b-tree (Node B-Tree (NBT))
+* The (file) offset index B-tree (Block B-Tree (BBT))
+* The (item) descriptor index B-tree (Node B-Tree (NBT))
 
-These b-trees have a similar basic structure.
+These B-trees have a similar basic structure.
 
-An index b-tree consists of:
+An index B-tree consists of:
 
 * branch nodes that point to branch or leaf nodes
 * leaf nodes that contain the index data
 
-=== The 32-bit index b-tree node
+=== The 32-bit index B-tree node
 
 Both the 32-bit branch and leaf node have a similar structure which is 512
 bytes of size and consists of:
@@ -590,9 +590,9 @@ must match the back pointer that pointed to this node
 | 508 | 4 | | A weak CRC32 of the first 500 bytes of the index node
 |===
 
-==== The 32-bit index b-tree branch node entry
+==== The 32-bit index B-tree branch node entry
 
-The 32-bit index b-tree node entry is used in branch nodes. It is 12 bytes of
+The 32-bit index B-tree node entry is used in branch nodes. It is 12 bytes of
 size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -605,12 +605,12 @@ See section: <<index_identifier,Index identifier>>
 | 8 | 4 | | The (file) offset
 |===
 
-The index b-tree node will contain the following values:
+The index B-tree node will contain the following values:
 
 * The maximum number of entries: 41
 * The size of an entry: 12
 
-An index b-tree node can contain the same identifier value as a (file) offset
+An index B-tree node can contain the same identifier value as a (file) offset
 index entry. This occurs when the leaf node is the lowest identifier in the
 branch node.
 
@@ -629,7 +629,7 @@ Identifier of type block identifier
 | 10 | 2 | | The reference count
 |===
 
-The index b-tree node will contain the following values:
+The index B-tree node will contain the following values:
 
 * The maximum number of entries: 41
 * The size of an entry: 12
@@ -647,9 +647,9 @@ is encrypted or not. See section: <<block_types,Block types>> for more informati
 When the index tree is searched make sure to clear the first LSB in the
 identifier.
 
-==== The 32-bit descriptor index b-tree leaf node entry
+==== The 32-bit descriptor index B-tree leaf node entry
 
-The 32-bit descriptor index b-tree leaf node entry is 16 bytes of size and
+The 32-bit descriptor index B-tree leaf node entry is 16 bytes of size and
 consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -663,12 +663,12 @@ See section: <<index_identifier,Index identifier>>
 | 12 | 4 | | The parent (descriptor) index identifier
 |===
 
-The index b-tree node will contain the following values:
+The index B-tree node will contain the following values:
 
 * The maximum number of entries: 31
 * The size of an entry: 16
 
-=== The 64-bit index b-tree node
+=== The 64-bit index B-tree node
 
 Both the 64-bit branch and leaf node have a similar structure which is 512
 bytes of size and consists of:
@@ -699,9 +699,9 @@ See section: <<page_types,Page types>>
 must match the back pointer that pointed to this node
 |===
 
-==== The 64-bit index b-tree branch node entry
+==== The 64-bit index B-tree branch node entry
 
-The 64-bit index b-tree node entry is used in branch nodes. It is 24 bytes of
+The 64-bit index B-tree node entry is used in branch nodes. It is 24 bytes of
 size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -714,12 +714,12 @@ See section: <<index_identifier,Index identifier>>
 | 16 | 8 | | The (file) offset
 |===
 
-The index b-tree node will contain the following values:
+The index B-tree node will contain the following values:
 
 * The maximum number of entries: 20
 * The size of an entry: 24
 
-An index b-tree node can contain the same identifier value as a (file) offset
+An index B-tree node can contain the same identifier value as a (file) offset
 index entry. This occurs when the leaf node is the lowest identifier in the
 branch node.
 
@@ -739,7 +739,7 @@ Identifier of type block identifier
 | 20 | 4 | | File offset of the data allocation table
 |===
 
-The index b-tree node will contain the following values:
+The index B-tree node will contain the following values:
 
 * The maximum number of entries: 20
 * The size of an entry: 24
@@ -758,9 +758,9 @@ is encrypted or not. See section: 7.4 Block type for more information.
 When the index tree is searched make sure to clear the first LSB in the
 identifier.
 
-==== The 64-bit descriptor index b-tree leaf node entry
+==== The 64-bit descriptor index B-tree leaf node entry
 
-The 64-bit descriptor index b-tree leaf node entry is 32 bytes of size and
+The 64-bit descriptor index B-tree leaf node entry is 32 bytes of size and
 consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -776,15 +776,15 @@ See section: <<index_identifier,Index identifier>>
 [yellow-background]*This value mainly contains 2, unless when both the data and local descriptor are empty.*
 |===
 
-The index b-tree node will contain the following values:
+The index B-tree node will contain the following values:
 
 * The maximum number of entries: 15
 * The size of an entry: 32
 
-=== The 64-bit 4k page index b-tree node
+=== The 64-bit 4k page index B-tree node
 
 In Outlook 2013, at least for OST files, a 4k (4096 bytes) page version of the
-64-bit index b-tree node was introduced.
+64-bit index B-tree node was introduced.
 
 Both the 64-bit branch and leaf node have a similar structure which is 4096
 bytes of size and consists of:
@@ -816,7 +816,7 @@ must match the back pointer that pointed to this node
 | 4088 | 8 | | [yellow-background]*Unknown*
 |===
 
-The node entry structures are the same as those of the 64-bit index b-tree node
+The node entry structures are the same as those of the 64-bit index B-tree node
 (512 byte page) version.
 
 === [[index_identifier]]Index identifier
@@ -1246,7 +1246,7 @@ the data blocks.
 
 == [[local_descriptors]]The local descriptors
 
-The local descriptors identifier in the descriptor index b-tree leaf node entry
+The local descriptors identifier in the descriptor index B-tree leaf node entry
 refers to a (file) offset index entry which contains the file offset and data
 size of the local descriptors nodes.
 
@@ -1382,7 +1382,7 @@ the encryption type was set in the file header data the entire table is
 encrypted. Note that the not encrypted flag in the offset identifier can
 overwrite the table being encrypted.
 
-The data identifier in the descriptor index b-tree leaf node entry refers to a
+The data identifier in the descriptor index B-tree leaf node entry refers to a
 (file) offset index entry which contains the file offset and data size of the
 table.
 

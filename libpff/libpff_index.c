@@ -34,7 +34,6 @@
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_libfmapi.h"
 #include "libpff_unused.h"
@@ -47,8 +46,6 @@
  */
 int libpff_index_initialize(
      libpff_index_t **index,
-     libfdata_vector_t *index_nodes_vector,
-     libfcache_cache_t *index_nodes_cache,
      uint8_t index_type,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,
@@ -106,8 +103,6 @@ int libpff_index_initialize(
 
 		goto on_error;
 	}
-	( *index )->index_nodes_vector     = index_nodes_vector;
-	( *index )->index_nodes_cache      = index_nodes_cache;
 	( *index )->type                   = index_type;
 	( *index )->root_node_offset       = root_node_offset;
 	( *index )->root_node_back_pointer = root_node_back_pointer;
@@ -147,8 +142,6 @@ int libpff_index_free(
 	}
 	if( *index != NULL )
 	{
-		/* The index_nodes_vector and index_nodes_cache reference are freed elsewhere
-		 */
 		memory_free(
 		 *index );
 
@@ -160,9 +153,9 @@ int libpff_index_free(
 /* Checks if this is the first time the index node block is being read
  * Returns 1 if successful or -1 on error
  */
-int libpff_index_check_if_index_node_block_first_read(
+int libpff_index_check_if_node_block_first_read(
      libpff_index_t *index,
-     libpff_block_tree_t *index_node_block_tree,
+     libpff_block_tree_t *node_block_tree,
      off64_t node_offset,
      uint64_t identifier,
      libcerror_error_t **error )
@@ -170,7 +163,7 @@ int libpff_index_check_if_index_node_block_first_read(
 	libpff_block_descriptor_t *existing_block_descriptor = NULL;
 	libpff_block_descriptor_t *new_block_descriptor      = NULL;
 	libpff_block_tree_node_t *leaf_block_tree_node       = NULL;
-	static char *function                                = "libpff_index_check_if_index_node_block_first_read";
+	static char *function                                = "libpff_index_check_if_node_block_first_read";
 	int leaf_value_index                                 = 0;
 	int result                                           = 0;
 
@@ -201,7 +194,7 @@ int libpff_index_check_if_index_node_block_first_read(
 	new_block_descriptor->identifier = identifier;
 
 	result = libpff_block_tree_insert_block_descriptor_by_offset(
-	          index_node_block_tree,
+	          node_block_tree,
 	          node_offset,
 	          new_block_descriptor,
 	          &leaf_value_index,
@@ -215,7 +208,7 @@ int libpff_index_check_if_index_node_block_first_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to insert block descriptor for index node at offset: %" PRIi64 " (0x%08" PRIx64 ") in index node block tree.",
+		 "%s: unable to insert block descriptor for index node at offset: %" PRIi64 " (0x%08" PRIx64 ") in node block tree.",
 		 function,
 		 node_offset,
 		 node_offset );
@@ -256,7 +249,7 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
      libpff_index_t *index,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     libpff_block_tree_t *index_node_block_tree,
+     libpff_block_tree_t *node_block_tree,
      off64_t node_offset,
      uint64_t node_back_pointer,
      uint64_t identifier,
@@ -267,7 +260,6 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 	libpff_index_node_t *index_node = NULL;
 	uint8_t *node_entry_data        = NULL;
 	static char *function           = "libpff_index_get_leaf_node_from_node_by_identifier";
-	off64_t element_data_offset     = 0;
 	uint64_t entry_identifier       = 0;
 	uint64_t sub_node_back_pointer  = 0;
 	uint64_t sub_node_offset        = 0;
@@ -328,9 +320,9 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 		 identifier );
 	}
 #endif
-	if( libpff_index_check_if_index_node_block_first_read(
+	if( libpff_index_check_if_node_block_first_read(
 	     index,
-	     index_node_block_tree,
+	     node_block_tree,
 	     node_offset,
 	     identifier,
 	     error ) != 1 )
@@ -344,41 +336,38 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 		 node_offset,
 		 node_offset );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libfdata_vector_get_element_value_at_offset(
-	     index->index_nodes_vector,
-	     (intptr_t *) file_io_handle,
-	     (libfdata_cache_t *) index->index_nodes_cache,
-	     node_offset,
-	     &element_data_offset,
-	     (intptr_t **) &index_node,
-	     0,
+	if( libpff_index_node_initialize(
+	     &index_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 node_offset,
-		 node_offset );
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index node.",
+		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( index_node == NULL )
+	if( libpff_index_node_read_file_io_handle(
+	     index_node,
+	     file_io_handle,
+	     node_offset,
+	     io_handle->file_type,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 		 function,
 		 node_offset,
 		 node_offset );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( index->type != index_node->type )
 	{
@@ -393,7 +382,7 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 
 		/* TODO error tollerance */
 
-		return( -1 );
+		goto on_error;
 	}
 	if( index_node->level != LIBPFF_INDEX_NODE_LEVEL_LEAF )
 	{
@@ -410,7 +399,7 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 
 			/* TODO error tollerance */
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	for( entry_index = 0;
@@ -431,7 +420,7 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 			 function,
 			 entry_index );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( node_entry_data == NULL )
 		{
@@ -443,7 +432,7 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 			 function,
 			 entry_index );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
@@ -528,13 +517,13 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 			 "%s: invalid sub node offset value out of bounds.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		result = libpff_index_get_leaf_node_from_node_by_identifier(
 			  index,
 			  io_handle,
 			  file_io_handle,
-			  index_node_block_tree,
+			  node_block_tree,
 			  sub_node_offset,
 			  sub_node_back_pointer,
 			  identifier,
@@ -555,14 +544,40 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 			 node_offset,
 			 node_offset );
 
-			return( -1 );
+			goto on_error;
+		}
+	}
+	if( ( index_node != NULL )
+	 && ( index_node != *leaf_node ) )
+	{
+		if( libpff_index_node_free(
+		     &index_node,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index node.",
+			 function );
+
+			goto on_error;
 		}
 	}
 	return( result );
+
+on_error:
+	if( index_node != NULL )
+	{
+		libpff_index_node_free(
+		 &index_node,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the value for the specific identifier
- * Returns 1 if successful, 0 if no leaf node was found or -1 on error
+ * Returns 1 if successful, 0 if no value was found or -1 on error
  */
 int libpff_index_get_value_by_identifier(
      libpff_index_t *index,
@@ -572,14 +587,14 @@ int libpff_index_get_value_by_identifier(
      libpff_index_value_t **index_value,
      libcerror_error_t **error )
 {
-	libpff_block_tree_t *index_node_block_tree = NULL;
-	libpff_index_node_t *leaf_node             = NULL;
-	libpff_index_value_t *safe_index_value     = NULL;
-	uint8_t *node_entry_data                   = NULL;
-	static char *function                      = "libpff_index_get_value_by_identifier";
-	size_t index_node_size                     = 0;
-	uint16_t leaf_node_entry_index             = 0;
-	int result                                 = 0;
+	libpff_block_tree_t *node_block_tree   = NULL;
+	libpff_index_node_t *leaf_node         = NULL;
+	libpff_index_value_t *safe_index_value = NULL;
+	uint8_t *node_entry_data               = NULL;
+	static char *function                  = "libpff_index_get_value_by_identifier";
+	size_t index_node_size                 = 0;
+	uint16_t leaf_node_entry_index         = 0;
+	int result                             = 0;
 
 	if( index == NULL )
 	{
@@ -624,7 +639,7 @@ int libpff_index_get_value_by_identifier(
 		index_node_size = 4096;
 	}
 	if( libpff_block_tree_initialize(
-	     &index_node_block_tree,
+	     &node_block_tree,
 	     io_handle->file_size,
 	     index_node_size,
 	     error ) != 1 )
@@ -642,7 +657,7 @@ int libpff_index_get_value_by_identifier(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: requested identifier\t: 0x%08" PRIx64 " (%" PRIu64 ").\n",
+		 "%s: requested identifier\t\t: 0x%08" PRIx64 " (%" PRIu64 ").\n",
 		 function,
 		 identifier,
 		 identifier );
@@ -652,7 +667,7 @@ int libpff_index_get_value_by_identifier(
 		  index,
 		  io_handle,
 		  file_io_handle,
-		  index_node_block_tree,
+		  node_block_tree,
 		  index->root_node_offset,
 		  index->root_node_back_pointer,
 		  identifier,
@@ -733,9 +748,22 @@ int libpff_index_get_value_by_identifier(
 
 			goto on_error;
 		}
+		if( libpff_index_node_free(
+		     &leaf_node,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free leaf node.",
+			 function );
+
+			goto on_error;
+		}
 	}
 	if( libpff_block_tree_free(
-	     &index_node_block_tree,
+	     &node_block_tree,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_block_descriptor_free,
 	     error ) != 1 )
 	{
@@ -759,10 +787,10 @@ on_error:
 		 &safe_index_value,
 		 NULL );
 	}
-	if( index_node_block_tree != NULL )
+	if( node_block_tree != NULL )
 	{
 		libpff_block_tree_free(
-		 &index_node_block_tree,
+		 &node_block_tree,
 		 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_block_descriptor_free,
 		 NULL );
 	}

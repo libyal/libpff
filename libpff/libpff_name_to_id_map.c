@@ -213,6 +213,7 @@ int libpff_name_to_id_map_read(
 	}
 	result = libpff_descriptors_index_get_index_value_by_identifier(
 		  descriptors_index,
+		  io_handle,
 		  file_io_handle,
 		  (uint32_t) LIBPFF_DESCRIPTOR_IDENTIFIER_NAME_TO_ID_MAP,
 		  0,

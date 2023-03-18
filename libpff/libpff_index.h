@@ -31,7 +31,6 @@
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
-#include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 
 #if defined( __cplusplus )
@@ -42,14 +41,6 @@ typedef struct libpff_index libpff_index_t;
 
 struct libpff_index
 {
-	/* The index nodes vector
-	 */
-	libfdata_vector_t *index_nodes_vector;
-
-	/* The index nodes cache
-	 */
-	libfcache_cache_t *index_nodes_cache;
-
 	/* The index type
 	 */
 	uint8_t type;
@@ -65,8 +56,6 @@ struct libpff_index
 
 int libpff_index_initialize(
      libpff_index_t **index,
-     libfdata_vector_t *index_nodes_vector,
-     libfcache_cache_t *index_nodes_cache,
      uint8_t index_type,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,
@@ -76,9 +65,9 @@ int libpff_index_free(
      libpff_index_t **index,
      libcerror_error_t **error );
 
-int libpff_index_check_if_index_node_block_first_read(
+int libpff_index_check_if_node_block_first_read(
      libpff_index_t *index,
-     libpff_block_tree_t *index_node_block_tree,
+     libpff_block_tree_t *node_block_tree,
      off64_t node_offset,
      uint64_t identifier,
      libcerror_error_t **error );
@@ -87,7 +76,7 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
      libpff_index_t *index,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     libpff_block_tree_t *index_node_block_tree,
+     libpff_block_tree_t *node_block_tree,
      off64_t node_offset,
      uint64_t node_back_pointer,
      uint64_t identifier,

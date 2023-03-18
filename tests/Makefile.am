@@ -81,9 +81,9 @@ check_PROGRAMS = \
 	pff_test_item_descriptor \
 	pff_test_item_tree \
 	pff_test_item_values \
-	pff_test_local_descriptor_node \
 	pff_test_local_descriptor_value \
 	pff_test_local_descriptors \
+	pff_test_local_descriptors_node \
 	pff_test_local_descriptors_tree \
 	pff_test_mapi_value \
 	pff_test_message \
@@ -519,28 +519,6 @@ pff_test_item_values_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
-pff_test_local_descriptor_node_SOURCES = \
-	pff_test_functions.c pff_test_functions.h \
-	pff_test_libbfio.h \
-	pff_test_libcerror.h \
-	pff_test_libpff.h \
-	pff_test_local_descriptor_node.c \
-	pff_test_macros.h \
-	pff_test_memory.c pff_test_memory.h \
-	pff_test_unused.h
-
-pff_test_local_descriptor_node_LDADD = \
-	@LIBBFIO_LIBADD@ \
-	@LIBCPATH_LIBADD@ \
-	@LIBCFILE_LIBADD@ \
-	@LIBUNA_LIBADD@ \
-	@LIBCSPLIT_LIBADD@ \
-	@LIBCNOTIFY_LIBADD@ \
-	@LIBCLOCALE_LIBADD@ \
-	@LIBCDATA_LIBADD@ \
-	../libpff/libpff.la \
-	@LIBCERROR_LIBADD@
-
 pff_test_local_descriptor_value_SOURCES = \
 	pff_test_libcerror.h \
 	pff_test_libpff.h \
@@ -562,6 +540,28 @@ pff_test_local_descriptors_SOURCES = \
 	pff_test_unused.h
 
 pff_test_local_descriptors_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_local_descriptors_node_SOURCES = \
+	pff_test_functions.c pff_test_functions.h \
+	pff_test_libbfio.h \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_local_descriptors_node.c \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_local_descriptors_node_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 

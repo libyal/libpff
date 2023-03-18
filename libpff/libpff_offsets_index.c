@@ -30,8 +30,6 @@
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
-#include "libpff_libfcache.h"
-#include "libpff_libfdata.h"
 #include "libpff_offsets_index.h"
 
 /* Creates an offsets index
@@ -40,9 +38,6 @@
  */
 int libpff_offsets_index_initialize(
      libpff_offsets_index_t **offsets_index,
-     libpff_io_handle_t *io_handle,
-     libfdata_vector_t *index_nodes_vector,
-     libfcache_cache_t *index_nodes_cache,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,
      libcerror_error_t **error )
@@ -67,17 +62,6 @@ int libpff_offsets_index_initialize(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid offsets index value already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -117,8 +101,6 @@ int libpff_offsets_index_initialize(
 	}
 	if( libpff_index_initialize(
 	     &( ( *offsets_index )->index ),
-	     index_nodes_vector,
-	     index_nodes_cache,
 	     LIBPFF_INDEX_TYPE_OFFSET,
 	     root_node_offset,
 	     root_node_back_pointer,
@@ -147,24 +129,6 @@ int libpff_offsets_index_initialize(
 
 		goto on_error;
 	}
-	if( libfcache_cache_initialize(
-	     &( ( *offsets_index )->index_cache ),
-	     LIBPFF_MAXIMUM_CACHE_ENTRIES_OFFSET_INDEX_VALUES,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index values cache.",
-		 function );
-
-		goto on_error;
-	}
-	( *offsets_index )->io_handle          = io_handle;
-	( *offsets_index )->index_nodes_vector = index_nodes_vector;
-	( *offsets_index )->index_nodes_cache  = index_nodes_cache;
-
 	return( 1 );
 
 on_error:
@@ -214,19 +178,6 @@ int libpff_offsets_index_free(
 	}
 	if( *offsets_index != NULL )
 	{
-		if( libfcache_cache_free(
-		     &( ( *offsets_index )->index_cache ),
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free index values cache.",
-			 function );
-
-			result = -1;
-		}
 		if( libcdata_btree_free(
 		     &( ( *offsets_index )->recovered_index_values_tree ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_index_values_list_free,
@@ -267,6 +218,7 @@ int libpff_offsets_index_free(
  */
 int libpff_offsets_index_get_index_value_by_identifier(
      libpff_offsets_index_t *offsets_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint64_t data_identifier,
      uint8_t recovered,
@@ -299,7 +251,7 @@ int libpff_offsets_index_get_index_value_by_identifier(
 	{
 		result = libpff_index_get_value_by_identifier(
 			  offsets_index->index,
-			  offsets_index->io_handle,
+			  io_handle,
 			  file_io_handle,
 			  lookup_data_identifier,
 			  index_value,

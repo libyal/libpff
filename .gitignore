@@ -159,9 +159,9 @@ stamp-h[1-9]
 /tests/pff_test_item_descriptor
 /tests/pff_test_item_tree
 /tests/pff_test_item_values
-/tests/pff_test_local_descriptor_node
 /tests/pff_test_local_descriptor_value
 /tests/pff_test_local_descriptors
+/tests/pff_test_local_descriptors_node
 /tests/pff_test_local_descriptors_tree
 /tests/pff_test_mapi_value
 /tests/pff_test_message

@@ -72,9 +72,9 @@ libpff_la_SOURCES = \
 	libpff_libfmapi.h \
 	libpff_libfvalue.h \
 	libpff_libuna.h \
-	libpff_local_descriptor_node.c libpff_local_descriptor_node.h \
 	libpff_local_descriptor_value.c libpff_local_descriptor_value.h \
 	libpff_local_descriptors.c libpff_local_descriptors.h \
+	libpff_local_descriptors_node.c libpff_local_descriptors_node.h \
 	libpff_local_descriptors_tree.c libpff_local_descriptors_tree.h \
 	libpff_mapi.h \
 	libpff_mapi_value.c libpff_mapi_value.h \
@@ -102,7 +102,7 @@ libpff_la_SOURCES = \
 	pff_file_header.h \
 	pff_free_map.h \
 	pff_index_node.h \
-	pff_local_descriptor_node.h \
+	pff_local_descriptors_node.h \
 	pff_table.h \
 	pff_table_block.h \
 	pff_value_data.h

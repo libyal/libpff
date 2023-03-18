@@ -942,6 +942,19 @@ int libpff_attachment_get_item(
 
 				goto on_error;
 			}
+			if( libpff_local_descriptor_value_free(
+			     &local_descriptor_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free local descriptor values.",
+				 function );
+
+				goto on_error;
+			}
 			if( libcdata_tree_node_get_number_of_sub_nodes(
 			     internal_item->item_tree_node,
 			     &number_of_sub_nodes,
@@ -1058,6 +1071,12 @@ on_error:
 	{
 		libpff_record_set_free(
 		 &record_set,
+		 NULL );
+	}
+	if( local_descriptor_value != NULL )
+	{
+		libpff_local_descriptor_value_free(
+		 &local_descriptor_value,
 		 NULL );
 	}
 	return( -1 );

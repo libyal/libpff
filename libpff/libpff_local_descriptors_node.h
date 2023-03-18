@@ -1,5 +1,5 @@
 /*
- * Local descriptor node functions
+ * Local descriptors node functions
  *
  * Copyright (C) 2008-2023, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_NODE_LOCAL_DESCRIPTOR_H )
-#define _LIBPFF_NODE_LOCAL_DESCRIPTOR_H
+#if !defined( _LIBPFF_LOCAL_DESCRIPTORS_NODE_H )
+#define _LIBPFF_LOCAL_DESCRIPTORS_NODE_H
 
 #include <common.h>
 #include <types.h>
@@ -33,9 +33,9 @@
 extern "C" {
 #endif
 
-typedef struct libpff_local_descriptor_node libpff_local_descriptor_node_t;
+typedef struct libpff_local_descriptors_node libpff_local_descriptors_node_t;
 
-struct libpff_local_descriptor_node
+struct libpff_local_descriptors_node
 {
 	/* The level
 	 */
@@ -58,43 +58,43 @@ struct libpff_local_descriptor_node
 	size_t entries_data_size;
 };
 
-int libpff_local_descriptor_node_initialize(
-     libpff_local_descriptor_node_t **local_descriptor_node,
+int libpff_local_descriptors_node_initialize(
+     libpff_local_descriptors_node_t **local_descriptors_node,
      libcerror_error_t **error );
 
-int libpff_local_descriptor_node_free(
-     libpff_local_descriptor_node_t **local_descriptor_node,
+int libpff_local_descriptors_node_free(
+     libpff_local_descriptors_node_t **local_descriptors_node,
      libcerror_error_t **error );
 
-int libpff_local_descriptor_node_get_entry_data(
-     libpff_local_descriptor_node_t *local_descriptor_node,
+int libpff_local_descriptors_node_get_entry_data(
+     libpff_local_descriptors_node_t *local_descriptors_node,
      uint16_t entry_index,
      uint8_t **entry_data,
      libcerror_error_t **error );
 
-int libpff_local_descriptor_node_get_entry_identifier(
-     libpff_local_descriptor_node_t *local_descriptor_node,
+int libpff_local_descriptors_node_get_entry_identifier(
+     libpff_local_descriptors_node_t *local_descriptors_node,
      libpff_io_handle_t *io_handle,
      uint16_t entry_index,
      uint64_t *entry_identifier,
      libcerror_error_t **error );
 
-int libpff_local_descriptor_node_get_entry_sub_node_identifier(
-     libpff_local_descriptor_node_t *local_descriptor_node,
+int libpff_local_descriptors_node_get_entry_sub_node_identifier(
+     libpff_local_descriptors_node_t *local_descriptors_node,
      libpff_io_handle_t *io_handle,
      uint16_t entry_index,
      uint64_t *entry_sub_node_identifier,
      libcerror_error_t **error );
 
-int libpff_local_descriptor_node_read_data(
-     libpff_local_descriptor_node_t *local_descriptor_node,
+int libpff_local_descriptors_node_read_data(
+     libpff_local_descriptors_node_t *local_descriptors_node,
      libpff_io_handle_t *io_handle,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error );
 
-int libpff_local_descriptor_node_read_file_io_handle(
-     libpff_local_descriptor_node_t *local_descriptor_node,
+int libpff_local_descriptors_node_read_file_io_handle(
+     libpff_local_descriptors_node_t *local_descriptors_node,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint32_t descriptor_identifier,
@@ -107,5 +107,5 @@ int libpff_local_descriptor_node_read_file_io_handle(
 }
 #endif
 
-#endif /* !defined( _LIBPFF_NODE_LOCAL_DESCRIPTOR_H ) */
+#endif /* !defined( _LIBPFF_LOCAL_DESCRIPTORS_NODE_H ) */
 

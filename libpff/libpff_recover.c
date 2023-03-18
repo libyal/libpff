@@ -38,9 +38,8 @@
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfcache.h"
 #include "libpff_libfmapi.h"
-#include "libpff_local_descriptor_node.h"
+#include "libpff_local_descriptors_node.h"
 #include "libpff_offsets_index.h"
 #include "libpff_recover.h"
 
@@ -194,6 +193,7 @@ int libpff_recover_items(
 	 */
 	if( libpff_recover_analyze_offsets_index_node(
 	     offsets_index,
+	     io_handle,
 	     file_io_handle,
 	     offsets_index->index->root_node_offset,
 	     offsets_index->index->root_node_back_pointer,
@@ -235,6 +235,7 @@ int libpff_recover_items(
 	 */
 	if( libpff_recover_descriptors_index_values(
 	     descriptors_index,
+	     io_handle,
 	     file_io_handle,
 	     descriptors_index->index->root_node_offset,
 	     descriptors_index->index->root_node_back_pointer,
@@ -1133,6 +1134,7 @@ on_error:
  */
 int libpff_recover_analyze_descriptors_index_value(
      libpff_descriptors_index_t *descriptors_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_index_value_t *descriptors_index_value,
      libcerror_error_t **error )
@@ -1179,7 +1181,7 @@ int libpff_recover_analyze_descriptors_index_value(
 	 */
 	result = libpff_index_get_value_by_identifier(
 		  descriptors_index->index,
-		  descriptors_index->io_handle,
+		  io_handle,
 		  file_io_handle,
 		  descriptors_index_value->identifier,
 		  &existing_index_value,
@@ -1418,24 +1420,23 @@ int libpff_recover_check_descriptors_index_for_recovered_value(
  */
 int libpff_recover_descriptors_index_values(
      libpff_descriptors_index_t *descriptors_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t node_offset,
      uint64_t node_back_pointer,
      int recursion_depth,
      libcerror_error_t **error )
 {
-	libfcache_cache_t *index_nodes_cache = NULL;
-	libpff_index_node_t *index_node      = NULL;
-	libpff_index_value_t *index_value    = NULL;
-	uint8_t *node_entry_data             = NULL;
-	static char *function                = "libpff_recover_descriptors_index_values";
-	size64_t node_data_size              = 0;
-	off64_t element_data_offset          = 0;
-	off64_t node_data_offset             = 0;
-	uint64_t sub_node_back_pointer       = 0;
-	uint64_t sub_node_offset             = 0;
-	uint16_t entry_index                 = 0;
-	int result                           = 0;
+	libpff_index_node_t *index_node   = NULL;
+	libpff_index_value_t *index_value = NULL;
+	uint8_t *node_entry_data          = NULL;
+	static char *function             = "libpff_recover_descriptors_index_values";
+	size64_t node_data_size           = 0;
+	off64_t node_data_offset          = 0;
+	uint64_t sub_node_back_pointer    = 0;
+	uint64_t sub_node_offset          = 0;
+	uint16_t entry_index              = 0;
+	int result                        = 0;
 
 	if( descriptors_index == NULL )
 	{
@@ -1448,17 +1449,6 @@ int libpff_recover_descriptors_index_values(
 
 		return( -1 );
 	}
-	if( descriptors_index->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid descriptors index - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( descriptors_index->index == NULL )
 	{
 		libcerror_error_set(
@@ -1466,6 +1456,17 @@ int libpff_recover_descriptors_index_values(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid descriptors index - missing index.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -1482,50 +1483,31 @@ int libpff_recover_descriptors_index_values(
 
 		return( -1 );
 	}
-	if( libfcache_cache_initialize(
-	     &index_nodes_cache,
-	     1,
+	if( libpff_index_node_initialize(
+	     &index_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index nodes cache.",
+		 "%s: unable to create descriptors index node.",
 		 function );
 
 		goto on_error;
 	}
-	/* Cache the index node locally to prevent it being cached out when reading sub nodes
-	 */
-	if( libfdata_vector_get_element_value_at_offset(
-	     descriptors_index->index_nodes_vector,
-	     (intptr_t *) file_io_handle,
-	     (libfdata_cache_t *) index_nodes_cache,
+	if( libpff_index_node_read_file_io_handle(
+	     index_node,
+	     file_io_handle,
 	     node_offset,
-	     &element_data_offset,
-	     (intptr_t **) &index_node,
-	     0,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve descriptors index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 node_offset,
-		 node_offset );
-
-		goto on_error;
-	}
-	if( index_node == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing descriptors index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read descriptors index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 		 function,
 		 node_offset,
 		 node_offset );
@@ -1582,7 +1564,7 @@ int libpff_recover_descriptors_index_values(
 			}
 			if( libpff_index_value_read_data(
 			     index_value,
-			     descriptors_index->io_handle,
+			     io_handle,
 			     LIBPFF_INDEX_TYPE_DESCRIPTOR,
 			     node_entry_data,
 			     (size_t) index_node->entry_size,
@@ -1599,6 +1581,7 @@ int libpff_recover_descriptors_index_values(
 			}
 			result = libpff_recover_analyze_descriptors_index_value(
 			          descriptors_index,
+			          io_handle,
 			          file_io_handle,
 			          index_value,
 			          error );
@@ -1715,7 +1698,7 @@ int libpff_recover_descriptors_index_values(
 
 				goto on_error;
 			}
-			if( descriptors_index->io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+			if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 			{
 				byte_stream_copy_to_uint32_little_endian(
 				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->file_offset,
@@ -1725,8 +1708,8 @@ int libpff_recover_descriptors_index_values(
 				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->back_pointer,
 				 sub_node_back_pointer );
 			}
-			else if( ( descriptors_index->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-			      || ( descriptors_index->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+			else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+			      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 			{
 				byte_stream_copy_to_uint64_little_endian(
 				 ( (pff_index_node_branch_entry_64bit_t *) node_entry_data )->file_offset,
@@ -1750,6 +1733,7 @@ int libpff_recover_descriptors_index_values(
 
 			if( libpff_recover_descriptors_index_values(
 			     descriptors_index,
+			     io_handle,
 			     file_io_handle,
 			     sub_node_offset,
 			     sub_node_back_pointer,
@@ -1769,15 +1753,15 @@ int libpff_recover_descriptors_index_values(
 			}
 		}
 	}
-	if( libfcache_cache_free(
-	     &index_nodes_cache,
+	if( libpff_index_node_free(
+	     &index_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free index nodes cache.",
+		 "%s: unable to free index node.",
 		 function );
 
 		goto on_error;
@@ -1791,10 +1775,10 @@ on_error:
 		 &index_value,
 		 NULL );
 	}
-	if( index_nodes_cache != NULL )
+	if( index_node != NULL )
 	{
-		libfcache_cache_free(
-		 &index_nodes_cache,
+		libpff_index_node_free(
+		 &index_node,
 		 NULL );
 	}
 	return( -1 );
@@ -1805,6 +1789,7 @@ on_error:
  */
 int libpff_recover_analyze_offsets_index_value(
      libpff_offsets_index_t *offsets_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_index_value_t *offsets_index_value,
      uint32_t maximum_data_block_data_size,
@@ -1885,7 +1870,7 @@ int libpff_recover_analyze_offsets_index_value(
 	 */
 	result = libpff_index_get_value_by_identifier(
 		  offsets_index->index,
-		  offsets_index->io_handle,
+		  io_handle,
 		  file_io_handle,
 		  offsets_index_value->identifier,
 		  &existing_index_value,
@@ -2124,6 +2109,7 @@ int libpff_recover_check_offsets_index_for_recovered_value(
  */
 int libpff_recover_analyze_offsets_index_node(
      libpff_offsets_index_t *offsets_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t node_offset,
      uint64_t node_back_pointer,
@@ -2131,18 +2117,16 @@ int libpff_recover_analyze_offsets_index_node(
      int recursion_depth,
      libcerror_error_t **error )
 {
-	libfcache_cache_t *index_nodes_cache = NULL;
-	libpff_index_node_t *index_node      = NULL;
-	libpff_index_value_t *index_value    = NULL;
-	uint8_t *node_entry_data             = NULL;
-	static char *function                = "libpff_recover_analyze_offsets_index_node";
-	size64_t node_data_size              = 0;
-	off64_t element_data_offset          = 0;
-	off64_t node_data_offset             = 0;
-	uint64_t sub_node_back_pointer       = 0;
-	uint64_t sub_node_offset             = 0;
-	uint16_t entry_index                 = 0;
-	int result                           = 0;
+	libpff_index_node_t *index_node   = NULL;
+	libpff_index_value_t *index_value = NULL;
+	uint8_t *node_entry_data          = NULL;
+	static char *function             = "libpff_recover_analyze_offsets_index_node";
+	size64_t node_data_size           = 0;
+	off64_t node_data_offset          = 0;
+	uint64_t sub_node_back_pointer    = 0;
+	uint64_t sub_node_offset          = 0;
+	uint16_t entry_index              = 0;
+	int result                        = 0;
 
 	if( offsets_index == NULL )
 	{
@@ -2155,17 +2139,6 @@ int libpff_recover_analyze_offsets_index_node(
 
 		return( -1 );
 	}
-	if( offsets_index->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid offsets index - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( offsets_index->index == NULL )
 	{
 		libcerror_error_set(
@@ -2173,6 +2146,17 @@ int libpff_recover_analyze_offsets_index_node(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid offsets index - missing index.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -2189,50 +2173,31 @@ int libpff_recover_analyze_offsets_index_node(
 
 		return( -1 );
 	}
-	if( libfcache_cache_initialize(
-	     &index_nodes_cache,
-	     1,
+	if( libpff_index_node_initialize(
+	     &index_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index nodes cache.",
+		 "%s: unable to create offsets index node.",
 		 function );
 
 		goto on_error;
 	}
-	/* Cache the index node locally to prevent it being cached out when reading sub nodes
-	 */
-	if( libfdata_vector_get_element_value_at_offset(
-	     offsets_index->index_nodes_vector,
-	     (intptr_t *) file_io_handle,
-	     (libfdata_cache_t *) index_nodes_cache,
+	if( libpff_index_node_read_file_io_handle(
+	     index_node,
+	     file_io_handle,
 	     node_offset,
-	     &element_data_offset,
-	     (intptr_t **) &index_node,
-	     0,
+	     io_handle->file_type,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve offsets index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
-		 function,
-		 node_offset,
-		 node_offset );
-
-		goto on_error;
-	}
-	if( index_node == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing offsets index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read offsets index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 		 function,
 		 node_offset,
 		 node_offset );
@@ -2289,7 +2254,7 @@ int libpff_recover_analyze_offsets_index_node(
 			}
 			if( libpff_index_value_read_data(
 			     index_value,
-			     offsets_index->io_handle,
+			     io_handle,
 			     LIBPFF_INDEX_TYPE_OFFSET,
 			     node_entry_data,
 			     (size_t) index_node->entry_size,
@@ -2306,6 +2271,7 @@ int libpff_recover_analyze_offsets_index_node(
 			}
 			result = libpff_recover_analyze_offsets_index_value(
 			          offsets_index,
+			          io_handle,
 			          file_io_handle,
 			          index_value,
 			          maximum_data_block_data_size,
@@ -2423,7 +2389,7 @@ int libpff_recover_analyze_offsets_index_node(
 
 				goto on_error;
 			}
-			if( offsets_index->io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+			if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 			{
 				byte_stream_copy_to_uint32_little_endian(
 				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->file_offset,
@@ -2433,8 +2399,8 @@ int libpff_recover_analyze_offsets_index_node(
 				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->back_pointer,
 				 sub_node_back_pointer );
 			}
-			else if( ( offsets_index->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-			      || ( offsets_index->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+			else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+			      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 			{
 				byte_stream_copy_to_uint64_little_endian(
 				 ( (pff_index_node_branch_entry_64bit_t *) node_entry_data )->file_offset,
@@ -2458,6 +2424,7 @@ int libpff_recover_analyze_offsets_index_node(
 
 			if( libpff_recover_analyze_offsets_index_node(
 			     offsets_index,
+			     io_handle,
 			     file_io_handle,
 			     sub_node_offset,
 			     sub_node_back_pointer,
@@ -2478,15 +2445,15 @@ int libpff_recover_analyze_offsets_index_node(
 			}
 		}
 	}
-	if( libfcache_cache_free(
-	     &index_nodes_cache,
+	if( libpff_index_node_free(
+	     &index_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free index nodes cache.",
+		 "%s: unable to free index node.",
 		 function );
 
 		goto on_error;
@@ -2500,10 +2467,10 @@ on_error:
 		 &index_value,
 		 NULL );
 	}
-	if( index_nodes_cache != NULL )
+	if( index_node != NULL )
 	{
-		libfcache_cache_free(
-		 &index_nodes_cache,
+		libpff_index_node_free(
+		 &index_node,
 		 NULL );
 	}
 	return( -1 );
@@ -3291,7 +3258,7 @@ int libpff_recover_index_values(
 			}
 			if( libpff_index_value_read_data(
 			     index_value,
-			     descriptors_index->io_handle,
+			     io_handle,
 			     index_node->type,
 			     node_entry_data,
 			     (size_t) index_node->entry_size,
@@ -3392,6 +3359,7 @@ int libpff_recover_index_values(
 				{
 					result = libpff_recover_analyze_descriptors_index_value(
 						  descriptors_index,
+						  io_handle,
 						  file_io_handle,
 						  index_value,
 						  error );
@@ -3400,6 +3368,7 @@ int libpff_recover_index_values(
 				{
 					result = libpff_recover_analyze_offsets_index_value(
 						  offsets_index,
+						  io_handle,
 						  file_io_handle,
 						  index_value,
 						  maximum_data_block_data_size,
@@ -3701,11 +3670,11 @@ int libpff_recover_analyze_local_descriptors(
      libcerror_error_t **error )
 {
 	libpff_index_value_t *offsets_index_value                    = NULL;
-	libpff_local_descriptor_node_t *local_descriptor_node        = NULL;
+	libpff_local_descriptors_node_t *local_descriptors_node      = NULL;
 	uint8_t *node_entry_data                                     = NULL;
 	static char *function                                        = "libpff_recover_analyze_local_descriptors";
-	uint64_t local_descriptor_value_identifier                   = 0;
 	uint64_t local_descriptor_value_data_identifier              = 0;
+	uint64_t local_descriptor_value_identifier                   = 0;
 	uint64_t local_descriptor_value_local_descriptors_identifier = 0;
 	uint64_t local_descriptor_value_sub_node_identifier          = 0;
 	uint16_t entry_index                                         = 0;
@@ -3724,6 +3693,7 @@ int libpff_recover_analyze_local_descriptors(
 	}
 	if( libpff_offsets_index_get_index_value_by_identifier(
 	     offsets_index,
+	     io_handle,
 	     file_io_handle,
 	     local_descriptors_identifier,
 	     1,
@@ -3760,7 +3730,7 @@ int libpff_recover_analyze_local_descriptors(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: local descriptor node identifier: %" PRIu64 " (%s) at offset: %" PRIi64 " of size: %" PRIu32 "\n",
+		 "%s: local descriptors node identifier: %" PRIu64 " (%s) at offset: %" PRIi64 " of size: %" PRIu32 "\n",
 		 function,
 		 offsets_index_value->identifier,
 		 ( ( offsets_index_value->identifier & LIBPFF_OFFSET_INDEX_IDENTIFIER_FLAG_INTERNAL ) ? "internal" : "external" ),
@@ -3768,21 +3738,21 @@ int libpff_recover_analyze_local_descriptors(
 		 offsets_index_value->data_size );
 	}
 #endif
-	if( libpff_local_descriptor_node_initialize(
-	     &local_descriptor_node,
+	if( libpff_local_descriptors_node_initialize(
+	     &local_descriptors_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create local descriptor node.",
+		 "%s: unable to create local descriptors node.",
 		 function );
 
 		return( -1 );
 	}
-	if( libpff_local_descriptor_node_read_file_io_handle(
-	     local_descriptor_node,
+	if( libpff_local_descriptors_node_read_file_io_handle(
+	     local_descriptors_node,
 	     io_handle,
 	     file_io_handle,
 	     0 /* TODO descriptor identifier */,
@@ -3803,18 +3773,18 @@ int libpff_recover_analyze_local_descriptors(
 		libcerror_error_free(
 		 error );
 
-		libpff_local_descriptor_node_free(
-		 &local_descriptor_node,
+		libpff_local_descriptors_node_free(
+		 &local_descriptors_node,
 		 NULL );
 
 		return( 0 );
 	}
 	for( entry_index = 0;
-	     entry_index < local_descriptor_node->number_of_entries;
+	     entry_index < local_descriptors_node->number_of_entries;
 	     entry_index++ )
 	{
-		if( libpff_local_descriptor_node_get_entry_data(
-		     local_descriptor_node,
+		if( libpff_local_descriptors_node_get_entry_data(
+		     local_descriptors_node,
 		     entry_index,
 		     &node_entry_data,
 		     error ) != 1 )
@@ -3880,7 +3850,7 @@ int libpff_recover_analyze_local_descriptors(
 
 			break;
 		}
-		if( local_descriptor_node->level == LIBPFF_LOCAL_DESCRIPTOR_NODE_LEVEL_LEAF )
+		if( local_descriptors_node->level == LIBPFF_LOCAL_DESCRIPTOR_NODE_LEVEL_LEAF )
 		{
 			if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 			{
@@ -3984,8 +3954,8 @@ int libpff_recover_analyze_local_descriptors(
 				 function,
 				 local_descriptor_value_sub_node_identifier );
 
-				libpff_local_descriptor_node_free(
-				 &local_descriptor_node,
+				libpff_local_descriptors_node_free(
+				 &local_descriptors_node,
 				 NULL );
 
 				return( -1 );
@@ -3996,15 +3966,15 @@ int libpff_recover_analyze_local_descriptors(
 			}
 		}
 	}
-	if( libpff_local_descriptor_node_free(
-	     &local_descriptor_node,
+	if( libpff_local_descriptors_node_free(
+	     &local_descriptors_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free local descriptor node.",
+		 "%s: unable to free local descriptors node.",
 		 function );
 
 		return( -1 );

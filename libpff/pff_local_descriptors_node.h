@@ -1,5 +1,5 @@
 /*
- * The local descriptor node definition of a Personal Folder File
+ * The local descriptors node definition of a Personal Folder File
  *
  * Copyright (C) 2008-2023, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PFF_LOCAL_DESCRIPTOR_NODE_H )
-#define _PFF_LOCAL_DESCRIPTOR_NODE_H
+#if !defined( _PFF_LOCAL_DESCRIPTORS_NODE_H )
+#define _PFF_LOCAL_DESCRIPTORS_NODE_H
 
 #include <common.h>
 #include <types.h>
@@ -29,9 +29,9 @@
 extern "C" {
 #endif
 
-typedef struct pff_local_descriptor_node_32bit pff_local_descriptor_node_32bit_t;
+typedef struct pff_local_descriptors_node_32bit pff_local_descriptors_node_32bit_t;
 
-struct pff_local_descriptor_node_32bit
+struct pff_local_descriptors_node_32bit
 {
 	/* The local descriptors signature
 	 * Consists of 1 byte
@@ -91,9 +91,9 @@ struct pff_local_descriptor_leaf_node_entry_type_32bit
 	uint8_t local_descriptors_identifier[ 4 ];
 };
 
-typedef struct pff_local_descriptor_node_64bit pff_local_descriptor_node_64bit_t;
+typedef struct pff_local_descriptors_node_64bit pff_local_descriptors_node_64bit_t;
 
-struct pff_local_descriptor_node_64bit
+struct pff_local_descriptors_node_64bit
 {
 	/* The local descriptors signature
 	 * Consists of 1 byte
@@ -164,5 +164,5 @@ struct pff_local_descriptor_leaf_node_entry_type_64bit
 }
 #endif
 
-#endif /* !defined( _PFF_LOCAL_DESCRIPTOR_NODE_H ) */
+#endif /* !defined( _PFF_LOCAL_DESCRIPTORS_NODE_H ) */
 

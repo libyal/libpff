@@ -31,11 +31,13 @@
 #include "libpff_libcnotify.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
-#include "libpff_local_descriptor_node.h"
+#include "libpff_local_descriptors_node.h"
 #include "libpff_local_descriptor_value.h"
 #include "libpff_local_descriptors.h"
 #include "libpff_offsets_index.h"
 #include "libpff_unused.h"
+
+#include "pff_local_descriptors_node.h"
 
 /* Creates local descriptors
  * Make sure the value local_descriptors is referencing, is set to NULL
@@ -46,7 +48,7 @@ int libpff_local_descriptors_initialize(
      libpff_io_handle_t *io_handle,
      libpff_offsets_index_t *offsets_index,
      uint32_t descriptor_identifier,
-     off64_t root_node_offset,
+     uint64_t root_node_data_identifier,
      uint8_t recovered,
      libcerror_error_t **error )
 {
@@ -130,7 +132,7 @@ int libpff_local_descriptors_initialize(
 		return( -1 );
 	}
 	if( libfcache_cache_initialize(
-	     &( ( *local_descriptors )->local_descriptor_nodes_cache ),
+	     &( ( *local_descriptors )->local_descriptors_nodes_cache ),
 	     LIBPFF_MAXIMUM_CACHE_ENTRIES_LOCAL_DESCRIPTORS_NODES,
 	     error ) != 1 )
 	{
@@ -138,16 +140,16 @@ int libpff_local_descriptors_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create local descriptor nodes cache.",
+		 "%s: unable to create local descriptors nodes cache.",
 		 function );
 
 		goto on_error;
 	}
-	( *local_descriptors )->io_handle             = io_handle;
-	( *local_descriptors )->offsets_index         = offsets_index;
-	( *local_descriptors )->descriptor_identifier = descriptor_identifier;
-	( *local_descriptors )->root_node_offset      = root_node_offset;
-	( *local_descriptors )->recovered             = recovered;
+	( *local_descriptors )->io_handle                 = io_handle;
+	( *local_descriptors )->offsets_index             = offsets_index;
+	( *local_descriptors )->descriptor_identifier     = descriptor_identifier;
+	( *local_descriptors )->root_node_data_identifier = root_node_data_identifier;
+	( *local_descriptors )->recovered                 = recovered;
 
 	return( 1 );
 
@@ -186,14 +188,14 @@ int libpff_local_descriptors_free(
 	if( *local_descriptors != NULL )
 	{
 		if( libfcache_cache_free(
-		     &( ( *local_descriptors )->local_descriptor_nodes_cache ),
+		     &( ( *local_descriptors )->local_descriptors_nodes_cache ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free local descriptor nodes cache.",
+			 "%s: unable to free local descriptors nodes cache.",
 			 function );
 
 			result = -1;
@@ -249,7 +251,7 @@ int libpff_local_descriptors_clone(
 	     source_local_descriptors->io_handle,
 	     source_local_descriptors->offsets_index,
 	     source_local_descriptors->descriptor_identifier,
-	     source_local_descriptors->root_node_offset,
+	     source_local_descriptors->root_node_data_identifier,
 	     source_local_descriptors->recovered,
 	     error ) != 1 )
 	{
@@ -265,25 +267,27 @@ int libpff_local_descriptors_clone(
 	return( 1 );
 }
 
-/* Reads the local descriptor node
- * Returns 1 if successful or -1 on error
+/* Retrieves the leaf node from an local descriptors node for the specific identifier
+ * Returns 1 if successful, 0 if no leaf node was found or -1 on error
  */
-int libpff_local_descriptors_read_local_descriptor_node(
+int libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
      libpff_local_descriptors_t *local_descriptors,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     uint64_t identifier,
      uint64_t data_identifier,
-     libpff_local_descriptor_node_t **local_descriptor_node,
+     libpff_local_descriptors_node_t **leaf_node,
+     uint16_t *leaf_node_entry_index,
      libcerror_error_t **error )
 {
-	libfcache_cache_value_t *cache_value                       = NULL;
-	libpff_index_value_t *offset_index_value                   = NULL;
-	libpff_local_descriptor_node_t *safe_local_descriptor_node = NULL;
-	static char *function                                      = "libpff_local_descriptors_read_local_descriptor_node";
-	off64_t cache_value_offset                                 = 0;
-	int64_t cache_value_timestamp                              = 0;
-	int cache_value_file_index                                 = 0;
-	int cache_value_index                                      = 0;
-	int is_cached                                              = 0;
+	libpff_index_value_t *offsets_index_value               = NULL;
+	libpff_local_descriptors_node_t *local_descriptors_node = NULL;
+	uint8_t *node_entry_data                                = NULL;
+	static char *function                                   = "libpff_local_descriptors_get_leaf_node_from_node_by_identifier";
+	uint64_t entry_identifier                               = 0;
+	uint64_t sub_node_identifier                            = 0;
+	uint16_t entry_index                                    = 0;
+	int result                                              = 0;
 
 	if( local_descriptors == NULL )
 	{
@@ -296,13 +300,35 @@ int libpff_local_descriptors_read_local_descriptor_node(
 
 		return( -1 );
 	}
-	if( local_descriptor_node == NULL )
+	if( io_handle == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid local descriptor node.",
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( leaf_node == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid leaf node.",
+		 function );
+
+		return( -1 );
+	}
+	if( leaf_node_entry_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid leaf node entry index.",
 		 function );
 
 		return( -1 );
@@ -311,580 +337,105 @@ int libpff_local_descriptors_read_local_descriptor_node(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: requested data identifier: %" PRIu64 "\n",
+		 "%s: requested identifier\t: 0x%08" PRIx64 " (%" PRIu64 ").\n",
 		 function,
+		 data_identifier,
 		 data_identifier );
 	}
 #endif
-	cache_value_index = data_identifier % LIBPFF_MAXIMUM_CACHE_ENTRIES_LOCAL_DESCRIPTORS_NODES;
+/* TODO handle multiple recovered offsets index values */
+	result = libpff_offsets_index_get_index_value_by_identifier(
+	          local_descriptors->offsets_index,
+	          io_handle,
+	          file_io_handle,
+	          data_identifier,
+	          local_descriptors->recovered,
+	          0,
+	          &offsets_index_value,
+	          error );
 
-	if( libfcache_cache_get_value_by_index(
-	     local_descriptors->local_descriptor_nodes_cache,
-	     cache_value_index,
-	     &cache_value,
-	     error ) != 1 )
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to find data identifier: %" PRIu64 ".",
+		 "%s: unable to find offsets index value: 0x%08" PRIx64 " (%" PRIu64 ").",
 		 function,
+		 data_identifier,
 		 data_identifier );
 
 		goto on_error;
 	}
-	if( cache_value != NULL )
+	else if( result == 0 )
 	{
-		if( libfcache_cache_value_get_identifier(
-		     cache_value,
-		     &cache_value_file_index,
-		     &cache_value_offset,
-		     &cache_value_timestamp,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve cache value identifier.",
-			 function );
-
-			goto on_error;
-		}
-		if( (uint64_t) cache_value_offset == data_identifier )
-		{
-			is_cached = 1;
-		}
+		return( 0 );
 	}
-#if !defined( HAVE_DEBUG_OUTPUT )
-	if( is_cached == 0 )
-#endif
-	{
-/* TODO handle multiple recovered offset index values */
-		if( libpff_offsets_index_get_index_value_by_identifier(
-		     local_descriptors->offsets_index,
-		     file_io_handle,
-		     data_identifier,
-		     local_descriptors->recovered,
-		     0,
-		     &offset_index_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to find data identifier: %" PRIu64 ".",
-			 function,
-			 data_identifier );
-
-			goto on_error;
-		}
-		if( offset_index_value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing offset index value: %" PRIu64 ".",
-			 function,
-			 data_identifier );
-
-			goto on_error;
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: local descriptor node: identifier: %" PRIu64 " (%s) at offset: 0x%08" PRIx64 " of size: %" PRIu32 "\n",
-			 function,
-			 offset_index_value->identifier,
-			 ( ( offset_index_value->identifier & LIBPFF_OFFSET_INDEX_IDENTIFIER_FLAG_INTERNAL ) ? "internal" : "external" ),
-			 offset_index_value->file_offset,
-			 offset_index_value->data_size );
-		}
-#endif
-	}
-	if( is_cached != 0 )
-	{
-		if( libfcache_cache_value_get_value(
-		     cache_value,
-		     (intptr_t **) local_descriptor_node,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve local descriptor node from cache value.",
-			 function );
-
-			goto on_error;
-		}
-	}
-	else
-	{
-		if( libpff_local_descriptor_node_initialize(
-		     &safe_local_descriptor_node,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create local descriptor node.",
-			 function );
-
-			goto on_error;
-		}
-		if( libpff_local_descriptor_node_read_file_io_handle(
-		     safe_local_descriptor_node,
-		     local_descriptors->io_handle,
-		     file_io_handle,
-		     local_descriptors->descriptor_identifier,
-		     data_identifier,
-		     offset_index_value->file_offset,
-		     offset_index_value->data_size,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read local descriptor node at offset: 0x%08" PRIx64 ".",
-			 function,
-			 offset_index_value->file_offset );
-
-			goto on_error;
-		}
-		if( libfcache_cache_set_value_by_index(
-		     local_descriptors->local_descriptor_nodes_cache,
-		     cache_value_index,
-		     0,
-		     (off64_t) data_identifier,
-		     0,
-		     (intptr_t *) safe_local_descriptor_node,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_local_descriptor_node_free,
-		     LIBFCACHE_CACHE_VALUE_FLAG_MANAGED,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set local descriptor node in cache.",
-			 function );
-
-			goto on_error;
-		}
-		*local_descriptor_node     = safe_local_descriptor_node;
-		safe_local_descriptor_node = NULL;
-	}
-	if( libpff_index_value_free(
-	     &offset_index_value,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free offsets index value.",
-		 function );
-
-		goto on_error;
-	}
-	return( 1 );
-
-on_error:
-	if( safe_local_descriptor_node != NULL )
-	{
-		libpff_local_descriptor_node_free(
-		 &safe_local_descriptor_node,
-		 NULL );
-	}
-	if( offset_index_value != NULL )
-	{
-		libpff_index_value_free(
-		 &offset_index_value,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Reads the local descriptor node tree node
- * Returns 1 if successful or -1 on error
- */
-int libpff_local_descriptors_read_tree_node(
-     libpff_local_descriptors_t *local_descriptors,
-     libbfio_handle_t *file_io_handle,
-     off64_t node_offset,
-     uint64_t data_identifier,
-     libfdata_tree_node_t *local_descriptors_tree_node,
-     libcerror_error_t **error )
-{
-	libpff_index_value_t *offset_index_value              = NULL;
-	libpff_local_descriptor_node_t *local_descriptor_node = NULL;
-	static char *function                                 = "libpff_local_descriptors_read_tree_node";
-	uint64_t local_descriptor_sub_node_identifier         = 0;
-	uint16_t entry_index                                  = 0;
-
-	if( local_descriptors == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid local descriptors.",
-		 function );
-
-		return( -1 );
-	}
-	if( local_descriptors->io_handle == NULL )
+	if( offsets_index_value == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid local descriptors - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_32BIT )
-	 && ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT )
-	 && ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported file type.",
-		 function );
-
-		return( -1 );
-	}
-	if( libpff_local_descriptors_read_local_descriptor_node(
-	     local_descriptors,
-	     file_io_handle,
-	     data_identifier,
-	     &local_descriptor_node,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve local descriptor node.",
-		 function );
-
-		return( -1 );
-	}
-	if( local_descriptor_node == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing local descriptor node.",
-		 function );
-
-		return( -1 );
-	}
-	if( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_32BIT )
-	{
-		node_offset += 4;
-	}
-	else if( ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT )
-	      && ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
-	{
-		node_offset += 8;
-	}
-	if( local_descriptor_node->number_of_entries > 0 )
-	{
-		if( libfdata_tree_node_resize_sub_nodes(
-		     local_descriptors_tree_node,
-		     (int) local_descriptor_node->number_of_entries,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_RESIZE_FAILED,
-			 "%s: unable to resize number of sub nodes.",
-			 function );
-
-			goto on_error;
-		}
-		for( entry_index = 0;
-		     entry_index < local_descriptor_node->number_of_entries;
-		     entry_index++ )
-		{
-			if( local_descriptor_node->level != LIBPFF_LOCAL_DESCRIPTOR_NODE_LEVEL_LEAF )
-			{
-				if( libpff_local_descriptor_node_get_entry_sub_node_identifier(
-				     local_descriptor_node,
-				     local_descriptors->io_handle,
-				     entry_index,
-				     &local_descriptor_sub_node_identifier,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve node entry: %" PRIu16 " sub node identifier.",
-					 function,
-					 entry_index );
-
-					goto on_error;
-				}
-				/* Check if the local descriptor sub node identifier exists
-				 */
-/* TODO handle multiple recovered offset index values */
-				if( libpff_offsets_index_get_index_value_by_identifier(
-				     local_descriptors->offsets_index,
-				     file_io_handle,
-				     local_descriptor_sub_node_identifier,
-				     local_descriptors->recovered,
-				     0,
-				     &offset_index_value,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to find sub node identifier: %" PRIu64 ".",
-					 function,
-					 local_descriptor_sub_node_identifier );
-
-					goto on_error;
-				}
-				if( offset_index_value == NULL )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-					 "%s: missing offset index value.",
-					 function );
-
-					goto on_error;
-				}
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libcnotify_verbose != 0 )
-				{
-					libcnotify_printf(
-					 "%s: local descriptor entry: %03" PRIu16 " at level: %" PRIu8 " identifier: %" PRIu64 " (%s) at offset: 0x%08" PRIx64 " of size: %" PRIu32 "\n",
-					 function,
-					 entry_index,
-					 local_descriptor_node->level,
-					 offset_index_value->identifier,
-					 ( ( offset_index_value->identifier & LIBPFF_OFFSET_INDEX_IDENTIFIER_FLAG_INTERNAL ) ? "internal" : "external" ),
-					 offset_index_value->file_offset,
-					 offset_index_value->data_size );
-				}
-#endif
-				if( libpff_index_value_free(
-				     &offset_index_value,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-					 "%s: unable to free offsets index value.",
-					 function );
-
-					goto on_error;
-				}
-			}
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: local descriptor entry: %03" PRIu16 " at level: %" PRIu8 " data identifier: %" PRIu64 " node offset: 0x%08" PRIx64 "\n",
-				 function,
-				 entry_index,
-				 local_descriptor_node->level,
-				 data_identifier,
-				 node_offset );
-			}
-#endif
-			/* The sub node point to the specific entry in the sub nodes data of the current node.
-			 * The node offset is used as a unique identifier for the individual nodes.
-			 * The actual data is found using the data identifier and the entry index.
-			 */
-			if( libfdata_tree_node_set_sub_node_by_index(
-			     local_descriptors_tree_node,
-			     (int) entry_index,
-			     (int) entry_index,
-			     node_offset,
-			     (size64_t) data_identifier,
-			     0,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set local descriptor node entry: %" PRIu16 " as sub node.",
-				 function,
-				 entry_index );
-
-				goto on_error;
-			}
-			if( local_descriptor_node->level == LIBPFF_LOCAL_DESCRIPTOR_NODE_LEVEL_LEAF )
-			{
-				if( libfdata_tree_node_set_leaf_sub_node(
-				     local_descriptors_tree_node,
-				     (int) entry_index,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set local descriptor node entry: %" PRIu16 " as leaf node.",
-					 function,
-					 entry_index );
-
-					goto on_error;
-				}
-			}
-			node_offset += local_descriptor_node->entry_size;
-		}
-	}
-	return( 1 );
-
-on_error:
-	if( offset_index_value != NULL )
-	{
-		libpff_index_value_free(
-		 &offset_index_value,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Reads the local descriptor value
- * Returns 1 if successful or -1 on error
- */
-int libpff_local_descriptors_read_local_descriptor_value(
-     libpff_local_descriptors_t *local_descriptors,
-     libbfio_handle_t *file_io_handle,
-     uint64_t data_identifier,
-     uint16_t entry_index,
-     libfdata_tree_node_t *local_descriptors_tree_node,
-     libpff_local_descriptor_value_t *local_descriptor_value,
-     libcerror_error_t **error )
-{
-	libpff_index_value_t *offset_index_value              = NULL;
-	libpff_local_descriptor_node_t *local_descriptor_node = NULL;
-	uint8_t *node_entry_data                              = NULL;
-	static char *function                                 = "libpff_local_descriptors_read_local_descriptor_value";
-	int result                                            = 0;
-
-	if( local_descriptors == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid local descriptors.",
-		 function );
-
-		return( -1 );
-	}
-	if( local_descriptors->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid local descriptors - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_32BIT )
-	 && ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT )
-	 && ( local_descriptors->io_handle->file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported file type.",
-		 function );
-
-		return( -1 );
-	}
-	if( local_descriptor_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid local descriptor value.",
-		 function );
-
-		return( -1 );
-	}
-	if( libpff_local_descriptors_read_local_descriptor_node(
-	     local_descriptors,
-	     file_io_handle,
-	     data_identifier,
-	     &local_descriptor_node,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve local descriptor node.",
-		 function );
-
-		goto on_error;
-	}
-	if( local_descriptor_node == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing local descriptor node.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_local_descriptor_node_get_entry_identifier(
-	     local_descriptor_node,
-	     local_descriptors->io_handle,
-	     entry_index,
-	     &( local_descriptor_value->identifier ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve node entry: %" PRIu16 " identifier.",
+		 "%s: missing offsets index value: 0x%08" PRIx64 " (%" PRIu64 ").",
 		 function,
-		 entry_index );
+		 data_identifier,
+		 data_identifier );
 
 		goto on_error;
 	}
-	/* Ignore the upper 32-bit of local descriptor identifiers
-	 */
-	local_descriptor_value->identifier &= 0xffffffffUL;
-
-	if( local_descriptor_node->level == LIBPFF_LOCAL_DESCRIPTOR_NODE_LEVEL_LEAF )
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
 	{
-/* TODO get_entry_identifiers function ? */
-		if( libpff_local_descriptor_node_get_entry_data(
-		     local_descriptor_node,
+		libcnotify_printf(
+		 "%s: local descriptors node: identifier: %" PRIu64 " (%s) at offset: 0x%08" PRIx64 " of size: %" PRIu32 "\n",
+		 function,
+		 offsets_index_value->identifier,
+		 ( ( offsets_index_value->identifier & LIBPFF_OFFSET_INDEX_IDENTIFIER_FLAG_INTERNAL ) ? "internal" : "external" ),
+		 offsets_index_value->file_offset,
+		 offsets_index_value->data_size );
+	}
+#endif
+	if( libpff_local_descriptors_node_initialize(
+	     &local_descriptors_node,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create local descriptors node.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_local_descriptors_node_read_file_io_handle(
+	     local_descriptors_node,
+	     io_handle,
+	     file_io_handle,
+	     local_descriptors->descriptor_identifier,
+	     data_identifier,
+	     offsets_index_value->file_offset,
+	     offsets_index_value->data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read local descriptors node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 offsets_index_value->file_offset,
+		 offsets_index_value->file_offset );
+
+		goto on_error;
+	}
+	for( entry_index = 0;
+	     entry_index < local_descriptors_node->number_of_entries;
+	     entry_index++ )
+	{
+		if( libpff_local_descriptors_node_get_entry_data(
+		     local_descriptors_node,
 		     entry_index,
 		     &node_entry_data,
 		     error ) != 1 )
@@ -913,117 +464,65 @@ int libpff_local_descriptors_read_local_descriptor_value(
 		}
 		if( local_descriptors->io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
-			node_entry_data += 4;
-
 			byte_stream_copy_to_uint32_little_endian(
-			 node_entry_data,
-			 local_descriptor_value->data_identifier );
-
-			node_entry_data += 4;
-
-			byte_stream_copy_to_uint32_little_endian(
-			 node_entry_data,
-			 local_descriptor_value->local_descriptors_identifier );
-
-			node_entry_data += 4;
+			 ( (pff_local_descriptor_branch_node_entry_type_32bit_t *) node_entry_data )->identifier,
+			 entry_identifier );
 		}
 		else if( ( local_descriptors->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
 		      || ( local_descriptors->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 		{
-			node_entry_data += 8;
-
 			byte_stream_copy_to_uint64_little_endian(
-			 node_entry_data,
-			 local_descriptor_value->data_identifier );
-
-			node_entry_data += 8;
-
-			byte_stream_copy_to_uint64_little_endian(
-			 node_entry_data,
-			 local_descriptor_value->local_descriptors_identifier );
-
-			node_entry_data += 8;
+			 ( (pff_local_descriptor_branch_node_entry_type_64bit_t *) node_entry_data )->identifier,
+			 entry_identifier );
 		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
+		/* Ignore the upper 32-bit of local descriptor identifiers
+		 */
+		entry_identifier &= 0xffffffffUL;
+
+		if( local_descriptors_node->level != LIBPFF_LOCAL_DESCRIPTOR_NODE_LEVEL_LEAF )
 		{
-			libcnotify_printf(
-			 "%s: local descriptor entry: %03" PRIu16 " at level: %" PRIu8 " identifier: %" PRIu64 ", data identifier: %" PRIu64 ", local descriptors identifier: %" PRIu64 "\n",
-			 function,
-			 entry_index,
-			 local_descriptor_node->level,
-			 local_descriptor_value->identifier,
-			 local_descriptor_value->data_identifier,
-			 local_descriptor_value->local_descriptors_identifier );
+			if( ( entry_index == 0 )
+			 || ( identifier >= entry_identifier ) )
+			{
+				if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+				{
+					byte_stream_copy_to_uint32_little_endian(
+					 ( (pff_local_descriptor_branch_node_entry_type_32bit_t *) node_entry_data )->sub_node_identifier,
+					 sub_node_identifier );
+				}
+				else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+				      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+				{
+					byte_stream_copy_to_uint64_little_endian(
+					 ( (pff_local_descriptor_branch_node_entry_type_64bit_t *) node_entry_data )->sub_node_identifier,
+					 sub_node_identifier );
+				}
+			}
 		}
-#endif
+		else if( identifier == entry_identifier )
+		{
+			*leaf_node             = local_descriptors_node;
+			*leaf_node_entry_index = entry_index;
+
+			result = 1;
+		}
+		/* A branch node contains the identifier of its first sub node
+		 */
+		if( identifier <= entry_identifier )
+		{
+			break;
+		}
 	}
-	else
+	if( local_descriptors_node->level != LIBPFF_INDEX_NODE_LEVEL_LEAF )
 	{
-		if( libpff_local_descriptor_node_get_entry_sub_node_identifier(
-		     local_descriptor_node,
-		     local_descriptors->io_handle,
-		     entry_index,
-		     &( local_descriptor_value->sub_node_identifier ),
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve node entry: %" PRIu16 " sub node identifier.",
-			 function,
-			 entry_index );
-
-			goto on_error;
-		}
-/* TODO handle multiple recovered offset index values */
-		if( libpff_offsets_index_get_index_value_by_identifier(
-		     local_descriptors->offsets_index,
-		     file_io_handle,
-		     local_descriptor_value->sub_node_identifier,
-		     local_descriptors->recovered,
-		     0,
-		     &offset_index_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to find sub node identifier: %" PRIu64 ".",
-			 function,
-			 local_descriptor_value->sub_node_identifier );
-
-			goto on_error;
-		}
-		if( offset_index_value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing offset index value.",
-			 function );
-
-			goto on_error;
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: local descriptor entry: %03" PRIu16 " at level: %" PRIu8 " identifier: %" PRIu64 " (%s) at offset: 0x%08" PRIx64 " of size: %" PRIu32 "\n",
-			 function,
-			 entry_index,
-			 local_descriptor_node->level,
-			 offset_index_value->identifier,
-			 ( ( offset_index_value->identifier & LIBPFF_OFFSET_INDEX_IDENTIFIER_FLAG_INTERNAL ) ? "internal" : "external" ),
-			 offset_index_value->file_offset,
-			 offset_index_value->data_size );
-		}
-#endif
-		result = libfdata_tree_node_sub_nodes_data_range_is_set(
-		          local_descriptors_tree_node,
+		result = libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
+			  local_descriptors,
+		          io_handle,
+			  file_io_handle,
+			  identifier,
+			  sub_node_identifier,
+			  leaf_node,
+			  leaf_node_entry_index,
 			  error );
 
 		if( result == -1 )
@@ -1032,79 +531,81 @@ int libpff_local_descriptors_read_local_descriptor_value(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to determine if sub nodes data range is set.",
-			 function );
+			 "%s: unable to retrieve leaf node by identifier: 0x%08" PRIx64 " (%" PRIu64 ") from node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+			 function,
+			 identifier,
+			 identifier,
+			 offsets_index_value->file_offset,
+			 offsets_index_value->file_offset );
 
 			goto on_error;
 		}
-		else if( result == 0 )
-		{
-			if( libfdata_tree_node_set_sub_nodes_data_range(
-			     local_descriptors_tree_node,
-			     0,
-			     offset_index_value->file_offset,
-			     (size64_t) local_descriptor_value->sub_node_identifier,
-			     0,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set sub nodes data range.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		if( libpff_index_value_free(
-		     &offset_index_value,
+	}
+	if( ( local_descriptors_node != NULL )
+	 && ( local_descriptors_node != *leaf_node ) )
+	{
+		if( libpff_local_descriptors_node_free(
+		     &local_descriptors_node,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free offsets index value.",
+			 "%s: unable to free local descriptors node.",
 			 function );
 
 			goto on_error;
 		}
 	}
-	return( 1 );
+	if( libpff_index_value_free(
+	     &offsets_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free offsets index value.",
+		 function );
+
+		goto on_error;
+	}
+	return( result );
 
 on_error:
-	if( offset_index_value != NULL )
+	if( local_descriptors_node != NULL )
+	{
+		libpff_local_descriptors_node_free(
+		 &local_descriptors_node,
+		 NULL );
+	}
+	if( offsets_index_value != NULL )
 	{
 		libpff_index_value_free(
-		 &offset_index_value,
+		 &offsets_index_value,
 		 NULL );
 	}
 	return( -1 );
 }
 
-/* Reads the local descriptors node
- * Callback for the local descriptors tree
- * Returns 1 if successful or -1 on error
+/* Retrieves the value for the specific identifier
+ * Returns 1 if successful, 0 if no value was found or -1 on error
  */
-int libpff_local_descriptors_read_node(
+int libpff_local_descriptors_get_value_by_identifier(
      libpff_local_descriptors_t *local_descriptors,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
-     libfdata_cache_t *cache,
-     int node_file_index,
-     off64_t node_offset,
-     size64_t node_size,
-     uint32_t node_flags LIBPFF_ATTRIBUTE_UNUSED,
-     uint8_t read_flags LIBPFF_ATTRIBUTE_UNUSED,
+     uint64_t identifier,
+     libpff_local_descriptor_value_t **local_descriptor_value,
      libcerror_error_t **error )
 {
-	libpff_local_descriptor_value_t *local_descriptor_value = NULL;
-	static char *function                                   = "libpff_local_descriptors_read_node";
-	int result                                              = 0;
-
-	LIBPFF_UNREFERENCED_PARAMETER( node_flags )
-	LIBPFF_UNREFERENCED_PARAMETER( read_flags )
+	libpff_local_descriptor_value_t *safe_local_descriptor_value = NULL;
+	libpff_local_descriptors_node_t *leaf_node                   = NULL;
+	uint8_t *node_entry_data                                     = NULL;
+	static char *function                                        = "libpff_local_descriptors_get_value_by_identifier";
+	uint16_t leaf_node_entry_index                               = 0;
+	int result                                                   = 0;
 
 	if( local_descriptors == NULL )
 	{
@@ -1117,181 +618,140 @@ int libpff_local_descriptors_read_node(
 
 		return( -1 );
 	}
-	if( node_file_index > (int) UINT16_MAX )
+	if( local_descriptor_value == NULL )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid node file index value out of bounds.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid local descriptor value.",
 		 function );
 
 		return( -1 );
 	}
-	/* The node size value contains the data identifier
-	 * of the corresponding local descriptor node
-	 */
-	if( libpff_local_descriptor_value_initialize(
-	     &local_descriptor_value,
-	     error ) != 1 )
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: requested identifier\t\t: 0x%08" PRIx64 " (%" PRIu64 ").\n",
+		 function,
+		 identifier,
+		 identifier );
+	}
+#endif
+	result = libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
+		  local_descriptors,
+		  io_handle,
+		  file_io_handle,
+		  identifier,
+		  local_descriptors->root_node_data_identifier,
+		  &leaf_node,
+		  &leaf_node_entry_index,
+		  error );
+
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create local descriptor value.",
-		 function );
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve leaf node by identifier: 0x%08" PRIx64 " (%" PRIu64 ") from root node.",
+		 function,
+		 identifier,
+		 identifier );
 
 		goto on_error;
 	}
-	if( node_offset == local_descriptors->root_node_offset )
+	else if( result != 0 )
 	{
-		/* The local descriptors tree root node is virtual
-		 */
-		result = libfdata_tree_node_sub_nodes_data_range_is_set(
-		          node,
-			  error );
-
-		if( result == -1 )
+		if( libpff_local_descriptors_node_get_entry_data(
+		     leaf_node,
+		     leaf_node_entry_index,
+		     &node_entry_data,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to determine if sub nodes data range is set.",
+			 "%s: unable to retrieve node entry: %" PRIu16 " data.",
+			 function,
+			 leaf_node_entry_index );
+
+			goto on_error;
+		}
+		if( node_entry_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing node entry: %" PRIu16 " data.",
+			 function,
+			 leaf_node_entry_index );
+
+			goto on_error;
+		}
+		if( libpff_local_descriptor_value_initialize(
+		     &safe_local_descriptor_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create local descriptor value.",
 			 function );
 
 			goto on_error;
 		}
-		else if( result == 0 )
-		{
-			if( libfdata_tree_node_set_sub_nodes_data_range(
-			     node,
-			     0,
-			     node_offset,
-			     (uint64_t) node_size,
-			     0,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set sub nodes data range.",
-				 function );
-
-				goto on_error;
-			}
-		}
-	}
-	else
-	{
-		/* The node_size value contains the local descriptor node entry
-		 */
-		if( libpff_local_descriptors_read_local_descriptor_value(
-		     local_descriptors,
-		     file_io_handle,
-		     (uint64_t) node_size,
-		     (uint16_t) node_file_index,
-		     node,
-		     local_descriptor_value,
+		if( libpff_local_descriptor_value_read_data(
+		     safe_local_descriptor_value,
+		     io_handle,
+		     node_entry_data,
+		     (size_t) leaf_node->entry_size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read local descriptor node entry at offset: 0x%08" PRIx64 ".",
-			 function,
-			 node_offset );
+			 "%s: unable to read local descriptor value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_local_descriptors_node_free(
+		     &leaf_node,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free leaf node.",
+			 function );
 
 			goto on_error;
 		}
 	}
-	if( libfdata_tree_node_set_node_value(
-	     node,
-	     cache,
-	     (intptr_t *) local_descriptor_value,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libpff_local_descriptor_value_free,
-	     LIBFDATA_TREE_NODE_VALUE_FLAG_MANAGED,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set local descriptor value as node value.",
-		 function );
+	*local_descriptor_value = safe_local_descriptor_value;
 
-		goto on_error;
-	}
-	return( 1 );
+	return( result );
 
 on_error:
-	if( local_descriptor_value != NULL )
+	if( safe_local_descriptor_value != NULL )
 	{
 		libpff_local_descriptor_value_free(
-		 &local_descriptor_value,
+		 &safe_local_descriptor_value,
+		 NULL );
+	}
+	if( leaf_node != NULL )
+	{
+		libpff_local_descriptors_node_free(
+		 &leaf_node,
 		 NULL );
 	}
 	return( -1 );
-}
-
-/* Reads the local descriptors sub nodes
- * Callback for the local descriptors tree
- * Returns 1 if successful or -1 on error
- */
-int libpff_local_descriptors_read_sub_nodes(
-     libpff_local_descriptors_t *local_descriptors,
-     libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
-     libfdata_cache_t *cache LIBPFF_ATTRIBUTE_UNUSED,
-     int sub_nodes_file_index LIBPFF_ATTRIBUTE_UNUSED,
-     off64_t sub_nodes_offset,
-     size64_t sub_nodes_size,
-     uint32_t sub_nodes_flags LIBPFF_ATTRIBUTE_UNUSED,
-     uint8_t read_flags LIBPFF_ATTRIBUTE_UNUSED,
-     libcerror_error_t **error )
-{
-	static char *function = "libpff_local_descriptors_read_sub_nodes";
-
-	LIBPFF_UNREFERENCED_PARAMETER( cache )
-	LIBPFF_UNREFERENCED_PARAMETER( sub_nodes_file_index )
-	LIBPFF_UNREFERENCED_PARAMETER( sub_nodes_flags )
-	LIBPFF_UNREFERENCED_PARAMETER( read_flags )
-
-	if( local_descriptors == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid local descriptors.",
-		 function );
-
-		return( -1 );
-	}
-	/* The sub nodes size value contains the data identifier
-	 * of the corresponding local descriptor node
-	 */
-	if( libpff_local_descriptors_read_tree_node(
-	     local_descriptors,
-	     file_io_handle,
-	     sub_nodes_offset,
-	     (uint64_t) sub_nodes_size,
-	     node,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read local descriptor tree node: %" PRIu64 ".",
-		 function,
-		 (uint64_t) sub_nodes_size );
-
-		return( -1 );
-	}
-	return( 1 );
 }
 
