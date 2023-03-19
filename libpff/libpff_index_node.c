@@ -24,12 +24,12 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libpff_checksum.h"
 #include "libpff_definitions.h"
 #include "libpff_index_node.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
 #include "libpff_types.h"
 
 #include "pff_index_node.h"
@@ -350,7 +350,7 @@ int libpff_index_node_read_data(
 
 		return( -1 );
 	}
-	if( libfmapi_checksum_calculate_weak_crc32(
+	if( libpff_checksum_calculate_weak_crc32(
 	     &calculated_checksum,
 	     data,
 	     checksum_data_size,

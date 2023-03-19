@@ -32,6 +32,7 @@ libpff_la_SOURCES = \
 	libpff_block_descriptor.c libpff_block_descriptor.h \
 	libpff_block_tree.c libpff_block_tree.h \
 	libpff_block_tree_node.c libpff_block_tree_node.h \
+	libpff_checksum.c libpff_checksum.h \
 	libpff_codepage.h \
 	libpff_column_definition.c libpff_column_definition.h \
 	libpff_compression.c libpff_compression.h \

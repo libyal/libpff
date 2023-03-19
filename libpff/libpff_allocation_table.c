@@ -25,12 +25,12 @@
 #include <types.h>
 
 #include "libpff_allocation_table.h"
+#include "libpff_checksum.h"
 #include "libpff_definitions.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
 
 #include "pff_allocation_table.h"
 
@@ -267,7 +267,7 @@ int libpff_allocation_table_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( libfmapi_checksum_calculate_weak_crc32(
+	if( libpff_checksum_calculate_weak_crc32(
 	     &calculated_checksum,
 	     table_data,
 	     (size_t) table_data_size,

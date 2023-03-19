@@ -59,6 +59,7 @@ check_PROGRAMS = \
 	pff_test_block_descriptor \
 	pff_test_block_tree \
 	pff_test_block_tree_node \
+	pff_test_checksum \
 	pff_test_column_definition \
 	pff_test_compression \
 	pff_test_data_array \
@@ -199,6 +200,15 @@ pff_test_block_tree_node_SOURCES = \
 pff_test_block_tree_node_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
+
+pff_test_checksum_SOURCES = \
+	pff_test_checksum.c \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_checksum_LDADD = \
+	../libpff/libpff.la
 
 pff_test_column_definition_SOURCES = \
 	pff_test_column_definition.c \

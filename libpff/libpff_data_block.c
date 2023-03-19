@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libpff_checksum.h"
 #include "libpff_compression.h"
 #include "libpff_definitions.h"
 #include "libpff_data_block.h"
@@ -34,7 +35,6 @@
 #include "libpff_libcnotify.h"
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
-#include "libpff_libfmapi.h"
 #include "libpff_unused.h"
 
 #include "pff_block.h"
@@ -772,7 +772,7 @@ int libpff_data_block_read_file_io_handle(
 			}
 			if( data_block->stored_checksum != 0 )
 			{
-				if( libfmapi_checksum_calculate_weak_crc32(
+				if( libpff_checksum_calculate_weak_crc32(
 				     &calculated_checksum,
 				     data_block->data,
 				     (size_t) data_size,

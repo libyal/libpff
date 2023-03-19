@@ -24,6 +24,7 @@ MSVSCPP_FILES = \
 	pff_test_block_descriptor/pff_test_block_descriptor.vcproj \
 	pff_test_block_tree/pff_test_block_tree.vcproj \
 	pff_test_block_tree_node/pff_test_block_tree_node.vcproj \
+	pff_test_checksum/pff_test_checksum.vcproj \
 	pff_test_column_definition/pff_test_column_definition.vcproj \
 	pff_test_compression/pff_test_compression.vcproj \
 	pff_test_data_array/pff_test_data_array.vcproj \

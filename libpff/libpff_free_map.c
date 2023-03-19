@@ -24,13 +24,13 @@
 #include <memory.h>
 #include <types.h>
 
-#include "libpff_free_map.h"
+#include "libpff_checksum.h"
 #include "libpff_definitions.h"
+#include "libpff_free_map.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
 
 #include "pff_free_map.h"
 
@@ -237,7 +237,7 @@ int libpff_free_map_read_file_io_handle(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( libfmapi_checksum_calculate_weak_crc32(
+	if( libpff_checksum_calculate_weak_crc32(
 	     &calculated_checksum,
 	     table_data,
 	     496,

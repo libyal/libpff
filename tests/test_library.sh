@@ -7,7 +7,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="allocation_table attached_file_io_handle attachment bit_stream block_descriptor block_tree block_tree_node column_definition compression data_array data_array_entry data_block deflate descriptors_index encryption error file_header folder free_map huffman_tree index index_node index_value io_handle item item_descriptor item_tree item_values local_descriptor_value local_descriptors local_descriptors_node local_descriptors_tree mapi_value message multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_header table_index_value value_type";
+LIBRARY_TESTS="allocation_table attached_file_io_handle attachment bit_stream block_descriptor block_tree block_tree_node checksum column_definition compression data_array data_array_entry data_block deflate descriptors_index encryption error file_header folder free_map huffman_tree index index_node index_value io_handle item item_descriptor item_tree item_values local_descriptor_value local_descriptors local_descriptors_node local_descriptors_tree mapi_value message multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_header table_index_value value_type";
 LIBRARY_TESTS_WITH_INPUT="file support";
 OPTION_SETS="";
 

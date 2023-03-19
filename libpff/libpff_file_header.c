@@ -24,13 +24,13 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libpff_checksum.h"
 #include "libpff_debug.h"
 #include "libpff_definitions.h"
 #include "libpff_file_header.h"
 #include "libpff_io_handle.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
 
 #include "pff_file_header.h"
 
@@ -395,7 +395,7 @@ int libpff_file_header_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( libfmapi_checksum_calculate_weak_crc32(
+	if( libpff_checksum_calculate_weak_crc32(
 	     &calculated_checksum,
 	     &( data[ 8 ] ),
 	     471,
@@ -929,7 +929,7 @@ int libpff_file_header_read_data(
 	if( ( file_header->file_type == LIBPFF_FILE_TYPE_64BIT )
 	 || ( file_header->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 	{
-		if( libfmapi_checksum_calculate_weak_crc32(
+		if( libpff_checksum_calculate_weak_crc32(
 		     &calculated_checksum,
 		     &( data[ 8 ] ),
 		     516,

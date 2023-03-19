@@ -202,6 +202,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_checksum.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_column_definition.c"
 				>
 			</File>
@@ -417,6 +421,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_block_tree_node.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_checksum.h"
 				>
 			</File>
 			<File

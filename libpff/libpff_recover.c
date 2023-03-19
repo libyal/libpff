@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libpff_checksum.h"
 #include "libpff_data_block.h"
 #include "libpff_definitions.h"
 #include "libpff_descriptors_index.h"
@@ -38,7 +39,6 @@
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
 #include "libpff_local_descriptors_node.h"
 #include "libpff_offsets_index.h"
 #include "libpff_recover.h"
@@ -2951,7 +2951,7 @@ int libpff_recover_data_blocks(
 							}
 							if( data_block_stored_checksum != 0 )
 							{
-								if( libfmapi_checksum_calculate_weak_crc32(
+								if( libpff_checksum_calculate_weak_crc32(
 								     &data_block_calculated_checksum,
 								     &( block_buffer[ data_block_data_offset ] ),
 								     data_block_data_size,
