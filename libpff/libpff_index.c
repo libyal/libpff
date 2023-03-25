@@ -787,6 +787,12 @@ on_error:
 		 &safe_index_value,
 		 NULL );
 	}
+	if( leaf_node != NULL )
+	{
+		libpff_index_node_free(
+		 &leaf_node,
+		 NULL );
+	}
 	if( node_block_tree != NULL )
 	{
 		libpff_block_tree_free(

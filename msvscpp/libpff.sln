@@ -67,6 +67,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pff_test_checksum", "pff_test_checksum\pff_test_checksum.vcproj", "{77F26317-9BA5-400D-B032-EBA381C6C2ED}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AF5BD1AB-6303-4227-8257-5E9CCBCA72D6} = {AF5BD1AB-6303-4227-8257-5E9CCBCA72D6}
+		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pff_test_column_definition", "pff_test_column_definition\pff_test_column_definition.vcproj", "{B2441D8C-9546-456A-BDAB-0CD8E27B32AE}"

@@ -208,7 +208,8 @@ pff_test_checksum_SOURCES = \
 	pff_test_unused.h
 
 pff_test_checksum_LDADD = \
-	../libpff/libpff.la
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
 
 pff_test_column_definition_SOURCES = \
 	pff_test_column_definition.c \
