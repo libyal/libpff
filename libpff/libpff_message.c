@@ -2679,10 +2679,10 @@ int libpff_message_get_rtf_body(
 			goto on_error;
 		}
 		if( libfmapi_lzfu_decompress(
-		     message_body,
-		     &size,
 		     value_data,
 		     value_data_size,
+		     message_body,
+		     &size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
