@@ -357,7 +357,6 @@ PyObject *pypff_message_get_subject(
 {
 	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
 	uint8_t *value_string    = NULL;
 	static char *function    = "pypff_message_get_subject";
 	size_t value_string_size = 0;
@@ -411,7 +410,7 @@ PyObject *pypff_message_get_subject(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create subject.",
 		 function );
 
@@ -452,7 +451,7 @@ PyObject *pypff_message_get_subject(
 		string_object = PyUnicode_DecodeUTF8(
 				 (char *) &( value_string[ 2 ] ),
 				 (Py_ssize_t) value_string_size - 3,
-				 errors );
+				 NULL );
 	}
 	else
 	{
@@ -463,7 +462,7 @@ PyObject *pypff_message_get_subject(
 		string_object = PyUnicode_DecodeUTF8(
 				 (char *) value_string,
 				 (Py_ssize_t) value_string_size - 1,
-				 errors );
+				 NULL );
 	}
 	PyMem_Free(
 	 value_string );
@@ -488,7 +487,6 @@ PyObject *pypff_message_get_conversation_topic(
 {
 	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
 	uint8_t *value_string    = NULL;
 	static char *function    = "pypff_message_get_conversation_topic";
 	size_t value_string_size = 0;
@@ -542,7 +540,7 @@ PyObject *pypff_message_get_conversation_topic(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create conversation topic.",
 		 function );
 
@@ -579,7 +577,7 @@ PyObject *pypff_message_get_conversation_topic(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 value_string );
@@ -604,7 +602,6 @@ PyObject *pypff_message_get_sender_name(
 {
 	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
 	uint8_t *value_string    = NULL;
 	static char *function    = "pypff_message_get_sender_name";
 	size_t value_string_size = 0;
@@ -658,7 +655,7 @@ PyObject *pypff_message_get_sender_name(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create sender name.",
 		 function );
 
@@ -695,7 +692,7 @@ PyObject *pypff_message_get_sender_name(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 value_string );
@@ -1192,7 +1189,6 @@ PyObject *pypff_message_get_transport_headers(
 {
 	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
 	uint8_t *value_string    = NULL;
 	static char *function    = "pypff_message_get_transport_headers";
 	size_t value_string_size = 0;
@@ -1246,7 +1242,7 @@ PyObject *pypff_message_get_transport_headers(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create transport headers.",
 		 function );
 
@@ -1283,7 +1279,7 @@ PyObject *pypff_message_get_transport_headers(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 value_string );
@@ -1360,7 +1356,7 @@ PyObject *pypff_message_get_plain_text_body(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create plain text body.",
 		 function );
 
@@ -1475,7 +1471,7 @@ PyObject *pypff_message_get_rtf_body(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create RTF body.",
 		 function );
 
@@ -1590,7 +1586,7 @@ PyObject *pypff_message_get_html_body(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create HTML body.",
 		 function );
 
