@@ -28,7 +28,20 @@ do
 	fi
 	(cd ${LOCAL_LIB}-$$ && git fetch --quiet --all --tags --prune)
 
-	LATEST_TAG=`cd ${LOCAL_LIB}-$$ && git describe --tags --abbrev=0`;
+	if test ${LOCAL_LIB} = "libfdata";
+	then
+            # NOTE: In [1], `libfdata` removed support for `libfdata_tree` but `libpff` is still
+            #       using it. Therefore, we pin to the latest working version of `libfdata`.
+            #
+            #       It's unclear if the `libfdata_tree` dependency is removed in a later version of
+            #       `libpff`, but even if it was, we're unable to upgrade due to [2].
+            #
+            # [1] https://github.com/libyal/libfdata/commit/d071bd30533c1de7c639c8a37a6ab1e7023fba65
+            # [2] https://github.com/libyal/libfsapfs/issues/72
+            LATEST_TAG="20220111";
+        else
+	    LATEST_TAG=`cd ${LOCAL_LIB}-$$ && git describe --tags --abbrev=0`;
+        fi
 
 	if test -n ${LATEST_TAG} && test "$1" != "--use-head";
 	then
