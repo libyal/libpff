@@ -28,7 +28,39 @@ do
 	fi
 	(cd ${LOCAL_LIB}-$$ && git fetch --quiet --all --tags --prune)
 
-	if test ${LOCAL_LIB} = "libfdata";
+	# NOTE: Normally, building `libpff` pulls in the latest tag of each dependent library. To
+	#       ensure repeatable builds, we fix the tag for each dependency.
+	if test ${LOCAL_LIB} = "libbfio";
+	then
+            LATEST_TAG="20221025";
+	elif test ${LOCAL_LIB} = "libcdata";
+	then
+            LATEST_TAG="20230108";
+	elif test ${LOCAL_LIB} = "libcerror";
+	then
+            LATEST_TAG="20220101";
+	elif test ${LOCAL_LIB} = "libcfile";
+	then
+            LATEST_TAG="20220106";
+	elif test ${LOCAL_LIB} = "libclocale";
+	then
+            LATEST_TAG="20221218";
+	elif test ${LOCAL_LIB} = "libcnotify";
+	then
+            LATEST_TAG="20220108";
+	elif test ${LOCAL_LIB} = "libcpath";
+	then
+            LATEST_TAG="20220108";
+	elif test ${LOCAL_LIB} = "libcsplit";
+	then
+            LATEST_TAG="20220109";
+	elif test ${LOCAL_LIB} = "libcthreads";
+	then
+            LATEST_TAG="20220102";
+	elif test ${LOCAL_LIB} = "libfcache";
+	then
+            LATEST_TAG="20230115";
+	elif test ${LOCAL_LIB} = "libfdata";
 	then
             # NOTE: In [1], `libfdata` removed support for `libfdata_tree` but `libpff` is still
             #       using it. Therefore, we pin to the latest working version of `libfdata`.
@@ -39,18 +71,31 @@ do
             # [1] https://github.com/libyal/libfdata/commit/d071bd30533c1de7c639c8a37a6ab1e7023fba65
             # [2] https://github.com/libyal/libfsapfs/issues/72
             LATEST_TAG="20220111";
+	elif test ${LOCAL_LIB} = "libfdatetime";
+	then
+            LATEST_TAG="20220112";
+	elif test ${LOCAL_LIB} = "libfguid";
+	then
+            LATEST_TAG="20220113";
+	elif test ${LOCAL_LIB} = "libfmapi";
+	then
+            LATEST_TAG="20230408";
+	elif test ${LOCAL_LIB} = "libfvalue";
+	then
+            LATEST_TAG="20220120";
+	elif test ${LOCAL_LIB} = "libfwnt";
+	then
+            LATEST_TAG="20220922";
+	elif test ${LOCAL_LIB} = "libuna";
+	then
+            LATEST_TAG="20230710";
         else
-	    LATEST_TAG=`cd ${LOCAL_LIB}-$$ && git describe --tags --abbrev=0`;
+	    echo "Undefined static latest tag for: ${LOCAL_LIB}";
+	    exit ${EXIT_FAILURE};
         fi
 
-	if test -n ${LATEST_TAG} && test "$1" != "--use-head";
-	then
-		echo "Synchronizing: ${LOCAL_LIB} from ${GIT_URL} tag ${LATEST_TAG}";
-
-		(cd ${LOCAL_LIB}-$$ && git checkout --quiet tags/${LATEST_TAG});
-	else
-		echo "Synchronizing: ${LOCAL_LIB} from ${GIT_URL} HEAD";
-	fi
+	echo "Synchronizing: ${LOCAL_LIB} from ${GIT_URL} tag ${LATEST_TAG}";
+	(cd ${LOCAL_LIB}-$$ && git checkout --quiet tags/${LATEST_TAG}) || exit ${EXIT_FAILURE};
 
 	rm -rf ${LOCAL_LIB};
 	mkdir ${LOCAL_LIB};
