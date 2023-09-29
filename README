@@ -1,3 +1,5 @@
+This repository is a fork of https://github.com/libyal/libpff. When merging in the latest `libyal/libpff` library, be sure to update latest tag constants for package dependencies in `synclibs.sh`. Tags are pinned to ensure repeatable builds.
+
 libpff is a library to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format.
 
 These format are used by Microsoft Outlook to store email, contacts and other data.
