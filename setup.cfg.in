@@ -1,6 +1,6 @@
 [metadata]
 name = libpff-python
-version = 20231022
+version = @VERSION@
 description = Python bindings module for libpff
 long_description = Python bindings module for libpff
 author = Joachim Metz
