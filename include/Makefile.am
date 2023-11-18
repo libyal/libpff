@@ -20,9 +20,9 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libpff.h
-	/bin/rm -f libpff/definitions.h
-	/bin/rm -f libpff/features.h
-	/bin/rm -f libpff/types.h
-	/bin/rm -f Makefile
+	-rm -f libpff.h
+	-rm -f libpff/definitions.h
+	-rm -f libpff/features.h
+	-rm -f libpff/types.h
+	-rm -f Makefile
 
