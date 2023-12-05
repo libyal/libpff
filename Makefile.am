@@ -24,8 +24,6 @@ SUBDIRS = \
 	pfftools \
 	jpff \
 	pypff \
-	pypff-python2 \
-	pypff-python3 \
 	po \
 	manuals \
 	tests \
@@ -53,6 +51,9 @@ PKGCONFIG_FILES = \
 	libpff.pc.in
 
 SETUP_PY_FILES = \
+	pyproject.toml \
+	setup.cfg \
+	setup.cfg.in \
 	setup.py
 
 SPEC_FILES = \

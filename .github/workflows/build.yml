@@ -54,10 +54,6 @@ jobs:
           compiler: 'gcc'
           configure_options: '--enable-python'
           python_version: ''
-        - architecture: 'x64'
-          compiler: 'gcc'
-          configure_options: '--enable-python3'
-          python_version: '3'
     steps:
     - uses: actions/checkout@v3
     - name: Install build dependencies

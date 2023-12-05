@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libpff],
- [20231118],
+ [20231205],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -129,7 +129,7 @@ dnl Check if libpff Python bindings (pypff) required headers and functions are a
 AX_PYTHON_CHECK_ENABLE
 
 AS_IF(
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [test "x${ac_cv_enable_python}" != xno],
   [dnl Headers included in pypff/pypff_error.c
   AC_CHECK_HEADERS([stdarg.h varargs.h])
 
@@ -198,8 +198,6 @@ AC_CONFIG_FILES([libfwnt/Makefile])
 AC_CONFIG_FILES([libfmapi/Makefile])
 AC_CONFIG_FILES([libpff/Makefile])
 AC_CONFIG_FILES([pypff/Makefile])
-AC_CONFIG_FILES([pypff-python2/Makefile])
-AC_CONFIG_FILES([pypff-python3/Makefile])
 AC_CONFIG_FILES([jpff/Makefile])
 AC_CONFIG_FILES([pfftools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
