@@ -1675,9 +1675,8 @@ entry consists of 18 bytes:
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 16 | | A GUID
-| 16 | 2 | | [yellow-background]*Unknown* +
-[yellow-background]*First part of the value in PRQ_ID_SECURE4*
+| 0 | 16 | | The GUID of the replica
+| 16 | 2 | | The shorthand ID (PFF-local) for the replica
 |===
 
 === The 7c table
@@ -1859,10 +1858,13 @@ entry consists of 18 bytes:
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 8 | | [yellow-background]*Unknown (Identifier)* +
-[yellow-background]*Similar to the value in PRQ_ID_SECURE4*
-| 8 | 4 | | Descriptor identifier +
-[yellow-background]*with the last 4 bits masked as zero*
+| 0 | 8 | |
+[MID
+structure](https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxcdata/f1004d6b-b314-41a8-83cb-c64c3dbeebc4),
+consists of the GLOBCNT value (which should be the same as the message's
+GLOBCNT value on the server) plus the local replication ID
+| 8 | 4 | | Descriptor identifier (NID) for this entry, with the last 5 bits
+(which constitute just NID_TYPE_MASK) set to zero
 |===
 
 === The 9c table
@@ -3044,7 +3046,7 @@ template tables or used to store empty tables for the specific purpose only once
 
 2049 6c table (contains GUID that map to other GUIDs?)
 2081 8c table (folder identifier related table? 0x67f4 value related)
-2113 7c table (folder identifier releated table? 0x36de value related)
+2113 7c table (folder identifier related table? 0x36de value related)
 3073 empty 9c table
 
 > 8194 related folder items
@@ -3174,7 +3176,8 @@ PST file.
 0x36d0 (PidTagIpmAppointmentEntryId : Calendar folder entry identifier)
 0x0102 (PT_BINARY : Binary data)
 
-Entry identifier:
+Entry identifier (generally a 22-byte
+[XID](https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxcfxics/49eeaced-e393-46cd-97b1-d31d026e56e6) structure):
 Flags: 0x00, 0x00, 0x00, 0x00
 Service provider identifier : 77c9cc1c-4915-4c72-bd2f-f28d487b92cc (Unknown)
 Object identifier data:
@@ -3187,7 +3190,7 @@ GUID: 3af25d8e-3278-417a-ae4c-2cce44e18a88
 
 00000010: 00 00 00 19 50 c5
 
-First part of the PRQ_ID_SECURE4 value
+GLOBCNT value
 
 00000010:00 00......P. ..
 
@@ -3214,7 +3217,7 @@ GUID : af1252d6-dd91-4391-b1fa-ee82341e0c04
 Unknown:
 00000000: 00 00 04 12
 
-0x67f4 (PRQ_ID_SECURE4 : )
+0x67f4 (PR_LTP_CKEY, a [CN/FID/MID](https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxcdata/1c934e18-441b-4c47-9de0-eb34ffea47e3)-style structure packed to double as a 64-bit signed integer; similar to PidTagFolderId and PidTagMid)
 0x0014 (PT_I8 : Integer 64-bit signed)
 
 integer 64-bit signed : -4228852562310201343 (0xc550190000000001)
@@ -3225,17 +3228,21 @@ record entry guid: 3af25d8e-3278-417a-ae4c-2cce44e18a88
 record entry values array number : 0x0001
 record entry value guid : 3af25d8e-3278-417a-ae4c-2cce44e18a88
 
-maps the guid to the last part of the PRQ_ID_SECURE4
+maps the guid to the local replication ID
 
 8c table
 
 identifier: 0xc550190000000001
 descriptor identifier : 0x00008080
 
-maps the PRQ_ID_SECURE4 to a descriptor identifier, requires correction of the lower four bits
+maps the CN/FID/MID to a descriptor identifier, requires correction of the
+lower 5 bits (bitwise-OR with e.g. NID_TYPE_NORMAL_FOLDER,
+NID_TYPE_HIERARCHY_TABLE, etc. depending on the information sought)
 ....
 
-But what is record key used for?
+But what is record key used for? The record key is the mailbox-local
+unique identifier for the object, something like the inode number in a file
+system. (Whereas entryids are more like pathnames in that filesystem analogy.)
 
 ....
 0x0ff9 (PidTagRecordKey : Record key)
@@ -3268,7 +3275,7 @@ GUID : 5003c7c4-af96-4aa3-9d5b-e0c1e039d0ef
 Unknown:
 00000000: 00 00 00 12 76 38 ....v8
 
-0x67f4 (PRQ_ID_SECURE4 : )
+0x67f4 (PR_LTP_CKEY)
 0x0014 (PT_I8 : Integer 64-bit signed)
 
 integer 64-bit signed : 929777818772963329 (0xce73c0000000001)
@@ -3297,7 +3304,7 @@ GUID : af1252d6-dd91-4391-b1fa-ee82341e0c04
 Unknown:
 00000000: 00 00 04 0f
 
-0x67f4 (PRQ_ID_SECURE4 : )
+0x67f4 (PR_LTP_CKEY)
 0x0014 (PT_I8 : Integer 64-bit signed)
 
 integer 64-bit signed : -2209002423085694974 (0xe1580c0000000002)
@@ -3328,7 +3335,7 @@ GUID : af1252d6-dd91-4391-b1fa-ee82341e0c04
 Unknown:
 00000000: 00 00 04 1c
 
-0x67f4 (PRQ_ID_SECURE4 : )
+0x67f4 (PR_LTP_CKEY)
 0x0014 (PT_I8 : Integer 64-bit signed)
 
 integer 64-bit signed : -2136944829047767038 (0xe2580c0000000002)
