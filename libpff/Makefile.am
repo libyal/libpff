@@ -1,6 +1,6 @@
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/include \
-	-I$(top_srcdir)/common \
+	-I../include -I$(top_srcdir)/include \
+	-I../common -I$(top_srcdir)/common \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
@@ -135,13 +135,11 @@ EXTRA_DIST = \
 	libpff.rc \
 	libpff.rc.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libpff_definitions.h \
+	libpff.rc \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f libpff_definitions.h
-	-rm -f libpff.rc
-	-rm -f Makefile
 
 sources-local: $(BUILT_SOURCES)
 

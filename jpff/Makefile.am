@@ -8,8 +8,8 @@ JAVA_FILES = \
 
 if HAVE_JAVA
 AM_CFLAGS = \
-	-I$(top_srcdir)/include \
-	-I$(top_srcdir)/common \
+	-I../include -I$(top_srcdir)/include \
+	-I../common -I$(top_srcdir)/common \
 	@LIBCERROR_CPPFLAGS@
 
 jardir = @JAR_PACKAGE_DIR@
@@ -54,9 +54,7 @@ jpff.jar: $(noinst_JAVA)
 EXTRA_DIST = \
 	$(JAVA_FILES)
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f Makefile
 

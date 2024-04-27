@@ -16,13 +16,11 @@ EXTRA_DIST = \
 	libpff/features.h.in \
 	libpff/types.h.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libpff.h \
+	libpff/definitions.h \
+	libpff/features.h \
+	libpff/types.h \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f libpff.h
-	-rm -f libpff/definitions.h
-	-rm -f libpff/features.h
-	-rm -f libpff/types.h
-	-rm -f Makefile
 

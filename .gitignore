@@ -134,6 +134,7 @@ stamp-h[1-9]
 /pfftools/pffinfo
 /tests/*.exe
 /tests/input
+/tests/notify_stream.log
 /tests/pff_test_allocation_table
 /tests/pff_test_attached_file_io_handle
 /tests/pff_test_attachment
