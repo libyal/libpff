@@ -32,63 +32,55 @@ do
 	#       ensure repeatable builds, we fix the tag for each dependency.
 	if test ${LOCAL_LIB} = "libbfio";
 	then
-            LATEST_TAG="20221025";
+            LATEST_TAG="20240414";
 	elif test ${LOCAL_LIB} = "libcdata";
 	then
-            LATEST_TAG="20230108";
+            LATEST_TAG="20240414";
 	elif test ${LOCAL_LIB} = "libcerror";
 	then
-            LATEST_TAG="20220101";
+            LATEST_TAG="20240413";
 	elif test ${LOCAL_LIB} = "libcfile";
 	then
-            LATEST_TAG="20220106";
+            LATEST_TAG="20240414";
 	elif test ${LOCAL_LIB} = "libclocale";
 	then
-            LATEST_TAG="20221218";
+            LATEST_TAG="20240414";
 	elif test ${LOCAL_LIB} = "libcnotify";
 	then
-            LATEST_TAG="20220108";
+            LATEST_TAG="20240414";
 	elif test ${LOCAL_LIB} = "libcpath";
 	then
-            LATEST_TAG="20220108";
+            LATEST_TAG="20240414";
 	elif test ${LOCAL_LIB} = "libcsplit";
 	then
-            LATEST_TAG="20220109";
+            LATEST_TAG="20240414";
 	elif test ${LOCAL_LIB} = "libcthreads";
 	then
-            LATEST_TAG="20220102";
+            LATEST_TAG="20240413";
 	elif test ${LOCAL_LIB} = "libfcache";
 	then
-            LATEST_TAG="20230115";
+            LATEST_TAG="20240414";
 	elif test ${LOCAL_LIB} = "libfdata";
 	then
-            # NOTE: In [1], `libfdata` removed support for `libfdata_tree` but `libpff` is still
-            #       using it. Therefore, we pin to the latest working version of `libfdata`.
-            #
-            #       It's unclear if the `libfdata_tree` dependency is removed in a later version of
-            #       `libpff`, but even if it was, we're unable to upgrade due to [2].
-            #
-            # [1] https://github.com/libyal/libfdata/commit/d071bd30533c1de7c639c8a37a6ab1e7023fba65
-            # [2] https://github.com/libyal/libfsapfs/issues/72
-            LATEST_TAG="20220111";
+            LATEST_TAG="20240415";
 	elif test ${LOCAL_LIB} = "libfdatetime";
 	then
-            LATEST_TAG="20220112";
+            LATEST_TAG="20240415";
 	elif test ${LOCAL_LIB} = "libfguid";
 	then
-            LATEST_TAG="20220113";
+            LATEST_TAG="20240415";
 	elif test ${LOCAL_LIB} = "libfmapi";
 	then
-            LATEST_TAG="20230408";
+            LATEST_TAG="20240415";
 	elif test ${LOCAL_LIB} = "libfvalue";
 	then
-            LATEST_TAG="20220120";
+            LATEST_TAG="20240415";
 	elif test ${LOCAL_LIB} = "libfwnt";
 	then
-            LATEST_TAG="20220922";
+            LATEST_TAG="20240415";
 	elif test ${LOCAL_LIB} = "libuna";
 	then
-            LATEST_TAG="20230710";
+            LATEST_TAG="20240414";
         else
 	    echo "Undefined static latest tag for: ${LOCAL_LIB}";
 	    exit ${EXIT_FAILURE};
