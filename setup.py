@@ -67,11 +67,7 @@ class custom_build_ext(build_ext):
       ]
 
     else:
-<<<<<<< HEAD
-      command = "sh configure --disable-shared-libs --with-zlib=no"
-=======
-      command = "sh configure --disable-nls --disable-shared-libs"
->>>>>>> libyal-libpff/main
+      command = "sh configure --disable-nls --disable-shared-libs --with-zlib=no"
       output = self._RunCommand(command)
 
       print_line = False
