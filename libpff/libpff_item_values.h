@@ -1,7 +1,7 @@
 /*
  * Item values functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -97,16 +97,6 @@ int libpff_item_values_read(
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
      int debug_item_type,
-     libcerror_error_t **error );
-
-int libpff_item_values_read_local_descriptor_data(
-     libpff_item_values_t *item_values,
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     libpff_offsets_index_t *offsets_index,
-     uint32_t descriptor_identifier,
-     libfdata_list_t **descriptor_data_list,
-     libfcache_cache_t **descriptor_data_cache,
      libcerror_error_t **error );
 
 int libpff_item_values_get_local_descriptors_value_by_identifier(

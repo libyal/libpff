@@ -1,7 +1,7 @@
 /*
  * Debug functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -138,6 +138,25 @@ const char *libpff_debug_get_name_to_id_map_property_type_description(
 			case 0x0102:
 				return( "Name to ID Map Validation Entry" );
 		}
+	}
+	return( "UNKNOWN" );
+}
+
+/* Retrieves a string containing the encryption type
+ */
+const char *libpff_debug_get_encryption_type(
+             uint8_t encryption_type )
+{
+	switch( encryption_type )
+	{
+		case LIBPFF_ENCRYPTION_TYPE_NONE:
+			return( "None" );
+
+		case LIBPFF_ENCRYPTION_TYPE_COMPRESSIBLE:
+			return( "Compressible" );
+
+		case LIBPFF_ENCRYPTION_TYPE_HIGH:
+			return( "High" );
 	}
 	return( "UNKNOWN" );
 }

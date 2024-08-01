@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script that synchronizes the local library dependencies
 #
-# Version: 20191229
+# Version: 20240414
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -110,7 +110,8 @@ do
 	fi
 
 	LOCAL_LIB_UPPER=`echo "${LOCAL_LIB}" | tr "[a-z]" "[A-Z]"`;
-	LOCAL_LIB_VERSION=`grep -A 2 AC_INIT ${LOCAL_LIB}-$$/configure.ac | tail -n 1 | sed 's/^\s*\[\([0-9]*\)\],\s*$/\1/'`;
+	# Note that sed on FreeBSD does not support \s hence that we use [[:space:]] instead.
+	LOCAL_LIB_VERSION=`grep -A 2 AC_INIT ${LOCAL_LIB}-$$/configure.ac | tail -n 1 | sed 's/^[[:space:]]*\[\([0-9]*\)\],[[:space:]]*$/\1/'`;
 	LOCAL_LIB_MAKEFILE_AM="${LOCAL_LIB}/Makefile.am";
 
 	cp ${LOCAL_LIB}-$$/${LOCAL_LIB}/*.[chly] ${LOCAL_LIB};
@@ -152,10 +153,11 @@ endif
 	d
 }
 
-/distclean: clean/ {
+/DISTCLEANFILES = / {
 	n
-	N
-	d
+	/${LOCAL_LIB}_definitions.h/ {
+		d
+	}
 }";
 	echo "${SED_SCRIPT}" >> ${LOCAL_LIB}-$$.sed;
 	sed -i'~' -f ${LOCAL_LIB}-$$.sed ${LOCAL_LIB_MAKEFILE_AM};
@@ -168,12 +170,12 @@ endif
 	if test ${LOCAL_LIB} = "libfplist";
 	then
 		# TODO: make this more generic to strip the last \\
-		sed -i'~' 's/libfplist_xml_scanner.c \\/libfplist_xml_scanner.c/' ${LOCAL_LIB_MAKEFILE_AM};
+		sed -i'~' '/EXTRA_DIST = /,/^$/s/libfplist_xml_scanner.c \\/libfplist_xml_scanner.c/' ${LOCAL_LIB_MAKEFILE_AM};
 
 	elif test ${LOCAL_LIB} = "libodraw";
 	then
 		# TODO: make this more generic to strip the last \\
-		sed -i'~' 's/libodraw_cue_scanner.c \\/libodraw_cue_scanner.c/' ${LOCAL_LIB_MAKEFILE_AM};
+		sed -i'~' '/EXTRA_DIST = /,/^$/s/libodraw_cue_scanner.c \\/libodraw_cue_scanner.c/' ${LOCAL_LIB_MAKEFILE_AM};
 
 	else
 		sed -i'~' '/EXTRA_DIST = /,/^$/d' ${LOCAL_LIB_MAKEFILE_AM};
@@ -197,7 +199,16 @@ SED_SCRIPT="/^$/ {
 	then
 		if ! test -f "m4/libuna.m4";
 		then
-			sed -i'~' 's?@LIBUNA_CPPFLAGS@?-I$(top_srcdir)/libuna?' ${LOCAL_LIB_MAKEFILE_AM};
+			sed -i'~' 's?@LIBUNA_CPPFLAGS@?-I../libuna -I$(top_srcdir)/libuna?' ${LOCAL_LIB_MAKEFILE_AM};
+		fi
+	fi
+
+	# Make the necessary changes to libfplist/Makefile.am
+	if test ${LOCAL_LIB} = "libfplist";
+	then
+		if test -f "m4/libfdatetime.m4";
+		then
+			sed -i'~' '/@LIBFGUID_CPPFLAGS@/{h; s/FGUID/FDATETIME/; p; g;}' ${LOCAL_LIB_MAKEFILE_AM};
 		fi
 	fi
 

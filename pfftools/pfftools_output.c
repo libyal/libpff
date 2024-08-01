@@ -1,7 +1,7 @@
 /*
  * Common output functions for the pfftools
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -107,7 +107,7 @@ void pfftools_output_copyright_fprint(
 	 */
 	fprintf(
 	 stream,
-	 _( "Copyright (C) 2008-2021, %s.\n" ),
+	 _( "Copyright (C) 2008-2024, %s.\n" ),
 	 _( "Joachim Metz" ) );
 
 	fprintf(

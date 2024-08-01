@@ -1,7 +1,7 @@
 /*
  * Index node functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libpff_index_value.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
 

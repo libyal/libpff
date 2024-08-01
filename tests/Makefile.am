@@ -1,8 +1,8 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/include \
-	-I$(top_srcdir)/common \
+	-I../include -I$(top_srcdir)/include \
+	-I../common -I$(top_srcdir)/common \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
@@ -55,29 +55,37 @@ check_PROGRAMS = \
 	pff_test_allocation_table \
 	pff_test_attached_file_io_handle \
 	pff_test_attachment \
+	pff_test_bit_stream \
+	pff_test_block_descriptor \
+	pff_test_block_tree \
+	pff_test_block_tree_node \
+	pff_test_checksum \
 	pff_test_column_definition \
+	pff_test_compression \
 	pff_test_data_array \
 	pff_test_data_array_entry \
 	pff_test_data_block \
 	pff_test_deflate \
 	pff_test_descriptors_index \
+	pff_test_encryption \
 	pff_test_error \
 	pff_test_file \
 	pff_test_file_header \
 	pff_test_folder \
+	pff_test_free_map \
+	pff_test_huffman_tree \
 	pff_test_index \
 	pff_test_index_node \
 	pff_test_index_value \
 	pff_test_io_handle \
-	pff_test_io_handle2 \
-	pff_test_index_tree \
 	pff_test_item \
 	pff_test_item_descriptor \
 	pff_test_item_tree \
 	pff_test_item_values \
-	pff_test_local_descriptor_node \
 	pff_test_local_descriptor_value \
 	pff_test_local_descriptors \
+	pff_test_local_descriptors_node \
+	pff_test_local_descriptors_tree \
 	pff_test_mapi_value \
 	pff_test_message \
 	pff_test_multi_value \
@@ -91,6 +99,7 @@ check_PROGRAMS = \
 	pff_test_support \
 	pff_test_table \
 	pff_test_table_block_index \
+	pff_test_table_header \
 	pff_test_table_index_value \
 	pff_test_tools_info_handle \
 	pff_test_tools_output \
@@ -144,6 +153,64 @@ pff_test_attachment_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
+pff_test_bit_stream_SOURCES = \
+	pff_test_bit_stream.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_bit_stream_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_block_descriptor_SOURCES = \
+	pff_test_block_descriptor.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_block_descriptor_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_block_tree_SOURCES = \
+	pff_test_block_tree.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_block_tree_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_block_tree_node_SOURCES = \
+	pff_test_block_tree_node.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_block_tree_node_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_checksum_SOURCES = \
+	pff_test_checksum.c \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_checksum_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
 pff_test_column_definition_SOURCES = \
 	pff_test_column_definition.c \
 	pff_test_libcerror.h \
@@ -153,6 +220,17 @@ pff_test_column_definition_SOURCES = \
 	pff_test_unused.h
 
 pff_test_column_definition_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_compression_SOURCES = \
+	pff_test_compression.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_compression_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
@@ -227,6 +305,17 @@ pff_test_descriptors_index_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
+pff_test_encryption_SOURCES = \
+	pff_test_encryption.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_unused.h
+
+pff_test_encryption_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
 pff_test_error_SOURCES = \
 	pff_test_error.c \
 	pff_test_libpff.h \
@@ -296,6 +385,41 @@ pff_test_folder_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
+pff_test_free_map_SOURCES = \
+	pff_test_free_map.c \
+	pff_test_functions.c pff_test_functions.h \
+	pff_test_libbfio.h \
+	pff_test_libcdata.h \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_free_map_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_huffman_tree_SOURCES = \
+	pff_test_huffman_tree.c \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_huffman_tree_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
 pff_test_index_SOURCES = \
 	pff_test_index.c \
 	pff_test_libcerror.h \
@@ -355,44 +479,6 @@ pff_test_io_handle_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
-pff_test_io_handle2_SOURCES = \
-	pff_test_io_handle2.c \
-	pff_test_libcerror.h \
-	pff_test_libfcache.h \
-	pff_test_libfdata.h \
-	pff_test_libpff.h \
-	pff_test_macros.h \
-	pff_test_unused.h
-
-pff_test_io_handle2_LDADD = \
-	../libpff/libpff.la \
-	@LIBCERROR_LIBADD@
-
-pff_test_index_tree_SOURCES = \
-	pff_test_functions.c pff_test_functions.h \
-	pff_test_index_tree.c \
-	pff_test_libbfio.h \
-	pff_test_libcerror.h \
-	pff_test_libfcache.h \
-	pff_test_libfdata.h \
-	pff_test_libpff.h \
-	pff_test_macros.h \
-	pff_test_unused.h
-
-pff_test_index_tree_LDADD = \
-	@LIBFDATA_LIBADD@ \
-	@LIBFCACHE_LIBADD@ \
-	@LIBBFIO_LIBADD@ \
-	@LIBCPATH_LIBADD@ \
-	@LIBCFILE_LIBADD@ \
-	@LIBUNA_LIBADD@ \
-	@LIBCSPLIT_LIBADD@ \
-	@LIBCNOTIFY_LIBADD@ \
-	@LIBCLOCALE_LIBADD@ \
-	@LIBCDATA_LIBADD@ \
-	../libpff/libpff.la \
-	@LIBCERROR_LIBADD@
-
 pff_test_item_SOURCES = \
 	pff_test_item.c \
 	pff_test_libcerror.h \
@@ -444,18 +530,6 @@ pff_test_item_values_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
-pff_test_local_descriptor_node_SOURCES = \
-	pff_test_libcerror.h \
-	pff_test_libpff.h \
-	pff_test_local_descriptor_node.c \
-	pff_test_macros.h \
-	pff_test_memory.c pff_test_memory.h \
-	pff_test_unused.h
-
-pff_test_local_descriptor_node_LDADD = \
-	../libpff/libpff.la \
-	@LIBCERROR_LIBADD@
-
 pff_test_local_descriptor_value_SOURCES = \
 	pff_test_libcerror.h \
 	pff_test_libpff.h \
@@ -477,6 +551,51 @@ pff_test_local_descriptors_SOURCES = \
 	pff_test_unused.h
 
 pff_test_local_descriptors_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_local_descriptors_node_SOURCES = \
+	pff_test_functions.c pff_test_functions.h \
+	pff_test_libbfio.h \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_local_descriptors_node.c \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_local_descriptors_node_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
+pff_test_local_descriptors_tree_SOURCES = \
+	pff_test_functions.c pff_test_functions.h \
+	pff_test_libbfio.h \
+	pff_test_libcerror.h \
+	pff_test_libfdata.h \
+	pff_test_libpff.h \
+	pff_test_local_descriptors_tree.c \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_unused.h
+
+pff_test_local_descriptors_tree_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
@@ -644,6 +763,18 @@ pff_test_table_block_index_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
+pff_test_table_header_SOURCES = \
+	pff_test_libcerror.h \
+	pff_test_libpff.h \
+	pff_test_macros.h \
+	pff_test_memory.c pff_test_memory.h \
+	pff_test_table_header.c \
+	pff_test_unused.h
+
+pff_test_table_header_LDADD = \
+	../libpff/libpff.la \
+	@LIBCERROR_LIBADD@
+
 pff_test_table_index_value_SOURCES = \
 	pff_test_libcerror.h \
 	pff_test_libpff.h \
@@ -703,9 +834,8 @@ pff_test_value_type_LDADD = \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
-distclean: clean
-	/bin/rm -f Makefile
+DISTCLEANFILES = \
+	Makefile \
+	Makefile.in \
+	notify_stream.log
 

@@ -1,7 +1,7 @@
 /*
  * Library item_tree type test program
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -327,6 +327,7 @@ int pff_test_item_tree_get_tree_node_by_identifier(
 	          NULL,
 	          0,
 	          &result_item_tree_node,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -345,6 +346,7 @@ int pff_test_item_tree_get_tree_node_by_identifier(
 	          item_tree_node,
 	          0,
 	          NULL,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -430,57 +432,6 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libpff_item_tree_create_node function
- * Returns 1 if successful or 0 if not
- */
-int pff_test_item_tree_create_node(
-     void )
-{
-	libbfio_handle_t *file_io_handle                 = NULL;
-	libcdata_list_t *orphan_node_list                = NULL;
-	libcdata_tree_node_t *root_folder_item_tree_node = NULL;
-	libcerror_error_t *error                         = NULL;
-	libfcache_cache_t *index_tree_cache              = NULL;
-	libfdata_tree_node_t *descriptor_index_tree_node = NULL;
-	libpff_index_tree_t *descriptor_index_tree       = NULL;
-	int result                                       = 0;
-
-	/* Test error cases
-	 */
-	result = libpff_item_tree_create_node(
-	          NULL,
-	          file_io_handle,
-	          descriptor_index_tree,
-	          descriptor_index_tree_node,
-	          index_tree_cache,
-	          orphan_node_list,
-	          &root_folder_item_tree_node,
-	          0,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	return( 0 );
-}
-
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -524,11 +475,9 @@ int main(
 
 	/* TODO: add tests for libpff_item_tree_create */
 
-	PFF_TEST_RUN(
-	 "libpff_item_tree_create_node",
-	 pff_test_item_tree_create_node );
+	/* TODO: add tests for libpff_item_tree_create_node_from_descriptor_index_node */
 
-	/* TODO: add tests for libpff_item_tree_create_leaf_node */
+	/* TODO: add tests for libpff_item_tree_create_leaf_node_from_descriptor_index_value */
 
 	/* TODO: add tests for libpff_item_tree_get_node_by_identifier */
 
@@ -536,7 +485,11 @@ int main(
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 }
 

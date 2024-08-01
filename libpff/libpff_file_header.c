@@ -1,7 +1,7 @@
 /*
  * File header functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,12 +24,13 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libpff_checksum.h"
+#include "libpff_debug.h"
 #include "libpff_definitions.h"
 #include "libpff_file_header.h"
 #include "libpff_io_handle.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
 
 #include "pff_file_header.h"
 
@@ -159,7 +160,7 @@ int libpff_file_header_read_data(
 	uint64_t value_64bit                             = 0;
 	uint32_t value_32bit                             = 0;
 	uint16_t value_16bit                             = 0;
-	uint8_t sentinal                                 = 0;
+	uint8_t sentinel                                 = 0;
 	int value_iterator                               = 0;
 #endif
 
@@ -275,8 +276,8 @@ int libpff_file_header_read_data(
 	}
 	else
 	{
-		if( ( ( (pff_file_header_data_32bit_t *) file_header_data )->sentinal == 0x80 )
-		 && ( ( (pff_file_header_data_64bit_t *) file_header_data )->sentinal != 0x80 ) )
+		if( ( ( (pff_file_header_data_32bit_t *) file_header_data )->sentinel == 0x80 )
+		 && ( ( (pff_file_header_data_64bit_t *) file_header_data )->sentinel != 0x80 ) )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -289,8 +290,8 @@ int libpff_file_header_read_data(
 #endif
 			file_header->file_type = LIBPFF_FILE_TYPE_32BIT;
 		}
-		else if( ( ( (pff_file_header_data_32bit_t *) file_header_data )->sentinal != 0x80 )
-		      && ( ( (pff_file_header_data_64bit_t *) file_header_data )->sentinal == 0x80 ) )
+		else if( ( ( (pff_file_header_data_32bit_t *) file_header_data )->sentinel != 0x80 )
+		      && ( ( (pff_file_header_data_64bit_t *) file_header_data )->sentinel == 0x80 ) )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -394,7 +395,7 @@ int libpff_file_header_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	if( libfmapi_checksum_calculate_weak_crc32(
+	if( libpff_checksum_calculate_weak_crc32(
 	     &calculated_checksum,
 	     &( data[ 8 ] ),
 	     471,
@@ -472,7 +473,7 @@ int libpff_file_header_read_data(
 		 safe_offsets_index_root_node_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		sentinal = ( (pff_file_header_data_32bit_t *) file_header_data )->sentinal;
+		sentinel = ( (pff_file_header_data_32bit_t *) file_header_data )->sentinel;
 #endif
 		file_header->encryption_type = ( (pff_file_header_data_32bit_t *) file_header_data )->encryption_type;
 	}
@@ -500,7 +501,7 @@ int libpff_file_header_read_data(
 		 safe_offsets_index_root_node_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		sentinal = ( (pff_file_header_data_64bit_t *) file_header_data )->sentinal;
+		sentinel = ( (pff_file_header_data_64bit_t *) file_header_data )->sentinel;
 #endif
 		file_header->encryption_type = ( (pff_file_header_data_64bit_t *) file_header_data )->encryption_type;
 
@@ -787,14 +788,16 @@ int libpff_file_header_read_data(
 			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
 		libcnotify_printf(
-		 "%s: sentinal\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: sentinel\t\t\t\t\t: 0x%02" PRIx8 "\n",
 		 function,
-		 sentinal );
+		 sentinel );
 
 		libcnotify_printf(
-		 "%s: encryption type\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: encryption type\t\t\t\t: 0x%02" PRIx8 " (%s)\n",
 		 function,
-		 file_header->encryption_type );
+		 file_header->encryption_type,
+		 libpff_debug_get_encryption_type(
+		  file_header->encryption_type ) );
 
 		if( file_header->file_type == LIBPFF_FILE_TYPE_32BIT )
 		{
@@ -926,7 +929,7 @@ int libpff_file_header_read_data(
 	if( ( file_header->file_type == LIBPFF_FILE_TYPE_64BIT )
 	 || ( file_header->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
 	{
-		if( libfmapi_checksum_calculate_weak_crc32(
+		if( libpff_checksum_calculate_weak_crc32(
 		     &calculated_checksum,
 		     &( data[ 8 ] ),
 		     516,

@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20191025
+# Version: 20230909
 
 from __future__ import print_function
 
 import copy
+import datetime
 import glob
 import gzip
 import platform
@@ -15,49 +16,20 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import zipfile
 
-from distutils import sysconfig
 from distutils.ccompiler import new_compiler
-from distutils.command.bdist import bdist
-from setuptools import dist
+
 from setuptools import Extension
 from setuptools import setup
 from setuptools.command.build_ext import build_ext
 from setuptools.command.sdist import sdist
 
-try:
-  from distutils.command.bdist_msi import bdist_msi
-except ImportError:
-  bdist_msi = None
 
-
-if not bdist_msi:
-  custom_bdist_msi = None
-else:
-  class custom_bdist_msi(bdist_msi):
-    """Custom handler for the bdist_msi command."""
-
-    def run(self):
-      """Builds an MSI."""
-      # Make a deepcopy of distribution so the following version changes
-      # only apply to bdist_msi.
-      self.distribution = copy.deepcopy(self.distribution)
-
-      # bdist_msi does not support the library version so we add ".1"
-      # as a work around.
-      self.distribution.metadata.version = "{0:s}.1".format(
-          self.distribution.metadata.version)
-
-      bdist_msi.run(self)
-
-
-class custom_bdist_rpm(bdist):
-  """Custom handler for the bdist_rpm command."""
-
-  def run(self):
-    """Builds a RPM."""
-    print("'setup.py bdist_rpm' command not supported use 'rpmbuild' instead.")
-    sys.exit(1)
+if (sys.version_info[0], sys.version_info[1]) < (3, 7):
+  print(("Unsupported Python version: {0:s}, version 3.7 or higher "
+         "required.").format(sys.version))
+  sys.exit(1)
 
 
 class custom_build_ext(build_ext):
@@ -90,11 +62,16 @@ class custom_build_ext(build_ext):
     compiler = new_compiler(compiler=self.compiler)
     if compiler.compiler_type == "msvc":
       self.define = [
+          ("_CRT_SECURE_NO_WARNINGS", ""),
           ("UNICODE", ""),
       ]
 
     else:
+<<<<<<< HEAD
       command = "sh configure --disable-shared-libs --with-zlib=no"
+=======
+      command = "sh configure --disable-nls --disable-shared-libs"
+>>>>>>> libyal-libpff/main
       output = self._RunCommand(command)
 
       print_line = False
@@ -108,7 +85,6 @@ class custom_build_ext(build_ext):
 
       self.define = [
           ("HAVE_CONFIG_H", ""),
-          ("LOCALEDIR", "\"/usr/share/locale\""),
       ]
 
     build_ext.run(self)
@@ -119,7 +95,7 @@ class custom_sdist(sdist):
 
   def run(self):
     """Builds a source distribution (sdist) package."""
-    if self.formats != ["gztar"]:
+    if self.formats != ["gztar"] and self.formats != ["zip"]:
       print("'setup.py sdist' unsupported format.")
       sys.exit(1)
 
@@ -133,20 +109,20 @@ class custom_sdist(sdist):
     if exit_code != 0:
       raise RuntimeError("Running: {0:s} failed.".format(command))
 
-    if not os.path.exists("dist"):
-      os.mkdir("dist")
+    if not os.path.exists(self.dist_dir):
+      os.mkdir(self.dist_dir)
 
     source_package_file = glob.glob("*.tar.gz")[0]
     source_package_prefix, _, source_package_suffix = (
         source_package_file.partition("-"))
     sdist_package_file = "{0:s}-python-{1:s}".format(
         source_package_prefix, source_package_suffix)
-    sdist_package_file = os.path.join("dist", sdist_package_file)
+    sdist_package_file = os.path.join(self.dist_dir, sdist_package_file)
     os.rename(source_package_file, sdist_package_file)
 
     # Create and add the PKG-INFO file to the source package.
-    with gzip.open(sdist_package_file, 'rb') as input_file:
-      with open(sdist_package_file[:-3], 'wb') as output_file:
+    with gzip.open(sdist_package_file, "rb") as input_file:
+      with open(sdist_package_file[:-3], "wb") as output_file:
         shutil.copyfileobj(input_file, output_file)
     os.remove(sdist_package_file)
 
@@ -157,10 +133,37 @@ class custom_sdist(sdist):
       tar_file.add("PKG-INFO", arcname=pkg_info_path)
     os.remove("PKG-INFO")
 
-    with open(sdist_package_file[:-3], 'rb') as input_file:
-      with gzip.open(sdist_package_file, 'wb') as output_file:
+    with open(sdist_package_file[:-3], "rb") as input_file:
+      with gzip.open(sdist_package_file, "wb") as output_file:
         shutil.copyfileobj(input_file, output_file)
     os.remove(sdist_package_file[:-3])
+
+    # Convert the .tar.gz into a .zip
+    if self.formats == ["zip"]:
+      zip_sdist_package_file = "{0:s}.zip".format(sdist_package_file[:-7])
+
+      with tarfile.open(sdist_package_file, "r|gz") as tar_file:
+        with zipfile.ZipFile(
+            zip_sdist_package_file, "w", zipfile.ZIP_DEFLATED) as zip_file:
+          for tar_file_entry in tar_file:
+            file_entry = tar_file.extractfile(tar_file_entry)
+            if tar_file_entry.isfile():
+              modification_time = datetime.datetime.fromtimestamp(
+                  tar_file_entry.mtime)
+              zip_modification_time = (
+                  modification_time.year, modification_time.month,
+                  modification_time.day, modification_time.hour,
+                  modification_time.minute, modification_time.second)
+              zip_info = zipfile.ZipInfo(
+                  date_time=zip_modification_time,
+                  filename=tar_file_entry.name)
+              zip_info.external_attr = (tar_file_entry.mode & 0xff) << 16
+
+              file_data = file_entry.read()
+              zip_file.writestr(zip_info, file_data)
+
+      os.remove(sdist_package_file)
+      sdist_package_file = zip_sdist_package_file
 
     # Inform distutils what files were created.
     dist_files = getattr(self.distribution, "dist_files", [])
@@ -186,49 +189,25 @@ class ProjectInformation(object):
     """The Python module name."""
     return "py{0:s}".format(self.library_name[3:])
 
-  @property
-  def package_name(self):
-    """The package name."""
-    return "{0:s}-python".format(self.library_name)
-
-  @property
-  def package_description(self):
-    """The package description."""
-    return "Python bindings module for {0:s}".format(self.library_name)
-
-  @property
-  def project_url(self):
-    """The project URL."""
-    return "https://github.com/libyal/{0:s}/".format(self.library_name)
-
   def _ReadConfigureAc(self):
     """Reads configure.ac to initialize the project information."""
-    file_object = open("configure.ac", "rb")
-    if not file_object:
-      raise IOError("Unable to open: configure.ac")
+    with open("configure.ac", "r", encoding="utf-8") as file_object:
+      found_ac_init = False
+      found_library_name = False
+      for line in file_object.readlines():
+        line = line.strip()
+        if found_library_name:
+          library_version = line[1:-2]
+          self.library_version = library_version
+          break
 
-    found_ac_init = False
-    found_library_name = False
-    for line in file_object.readlines():
-      line = line.strip()
-      if found_library_name:
-        library_version = line[1:-2]
-        if sys.version_info[0] >= 3:
-          library_version = library_version.decode("ascii")
-        self.library_version = library_version
-        break
+        elif found_ac_init:
+          library_name = line[1:-2]
+          self.library_name = library_name
+          found_library_name = True
 
-      elif found_ac_init:
-        library_name = line[1:-2]
-        if sys.version_info[0] >= 3:
-          library_name = library_name.decode("ascii")
-        self.library_name = library_name
-        found_library_name = True
-
-      elif line.startswith(b"AC_INIT"):
-        found_ac_init = True
-
-    file_object.close()
+        elif line.startswith("AC_INIT"):
+          found_ac_init = True
 
     if not self.library_name or not self.library_version:
       raise RuntimeError(
@@ -239,30 +218,23 @@ class ProjectInformation(object):
     if not self.library_name:
       raise RuntimeError("Missing library name")
 
-    file_object = open("Makefile.am", "rb")
-    if not file_object:
-      raise IOError("Unable to open: Makefile.am")
+    with open("Makefile.am", "r", encoding="utf-8") as file_object:
+      found_subdirs = False
+      for line in file_object.readlines():
+        line = line.strip()
+        if found_subdirs:
+          library_name, _, _ = line.partition(" ")
 
-    found_subdirs = False
-    for line in file_object.readlines():
-      line = line.strip()
-      if found_subdirs:
-        library_name, _, _ = line.partition(b" ")
-        if sys.version_info[0] >= 3:
-          library_name = library_name.decode("ascii")
+          self.include_directories.append(library_name)
 
-        self.include_directories.append(library_name)
+          if library_name.startswith("lib"):
+            self.library_names.append(library_name)
 
-        if library_name.startswith("lib"):
-          self.library_names.append(library_name)
+          if library_name == self.library_name:
+            break
 
-        if library_name == self.library_name:
-          break
-
-      elif line.startswith(b"SUBDIRS"):
-        found_subdirs = True
-
-    file_object.close()
+        elif line.startswith("SUBDIRS"):
+          found_subdirs = True
 
     if not self.include_directories or not self.library_names:
       raise RuntimeError(
@@ -271,6 +243,10 @@ class ProjectInformation(object):
 
 
 project_information = ProjectInformation()
+
+CMDCLASS = {
+  "build_ext": custom_build_ext,
+  "sdist": custom_sdist}
 
 SOURCES = []
 
@@ -304,23 +280,8 @@ SOURCES.extend(source_files)
 # TODO: find a way to detect missing python.h
 # e.g. on Ubuntu python-dev is not installed by python-pip
 
-# TODO: what about description and platform in egg file
-
-setup(
-    name=project_information.package_name,
-    url=project_information.project_url,
-    version=project_information.library_version,
-    description=project_information.package_description,
-    long_description=project_information.package_description,
-    author="Joachim Metz",
-    author_email="joachim.metz@gmail.com",
-    license="GNU Lesser General Public License v3 or later (LGPLv3+)",
-    cmdclass={
-        "build_ext": custom_build_ext,
-        "bdist_msi": custom_bdist_msi,
-        "bdist_rpm": custom_bdist_rpm,
-        "sdist": custom_sdist,
-    },
+setup_args = dict(
+    cmdclass=CMDCLASS,
     ext_modules=[
         Extension(
             project_information.module_name,
@@ -328,8 +289,9 @@ setup(
             include_dirs=project_information.include_directories,
             libraries=[],
             library_dirs=[],
-            sources=SOURCES,
-        ),
-    ],
+            sources=SOURCES
+        )
+    ]
 )
+setup(**setup_args)
 

@@ -1,7 +1,7 @@
 /*
  * Python object wrapper of libpff_file_t
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -407,6 +407,15 @@ void pypff_file_free(
 
 		return;
 	}
+	if( pypff_file->file_io_handle != NULL )
+	{
+		if( pypff_file_close(
+		     pypff_file,
+		     NULL ) == NULL )
+		{
+			return;
+		}
+	}
 	if( pypff_file->file != NULL )
 	{
 		Py_BEGIN_ALLOW_THREADS
@@ -559,8 +568,14 @@ PyObject *pypff_file_open(
 		PyErr_Clear();
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+		filename_wide = (wchar_t *) PyUnicode_AsWideCharString(
+		                             string_object,
+		                             NULL );
+#else
 		filename_wide = (wchar_t *) PyUnicode_AsUnicode(
 		                             string_object );
+#endif
 		Py_BEGIN_ALLOW_THREADS
 
 		result = libpff_file_open_wide(
@@ -570,6 +585,11 @@ PyObject *pypff_file_open(
 		          &error );
 
 		Py_END_ALLOW_THREADS
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 3
+		PyMem_Free(
+		 filename_wide );
+#endif
 #else
 		utf8_string_object = PyUnicode_AsUTF8String(
 		                      string_object );

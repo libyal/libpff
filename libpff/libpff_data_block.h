@@ -1,7 +1,7 @@
 /*
  * Data block functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -28,6 +28,8 @@
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
+#include "libpff_libfcache.h"
+#include "libpff_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {

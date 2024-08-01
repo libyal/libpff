@@ -1,7 +1,7 @@
 /*
  * Data array functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -29,6 +29,7 @@
 #include "libpff_libbfio.h"
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
+#include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_offsets_index.h"
 
@@ -91,6 +92,7 @@ int libpff_data_array_read_entries(
      uint8_t *array_data,
      size_t array_data_size,
      uint32_t *total_data_size,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_data_array_read_element_data(

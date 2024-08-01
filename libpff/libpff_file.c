@@ -1,7 +1,7 @@
 /*
  * File functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -730,32 +730,6 @@ int libpff_file_close(
 
 		result = -1;
 	}
-	if( libfdata_vector_free(
-	     &( internal_file->index_nodes_vector ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free index nodes vector.",
-		 function );
-
-		result = -1;
-	}
-	if( libfcache_cache_free(
-	     &( internal_file->index_nodes_cache ),
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free index nodes cache.",
-		 function );
-
-		result = -1;
-	}
 	if( libpff_descriptors_index_free(
 	     &( internal_file->descriptors_index ),
 	     error ) != 1 )
@@ -888,9 +862,11 @@ int libpff_internal_file_open_read(
      libcerror_error_t **error )
 {
 	static char *function = "libpff_internal_file_open_read";
-	size_t page_size      = 0;
 	int result            = 0;
-	int segment_index     = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	size_t page_size      = 0;
+#endif
 
 	if( internal_file == NULL )
 	{
@@ -1032,14 +1008,6 @@ int libpff_internal_file_open_read(
 
 		goto on_error;
 	}
-	if( internal_file->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
-	{
-		page_size = 4096;
-	}
-	else
-	{
-		page_size = 512;
-	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -1048,6 +1016,14 @@ int libpff_internal_file_open_read(
 		 function,
 		 internal_file->io_handle->file_type );
 
+		if( internal_file->io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
+		{
+			page_size = 4096;
+		}
+		else
+		{
+			page_size = 512;
+		}
 		libcnotify_printf(
 		 "%s: page size\t\t\t\t: %" PRIzd "\n",
 		 function,
@@ -1057,59 +1033,6 @@ int libpff_internal_file_open_read(
 		 "\n" );
 	}
 #endif
-/* TODO free and clone function ? */
-	if( libfdata_vector_initialize(
-	     &( internal_file->index_nodes_vector ),
-	     page_size,
-	     (intptr_t *) internal_file->io_handle,
-	     NULL,
-	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libpff_io_handle_read_index_node,
-	     NULL,
-	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index nodes vector.",
-		 function );
-
-		goto on_error;
-	}
-	if( libfdata_vector_append_segment(
-	     internal_file->index_nodes_vector,
-	     &segment_index,
-	     0,
-	     0,
-	     internal_file->io_handle->file_size,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to create append segment to nodes vector.",
-		 function );
-
-		goto on_error;
-	}
-	if( libfcache_cache_initialize(
-	     &( internal_file->index_nodes_cache ),
-	     LIBPFF_MAXIMUM_CACHE_ENTRIES_INDEX_NODES,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index nodes cache.",
-		 function );
-
-		goto on_error;
-	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -1119,9 +1042,8 @@ int libpff_internal_file_open_read(
 #endif
 	if( libpff_descriptors_index_initialize(
 	     &( internal_file->descriptors_index ),
-	     internal_file->io_handle,
-	     internal_file->index_nodes_vector,
-	     internal_file->index_nodes_cache,
+	     internal_file->file_header->descriptors_index_root_node_offset,
+	     internal_file->file_header->descriptors_index_root_node_back_pointer,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1133,27 +1055,10 @@ int libpff_internal_file_open_read(
 
 		goto on_error;
 	}
-	if( libpff_descriptors_index_set_root_node(
-	     internal_file->descriptors_index,
-	     internal_file->file_header->descriptors_index_root_node_offset,
-	     internal_file->file_header->descriptors_index_root_node_back_pointer,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set descriptors index root node.",
-		 function );
-
-		goto on_error;
-	}
 	if( libpff_offsets_index_initialize(
 	     &( internal_file->offsets_index ),
-	     internal_file->io_handle,
-	     internal_file->index_nodes_vector,
-	     internal_file->index_nodes_cache,
+	     internal_file->file_header->offsets_index_root_node_offset,
+	     internal_file->file_header->offsets_index_root_node_back_pointer,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1161,22 +1066,6 @@ int libpff_internal_file_open_read(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create offsets index.",
-		 function );
-
-		goto on_error;
-	}
-	if( libpff_offsets_index_set_root_node(
-	     internal_file->offsets_index,
-	     internal_file->file_header->offsets_index_root_node_offset,
-	     internal_file->file_header->offsets_index_root_node_back_pointer,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set offsets index root node.",
 		 function );
 
 		goto on_error;
@@ -1209,6 +1098,7 @@ int libpff_internal_file_open_read(
 	}
 	if( libpff_item_tree_create(
              internal_file->item_tree,
+             internal_file->io_handle,
 	     file_io_handle,
 	     internal_file->descriptors_index,
 	     internal_file->orphan_item_list,
@@ -1299,18 +1189,6 @@ on_error:
 	{
 		libpff_descriptors_index_free(
 		 &( internal_file->descriptors_index ),
-		 NULL );
-	}
-	if( internal_file->index_nodes_cache != NULL )
-	{
-		libfcache_cache_free(
-		 &( internal_file->index_nodes_cache ),
-		 NULL );
-	}
-	if( internal_file->index_nodes_vector != NULL )
-	{
-		libfdata_vector_free(
-		 &( internal_file->index_nodes_vector ),
 		 NULL );
 	}
 	if( internal_file->file_header != NULL )
@@ -1643,6 +1521,8 @@ int libpff_file_recover_items(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to recover items.",
 		 function );
+
+		return( -1 );
 	}
         if( internal_file->io_handle->abort != 0 )
         {

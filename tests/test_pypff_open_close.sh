@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Python-bindings open close testing script
 #
-# Version: 20160126
+# Version: 20230410
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;

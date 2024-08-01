@@ -1,7 +1,7 @@
 /*
  * Index node functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,12 +24,12 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libpff_checksum.h"
 #include "libpff_definitions.h"
 #include "libpff_index_node.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
 #include "libpff_types.h"
 
 #include "pff_index_node.h"
@@ -198,7 +198,7 @@ int libpff_index_node_get_entry_data(
 
 		return( -1 );
 	}
-	entry_offset = (size_t) ( index_node->entry_size * entry_index );
+	entry_offset = (size_t) index_node->entry_size * entry_index;
 
 	if( entry_offset > (size_t) index_node->maximum_entries_data_size )
 	{
@@ -350,7 +350,7 @@ int libpff_index_node_read_data(
 
 		return( -1 );
 	}
-	if( libfmapi_checksum_calculate_weak_crc32(
+	if( libpff_checksum_calculate_weak_crc32(
 	     &calculated_checksum,
 	     data,
 	     checksum_data_size,
@@ -860,6 +860,7 @@ int libpff_index_node_read_footer_data(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_index_node_32bit_footer_t *) data )->back_pointer,
 		 index_node->back_pointer );
+
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_index_node_32bit_footer_t *) data )->checksum,
 		 index_node->stored_checksum );
@@ -877,6 +878,7 @@ int libpff_index_node_read_footer_data(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_index_node_64bit_footer_t *) data )->checksum,
 		 index_node->stored_checksum );
+
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_index_node_64bit_footer_t *) data )->back_pointer,
 		 index_node->back_pointer );
@@ -894,6 +896,7 @@ int libpff_index_node_read_footer_data(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->checksum,
 		 index_node->stored_checksum );
+
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->back_pointer,
 		 index_node->back_pointer );
@@ -901,6 +904,7 @@ int libpff_index_node_read_footer_data(
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->number_of_entries,
 		 index_node->number_of_entries );
+
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (pff_index_node_64bit_4k_page_footer_t *) data )->maximum_number_of_entries,
 		 index_node->maximum_number_of_entries );
@@ -1114,7 +1118,7 @@ int libpff_index_node_read_file_io_handle(
 
 		return( -1 );
 	}
-	if( (file_type == LIBPFF_FILE_TYPE_32BIT )
+	if( ( file_type == LIBPFF_FILE_TYPE_32BIT )
 	 || ( file_type == LIBPFF_FILE_TYPE_64BIT ) )
 	{
 		index_node->data_size = 512;

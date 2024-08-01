@@ -1,7 +1,7 @@
 /*
  * Legacy functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -44,6 +44,12 @@ int libpff_file_get_recovered_item(
      libpff_file_t *file,
      int recovered_item_index,
      libpff_item_t **recovered_item,
+     libcerror_error_t **error );
+
+LIBPFF_EXTERN \
+int libpff_item_clone(
+     libpff_item_t **destination_item,
+     libpff_item_t *source_item,
      libcerror_error_t **error );
 
 LIBPFF_EXTERN \
