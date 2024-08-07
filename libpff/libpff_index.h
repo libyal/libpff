@@ -1,7 +1,7 @@
 /*
  * Index functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,11 +25,12 @@
 #include <common.h>
 #include <types.h>
 
+#include "libpff_block_tree.h"
+#include "libpff_index_node.h"
 #include "libpff_index_value.h"
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
-#include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 
 #if defined( __cplusplus )
@@ -40,18 +41,6 @@ typedef struct libpff_index libpff_index_t;
 
 struct libpff_index
 {
-	/* A reference to the IO handle
-	 */
-	libpff_io_handle_t *io_handle;
-
-	/* The index nodes vector
-	 */
-	libfdata_vector_t *index_nodes_vector;
-
-	/* The index nodes cache
-	 */
-	libfcache_cache_t *index_nodes_cache;
-
 	/* The index type
 	 */
 	uint8_t type;
@@ -63,71 +52,44 @@ struct libpff_index
 	/* The root node back pointer
 	 */
 	uint64_t root_node_back_pointer;
-
-	/* Value to indicate if the index was recovered
-	 */
-	uint8_t recovered;
 };
 
 int libpff_index_initialize(
      libpff_index_t **index,
-     libpff_io_handle_t *io_handle,
-     libfdata_vector_t *index_nodes_vector,
-     libfcache_cache_t *index_nodes_cache,
      uint8_t index_type,
      off64_t root_node_offset,
      uint64_t root_node_back_pointer,
-     uint8_t recovered,
      libcerror_error_t **error );
 
 int libpff_index_free(
      libpff_index_t **index,
      libcerror_error_t **error );
 
-int libpff_index_clone(
-     libpff_index_t **destination_index,
-     libpff_index_t *source_index,
-     libcerror_error_t **error );
-
-int libpff_index_read_node(
+int libpff_index_check_if_node_block_first_read(
      libpff_index_t *index,
-     libbfio_handle_t *file_io_handle,
+     libpff_block_tree_t *node_block_tree,
      off64_t node_offset,
-     libfdata_tree_node_t *index_tree_node,
-     libpff_index_value_t *index_value,
+     uint64_t identifier,
      libcerror_error_t **error );
 
-int libpff_index_read_node_entry(
+int libpff_index_get_leaf_node_from_node_by_identifier(
      libpff_index_t *index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     libpff_block_tree_t *node_block_tree,
      off64_t node_offset,
-     uint16_t entry_index,
-     libfdata_tree_node_t *index_tree_node,
-     libpff_index_value_t *index_value,
+     uint64_t node_back_pointer,
+     uint64_t identifier,
+     libpff_index_node_t **leaf_node,
+     uint16_t *leaf_node_entry_index,
      libcerror_error_t **error );
 
-int libpff_index_read_node_data(
+int libpff_index_get_value_by_identifier(
      libpff_index_t *index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
-     libfdata_cache_t *cache,
-     int node_data_file_index,
-     off64_t node_data_offset,
-     size64_t node_data_size,
-     uint32_t node_data_flags,
-     uint8_t read_flags,
-     libcerror_error_t **error );
-
-int libpff_index_read_sub_nodes(
-     libpff_index_t *index,
-     libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
-     libfdata_cache_t *cache,
-     int sub_nodes_data_file_index,
-     off64_t sub_nodes_data_offset,
-     size64_t sub_nodes_data_size,
-     uint32_t sub_nodes_data_flags,
-     uint8_t read_flags,
+     uint64_t identifier,
+     libpff_index_value_t **index_value,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

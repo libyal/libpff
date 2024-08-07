@@ -1,7 +1,7 @@
 /*
  * Data array functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -34,6 +34,7 @@
 #include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
+#include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_unused.h"
 
@@ -303,6 +304,7 @@ int libpff_data_array_read_entries(
      uint8_t *array_data,
      size_t array_data_size,
      uint32_t *total_data_size,
+     int recursion_depth,
      libcerror_error_t **error )
 {
 	libpff_data_array_entry_t *data_array_entry = NULL;
@@ -388,6 +390,18 @@ int libpff_data_array_read_entries(
 
 		return( -1 );
 	}
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_DATA_ARRAY_RECURSION_DEPTH ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -444,7 +458,8 @@ int libpff_data_array_read_entries(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	if( array_entries_level == 0 )
 	{
 		libcerror_error_set(
@@ -549,6 +564,7 @@ int libpff_data_array_read_entries(
 /* TODO handle multiple recovered offset index values */
 		if( libpff_offsets_index_get_index_value_by_identifier(
 		     offsets_index,
+		     io_handle,
 		     file_io_handle,
 		     array_entry_identifier,
 		     recovered,
@@ -749,6 +765,7 @@ int libpff_data_array_read_entries(
 			     data_block->data,
 			     data_block->data_size,
 			     &sub_total_data_size,
+			     recursion_depth + 1,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -771,6 +788,19 @@ int libpff_data_array_read_entries(
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free data block.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_index_value_free(
+		     &offset_index_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free offsets index value.",
 			 function );
 
 			goto on_error;
@@ -803,6 +833,12 @@ on_error:
 	{
 		libpff_data_array_entry_free(
 		 &data_array_entry,
+		 NULL );
+	}
+	if( offset_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &offset_index_value,
 		 NULL );
 	}
 	return( -1 );

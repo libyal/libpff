@@ -1,15 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Tests library functions and types.
 #
-# Version: 20200705
+# Version: 20240413
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="allocation_table attached_file_io_handle attachment column_definition data_array data_array_entry data_block deflate descriptors_index error file_header index index_node index_value io_handle io_handle2 index_tree item item_descriptor item_tree item_values local_descriptor_node local_descriptor_value local_descriptors multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_index_value value_type";
+LIBRARY_TESTS="allocation_table attached_file_io_handle attachment bit_stream block_descriptor block_tree block_tree_node checksum column_definition compression data_array data_array_entry data_block deflate descriptors_index encryption error file_header folder free_map huffman_tree index index_node index_value io_handle item item_descriptor item_tree item_values local_descriptor_value local_descriptors local_descriptors_node local_descriptors_tree mapi_value message multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_header table_index_value value_type";
 LIBRARY_TESTS_WITH_INPUT="file support";
-OPTION_SETS="";
+OPTION_SETS=();
 
 INPUT_GLOB="*";
 
@@ -78,47 +78,54 @@ run_test_with_input()
 
 		local TEST_SET_DIRECTORY=$(get_test_set_directory "${TEST_PROFILE_DIRECTORY}" "${TEST_SET_INPUT_DIRECTORY}");
 
-		local OLDIFS=${IFS};
-
-		# IFS="\n" is not supported by all platforms.
-		IFS="
-";
-
 		if test -f "${TEST_SET_DIRECTORY}/files";
 		then
-			for INPUT_FILE in `cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?"`;
-			do
-				if test "${OSTYPE}" = "msys";
-				then
-					# A test executable built with MinGW expects a Windows path.
-					INPUT_FILE=`echo ${INPUT_FILE} | sed 's?/?\\\\?g'`;
-				fi
-				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "default" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
-				RESULT=$?;
-
-				if test ${RESULT} -ne ${EXIT_SUCCESS};
-				then
-					break;
-				fi
-			done
+			IFS="" read -a INPUT_FILES <<< $(cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?");
 		else
-			for INPUT_FILE in `ls -1d ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB}`;
-			do
-				if test "${OSTYPE}" = "msys";
-				then
-					# A test executable built with MinGW expects a Windows path.
-					INPUT_FILE=`echo ${INPUT_FILE} | sed 's?/?\\\\?g'`;
-				fi
-				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "default" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
-				RESULT=$?;
+			IFS="" read -a INPUT_FILES <<< $(ls -1d ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB});
+		fi
+		for INPUT_FILE in "${INPUT_FILES[@]}";
+		do
+			OPTION_INPUT_FILE="${INPUT_FILE}";
 
-				if test ${RESULT} -ne ${EXIT_SUCCESS};
+			if test "${OSTYPE}" = "msys";
+			then
+				# A test executable built with MinGW expects a Windows path.
+				INPUT_FILE=`echo ${INPUT_FILE} | sed 's?/?\\\\?g'`;
+			fi
+			local TESTED_WITH_OPTIONS=0;
+
+			for OPTION_SET in ${OPTION_SETS[@]};
+			do
+				local TEST_DATA_OPTION_FILE=$(get_test_data_option_file "${TEST_SET_DIRECTORY}" "${OPTION_INPUT_FILE}" "${OPTION_SET}");
+
+				if test -f ${TEST_DATA_OPTION_FILE};
 				then
-					break;
+					TESTED_WITH_OPTIONS=1;
+
+					IFS=" " read -a OPTIONS <<< $(read_test_data_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
+
+					run_test_on_input_file "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "default" "${OPTION_SET}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS[@]}";
+					RESULT=$?;
+
+					if test ${RESULT} -ne ${EXIT_SUCCESS};
+					then
+						break;
+					fi
 				fi
 			done
-		fi
-		IFS=${OLDIFS};
+
+			if test ${TESTED_WITH_OPTIONS} -eq 0;
+			then
+				run_test_on_input_file "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "default" "" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
+				RESULT=$?;
+			fi
+
+			if test ${RESULT} -ne ${EXIT_SUCCESS};
+			then
+				break;
+			fi
+		done
 
 		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
@@ -134,12 +141,9 @@ then
 	exit ${EXIT_IGNORE};
 fi
 
-TEST_RUNNER="tests/test_runner.sh";
+TEST_DIRECTORY=`dirname $0`;
 
-if ! test -f "${TEST_RUNNER}";
-then
-	TEST_RUNNER="./test_runner.sh";
-fi
+TEST_RUNNER="${TEST_DIRECTORY}/test_runner.sh";
 
 if ! test -f "${TEST_RUNNER}";
 then

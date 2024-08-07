@@ -1,7 +1,7 @@
 /*
  * Python object wrapper of libpff_item_t type LIBPFF_ITEM_TYPE_FOLDER
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -224,7 +224,6 @@ PyObject *pypff_folder_get_name(
 	PyObject *string_object  = NULL;
 	libcerror_error_t *error = NULL;
 	uint8_t *utf8_string     = NULL;
-	const char *errors       = NULL;
 	static char *function    = "pypff_folder_get_name";
 	size_t utf8_string_size  = 0;
 	int result               = 0;
@@ -276,7 +275,7 @@ PyObject *pypff_folder_get_name(
 	if( utf8_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create name.",
 		 function );
 
@@ -312,7 +311,7 @@ PyObject *pypff_folder_get_name(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) utf8_string,
 			 (Py_ssize_t) utf8_string_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 utf8_string );

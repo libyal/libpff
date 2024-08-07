@@ -1,4 +1,4 @@
-.Dd February 28, 2019
+.Dd November 14, 2021
 .Dt libpff 3
 .Os libpff
 .Sh NAME
@@ -108,8 +108,6 @@ Available when compiled with libbfio support:
 .Fn libpff_file_open_file_io_handle "libpff_file_t *file" "libbfio_handle_t *file_io_handle" "int access_flags" "libpff_error_t **error"
 .Pp
 Item functions
-.Ft int
-.Fn libpff_item_clone "libpff_item_t **destination_item" "libpff_item_t *source_item" "libpff_error_t **error"
 .Ft int
 .Fn libpff_item_free "libpff_item_t **item" "libpff_error_t **error"
 .Ft int
@@ -355,7 +353,7 @@ Please report bugs of any kind on the project issue tracker: https://github.com/
 .Sh AUTHOR
 These man pages are generated from "libpff.h".
 .Sh COPYRIGHT
-Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>.
+Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>.
 .sp
 This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

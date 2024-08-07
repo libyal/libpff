@@ -2,7 +2,7 @@
 #
 # Python-bindings support functions test script
 #
-# Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -37,7 +37,7 @@ class SupportFunctionsTests(unittest.TestCase):
 
   def test_check_file_signature(self):
     """Tests the check_file_signature function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -46,9 +46,12 @@ class SupportFunctionsTests(unittest.TestCase):
 
   def test_check_file_signature_file_object(self):
     """Tests the check_file_signature_file_object function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
+
+    if not os.path.isfile(test_source):
+      raise unittest.SkipTest("source not a regular file")
 
     with open(test_source, "rb") as file_object:
       result = pypff.check_file_signature_file_object(file_object)
@@ -56,7 +59,7 @@ class SupportFunctionsTests(unittest.TestCase):
 
   def test_open(self):
     """Tests the open function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -73,7 +76,7 @@ class SupportFunctionsTests(unittest.TestCase):
 
   def test_open_file_object(self):
     """Tests the open_file_object function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 

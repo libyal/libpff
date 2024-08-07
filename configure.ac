@@ -1,14 +1,15 @@
-AC_PREREQ( 2.59 )
+AC_PREREQ([2.71])
 
 AC_INIT(
  [libpff],
- [20210508],
+ [20240608],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
  [include/libpff.h.in])
 
 AM_INIT_AUTOMAKE([gnu 1.6 tar-ustar])
+AM_EXTRA_RECURSIVE_TARGETS([sources splint])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -16,7 +17,7 @@ dnl Check for host type
 AC_CANONICAL_HOST
 
 dnl Check for libtool DLL support
-AC_LIBTOOL_WIN32_DLL
+LT_INIT([win32-dll])
 
 dnl Checks for programs
 AC_PROG_CC
@@ -26,7 +27,6 @@ AC_PROG_MAKE_SET
 AC_PROG_INSTALL
 
 dnl Check for libtool
-AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
 
 dnl Check for pkg-config
@@ -34,7 +34,7 @@ AC_PATH_PROG(PKGCONFIG,[pkg-config])
 
 dnl Support of internationalization (i18n)
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.18.1])
+AM_GNU_GETTEXT_VERSION([0.21])
 
 dnl Check for compiler language support
 AC_C_CONST
@@ -129,7 +129,7 @@ dnl Check if libpff Python bindings (pypff) required headers and functions are a
 AX_PYTHON_CHECK_ENABLE
 
 AS_IF(
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [test "x${ac_cv_enable_python}" != xno],
   [dnl Headers included in pypff/pypff_error.c
   AC_CHECK_HEADERS([stdarg.h varargs.h])
 
@@ -198,8 +198,6 @@ AC_CONFIG_FILES([libfwnt/Makefile])
 AC_CONFIG_FILES([libfmapi/Makefile])
 AC_CONFIG_FILES([libpff/Makefile])
 AC_CONFIG_FILES([pypff/Makefile])
-AC_CONFIG_FILES([pypff-python2/Makefile])
-AC_CONFIG_FILES([pypff-python3/Makefile])
 AC_CONFIG_FILES([jpff/Makefile])
 AC_CONFIG_FILES([pfftools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
@@ -220,6 +218,7 @@ AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([libpff/libpff.rc])
 AC_CONFIG_FILES([libpff.pc])
 AC_CONFIG_FILES([libpff.spec])
+AC_CONFIG_FILES([setup.cfg])
 dnl Generate a source configuration file
 AC_CONFIG_HEADERS([common/config.h])
 

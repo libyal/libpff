@@ -8,9 +8,7 @@ EXTRA_DIST = \
 	pffinfo.1 \
 	libpff.3
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	/bin/rm -f Makefile
 

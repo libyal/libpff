@@ -1,7 +1,7 @@
 /*
  * Deflate (zlib) (un)compression functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,6 +25,8 @@
 #include <common.h>
 #include <types.h>
 
+#include "libpff_bit_stream.h"
+#include "libpff_huffman_tree.h"
 #include "libpff_libcerror.h"
 
 #if defined( __cplusplus )
@@ -41,86 +43,21 @@ enum LIBPFF_DEFLATE_BLOCK_TYPES
 	LIBPFF_DEFLATE_BLOCK_TYPE_RESERVED		= 0x03
 };
 
-typedef struct libpff_deflate_bit_stream libpff_deflate_bit_stream_t;
-
-struct libpff_deflate_bit_stream
-{
-	/* The byte stream
-	 */
-	const uint8_t *byte_stream;
-
-	/* The byte stream size
-	 */
-	size_t byte_stream_size;
-
-	/* The byte stream offset
-	 */
-	size_t byte_stream_offset;
-
-	/* The bit buffer
-	 */
-	uint32_t bit_buffer;
-
-	/* The number of bits remaining in the bit buffer
-	 */
-	uint8_t bit_buffer_size;
-};
-
-typedef struct libpff_deflate_huffman_table libpff_deflate_huffman_table_t;
-
-struct libpff_deflate_huffman_table
-{
-	/* The maximum number of bits representable by the Huffman table
-	 */
-	uint8_t maximum_number_of_bits;
-
-/* TODO create initialize function that sets the size of codes array? */
-	/* The codes array
-	 */
-	int codes_array[ 288 ];
-
-	/* The code counts array
-	 */
-	int code_counts_array[ 16 ];
-
-	/* The number of codes
-	 */
-	int number_of_codes;
-};
-
-int libpff_deflate_bit_stream_get_value(
-     libpff_deflate_bit_stream_t *bit_stream,
-     uint8_t number_of_bits,
-     uint32_t *value_32bit,
+int libpff_deflate_build_dynamic_huffman_trees(
+     libpff_bit_stream_t *bit_stream,
+     libpff_huffman_tree_t *literals_tree,
+     libpff_huffman_tree_t *distances_tree,
      libcerror_error_t **error );
 
-int libpff_deflate_huffman_table_construct(
-     libpff_deflate_huffman_table_t *table,
-     const uint16_t *code_sizes_array,
-     int number_of_code_sizes,
-     libcerror_error_t **error );
-
-int libpff_deflate_bit_stream_get_huffman_encoded_value(
-     libpff_deflate_bit_stream_t *bit_stream,
-     libpff_deflate_huffman_table_t *table,
-     uint32_t *value_32bit,
-     libcerror_error_t **error );
-
-int libpff_deflate_initialize_dynamic_huffman_tables(
-     libpff_deflate_bit_stream_t *bit_stream,
-     libpff_deflate_huffman_table_t *literals_table,
-     libpff_deflate_huffman_table_t *distances_table,
-     libcerror_error_t **error );
-
-int libpff_deflate_initialize_fixed_huffman_tables(
-     libpff_deflate_huffman_table_t *literals_table,
-     libpff_deflate_huffman_table_t *distances_table,
+int libpff_deflate_build_fixed_huffman_trees(
+     libpff_huffman_tree_t *literals_tree,
+     libpff_huffman_tree_t *distances_tree,
      libcerror_error_t **error );
 
 int libpff_deflate_decode_huffman(
-     libpff_deflate_bit_stream_t *bit_stream,
-     libpff_deflate_huffman_table_t *literals_table,
-     libpff_deflate_huffman_table_t *distances_table,
+     libpff_bit_stream_t *bit_stream,
+     libpff_huffman_tree_t *literals_tree,
+     libpff_huffman_tree_t *distances_tree,
      uint8_t *uncompressed_data,
      size_t uncompressed_data_size,
      size_t *uncompressed_data_offset,
@@ -128,8 +65,8 @@ int libpff_deflate_decode_huffman(
 
 int libpff_deflate_calculate_adler32(
      uint32_t *checksum_value,
-     const uint8_t *buffer,
-     size_t size,
+     const uint8_t *data,
+     size_t data_size,
      uint32_t initial_value,
      libcerror_error_t **error );
 
@@ -139,12 +76,20 @@ int libpff_deflate_read_data_header(
      size_t *compressed_data_offset,
      libcerror_error_t **error );
 
+int libpff_deflate_read_block_header(
+     libpff_bit_stream_t *bit_stream,
+     uint8_t *block_type,
+     uint8_t *last_block_flag,
+     libcerror_error_t **error );
+
 int libpff_deflate_read_block(
-     libpff_deflate_bit_stream_t *bit_stream,
+     libpff_bit_stream_t *bit_stream,
+     uint8_t block_type,
+     libpff_huffman_tree_t *fixed_huffman_literals_tree,
+     libpff_huffman_tree_t *fixed_huffman_distances_tree,
      uint8_t *uncompressed_data,
      size_t uncompressed_data_size,
      size_t *uncompressed_data_offset,
-     uint8_t *last_block_flag,
      libcerror_error_t **error );
 
 int libpff_deflate_decompress(

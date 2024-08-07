@@ -1,7 +1,7 @@
 /*
  * Table functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -33,9 +33,11 @@
 #include "libpff_libfcache.h"
 #include "libpff_libfdata.h"
 #include "libpff_local_descriptor_value.h"
+#include "libpff_local_descriptors_tree.h"
 #include "libpff_name_to_id_map.h"
 #include "libpff_offsets_index.h"
 #include "libpff_table_block_index.h"
+#include "libpff_table_header.h"
 #include "libpff_table_index_value.h"
 #include "libpff_types.h"
 
@@ -47,9 +49,9 @@ typedef struct libpff_table libpff_table_t;
 
 struct libpff_table
 {
-	/* The type
+	/* The header
 	 */
-	uint8_t type;
+	libpff_table_header_t *header;
 
 	/* The descriptor identifier value
 	 */
@@ -85,11 +87,11 @@ struct libpff_table
 
 	/* The local descriptors tree
 	 */
-	libfdata_tree_t *local_descriptors_tree;
+	libpff_local_descriptors_tree_t *local_descriptors_tree;
 
-	/* The local descriptors cache
+	/* The local descriptor values cache
 	 */
-	libfcache_cache_t *local_descriptors_cache;
+	libfcache_cache_t *local_descriptor_values_cache;
 
 	/* The values array data list
 	 */
@@ -277,6 +279,19 @@ int libpff_table_read(
      int debug_item_type,
      libcerror_error_t **error );
 
+int libpff_table_read_descriptor_data_list(
+     libpff_table_t *table,
+     libpff_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libpff_offsets_index_t *offsets_index,
+     uint32_t descriptor_identifier,
+     uint64_t data_identifier,
+     uint8_t recovered,
+     int recovered_value_index,
+     libfdata_list_t **descriptor_data_list,
+     libfcache_cache_t **descriptor_data_cache,
+     libcerror_error_t **error );
+
 int libpff_table_read_index_entries(
      libpff_table_t *table,
      libpff_data_block_t *data_block,
@@ -297,11 +312,11 @@ int libpff_table_read_record_entries(
      uint32_t record_entries_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_table_read_values(
      libpff_table_t *table,
-     uint32_t table_value_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
@@ -311,14 +326,12 @@ int libpff_table_read_values(
 
 int libpff_table_read_6c_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
 int libpff_table_read_7c_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
@@ -327,28 +340,24 @@ int libpff_table_read_7c_values(
 
 int libpff_table_read_8c_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
 int libpff_table_read_9c_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
 int libpff_table_read_a5_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
 int libpff_table_read_ac_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
@@ -357,66 +366,11 @@ int libpff_table_read_ac_values(
 
 int libpff_table_read_bc_values(
      libpff_table_t *table,
-     uint32_t table_header_reference,
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
      libcdata_list_t *name_to_id_map_list,
      int debug_item_type,
-     libcerror_error_t **error );
-
-int libpff_table_read_header_data(
-     libpff_table_t *table,
-     const uint8_t *data,
-     size_t data_size,
-     uint32_t *table_value_reference,
-     libcerror_error_t **error );
-
-int libpff_table_read_6c_header_data(
-     libpff_table_t *table,
-     const uint8_t *data,
-     size_t data_size,
-     uint32_t *b5_table_header_reference,
-     uint32_t *values_array_reference,
-     libcerror_error_t **error );
-
-int libpff_table_read_7c_header_data(
-     libpff_table_t *table,
-     const uint8_t *data,
-     size_t data_size,
-     uint32_t *b5_table_header_reference,
-     uint32_t *values_array_reference,
-     uint16_t *values_array_entry_size,
-     int *number_of_column_definitions,
-     libcerror_error_t **error );
-
-int libpff_table_read_9c_header_data(
-     libpff_table_t *table,
-     const uint8_t *data,
-     size_t data_size,
-     uint32_t *b5_table_header_reference,
-     libcerror_error_t **error );
-
-int libpff_table_read_ac_header_data(
-     libpff_table_t *table,
-     const uint8_t *data,
-     size_t data_size,
-     uint32_t *b5_table_header_reference,
-     uint32_t *values_array_reference,
-     uint32_t *column_definitions_reference,
-     uint16_t *values_array_entry_size,
-     int *number_of_column_definitions,
-     libcerror_error_t **error );
-
-int libpff_table_read_b5_header(
-     libpff_table_t *table,
-     libpff_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     uint32_t table_header_reference,
-     uint8_t *record_entry_identifier_size,
-     uint8_t *record_entry_value_size,
-     uint8_t *record_entries_level,
-     uint32_t *record_entries_reference,
      libcerror_error_t **error );
 
 int libpff_table_read_6c_record_entries(

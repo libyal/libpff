@@ -1,7 +1,7 @@
 /*
  * File functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -73,14 +73,6 @@ struct libpff_internal_file
 	/* The file header
 	 */
 	libpff_file_header_t *file_header;
-
-	/* The index nodes vector
-	 */
-	libfdata_vector_t *index_nodes_vector;
-
-	/* The index nodes cache
-	 */
-	libfcache_cache_t *index_nodes_cache;
 
 	/* The descriptors index
 	 */

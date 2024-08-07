@@ -186,6 +186,26 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_bit_stream.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_block_descriptor.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_block_tree.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_block_tree_node.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_checksum.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_column_definition.c"
 				>
 			</File>
@@ -246,6 +266,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_huffman_tree.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_index.c"
 				>
 			</File>
@@ -254,19 +278,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_index_tree.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpff\libpff_index_value.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_io_handle.c"
+				RelativePath="..\..\libpff\libpff_index_values_list.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_io_handle2.c"
+				RelativePath="..\..\libpff\libpff_io_handle.c"
 				>
 			</File>
 			<File
@@ -290,15 +310,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_local_descriptor_node.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpff\libpff_local_descriptor_value.c"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_local_descriptors.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_local_descriptors_node.c"
 				>
 			</File>
 			<File
@@ -358,6 +378,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_table_header.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_table_index_value.c"
 				>
 			</File>
@@ -381,6 +405,26 @@
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_attachment.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_bit_stream.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_block_descriptor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_block_tree.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_block_tree_node.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_checksum.h"
 				>
 			</File>
 			<File
@@ -456,6 +500,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_huffman_tree.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_index.h"
 				>
 			</File>
@@ -464,19 +512,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_index_tree.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpff\libpff_index_value.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_io_handle.h"
+				RelativePath="..\..\libpff\libpff_index_values_list.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_io_handle2.h"
+				RelativePath="..\..\libpff\libpff_io_handle.h"
 				>
 			</File>
 			<File
@@ -544,15 +588,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\libpff_local_descriptor_node.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libpff\libpff_local_descriptor_value.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libpff\libpff_local_descriptors.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libpff\libpff_local_descriptors_node.h"
 				>
 			</File>
 			<File
@@ -620,6 +664,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libpff\libpff_table_header.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libpff\libpff_table_index_value.h"
 				>
 			</File>
@@ -660,7 +708,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libpff\pff_local_descriptor_node.h"
+				RelativePath="..\..\libpff\pff_local_descriptors_node.h"
 				>
 			</File>
 			<File

@@ -1,7 +1,7 @@
 /*
  * Library offsets_index type test program
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -46,7 +46,6 @@ int pff_test_offsets_index_initialize(
      void )
 {
 	libcerror_error_t *error              = NULL;
-	libpff_io_handle_t *io_handle         = NULL;
 	libpff_offsets_index_t *offsets_index = NULL;
 	int result                            = 0;
 
@@ -56,32 +55,12 @@ int pff_test_offsets_index_initialize(
 	int test_number                       = 0;
 #endif
 
-	/* Initialize test
-	 */
-	result = libpff_io_handle_initialize(
-	          &io_handle,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	/* Test regular cases
 	 */
 	result = libpff_offsets_index_initialize(
 	          &offsets_index,
-	          io_handle,
-	          NULL,
-	          NULL,
+	          0,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -118,9 +97,8 @@ int pff_test_offsets_index_initialize(
 	 */
 	result = libpff_offsets_index_initialize(
 	          NULL,
-	          io_handle,
-	          NULL,
-	          NULL,
+	          0,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -139,31 +117,11 @@ int pff_test_offsets_index_initialize(
 
 	result = libpff_offsets_index_initialize(
 	          &offsets_index,
-	          io_handle,
-	          NULL,
-	          NULL,
+	          0,
+	          0,
 	          &error );
 
 	offsets_index = NULL;
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libpff_offsets_index_initialize(
-	          &offsets_index,
-	          NULL,
-	          NULL,
-	          NULL,
-	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -189,9 +147,8 @@ int pff_test_offsets_index_initialize(
 
 		result = libpff_offsets_index_initialize(
 		          &offsets_index,
-		          io_handle,
-		          NULL,
-		          NULL,
+		          0,
+		          0,
 		          &error );
 
 		if( pff_test_malloc_attempts_before_fail != -1 )
@@ -234,9 +191,8 @@ int pff_test_offsets_index_initialize(
 
 		result = libpff_offsets_index_initialize(
 		          &offsets_index,
-		          io_handle,
-		          NULL,
-		          NULL,
+		          0,
+		          0,
 		          &error );
 
 		if( pff_test_memset_attempts_before_fail != -1 )
@@ -271,25 +227,6 @@ int pff_test_offsets_index_initialize(
 	}
 #endif /* defined( HAVE_PFF_TEST_MEMORY ) */
 
-	/* Clean up
-	 */
-	result = libpff_io_handle_free(
-	          &io_handle,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -302,12 +239,6 @@ on_error:
 	{
 		libpff_offsets_index_free(
 		 &offsets_index,
-		 NULL );
-	}
-	if( io_handle != NULL )
-	{
-		libpff_io_handle_free(
-		 &io_handle,
 		 NULL );
 	}
 	return( 0 );
@@ -351,154 +282,6 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libpff_offsets_index_set_root_node function
- * Returns 1 if successful or 0 if not
- */
-int pff_test_offsets_index_set_root_node(
-     void )
-{
-	libcerror_error_t *error              = NULL;
-	libpff_io_handle_t *io_handle         = NULL;
-	libpff_offsets_index_t *offsets_index = NULL;
-	int result                            = 0;
-
-	/* Initialize test
-	 */
-	result = libpff_io_handle_initialize(
-	          &io_handle,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	result = libpff_offsets_index_initialize(
-	          &offsets_index,
-	          io_handle,
-	          NULL,
-	          NULL,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "offsets_index",
-	 offsets_index );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	/* Test regular cases
-	 */
-	result = libpff_offsets_index_set_root_node(
-	          offsets_index,
-	          0,
-	          0,
-	          0,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	/* Test error cases
-	 */
-	result = libpff_offsets_index_set_root_node(
-	          NULL,
-	          0,
-	          0,
-	          0,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	/* Clean up
-	 */
-	result = libpff_offsets_index_free(
-	          &offsets_index,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "offsets_index",
-	 offsets_index );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	result = libpff_io_handle_free(
-	          &io_handle,
-	          &error );
-
-	PFF_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
-
-	PFF_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	if( offsets_index != NULL )
-	{
-		libpff_offsets_index_free(
-		 &offsets_index,
-		 NULL );
-	}
-	if( io_handle != NULL )
-	{
-		libpff_io_handle_free(
-		 &io_handle,
-		 NULL );
-	}
-	return( 0 );
-}
-
 /* Tests the libpff_offsets_index_get_index_value_by_identifier function
  * Returns 1 if successful or 0 if not
  */
@@ -532,9 +315,8 @@ int pff_test_offsets_index_get_index_value_by_identifier(
 
 	result = libpff_offsets_index_initialize(
 	          &offsets_index,
-	          io_handle,
-	          NULL,
-	          NULL,
+	          0,
+	          0,
 	          &error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
@@ -555,6 +337,7 @@ int pff_test_offsets_index_get_index_value_by_identifier(
 /* TODO implement
 	result = libpff_offsets_index_get_index_value_by_identifier(
 	          offsets_index,
+	          io_handle,
 	          NULL,
 	          0,
 	          0,
@@ -578,6 +361,7 @@ PFF_TEST_FPRINT_ERROR( error );
 	 */
 	result = libpff_offsets_index_get_index_value_by_identifier(
 	          NULL,
+	          io_handle,
 	          NULL,
 	          0,
 	          0,
@@ -682,10 +466,6 @@ int main(
 	PFF_TEST_RUN(
 	 "libpff_offsets_index_free",
 	 pff_test_offsets_index_free );
-
-	PFF_TEST_RUN(
-	 "libpff_offsets_index_set_root_node",
-	 pff_test_offsets_index_set_root_node );
 
 	PFF_TEST_RUN(
 	 "libpff_offsets_index_get_index_value_by_identifier",

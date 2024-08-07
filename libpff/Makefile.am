@@ -1,6 +1,6 @@
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/include \
-	-I$(top_srcdir)/common \
+	-I../include -I$(top_srcdir)/include \
+	-I../common -I$(top_srcdir)/common \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCTHREADS_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
@@ -28,6 +28,11 @@ libpff_la_SOURCES = \
 	libpff_allocation_table.c libpff_allocation_table.h \
 	libpff_attached_file_io_handle.c libpff_attached_file_io_handle.h \
 	libpff_attachment.c libpff_attachment.h \
+	libpff_bit_stream.c libpff_bit_stream.h \
+	libpff_block_descriptor.c libpff_block_descriptor.h \
+	libpff_block_tree.c libpff_block_tree.h \
+	libpff_block_tree_node.c libpff_block_tree_node.h \
+	libpff_checksum.c libpff_checksum.h \
 	libpff_codepage.h \
 	libpff_column_definition.c libpff_column_definition.h \
 	libpff_compression.c libpff_compression.h \
@@ -46,12 +51,12 @@ libpff_la_SOURCES = \
 	libpff_file_header.c libpff_file_header.h \
 	libpff_folder.c libpff_folder.h \
 	libpff_free_map.c libpff_free_map.h \
+	libpff_huffman_tree.c libpff_huffman_tree.h \
 	libpff_index.c libpff_index.h \
 	libpff_index_node.c libpff_index_node.h \
-	libpff_index_tree.c libpff_index_tree.h \
 	libpff_index_value.c libpff_index_value.h \
+	libpff_index_values_list.c libpff_index_values_list.h \
 	libpff_io_handle.c libpff_io_handle.h \
-	libpff_io_handle2.c libpff_io_handle2.h \
 	libpff_item.c libpff_item.h \
 	libpff_item_descriptor.c libpff_item_descriptor.h \
 	libpff_item_tree.c libpff_item_tree.h \
@@ -68,9 +73,9 @@ libpff_la_SOURCES = \
 	libpff_libfmapi.h \
 	libpff_libfvalue.h \
 	libpff_libuna.h \
-	libpff_local_descriptor_node.c libpff_local_descriptor_node.h \
 	libpff_local_descriptor_value.c libpff_local_descriptor_value.h \
 	libpff_local_descriptors.c libpff_local_descriptors.h \
+	libpff_local_descriptors_node.c libpff_local_descriptors_node.h \
 	libpff_local_descriptors_tree.c libpff_local_descriptors_tree.h \
 	libpff_mapi.h \
 	libpff_mapi_value.c libpff_mapi_value.h \
@@ -87,6 +92,7 @@ libpff_la_SOURCES = \
 	libpff_support.c libpff_support.h \
 	libpff_table.c libpff_table.h \
 	libpff_table_block_index.c libpff_table_block_index.h \
+	libpff_table_header.c libpff_table_header.h \
 	libpff_table_index_value.c libpff_table_index_value.h \
 	libpff_types.h \
 	libpff_unused.h \
@@ -97,7 +103,7 @@ libpff_la_SOURCES = \
 	pff_file_header.h \
 	pff_free_map.h \
 	pff_index_node.h \
-	pff_local_descriptor_node.h \
+	pff_local_descriptors_node.h \
 	pff_table.h \
 	pff_table_block.h \
 	pff_value_data.h
@@ -129,15 +135,15 @@ EXTRA_DIST = \
 	libpff.rc \
 	libpff.rc.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libpff_definitions.h \
+	libpff.rc \
+	Makefile \
 	Makefile.in
 
-distclean: clean
-	/bin/rm -f libpff_definitions.h
-	/bin/rm -f libpff.rc
-	/bin/rm -f Makefile
+sources-local: $(BUILT_SOURCES)
 
-splint:
+splint-local:
 	@echo "Running splint on libpff ..."
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libpff_la_SOURCES)
 

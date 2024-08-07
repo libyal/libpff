@@ -1,7 +1,7 @@
 /*
  * Signal handling functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -40,7 +40,7 @@ void (*pfftools_signal_signal_handler)( pfftools_signal_t ) = NULL;
 /* Signal handler for Ctrl+C or Ctrl+Break signals
  */
 BOOL WINAPI pfftools_signal_handler(
-             unsigned long signal )
+             pfftools_signal_t signal )
 {
 	static char *function = "pfftools_signal_handler";
 
@@ -112,7 +112,7 @@ int pfftools_signal_attach(
 	pfftools_signal_signal_handler = signal_handler;
 
 	if( SetConsoleCtrlHandler(
-	     pfftools_signal_handler,
+	     (PHANDLER_ROUTINE) pfftools_signal_handler,
 	     TRUE ) == 0 )
 	{
 		libcerror_error_set(
@@ -179,7 +179,7 @@ int pfftools_signal_detach(
 	static char *function = "pfftools_signal_detach";
 
 	if( SetConsoleCtrlHandler(
-	     pfftools_signal_handler,
+	     (PHANDLER_ROUTINE) pfftools_signal_handler,
 	     FALSE ) == 0 )
 	{
 		libcerror_error_set(

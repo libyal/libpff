@@ -1,7 +1,7 @@
 /*
  * Name to ID map functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -213,6 +213,7 @@ int libpff_name_to_id_map_read(
 	}
 	result = libpff_descriptors_index_get_index_value_by_identifier(
 		  descriptors_index,
+		  io_handle,
 		  file_io_handle,
 		  (uint32_t) LIBPFF_DESCRIPTOR_IDENTIFIER_NAME_TO_ID_MAP,
 		  0,
@@ -285,6 +286,19 @@ int libpff_name_to_id_map_read(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create item values.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_index_value_free(
+	     &descriptor_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free descriptor index value.",
 		 function );
 
 		goto on_error;
@@ -562,6 +576,12 @@ on_error:
 	{
 		libpff_item_values_free(
 		 &item_values,
+		 NULL );
+	}
+	if( descriptor_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &descriptor_index_value,
 		 NULL );
 	}
 	libcdata_list_empty(

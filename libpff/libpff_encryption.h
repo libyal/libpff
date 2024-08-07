@@ -1,7 +1,7 @@
 /*
  * De/Encryption functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -35,7 +35,7 @@ ssize_t libpff_encryption_decrypt(
          uint8_t encryption_type,
          uint32_t key,
          uint8_t *data,
-         size_t size,
+         size_t data_size,
          libcerror_error_t **error );
 
 #if defined( __cplusplus )

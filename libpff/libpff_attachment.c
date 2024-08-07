@@ -1,7 +1,7 @@
 /*
  * Attachment functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -38,7 +38,6 @@
 #include "libpff_libfdata.h"
 #include "libpff_libfmapi.h"
 #include "libpff_local_descriptor_value.h"
-#include "libpff_local_descriptors_tree.h"
 #include "libpff_mapi.h"
 #include "libpff_record_entry.h"
 #include "libpff_record_set.h"
@@ -98,7 +97,8 @@ int libpff_attachment_get_type(
 
 		goto on_error;
 	}
-	if( ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_VALUE )
+	if( ( attachment_method != LIBPFF_ATTACHMENT_METHOD_NONE )
+	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_VALUE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_BY_REFERENCE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_EMBEDDED_MESSAGE )
 	 && ( attachment_method != LIBPFF_ATTACHMENT_METHOD_OLE ) )
@@ -148,7 +148,7 @@ int libpff_attachment_get_type(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve record entry: 0x%04 " PRIx32 ".",
+			 "%s: unable to retrieve record entry: 0x%04" PRIx32 ".",
 			 function,
 			 LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT );
 
@@ -815,7 +815,7 @@ int libpff_attachment_get_item(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record entry: 0x%04 " PRIx32 ".",
+		 "%s: unable to retrieve record entry: 0x%04" PRIx32 ".",
 		 function,
 		 LIBPFF_ENTRY_TYPE_ATTACHMENT_DATA_OBJECT );
 
@@ -942,6 +942,19 @@ int libpff_attachment_get_item(
 
 				goto on_error;
 			}
+			if( libpff_local_descriptor_value_free(
+			     &local_descriptor_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free local descriptor values.",
+				 function );
+
+				goto on_error;
+			}
 			if( libcdata_tree_node_get_number_of_sub_nodes(
 			     internal_item->item_tree_node,
 			     &number_of_sub_nodes,
@@ -1058,6 +1071,12 @@ on_error:
 	{
 		libpff_record_set_free(
 		 &record_set,
+		 NULL );
+	}
+	if( local_descriptor_value != NULL )
+	{
+		libpff_local_descriptor_value_free(
+		 &local_descriptor_value,
 		 NULL );
 	}
 	return( -1 );

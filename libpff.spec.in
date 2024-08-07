@@ -3,10 +3,9 @@ Version: @VERSION@
 Release: 1
 Summary: Library to access the Personal Folder File (OST, PAB and PST) format
 Group: System Environment/Libraries
-License: LGPLv3+
+License: LGPL-3.0-or-later
 Source: %{name}-%{version}.tar.gz
 URL: https://github.com/libyal/libpff
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 @libpff_spec_requires@ @ax_libbfio_spec_requires@ @ax_libcdata_spec_requires@ @ax_libcerror_spec_requires@ @ax_libcfile_spec_requires@ @ax_libclocale_spec_requires@ @ax_libcnotify_spec_requires@ @ax_libcpath_spec_requires@ @ax_libcsplit_spec_requires@ @ax_libcthreads_spec_requires@ @ax_libfcache_spec_requires@ @ax_libfdata_spec_requires@ @ax_libfdatetime_spec_requires@ @ax_libfguid_spec_requires@ @ax_libfmapi_spec_requires@ @ax_libfvalue_spec_requires@ @ax_libfwnt_spec_requires@ @ax_libuna_spec_requires@ @ax_zlib_spec_requires@
 BuildRequires: gcc @ax_libbfio_spec_build_requires@ @ax_libcdata_spec_build_requires@ @ax_libcerror_spec_build_requires@ @ax_libcfile_spec_build_requires@ @ax_libclocale_spec_build_requires@ @ax_libcnotify_spec_build_requires@ @ax_libcpath_spec_build_requires@ @ax_libcsplit_spec_build_requires@ @ax_libcthreads_spec_build_requires@ @ax_libfcache_spec_build_requires@ @ax_libfdata_spec_build_requires@ @ax_libfdatetime_spec_build_requires@ @ax_libfguid_spec_build_requires@ @ax_libfmapi_spec_build_requires@ @ax_libfvalue_spec_build_requires@ @ax_libfwnt_spec_build_requires@ @ax_libuna_spec_build_requires@ @ax_zlib_spec_build_requires@
 
@@ -29,22 +28,11 @@ Requires: libpff = %{version}-%{release}
 %description -n libpff-devel
 Header files and libraries for developing applications for libpff.
 
-%package -n libpff-python2
-Obsoletes: libpff-python < %{version}
-Provides: libpff-python = %{version}
-Summary: Python 2 bindings for libpff
-Group: System Environment/Libraries
-Requires: libpff = %{version}-%{release} python2
-BuildRequires: python2-devel
-
-%description -n libpff-python2
-Python 2 bindings for libpff
-
 %package -n libpff-python3
 Summary: Python 3 bindings for libpff
 Group: System Environment/Libraries
 Requires: libpff = %{version}-%{release} python3
-BuildRequires: python3-devel
+BuildRequires: python3-devel python3-setuptools
 
 %description -n libpff-python3
 Python 3 bindings for libpff
@@ -61,7 +49,7 @@ Several tools for reading Personal Folder Files (OST, PAB and PST)
 %setup -q
 
 %build
-%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python2 --enable-python3
+%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python
 make %{?_smp_mflags}
 
 %install
@@ -76,48 +64,33 @@ rm -rf %{buildroot}
 %postun -p /sbin/ldconfig
 
 %files -n libpff
-%defattr(644,root,root,755)
 %license COPYING COPYING.LESSER
 %doc AUTHORS README
-%attr(755,root,root) %{_libdir}/*.so.*
+%{_libdir}/*.so.*
 
 %files -n libpff-static
-%defattr(644,root,root,755)
 %license COPYING COPYING.LESSER
 %doc AUTHORS README
-%attr(755,root,root) %{_libdir}/*.a
+%{_libdir}/*.a
 
 %files -n libpff-devel
-%defattr(644,root,root,755)
 %license COPYING COPYING.LESSER
 %doc AUTHORS README
-%{_libdir}/*.la
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/libpff.pc
 %{_includedir}/*
 %{_mandir}/man3/*
 
-%files -n libpff-python2
-%defattr(644,root,root,755)
-%license COPYING COPYING.LESSER
-%doc AUTHORS README
-%{_libdir}/python2*/site-packages/*.a
-%{_libdir}/python2*/site-packages/*.la
-%{_libdir}/python2*/site-packages/*.so
-
 %files -n libpff-python3
-%defattr(644,root,root,755)
 %license COPYING COPYING.LESSER
 %doc AUTHORS README
 %{_libdir}/python3*/site-packages/*.a
-%{_libdir}/python3*/site-packages/*.la
 %{_libdir}/python3*/site-packages/*.so
 
 %files -n libpff-tools
-%defattr(644,root,root,755)
 %license COPYING COPYING.LESSER
 %doc AUTHORS README
-%attr(755,root,root) %{_bindir}/*
+%{_bindir}/*
 %{_mandir}/man1/*
 
 %changelog

@@ -1,7 +1,7 @@
 /*
  * Library index type test program
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -100,8 +100,6 @@ int main(
 	 "libpff_index_free",
 	 pff_test_index_free );
 
-	/* TODO: add tests for libpff_index_clone */
-
 	/* TODO: add tests for libpff_index_read_node */
 
 	/* TODO: add tests for libpff_index_read_node_entry */
@@ -114,7 +112,11 @@ int main(
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 }
 

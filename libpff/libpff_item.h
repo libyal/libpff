@@ -1,7 +1,7 @@
 /*
  * Item functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -134,12 +134,6 @@ int libpff_item_initialize(
 LIBPFF_EXTERN \
 int libpff_item_free(
      libpff_item_t **item,
-     libcerror_error_t **error );
-
-LIBPFF_EXTERN \
-int libpff_item_clone(
-     libpff_item_t **destination_item,
-     libpff_item_t *source_item,
      libcerror_error_t **error );
 
 int libpff_internal_item_determine_type(

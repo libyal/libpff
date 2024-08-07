@@ -1,7 +1,7 @@
 /*
  * Recover functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,21 +24,22 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libpff_checksum.h"
 #include "libpff_data_block.h"
 #include "libpff_definitions.h"
 #include "libpff_descriptors_index.h"
 #include "libpff_index.h"
 #include "libpff_index_node.h"
-#include "libpff_index_tree.h"
 #include "libpff_index_value.h"
+#include "libpff_index_values_list.h"
 #include "libpff_item_descriptor.h"
 #include "libpff_item_tree.h"
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
+#include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
-#include "libpff_local_descriptor_node.h"
+#include "libpff_local_descriptors_node.h"
 #include "libpff_offsets_index.h"
 #include "libpff_recover.h"
 
@@ -60,23 +61,22 @@ int libpff_recover_items(
      uint8_t recovery_flags,
      libcerror_error_t **error )
 {
-	libfdata_tree_node_t *recovered_descriptor_index_leaf_node = NULL;
-	libpff_data_block_t *recovered_data_block                  = NULL;
-	libpff_index_t *recovered_descriptor_index                 = NULL;
-	libpff_index_t *recovered_offset_index                     = NULL;
-	libpff_index_value_t *descriptor_index_value               = NULL;
-	libpff_index_value_t *offset_index_value                   = NULL;
-	libpff_item_descriptor_t *item_descriptor                  = NULL;
-	libcdata_tree_node_t *item_tree_node                       = NULL;
-	static char *function                                      = "libpff_recover_items";
-	int data_identifier_value_index                            = 0;
-	int index_value_iterator                                   = 0;
-	int local_descriptors_identifier_value_index               = 0;
-	int number_of_index_values                                 = 0;
-	int number_of_recovered_descriptor_index_values            = 0;
-	int recovered_descriptor_index_value_iterator              = 0;
-	int recoverable                                            = 0;
-	int result                                                 = 0;
+	libcdata_tree_node_t *item_tree_node          = NULL;
+	libpff_index_value_t *descriptors_index_value = NULL;
+	libpff_index_values_list_t *index_values_list = NULL;
+	libpff_item_descriptor_t *item_descriptor     = NULL;
+	static char *function                         = "libpff_recover_items";
+	int data_identifier_value_index               = 0;
+	int index_value_iterator                      = 0;
+	int index_values_list_iterator                = 0;
+	int local_descriptors_identifier_value_index  = 0;
+	int number_of_index_values                    = 0;
+	int number_of_index_values_lists              = 0;
+	int result                                    = 0;
+
+#ifdef TODO
+        uint32_t maximum_data_block_data_size         = 0;
+#endif
 
 	if( io_handle == NULL )
 	{
@@ -102,6 +102,50 @@ int libpff_recover_items(
 
 		return( -1 );
 	}
+	if( descriptors_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index.",
+		 function );
+
+		return( -1 );
+	}
+	if( descriptors_index->index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid descriptors index - missing index.",
+		 function );
+
+		return( -1 );
+	}
+	if( offsets_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index.",
+		 function );
+
+		return( -1 );
+	}
+	if( offsets_index->index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid offsets index - missing index.",
+		 function );
+
+		return( -1 );
+	}
 	if( recovered_item_list == NULL )
 	{
 		libcerror_error_set(
@@ -113,38 +157,21 @@ int libpff_recover_items(
 
 		return( -1 );
 	}
-	if( libpff_descriptors_index_set_root_node(
-	     descriptors_index,
-	     0,
-	     0,
-	     1,
-	     error ) != 1 )
+#ifdef TODO
+	if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set descriptors index root node.",
-		 function );
-
-		goto on_error;
+		maximum_data_block_data_size = 8192 - 12;
 	}
-	if( libpff_offsets_index_set_root_node(
-	     offsets_index,
-	     0,
-	     0,
-	     1,
-	     error ) != 1 )
+	else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set offsets index root node.",
-		 function );
-
-		goto on_error;
+		maximum_data_block_data_size = 8192 - 16;
 	}
+	else
+	{
+/* TODO: this value is currently assumed based on the 512 x 8 = 4k page */
+		maximum_data_block_data_size = 65536 - 24;
+	}
+#endif /* TODO */
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libbfio_handle_set_track_offsets_read(
 	     file_io_handle,
@@ -161,21 +188,30 @@ int libpff_recover_items(
 		goto on_error;
 	}
 #endif
-	if( libpff_recover_index_nodes(
+#ifdef TODO
+	/* Scan the offsets index nodes for deleted values
+	 */
+	if( libpff_recover_analyze_offsets_index_node(
+	     offsets_index,
 	     io_handle,
 	     file_io_handle,
-	     descriptors_index,
+	     offsets_index->index->root_node_offset,
+	     offsets_index->index->root_node_back_pointer,
+	     maximum_data_block_data_size,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to recover index nodes.",
+		 "%s: unable to recover offsets index nodes.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
+#endif /* TODO */
+
 	if( libpff_recover_data_blocks(
 	     io_handle,
 	     file_io_handle,
@@ -195,382 +231,201 @@ int libpff_recover_items(
 
 		goto on_error;
 	}
-	/* For the recovered descriptor index nodes check
-	 * if the local descriptor and data offset index value still exists
+	/* Scan the descriptors index nodes for deleted values
 	 */
-	if( libpff_index_tree_get_number_of_leaf_nodes(
-	     descriptors_index->recovered_index_tree,
+	if( libpff_recover_descriptors_index_values(
+	     descriptors_index,
+	     io_handle,
 	     file_io_handle,
-	     (libfdata_cache_t *) descriptors_index->index_cache,
-	     &number_of_recovered_descriptor_index_values,
+	     descriptors_index->index->root_node_offset,
+	     descriptors_index->index->root_node_back_pointer,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to recover descriptors index values.",
+		 function );
+
+		return( -1 );
+	}
+/* TODO combine the offsets index value check part with libpff_recover_descriptors_index_values so that the size of descriptors_index->recovered_index_values_tree remains small */
+
+	/* For each recovered descriptors index value check if the corresonding local descriptor and data offsets index values exist
+	 */
+	if( libcdata_btree_get_number_of_values(
+	     descriptors_index->recovered_index_values_tree,
+	     &number_of_index_values_lists,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of recovered descriptor index values.",
+		 "%s: unable to retrieve number of recovered descriptors index values.",
 		 function );
 
 		goto on_error;
 	}
-	for( recovered_descriptor_index_value_iterator = 0;
-	     recovered_descriptor_index_value_iterator < number_of_recovered_descriptor_index_values;
-	     recovered_descriptor_index_value_iterator++ )
+	for( index_values_list_iterator = 0;
+	     index_values_list_iterator < number_of_index_values_lists;
+	     index_values_list_iterator++ )
 	{
 		if( io_handle->abort != 0 )
 		{
+/* TODO break instead of error ? */
 			goto on_error;
 		}
-		if( libpff_index_tree_get_leaf_node_by_index(
-		     descriptors_index->recovered_index_tree,
-		     file_io_handle,
-		     (libfdata_cache_t *) descriptors_index->index_cache,
-		     recovered_descriptor_index_value_iterator,
-		     &recovered_descriptor_index_leaf_node,
+		if( libcdata_btree_get_value_by_index(
+		     descriptors_index->recovered_index_values_tree,
+		     index_values_list_iterator,
+		     (intptr_t **) &index_values_list,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: unable to retrieve recovered descriptor leaf node: %d.",
+			 "%s: unable to retrieve recovered descriptors index values list: %d.",
 			 function,
-			 recovered_descriptor_index_value_iterator );
+			 index_values_list_iterator );
 
 			goto on_error;
 		}
-		if( libfdata_tree_node_get_node_value(
-		     recovered_descriptor_index_leaf_node,
-		     (intptr_t *) file_io_handle,
-		     (libfdata_cache_t *) descriptors_index->index_cache,
-		     (intptr_t **) &descriptor_index_value,
-		     0,
+		if( libpff_index_values_list_number_of_values(
+		     index_values_list,
+		     &number_of_index_values,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: unable to retrieve recovered descriptor index value: %d.",
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of recovered descriptors index values list: %d elements.",
 			 function,
-			 recovered_descriptor_index_value_iterator );
+			 index_values_list_iterator );
 
 			goto on_error;
 		}
-		if( descriptor_index_value == NULL )
+		for( index_value_iterator = 0;
+		     index_value_iterator < number_of_index_values;
+		     index_value_iterator++ )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing descriptor index value: %d.",
-			 function,
-			 recovered_descriptor_index_value_iterator );
-
-			goto on_error;
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: analyzing identifier: %" PRIu64 ", data: %" PRIu64 ", local descriptors: %" PRIu64 ", parent: %" PRIu32 "\n",
-			 function,
-			 descriptor_index_value->identifier,
-			 descriptor_index_value->data_identifier,
-			 descriptor_index_value->local_descriptors_identifier,
-			 descriptor_index_value->parent_identifier );
-		}
-#endif
-		recoverable = 1;
-
-		/* Check if the data identifier is recoverable
-		 */
-		if( recoverable != 0 )
-		{
-			if( libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-			     offsets_index->recovered_index_tree,
-			     file_io_handle,
-			     offsets_index->index_cache,
-			     descriptor_index_value->data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK,
-			     &number_of_index_values,
+			if( io_handle->abort != 0 )
+			{
+/* TODO break instead of error ? */
+				goto on_error;
+			}
+			if( libpff_index_values_list_get_value_by_index(
+			     index_values_list,
+			     index_value_iterator,
+			     &descriptors_index_value,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve number of recovered offset index values for data identifier: %" PRIu64 ".",
+				 "%s: unable to retrieve recovered descriptors index value: %" PRIu64 " list element: %d.",
 				 function,
-				 descriptor_index_value->data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
+				 index_values_list->identifier,
+				 index_value_iterator );
 
 				goto on_error;
 			}
-/* TODO what if more than 1 identifier is recoverable ? now uses first come first serve */
-			result = 0;
-
-			for( index_value_iterator = 0;
-			     index_value_iterator < number_of_index_values;
-			     index_value_iterator++ )
-			{
-				result = libpff_index_tree_get_value_by_identifier(
-					  offsets_index->recovered_index_tree,
-					  file_io_handle,
-					  offsets_index->index_cache,
-					  descriptor_index_value->data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK,
-					  index_value_iterator,
-					  &offset_index_value,
-					  error );
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve recovered offset index value for data identifier: %" PRIu64 ".",
-					 function,
-					 descriptor_index_value->data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
-
-					goto on_error;
-				}
-				else if( result != 0 )
-				{
-					/* Check if the data block is readable
-					 */
-					if( libpff_data_block_initialize(
-					     &recovered_data_block,
-					     io_handle,
-					     (uint32_t) descriptor_index_value->identifier,
-					     offset_index_value->identifier,
-					     error ) != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-						 "%s: unable to create data block.",
-						 function );
-
-						goto on_error;
-					}
-#if defined( HAVE_DEBUG_OUTPUT )
-					if( libcnotify_verbose != 0 )
-					{
-						libcnotify_printf(
-						 "%s: attempting to read data block at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-						 function,
-						 offset_index_value->file_offset,
-						 offset_index_value->file_offset );
-					}
-#endif
-					result = libpff_data_block_read_file_io_handle(
-					          recovered_data_block,
-					          file_io_handle,
-					          offset_index_value->file_offset,
-					          offset_index_value->data_size,
-					          io_handle->file_type,
-					          error );
-
-					if( result != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_IO,
-						 LIBCERROR_IO_ERROR_READ_FAILED,
-						 "%s: unable to read data block.",
-						 function );
-#if defined( HAVE_DEBUG_OUTPUT )
-						if( ( libcnotify_verbose != 0 )
-						 && ( error != NULL )
-						 && ( *error != NULL ) )
-						{
-							libcnotify_print_error_backtrace(
-							 *error );
-						}
-#endif
-						libcerror_error_free(
-						 error );
-
-/* TODO delete unreadable offset identifier in offsets_index->recovered_index_tree */
-					}
-					if( libpff_data_block_free(
-					     &recovered_data_block,
-					     error ) != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-						 "%s: unable to free recovered data block.",
-						 function );
-
-						goto on_error;
-					}
-/* TODO validate the block data ? */
-					if( result == 1 )
-					{
-						break;
-					}
-				}
-			}
-			if( result == 0 )
-			{
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libcnotify_verbose != 0 )
-				{
-					libcnotify_printf(
-					 "%s: recovered offset index value for data identifier: %" PRIu64 " not available.\n",
-					 function,
-					 descriptor_index_value->data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
-				}
-#endif
-				recoverable = 0;
-			}
-			else
-			{
-				data_identifier_value_index = index_value_iterator;
-			}
-		}
-		/* Check if the local descriptors are also recoverable
-		 */
-		if( recoverable != 0 )
-		{
-			/* Allow desciptors to have a zero local descriptors value
-			 */
-			if( descriptor_index_value->local_descriptors_identifier > 0 )
-			{
-				if( libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-				     offsets_index->recovered_index_tree,
-				     file_io_handle,
-				     offsets_index->index_cache,
-				     descriptor_index_value->local_descriptors_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK,
-				     &number_of_index_values,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve number of recovered offset index values for local descriptors identifier: %" PRIu64 ".",
-					 function,
-					 descriptor_index_value->local_descriptors_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
-
-					goto on_error;
-				}
-/* TODO what if more than 1 identifier is recoverable ? now uses first come first serve */
-				result = 0;
-
-				for( index_value_iterator = 0;
-				     index_value_iterator < number_of_index_values;
-				     index_value_iterator++ )
-				{
-					result = libpff_index_tree_get_value_by_identifier(
-						  offsets_index->recovered_index_tree,
-						  file_io_handle,
-						  offsets_index->index_cache,
-						  descriptor_index_value->local_descriptors_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK,
-						  index_value_iterator,
-						  &offset_index_value,
-						  error );
-
-					if( result == -1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable to retrieve recovered offset index value for local descriptors identifier: %" PRIu64 ".",
-						 function,
-						 descriptor_index_value->local_descriptors_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
-
-						goto on_error;
-					}
-					else if( result != 0 )
-					{
-						/* Check if local descriptors are readable
-						 */
-						result = libpff_recover_local_descriptors(
-							  io_handle,
-							  file_io_handle,
-							  offsets_index,
-							  descriptor_index_value->local_descriptors_identifier,
-							  error );
-
-						if( result == -1 )
-						{
-							libcerror_error_set(
-							 error,
-							 LIBCERROR_ERROR_DOMAIN_IO,
-							 LIBCERROR_IO_ERROR_READ_FAILED,
-							 "%s: unable to read local descriptors with identifier: %" PRIu64 ".",
-							 function,
-							 descriptor_index_value->local_descriptors_identifier );
-
-							goto on_error;
-						}
-						else if( result != 0 )
-						{
-							break;
-						}
-					}
-				}
-				if( result == 0 )
-				{
-#if defined( HAVE_DEBUG_OUTPUT )
-					if( libcnotify_verbose != 0 )
-					{
-						libcnotify_printf(
-						 "%s: recovered offset index value for local descriptors identifier: %" PRIu64 " not available.\n",
-						 function,
-						 descriptor_index_value->local_descriptors_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
-					}
-#endif
-					recoverable = 0;
-				}
-				if( recoverable != 0 )
-				{
-					local_descriptors_identifier_value_index = index_value_iterator;
-				}
-			}
-		}
-		if( recoverable == 0 )
-		{
-			if( libfdata_tree_node_set_deleted(
-			     recovered_descriptor_index_leaf_node,
-			     error ) != 1 )
+			if( descriptors_index_value == NULL )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set deleted in recovered index tree leaf node: %d.",
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing recovered descriptors index value: %" PRIu64 " list element: %d.",
 				 function,
-				 recovered_descriptor_index_value_iterator );
+				 index_values_list->identifier,
+				 index_value_iterator );
 
 				goto on_error;
 			}
-			number_of_recovered_descriptor_index_values--;
-			recovered_descriptor_index_value_iterator--;
-		}
-		else
-		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: analyzing identifier: %" PRIu64 ", data: %" PRIu64 ", local descriptors: %" PRIu64 ", parent: %" PRIu32 "\n",
+				 function,
+				 descriptors_index_value->identifier,
+				 descriptors_index_value->data_identifier,
+				 descriptors_index_value->local_descriptors_identifier,
+				 descriptors_index_value->parent_identifier );
+			}
+#endif
+			result = libpff_recover_analyze_descriptor_data_identifier(
+				  io_handle,
+				  file_io_handle,
+				  offsets_index,
+				  descriptors_index_value,
+				  &data_identifier_value_index,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to recover descriptors index value: %" PRIu64 " data identifier: %" PRIu64 ".",
+				 function,
+				 descriptors_index_value->identifier,
+				 descriptors_index_value->data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
+
+				goto on_error;
+			}
+			else if( result == 0 )
+			{
+				continue;
+			}
+			result = libpff_recover_analyze_descriptor_local_descriptors_identifier(
+				  io_handle,
+				  file_io_handle,
+				  offsets_index,
+				  descriptors_index_value,
+				  &local_descriptors_identifier_value_index,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to recover descriptors index value: %" PRIu64 " local descriptors identifier: %" PRIu64 ".",
+				 function,
+				 descriptors_index_value->identifier,
+				 descriptors_index_value->local_descriptors_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK );
+
+				goto on_error;
+			}
+			else if( result == 0 )
+			{
+				continue;
+			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
 				 "%s: item descriptor: %" PRIu64 " is recoverable.\n",
 				 function,
-				 descriptor_index_value->identifier );
+				 descriptors_index_value->identifier );
 			}
 #endif
 			/* Create a new item descriptor
 			 */
 			if( libpff_item_descriptor_initialize(
 			     &item_descriptor,
-			     (uint32_t) descriptor_index_value->identifier,
-			     descriptor_index_value->data_identifier,
-			     descriptor_index_value->local_descriptors_identifier,
+			     (uint32_t) descriptors_index_value->identifier,
+			     descriptors_index_value->data_identifier,
+			     descriptors_index_value->local_descriptors_identifier,
 			     1,
 			     error ) != 1 )
 			{
@@ -578,8 +433,9 @@ int libpff_recover_items(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create item descriptor.",
-				 function );
+				 "%s: unable to create item descriptor: %" PRIu64 ".",
+				 function,
+				 descriptors_index_value->identifier );
 
 				goto on_error;
 			}
@@ -589,8 +445,9 @@ int libpff_recover_items(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: missing item descriptor.",
-				 function );
+				 "%s: missing item descriptor: %" PRIu64 ".",
+				 function,
+				 descriptors_index_value->identifier );
 
 				goto on_error;
 			}
@@ -598,7 +455,7 @@ int libpff_recover_items(
 			item_descriptor->recovered_data_identifier_value_index              = data_identifier_value_index;
 			item_descriptor->recovered_local_descriptors_identifier_value_index = local_descriptors_identifier_value_index;
 
-			/* Create a new tree node with item tree values
+			/* Create a new item tree node
 			 */
 			if( libcdata_tree_node_initialize(
 			     &item_tree_node,
@@ -670,12 +527,6 @@ int libpff_recover_items(
 	return( 1 );
 
 on_error:
-	if( recovered_data_block != NULL )
-	{
-		libpff_data_block_free(
-		 &recovered_data_block,
-		 NULL );
-	}
 	if( item_tree_node != NULL )
 	{
 		libcdata_tree_node_free(
@@ -689,18 +540,6 @@ on_error:
 		 &item_descriptor,
 		 NULL );
 	}
-	if( recovered_offset_index != NULL )
-	{
-		libpff_index_free(
-		 &recovered_offset_index,
-		 NULL );
-	}
-	if( recovered_descriptor_index != NULL )
-	{
-		libpff_index_free(
-		 &recovered_descriptor_index,
-		 NULL );
-	}
 	libcdata_list_empty(
 	 recovered_item_list,
 	 (int (*)(intptr_t **, libcerror_error_t **)) &libpff_item_tree_node_free_recovered,
@@ -709,33 +548,918 @@ on_error:
 	return( -1 );
 }
 
-/* Scans for recoverable index nodes
- * Returns 1 if successful or -1 on error
+/* Analyze if a specific descriptor data identifier is recoverable
+ * Returns 1 if recoverable, 0 if not or -1 on error
  */
-int libpff_recover_index_nodes(
+int libpff_recover_analyze_descriptor_data_identifier(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     libpff_descriptors_index_t *descriptors_index,
+     libpff_offsets_index_t *offsets_index,
+     libpff_index_value_t *descriptors_index_value,
+     int *data_identifier_value_index,
      libcerror_error_t **error )
 {
-	libfdata_tree_node_t *deleted_index_leaf_node = NULL;
-	libpff_index_value_t *deleted_index_value     = NULL;
+	libcdata_tree_node_t *upper_node              = NULL;
 	libpff_index_value_t *index_value             = NULL;
-	static char *function                         = "libpff_recover_index_nodes";
-	off64_t node_data_offset                      = 0;
-	size64_t node_data_size                       = 0;
-	uint32_t node_data_flags                      = 0;
-	int deleted_index_value_iterator              = 0;
+	libpff_index_value_t *lookup_index_value      = NULL;
+	libpff_index_values_list_t *index_values_list = NULL;
+	static char *function                         = "libpff_recover_analyze_descriptor_data_identifier";
+	uint64_t lookup_identifier                    = 0;
 	int index_value_iterator                      = 0;
-	int node_data_file_index                      = 0;
 	int number_of_index_values                    = 0;
-	int number_of_deleted_index_values            = 0;
 	int result                                    = 0;
 
-#ifdef TODO
-        uint32_t maximum_data_block_data_size         = 0;
-#endif
+	if( offsets_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index.",
+		 function );
 
+		return( -1 );
+	}
+	if( descriptors_index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index value.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_identifier_value_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data identifier value index.",
+		 function );
+
+		return( -1 );
+	}
+	lookup_identifier = descriptors_index_value->data_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK;
+
+	if( libpff_index_value_initialize(
+	     &lookup_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create lookup index value.",
+		 function );
+
+		goto on_error;
+	}
+	lookup_index_value->identifier = lookup_identifier;
+
+/* TODO have a compare function that directly uses the lookup_identifier not the lookup_index_value */
+	result = libcdata_btree_get_value_by_value(
+	          offsets_index->recovered_index_values_tree,
+	          (intptr_t *) lookup_index_value,
+	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
+	          &upper_node, 
+	          (intptr_t **) &index_values_list,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve recovered offsets index value: %" PRIu64 " list.",
+		 function,
+		 lookup_identifier );
+
+		goto on_error;
+	}
+	if( libpff_index_value_free(
+	     &lookup_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free lookup index value.",
+		 function,
+		 lookup_identifier );
+
+		goto on_error;
+	}
+	if( result == 0 )
+	{
+		return( 0 );
+	}
+	if( libpff_index_values_list_number_of_values(
+	     index_values_list,
+	     &number_of_index_values,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of recovered offsets index value: %" PRIu64 " list.",
+		 function,
+		 lookup_identifier );
+
+		goto on_error;
+	}
+/* TODO handle if more than 1 offsets index value is recoverable */
+
+	result = 0;
+
+	for( index_value_iterator = 0;
+	     index_value_iterator < number_of_index_values;
+	     index_value_iterator++ )
+	{
+		if( libpff_index_values_list_get_value_by_index(
+		     index_values_list,
+		     index_value_iterator,
+		     &index_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve recovered offsets index value: %d for data identifier: %" PRIu64 ".",
+			 function,
+			 index_value_iterator,
+			 lookup_identifier );
+
+			goto on_error;
+		}
+		/* Check if a data block is recoverable
+		 */
+		result = libpff_recover_analyze_data_block(
+			  io_handle,
+			  file_io_handle,
+			  (uint32_t) descriptors_index_value->identifier,
+			  index_value,
+			  error );
+
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to recover data block: %" PRIu64 ".",
+			 function,
+			 descriptors_index_value->data_identifier );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( ( libcnotify_verbose != 0 )
+			 && ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+#endif
+			libcerror_error_free(
+			 error );
+
+/* TODO remove unreadable offset identifier from offsets_index->recovered_index_values_tree ? */
+		}
+		else if( result != 0 )
+		{
+			break;
+		}
+	}
+	if( result != 0 )
+	{
+		*data_identifier_value_index = index_value_iterator;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	else if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: recovered offsets index value for data identifier: %" PRIu64 " not available.\n",
+		 function,
+		 lookup_identifier );
+	}
+#endif
+	return( result );
+
+on_error:
+	if( lookup_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &lookup_index_value,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Analyze if a specific descriptor local descriptors identifier is recoverable
+ * Returns 1 if recoverable, 0 if not or -1 on error
+ */
+int libpff_recover_analyze_descriptor_local_descriptors_identifier(
+     libpff_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libpff_offsets_index_t *offsets_index,
+     libpff_index_value_t *descriptors_index_value,
+     int *local_descriptors_identifier_value_index,
+     libcerror_error_t **error )
+{
+	libcdata_tree_node_t *upper_node              = NULL;
+	libpff_index_value_t *index_value             = NULL;
+	libpff_index_value_t *lookup_index_value      = NULL;
+	libpff_index_values_list_t *index_values_list = NULL;
+	static char *function                         = "libpff_recover_analyze_descriptor_local_descriptors_identifier";
+	uint64_t lookup_identifier                    = 0;
+	int index_value_iterator                      = 0;
+	int number_of_index_values                    = 0;
+	int result                                    = 0;
+
+	if( offsets_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index.",
+		 function );
+
+		return( -1 );
+	}
+	if( descriptors_index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index value.",
+		 function );
+
+		return( -1 );
+	}
+	if( local_descriptors_identifier_value_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid local descriptors identifier value index.",
+		 function );
+
+		return( -1 );
+	}
+	/* The local descriptors identifier is 0 if not set
+	 */
+	if( descriptors_index_value->local_descriptors_identifier == 0 )
+	{
+		return( 1 );
+	}
+	lookup_identifier = descriptors_index_value->local_descriptors_identifier & (uint64_t) LIBPFF_OFFSET_INDEX_IDENTIFIER_MASK;
+
+	if( libpff_index_value_initialize(
+	     &lookup_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create lookup index value.",
+		 function );
+
+		goto on_error;
+	}
+	lookup_index_value->identifier = lookup_identifier;
+
+/* TODO have a compare function that directly uses the lookup_identifier not the lookup_index_value */
+	result = libcdata_btree_get_value_by_value(
+	          offsets_index->recovered_index_values_tree,
+	          (intptr_t *) lookup_index_value,
+	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
+	          &upper_node, 
+	          (intptr_t **) &index_values_list,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve recovered offsets index value: %" PRIu64 " list.",
+		 function,
+		 lookup_identifier );
+
+		goto on_error;
+	}
+	if( libpff_index_value_free(
+	     &lookup_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free lookup index value.",
+		 function,
+		 lookup_identifier );
+
+		goto on_error;
+	}
+	if( result == 0 )
+	{
+		return( 0 );
+	}
+	if( libpff_index_values_list_number_of_values(
+	     index_values_list,
+	     &number_of_index_values,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of recovered offsets index value: %" PRIu64 " list.",
+		 function,
+		 lookup_identifier );
+
+		goto on_error;
+	}
+/* TODO handle if more than 1 offsets index value is recoverable */
+
+	result = 0;
+
+	for( index_value_iterator = 0;
+	     index_value_iterator < number_of_index_values;
+	     index_value_iterator++ )
+	{
+		if( libpff_index_values_list_get_value_by_index(
+		     index_values_list,
+		     index_value_iterator,
+		     &index_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve recovered offsets index value: %d for data identifier: %" PRIu64 ".",
+			 function,
+			 index_value_iterator,
+			 lookup_identifier );
+
+			goto on_error;
+		}
+		/* Check if local descriptors are recoverable
+		 */
+		result = libpff_recover_analyze_local_descriptors(
+		          io_handle,
+		          file_io_handle,
+		          offsets_index,
+		          descriptors_index_value->local_descriptors_identifier,
+		          error );
+
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to recover local descriptors: %" PRIu64 ".",
+			 function,
+			 descriptors_index_value->local_descriptors_identifier );
+
+			goto on_error;
+		}
+		else if( result != 0 )
+		{
+			break;
+		}
+	}
+	if( result != 0 )
+	{
+		*local_descriptors_identifier_value_index = index_value_iterator;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	else if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: recovered offsets index value for local descriptors identifier: %" PRIu64 " not available.\n",
+		 function,
+		 lookup_identifier );
+	}
+#endif
+	return( result );
+
+on_error:
+	if( lookup_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &lookup_index_value,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Analyze if a specific data block back pointer is recoverable
+ * Returns 1 if recoverable, 0 if not or -1 on error
+ */
+int libpff_recover_analyze_data_block_back_pointer(
+     libpff_offsets_index_t *offsets_index,
+     uint64_t data_block_back_pointer,
+     off64_t data_block_data_offset,
+     size32_t data_block_data_size,
+     libcerror_error_t **error )
+{
+	libcdata_tree_node_t *upper_node              = NULL;
+	libpff_index_value_t *index_value             = NULL;
+	libpff_index_value_t *lookup_index_value      = NULL;
+	libpff_index_values_list_t *index_values_list = NULL;
+	static char *function                         = "libpff_recover_analyze_data_block_back_pointer";
+	uint64_t lookup_identifier                    = 0;
+	int index_value_iterator                      = 0;
+	int number_of_index_values                    = 0;
+	int result                                    = 0;
+
+	if( offsets_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index.",
+		 function );
+
+		return( -1 );
+	}
+	lookup_identifier = data_block_back_pointer;
+
+	if( libpff_index_value_initialize(
+	     &lookup_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create lookup index value.",
+		 function );
+
+		goto on_error;
+	}
+	lookup_index_value->identifier = lookup_identifier;
+
+/* TODO have a compare function that directly uses the lookup_identifier not the lookup_index_value */
+	result = libcdata_btree_get_value_by_value(
+	          offsets_index->recovered_index_values_tree,
+	          (intptr_t *) lookup_index_value,
+	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
+	          &upper_node, 
+	          (intptr_t **) &index_values_list,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve recovered offsets index value: %" PRIu64 " list.",
+		 function,
+		 lookup_identifier );
+
+		goto on_error;
+	}
+	if( libpff_index_value_free(
+	     &lookup_index_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free lookup index value.",
+		 function,
+		 lookup_identifier );
+
+		goto on_error;
+	}
+	if( result == 0 )
+	{
+		return( 0 );
+	}
+	if( libpff_index_values_list_number_of_values(
+	     index_values_list,
+	     &number_of_index_values,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of recovered offsets index value: %" PRIu64 " list.",
+		 function,
+		 lookup_identifier );
+
+		goto on_error;
+	}
+/* TODO handle if more than 1 offsets index value is recoverable */
+
+	result = 0;
+
+	for( index_value_iterator = 0;
+	     index_value_iterator < number_of_index_values;
+	     index_value_iterator++ )
+	{
+		if( libpff_index_values_list_get_value_by_index(
+		     index_values_list,
+		     index_value_iterator,
+		     &index_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve recovered offsets index value: %d for data identifier: %" PRIu64 ".",
+			 function,
+			 index_value_iterator,
+			 lookup_identifier );
+
+			goto on_error;
+		}
+		if( ( data_block_data_offset == index_value->file_offset )
+		 && ( data_block_data_size == index_value->data_size ) )
+		{
+			result = 1;
+		}
+		if( result != 0 )
+		{
+			break;
+		}
+	}
+	if( result != 0 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: recovered data block with identifier: %" PRIu64 " matches existing recovered item value.\n",
+			 function,
+			 lookup_identifier );
+		}
+#endif
+	}
+	return( result );
+
+on_error:
+	if( lookup_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &lookup_index_value,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Analyze if a specific descriptors index value is recoverable
+ * Returns 1 if recoverable, 0 if not or -1 on error
+ */
+int libpff_recover_analyze_descriptors_index_value(
+     libpff_descriptors_index_t *descriptors_index,
+     libpff_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libpff_index_value_t *descriptors_index_value,
+     libcerror_error_t **error )
+{
+	libpff_index_value_t *existing_index_value = NULL;
+	static char *function                      = "libpff_recover_analyze_descriptors_index_value";
+	int result                                 = 0;
+
+	if( descriptors_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index.",
+		 function );
+
+		return( -1 );
+	}
+	if( descriptors_index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index value.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: analyzing identifier: %" PRIu64 ", data: %" PRIu64 ", local descriptors: %" PRIu64 ", parent: %" PRIu32 "\n",
+		 function,
+		 descriptors_index_value->identifier,
+		 descriptors_index_value->data_identifier,
+		 descriptors_index_value->local_descriptors_identifier,
+		 descriptors_index_value->parent_identifier );
+	}
+#endif
+	/* Check if the descriptors index value matches an existing index value
+	 */
+	result = libpff_index_get_value_by_identifier(
+		  descriptors_index->index,
+		  io_handle,
+		  file_io_handle,
+		  descriptors_index_value->identifier,
+		  &existing_index_value,
+		  error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve descriptors index value: %" PRIu64 " from index.",
+		 function,
+		 descriptors_index_value->identifier );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( existing_index_value == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing descriptors index value for identifier: %" PRIu64 ".",
+			 function,
+			 descriptors_index_value->identifier );
+
+			goto on_error;
+		}
+		result = 0;
+
+/* TODO what about parent changes ? */
+		if( ( descriptors_index_value->data_identifier == existing_index_value->data_identifier )
+		 && ( descriptors_index_value->local_descriptors_identifier == existing_index_value->local_descriptors_identifier ) )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: deleted descriptors index value: %" PRIu64 " matches existing item value.\n",
+				 function,
+				 descriptors_index_value->identifier );
+			}
+#endif
+			result = 1;
+		}
+		if( libpff_index_value_free(
+		     &existing_index_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index value: %d.",
+			 function,
+			 descriptors_index_value->identifier );
+
+			goto on_error;
+		}
+		if( result != 0 )
+		{
+			return( 0 );
+		}
+	}
+	result = libpff_recover_check_descriptors_index_for_recovered_value(
+		  descriptors_index,
+		  descriptors_index_value,
+		  error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if deleted descriptors index value: %" PRIu64 " was previously recovered.",
+		 function,
+		 descriptors_index_value->identifier );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: deleted descriptors index value: %" PRIu64 " matches previous recovered index value.\n",
+			 function,
+			 descriptors_index_value->identifier );
+		}
+#endif
+		return( 0 );
+	}
+	return( 1 );
+
+on_error:
+	if( existing_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &existing_index_value,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Checks if the specific descriptors index contains a specific recovered index value
+ * Returns 1 if exists, 0 if not or -1 on error
+ */
+int libpff_recover_check_descriptors_index_for_recovered_value(
+     libpff_descriptors_index_t *descriptors_index,
+     libpff_index_value_t *descriptors_index_value,
+     libcerror_error_t **error )
+{
+	libcdata_tree_node_t *upper_node              = NULL;
+	libpff_index_value_t *index_value             = NULL;
+	libpff_index_values_list_t *index_values_list = NULL;
+	static char *function                         = "libpff_recover_check_descriptors_index_for_recovered_value";
+	int index_value_iterator                      = 0;
+	int number_of_index_values                    = 0;
+	int result                                    = 0;
+
+	if( descriptors_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index.",
+		 function );
+
+		return( -1 );
+	}
+	if( descriptors_index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index value.",
+		 function );
+
+		return( -1 );
+	}
+	result = libcdata_btree_get_value_by_value(
+		  descriptors_index->recovered_index_values_tree,
+		  (intptr_t *) descriptors_index_value,
+		  (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
+		  &upper_node,
+		  (intptr_t **) &index_values_list,
+		  error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve recovered descriptors index value: %" PRIu64 " list.",
+		 function,
+		 descriptors_index_value->identifier );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( libpff_index_values_list_number_of_values(
+		     index_values_list,
+		     &number_of_index_values,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of recovered descriptors index values for identifier: %" PRIu64 ".",
+			 function,
+			 descriptors_index_value->identifier );
+
+			return( -1 );
+		}
+		result = 0;
+
+		for( index_value_iterator = 0;
+		     index_value_iterator < number_of_index_values;
+		     index_value_iterator++ )
+		{
+			if( libpff_index_values_list_get_value_by_index(
+			     index_values_list,
+			     index_value_iterator,
+			     &index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve recovered descriptors index value: %" PRIu64 " list element: %d.",
+				 function,
+				 descriptors_index_value->identifier,
+				 index_value_iterator );
+
+				return( -1 );
+			}
+			if( index_value == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing recovered descriptors index value: %" PRIu64 " list element: %d.",
+				 function,
+				 descriptors_index_value->identifier,
+				 index_value_iterator );
+
+				return( -1 );
+			}
+/* TODO what about parent changes ? */
+			if( ( descriptors_index_value->data_identifier == index_value->data_identifier )
+			 && ( descriptors_index_value->local_descriptors_identifier == index_value->local_descriptors_identifier ) )
+			{
+				result = 1;
+
+				break;
+			}
+		}
+	}
+	return( result );
+}
+
+/* Recovers descriptors index values
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_recover_descriptors_index_values(
+     libpff_descriptors_index_t *descriptors_index,
+     libpff_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     off64_t node_offset,
+     uint64_t node_back_pointer,
+     int recursion_depth,
+     libcerror_error_t **error )
+{
+	libpff_index_node_t *index_node   = NULL;
+	libpff_index_value_t *index_value = NULL;
+	uint8_t *node_entry_data          = NULL;
+	static char *function             = "libpff_recover_descriptors_index_values";
+	size64_t node_data_size           = 0;
+	off64_t node_data_offset          = 0;
+	uint64_t sub_node_back_pointer    = 0;
+	uint64_t sub_node_offset          = 0;
+	uint16_t entry_index              = 0;
+	int result                        = 0;
+
+	if( descriptors_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index.",
+		 function );
+
+		return( -1 );
+	}
+	if( descriptors_index->index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid descriptors index - missing index.",
+		 function );
+
+		return( -1 );
+	}
 	if( io_handle == NULL )
 	{
 		libcerror_error_set(
@@ -747,564 +1471,1009 @@ int libpff_recover_index_nodes(
 
 		return( -1 );
 	}
-#ifdef TODO
-	if( ( io_handle->file_type != LIBPFF_FILE_TYPE_32BIT )
-	 && ( io_handle->file_type != LIBPFF_FILE_TYPE_64BIT )
-	 && ( io_handle->file_type != LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_ITEM_TREE_RECURSION_DEPTH ) )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported file type.",
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
 		 function );
 
 		return( -1 );
 	}
-	if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+	if( libpff_index_node_initialize(
+	     &index_node,
+	     error ) != 1 )
 	{
-		maximum_data_block_data_size = 8192 - 12;
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create descriptors index node.",
+		 function );
+
+		goto on_error;
 	}
-	else if( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+	if( libpff_index_node_read_file_io_handle(
+	     index_node,
+	     file_io_handle,
+	     node_offset,
+	     io_handle->file_type,
+	     error ) != 1 )
 	{
-		maximum_data_block_data_size = 8192 - 16;
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read descriptors index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 node_offset,
+		 node_offset );
+
+		goto on_error;
+	}
+	if( index_node->level == LIBPFF_INDEX_NODE_LEVEL_LEAF )
+	{
+		for( entry_index = index_node->number_of_entries;
+		     entry_index < index_node->maximum_number_of_entries;
+		     entry_index++ )
+		{
+/* TODO add if( io_handle->abort != 0 ) */
+			if( libpff_index_node_get_entry_data(
+			     index_node,
+			     entry_index,
+			     &node_entry_data,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve deleted node entry: %" PRIu16 " data.",
+				 function,
+				 entry_index );
+
+				goto on_error;
+			}
+			if( node_entry_data == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing deleted node entry: %" PRIu16 " data.",
+				 function,
+				 entry_index );
+
+				goto on_error;
+			}
+			if( libpff_index_value_initialize(
+			     &index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create index value.",
+				 function );
+
+				goto on_error;
+			}
+			if( libpff_index_value_read_data(
+			     index_value,
+			     io_handle,
+			     LIBPFF_INDEX_TYPE_DESCRIPTOR,
+			     node_entry_data,
+			     (size_t) index_node->entry_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read index value.",
+				 function );
+
+				goto on_error;
+			}
+			result = libpff_recover_analyze_descriptors_index_value(
+			          descriptors_index,
+			          io_handle,
+			          file_io_handle,
+			          index_value,
+			          error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GENERIC,
+				 "%s: unable to analyze deleted descriptors index value: %" PRIu16 ".",
+				 function,
+				 entry_index );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				/* Add the recovered descriptors index values to the index tree
+				 */
+#if defined( HAVE_DEBUG_OUTPUT )
+				if( libcnotify_verbose != 0 )
+				{
+					libcnotify_printf(
+					 "%s: decriptor index value: %" PRIu16 " identifier: %" PRIu64 " is recoverable.\n",
+					 function,
+					 entry_index,
+					 index_value->identifier );
+				}
+#endif
+				node_data_offset = node_offset + ( entry_index * index_node->entry_size );
+				node_data_size   = index_node->entry_size;
+
+				if( libpff_descriptors_index_insert_recovered_index_value(
+				     descriptors_index,
+				     index_value,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to insert recovered descriptors index value: %" PRIu64 " list.",
+					 function,
+					 index_value->identifier );
+
+					goto on_error;
+				}
+				index_value = NULL;
+			}
+			else
+			{
+				if( libpff_index_value_free(
+				     &index_value,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free index value.",
+					 function );
+
+					goto on_error;
+				}
+			}
+		}
 	}
 	else
 	{
-/* TODO: this value is currently assumed based on the 512 x 8 = 4k page */
-		maximum_data_block_data_size = 65536 - 24;
-	}
-#endif
-	/* Scan the existing descriptor index nodes for remnant values
-	 */
-	if( libpff_index_tree_get_number_of_deleted_leaf_nodes(
-	     descriptors_index->index_tree,
-	     file_io_handle,
-	     (libfdata_cache_t *) descriptors_index->index_cache,
-	     &number_of_deleted_index_values,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of deleted descriptor index values.",
-		 function );
-
-		return( -1 );
-	}
-	for( deleted_index_value_iterator = 0;
-	     deleted_index_value_iterator < number_of_deleted_index_values;
-	     deleted_index_value_iterator++ )
-	{
-		if( io_handle->abort != 0 )
-		{
-			return( -1 );
-		}
-		if( libpff_index_tree_get_deleted_leaf_node_by_index(
-		     descriptors_index->index_tree,
-		     file_io_handle,
-		     (libfdata_cache_t *) descriptors_index->index_cache,
-		     deleted_index_value_iterator,
-		     &deleted_index_leaf_node,
-		     error ) != 1 )
+		if( node_back_pointer != index_node->back_pointer )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: unable to retrieve deleted descriptor leaf node: %d.",
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: back pointer mismatch (entry: %" PRIu64 ", node: %" PRIu64 ").",
 			 function,
-			 deleted_index_value_iterator );
+			 node_back_pointer,
+			 index_node->back_pointer );
 
-			return( -1 );
+			goto on_error;
 		}
-		if( libfdata_tree_node_get_node_value(
-		     deleted_index_leaf_node,
-		     (intptr_t *) file_io_handle,
-		     (libfdata_cache_t *) descriptors_index->index_cache,
-		     (intptr_t **) &deleted_index_value,
-		     0,
-		     error ) != 1 )
+		for( entry_index = 0;
+		     entry_index < index_node->number_of_entries;
+		     entry_index++ )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: unable to retrieve deleted descriptor index value: %d.",
-			 function,
-			 deleted_index_value_iterator );
-
-			return( -1 );
-		}
-		if( deleted_index_value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing deleted descriptor index value: %d.",
-			 function,
-			 deleted_index_value_iterator );
-
-			return( -1 );
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: analyzing identifier: %" PRIu64 ", data: %" PRIu64 ", local descriptors: %" PRIu64 ", parent: %" PRIu32 "\n",
-			 function,
-			 deleted_index_value->identifier,
-			 deleted_index_value->data_identifier,
-			 deleted_index_value->local_descriptors_identifier,
-			 deleted_index_value->parent_identifier );
-		}
-#endif
-		/* Check if the item value matches the existing item value
-		 */
-		result = libpff_index_tree_get_value_by_identifier(
-			  descriptors_index->index_tree,
-			  file_io_handle,
-			  descriptors_index->index_cache,
-			  deleted_index_value->identifier,
-			  0,
-			  &index_value,
-			  error );
-
-		if( result == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve descriptor index value for identifier: %" PRIu64 ".",
-			 function,
-			 deleted_index_value->identifier );
-
-			return( -1 );
-		}
-		else if( result != 0 )
-		{
-/* TODO what about parent changes ? */
-			if( ( deleted_index_value->data_identifier == index_value->data_identifier )
-			 && ( deleted_index_value->local_descriptors_identifier == index_value->local_descriptors_identifier ) )
-			{
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libcnotify_verbose != 0 )
-				{
-					libcnotify_printf(
-					 "%s: deleted descriptor index value: %" PRIu64 " matches existing item value.\n",
-					 function,
-					 deleted_index_value->identifier );
-				}
-#endif
-				continue;
-			}
-		}
-		/* Check for duplicates
-		 */
-		if( libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-		     descriptors_index->recovered_index_tree,
-		     file_io_handle,
-		     descriptors_index->index_cache,
-		     deleted_index_value->identifier,
-		     &number_of_index_values,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve number of recovered descriptor index values for identifier: %" PRIu64 ".",
-			 function,
-			 deleted_index_value->identifier );
-
-			return( -1 );
-		}
-		result = 0;
-
-		for( index_value_iterator = 0;
-		     index_value_iterator < number_of_index_values;
-		     index_value_iterator++ )
-		{
-			result = libpff_index_tree_get_value_by_identifier(
-				  descriptors_index->recovered_index_tree,
-				  file_io_handle,
-				  descriptors_index->index_cache,
-				  deleted_index_value->identifier,
-				  index_value_iterator,
-				  &index_value,
-				  error );
-
-			if( result == -1 )
+/* TODO add if( io_handle->abort != 0 ) */
+			if( libpff_index_node_get_entry_data(
+			     index_node,
+			     entry_index,
+			     &node_entry_data,
+			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve recovered descriptor index value for identifier: %" PRIu64 ".",
+				 "%s: unable to retrieve node entry: %" PRIu16 " data.",
 				 function,
-				 deleted_index_value->identifier );
+				 entry_index );
 
-				return( -1 );
+				goto on_error;
 			}
-			else if( result != 0 )
+			if( node_entry_data == NULL )
 			{
-/* TODO what about parent changes ? */
-				if( ( deleted_index_value->data_identifier == index_value->data_identifier )
-				 && ( deleted_index_value->local_descriptors_identifier == index_value->local_descriptors_identifier ) )
-				{
-					break;
-				}
-				result = 0;
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing node entry: %" PRIu16 " data.",
+				 function,
+				 entry_index );
+
+				goto on_error;
 			}
-		}
-		if( result != 0 )
-		{
+			if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+			{
+				byte_stream_copy_to_uint32_little_endian(
+				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->file_offset,
+				 sub_node_offset );
+
+				byte_stream_copy_to_uint32_little_endian(
+				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->back_pointer,
+				 sub_node_back_pointer );
+			}
+			else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+			      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+			{
+				byte_stream_copy_to_uint64_little_endian(
+				 ( (pff_index_node_branch_entry_64bit_t *) node_entry_data )->file_offset,
+				 sub_node_offset );
+
+				byte_stream_copy_to_uint64_little_endian(
+				 ( (pff_index_node_branch_entry_64bit_t *) node_entry_data )->back_pointer,
+				 sub_node_back_pointer );
+			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: deleted descriptor index value: %" PRIu64 " matches existing recovered item value.\n",
+				 "%s: node entry: %" PRIu16 " sub node offset\t: %" PRIi64 " (0x%08" PRIx64 ")\n",
 				 function,
-				 deleted_index_value->identifier );
+				 entry_index,
+				 sub_node_offset,
+				 sub_node_offset );
 			}
-#endif
-			continue;
-		}
-		/* Add the recovered descriptor index values to the index tree
-		 */
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: decriptor index value: %d identifier: %" PRIu64 " is recoverable.\n",
-			 function,
-			 deleted_index_value_iterator,
-			 deleted_index_value->identifier );
-		}
-#endif
-		if( libfdata_tree_node_get_data_range(
-		     deleted_index_leaf_node,
-		     &node_data_file_index,
-		     &node_data_offset,
-		     &node_data_size,
-		     &node_data_flags,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve deleted descriptor leaf node: %d range.",
-			 function,
-			 deleted_index_value_iterator );
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-			return( -1 );
-		}
-		if( libpff_index_tree_insert_value(
-		     descriptors_index->recovered_index_tree,
-		     file_io_handle,
-		     descriptors_index->index_cache,
-		     deleted_index_value->identifier,
-		     node_data_offset,
-		     node_data_size,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-			 "%s: unable to insert descriptor index value: %" PRIu64 " to recovered index tree.",
-			 function,
-			 deleted_index_value->identifier );
+			if( libpff_recover_descriptors_index_values(
+			     descriptors_index,
+			     io_handle,
+			     file_io_handle,
+			     sub_node_offset,
+			     sub_node_back_pointer,
+			     recursion_depth + 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to analyze descriptors index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+				 function,
+				 sub_node_offset,
+				 sub_node_offset );
 
-			return( -1 );
+				goto on_error;
+			}
 		}
 	}
-#ifdef TODO
-	/* Scan the existing offset index nodes for remnant values
-	 */
-	if( libpff_index_tree_get_number_of_deleted_leaf_nodes(
-	     offsets_index->index_tree,
-	     file_io_handle,
-	     (libfdata_cache_t *) offsets_index->index_cache,
-	     &number_of_deleted_index_values,
+	if( libpff_index_node_free(
+	     &index_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of deleted offset index values.",
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free index node.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	for( deleted_index_value_iterator = 0;
-	     deleted_index_value_iterator < number_of_deleted_index_values;
-	     deleted_index_value_iterator++ )
-	{
-		if( io_handle->abort != 0 )
-		{
-			return( -1 );
-		}
-		if( libpff_index_tree_get_deleted_leaf_node_by_index(
-		     offsets_index->index_tree,
-		     file_io_handle,
-		     (libfdata_cache_t *) offsets_index->index_cache,
-		     deleted_index_value_iterator,
-		     &deleted_index_leaf_node,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: unable to retrieve deleted offset leaf node: %d.",
-			 function,
-			 deleted_index_value_iterator );
-
-			return( -1 );
-		}
-		if( libfdata_tree_node_get_node_value(
-		     deleted_index_leaf_node,
-		     (intptr_t *) file_io_handle,
-		     (libfdata_cache_t *) offsets_index->index_cache,
-		     (intptr_t **) &deleted_index_value,
-		     0,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: unable to retrieve deleted offset index value: %d.",
-			 function,
-			 deleted_index_value_iterator );
-
-			return( -1 );
-		}
-		if( deleted_index_value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing deleted offset index value: %d.",
-			 function,
-			 deleted_index_value_iterator );
-
-			return( -1 );
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: analyzing identifier: %" PRIu64 " (%s) at offset: %" PRIi64 " of size: %" PRIu32 "\n",
-			 function,
-			 deleted_index_value->identifier,
-			 ( ( deleted_index_value->identifier & LIBPFF_OFFSET_INDEX_IDENTIFIER_FLAG_INTERNAL ) ? "internal" : "external" ),
-			 deleted_index_value->file_offset,
-			 deleted_index_value->data_size );
-		}
-#endif
-		/* Ignore index values without a valid file offset
-		 */
-		if( deleted_index_value->file_offset <= 0 )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: deleted offset index value: %" PRIu64 " has an invalid file offset: %" PRIi64 ".\n",
-				 function,
-				 deleted_index_value->identifier,
-				 deleted_index_value->file_offset );
-			}
-#endif
-			continue;
-		}
-		/* Ignore index values without a valid data size
-		 */
-		if( ( deleted_index_value->data_size == 0 )
-		 || ( (uint32_t) deleted_index_value->data_size > maximum_data_block_data_size ) )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: deleted offset index value: %" PRIu64 " has an invalid data size: %" PRIu32 ".\n",
-				 function,
-				 deleted_index_value->identifier,
-				 deleted_index_value->data_size );
-			}
-#endif
-			continue;
-		}
-		/* Check if the item value matches the existing item value
-		 */
-		result = libpff_index_tree_get_value_by_identifier(
-			  offsets_index->index_tree,
-			  file_io_handle,
-			  offsets_index->index_cache,
-			  deleted_index_value->identifier,
-			  0,
-			  &index_value,
-			  error );
-
-		if( result == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve offset index value for identifier: %" PRIu64 ".",
-			 function,
-			 deleted_index_value->identifier );
-
-			return( -1 );
-		}
-		else if( result != 0 )
-		{
-			if( ( deleted_index_value->file_offset == index_value->file_offset )
-			 && ( deleted_index_value->data_size == index_value->data_size ) )
-			{
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libcnotify_verbose != 0 )
-				{
-					libcnotify_printf(
-					 "%s: deleted offset index value: %" PRIu64 " matches existing item value.\n",
-					 function,
-					 deleted_index_value->identifier );
-				}
-#endif
-				continue;
-			}
-		}
-		/* Check for duplicates
-		 */
-		if( libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-		     offsets_index->recovered_index_tree,
-		     file_io_handle,
-		     offsets_index->index_cache,
-		     deleted_index_value->identifier,
-		     &number_of_index_values,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve number of recovered offset index values for identifier: %" PRIu64 ".",
-			 function,
-			 deleted_index_value->identifier );
-
-			return( -1 );
-		}
-		result = 0;
-
-		for( index_value_iterator = 0;
-		     index_value_iterator < number_of_index_values;
-		     index_value_iterator++ )
-		{
-			result = libpff_index_tree_get_value_by_identifier(
-				  offsets_index->recovered_index_tree,
-				  file_io_handle,
-				  offsets_index->index_cache,
-				  deleted_index_value->identifier,
-				  index_value_iterator,
-				  &index_value,
-				  error );
-
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve recovered offset index value for identifier: %" PRIu64 ".",
-				 function,
-				 deleted_index_value->identifier );
-
-				return( -1 );
-			}
-			else if( result != 0 )
-			{
-				if( ( deleted_index_value->file_offset == index_value->file_offset )
-				 && ( deleted_index_value->data_size == index_value->data_size ) )
-				{
-					break;
-				}
-				result = 0;
-			}
-		}
-		if( result != 0 )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: deleted offset index value: %" PRIu64 " matches existing recovered item value.\n",
-				 function,
-				 deleted_index_value->identifier );
-			}
-#endif
-			continue;
-		}
-		/* Add the recovered offset index values to the index tree
-		 */
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: offset index value: %d identifier: %" PRIu64 " is recoverable.\n",
-			 function,
-			 deleted_index_value_iterator,
-			 deleted_index_value->identifier );
-		}
-#endif
-		if( libfdata_tree_node_get_data_range(
-		     deleted_index_leaf_node,
-		     &node_data_file_index,
-		     &node_data_offset,
-		     &node_data_size,
-		     &node_data_flags,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve deleted offset leaf node: %d range.",
-			 function,
-			 deleted_index_value_iterator );
-
-			return( -1 );
-		}
-		if( libpff_index_tree_insert_value(
-		     offsets_index->recovered_index_tree,
-		     file_io_handle,
-		     offsets_index->index_cache,
-		     deleted_index_value->identifier,
-		     node_data_offset,
-		     node_data_size,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-			 "%s: unable to insert offset index value: %" PRIu64 " to recovered index tree.",
-			 function,
-			 deleted_index_value->identifier );
-
-			return( -1 );
-		}
-	}
-#endif
 	return( 1 );
+
+on_error:
+	if( index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &index_value,
+		 NULL );
+	}
+	if( index_node != NULL )
+	{
+		libpff_index_node_free(
+		 &index_node,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Analyze if a specific offsets index value is recoverable
+ * Returns 1 if recoverable, 0 if not or -1 on error
+ */
+int libpff_recover_analyze_offsets_index_value(
+     libpff_offsets_index_t *offsets_index,
+     libpff_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libpff_index_value_t *offsets_index_value,
+     uint32_t maximum_data_block_data_size,
+     libcerror_error_t **error )
+{
+	libpff_index_value_t *existing_index_value = NULL;
+	static char *function                      = "libpff_recover_analyze_offsets_index_value";
+	int result                                 = 0;
+
+	if( offsets_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index.",
+		 function );
+
+		return( -1 );
+	}
+	if( offsets_index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index value.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: analyzing identifier: %" PRIu64 " (%s) at offset: %" PRIi64 " of size: %" PRIu32 "\n",
+		 function,
+		 offsets_index_value->identifier,
+		 ( ( offsets_index_value->identifier & LIBPFF_OFFSET_INDEX_IDENTIFIER_FLAG_INTERNAL ) ? "internal" : "external" ),
+		 offsets_index_value->file_offset,
+		 offsets_index_value->data_size );
+	}
+#endif
+	/* Ignore index values without a valid file offset
+	 */
+	if( offsets_index_value->file_offset <= 0 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: deleted offsets index value: %" PRIu64 " has an invalid file offset: %" PRIi64 ".\n",
+			 function,
+			 offsets_index_value->identifier,
+			 offsets_index_value->file_offset );
+		}
+#endif
+		return( 0 );
+	}
+	/* Ignore index values without a valid data size
+	 */
+	if( ( offsets_index_value->data_size == 0 )
+	 || ( (uint32_t) offsets_index_value->data_size > maximum_data_block_data_size ) )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: deleted offsets index value: %" PRIu64 " has an invalid data size: %" PRIu32 ".\n",
+			 function,
+			 offsets_index_value->identifier,
+			 offsets_index_value->data_size );
+		}
+#endif
+		return( 0 );
+	}
+	/* Check if the offsets index value matches an existing index value
+	 */
+	result = libpff_index_get_value_by_identifier(
+		  offsets_index->index,
+		  io_handle,
+		  file_io_handle,
+		  offsets_index_value->identifier,
+		  &existing_index_value,
+		  error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve offsets index value for identifier: %" PRIu64 ".",
+		 function,
+		 offsets_index_value->identifier );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		if( existing_index_value == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing offsets index value for identifier: %" PRIu64 ".",
+			 function,
+			 offsets_index_value->identifier );
+
+			goto on_error;
+		}
+		result = 0;
+
+		if( ( offsets_index_value->file_offset == existing_index_value->file_offset )
+		 && ( offsets_index_value->data_size == existing_index_value->data_size ) )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: deleted offsets index value: %" PRIu64 " matches existing item value.\n",
+				 function,
+				 offsets_index_value->identifier );
+			}
+#endif
+			result = 1;
+		}
+		if( libpff_index_value_free(
+		     &existing_index_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index value: %d.",
+			 function,
+			 offsets_index_value->identifier );
+
+			goto on_error;
+		}
+		if( result != 0 )
+		{
+			return( 0 );
+		}
+	}
+	/* Check if the offsets index value matches a previously recovered index value
+	 */
+	result = libpff_recover_check_offsets_index_for_recovered_value(
+		  offsets_index,
+		  offsets_index_value,
+		  error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if deleted offsets index value: %" PRIu64 " was previously recovered.",
+		 function,
+		 offsets_index_value->identifier );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: deleted offsets index value: %" PRIu64 " matches previous recovered index value.\n",
+			 function,
+			 offsets_index_value->identifier );
+		}
+#endif
+		return( 0 );
+	}
+	return( 1 );
+
+on_error:
+	if( existing_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &existing_index_value,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Checks if the specific offsets index contains a specific recovered index value
+ * Returns 1 if exists, 0 if not or -1 on error
+ */
+int libpff_recover_check_offsets_index_for_recovered_value(
+     libpff_offsets_index_t *offsets_index,
+     libpff_index_value_t *offsets_index_value,
+     libcerror_error_t **error )
+{
+	libcdata_tree_node_t *upper_node              = NULL;
+	libpff_index_value_t *index_value             = NULL;
+	libpff_index_values_list_t *index_values_list = NULL;
+	static char *function                         = "libpff_recover_check_offsets_index_for_recovered_value";
+	int index_value_iterator                      = 0;
+	int number_of_index_values                    = 0;
+	int result                                    = 0;
+
+	if( offsets_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index.",
+		 function );
+
+		return( -1 );
+	}
+	if( offsets_index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index value.",
+		 function );
+
+		return( -1 );
+	}
+	result = libcdata_btree_get_value_by_value(
+		  offsets_index->recovered_index_values_tree,
+		  (intptr_t *) offsets_index_value,
+		  (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
+		  &upper_node,
+		  (intptr_t **) &index_values_list,
+		  error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve recovered offsets index value: %" PRIu64 " list.",
+		 function,
+		 offsets_index_value->identifier );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( libpff_index_values_list_number_of_values(
+		     index_values_list,
+		     &number_of_index_values,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of recovered offsets index values for identifier: %" PRIu64 ".",
+			 function,
+			 offsets_index_value->identifier );
+
+			return( -1 );
+		}
+		result = 0;
+
+		for( index_value_iterator = 0;
+		     index_value_iterator < number_of_index_values;
+		     index_value_iterator++ )
+		{
+			if( libpff_index_values_list_get_value_by_index(
+			     index_values_list,
+			     index_value_iterator,
+			     &index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve recovered offsets index value: %" PRIu64 " list element: %d.",
+				 function,
+				 offsets_index_value->identifier,
+				 index_value_iterator );
+
+				return( -1 );
+			}
+			if( index_value == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing recovered offsets index value: %" PRIu64 " list element: %d.",
+				 function,
+				 offsets_index_value->identifier,
+				 index_value_iterator );
+
+				return( -1 );
+			}
+			if( ( offsets_index_value->file_offset == index_value->file_offset )
+			 && ( offsets_index_value->data_size == index_value->data_size ) )
+			{
+				result = 1;
+
+				break;
+			}
+		}
+	}
+	return( result );
+}
+
+/* Scans an offsets index node for recoverable index nodes
+ * Returns 1 if successful or -1 on error
+ */
+int libpff_recover_analyze_offsets_index_node(
+     libpff_offsets_index_t *offsets_index,
+     libpff_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     off64_t node_offset,
+     uint64_t node_back_pointer,
+     uint32_t maximum_data_block_data_size,
+     int recursion_depth,
+     libcerror_error_t **error )
+{
+	libpff_index_node_t *index_node   = NULL;
+	libpff_index_value_t *index_value = NULL;
+	uint8_t *node_entry_data          = NULL;
+	static char *function             = "libpff_recover_analyze_offsets_index_node";
+	size64_t node_data_size           = 0;
+	off64_t node_data_offset          = 0;
+	uint64_t sub_node_back_pointer    = 0;
+	uint64_t sub_node_offset          = 0;
+	uint16_t entry_index              = 0;
+	int result                        = 0;
+
+	if( offsets_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index.",
+		 function );
+
+		return( -1 );
+	}
+	if( offsets_index->index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid offsets index - missing index.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_ITEM_TREE_RECURSION_DEPTH ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_index_node_initialize(
+	     &index_node,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create offsets index node.",
+		 function );
+
+		goto on_error;
+	}
+	if( libpff_index_node_read_file_io_handle(
+	     index_node,
+	     file_io_handle,
+	     node_offset,
+	     io_handle->file_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read offsets index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 node_offset,
+		 node_offset );
+
+		goto on_error;
+	}
+	if( index_node->level == LIBPFF_INDEX_NODE_LEVEL_LEAF )
+	{
+		for( entry_index = index_node->number_of_entries;
+		     entry_index < index_node->maximum_number_of_entries;
+		     entry_index++ )
+		{
+/* TODO add if( io_handle->abort != 0 ) */
+			if( libpff_index_node_get_entry_data(
+			     index_node,
+			     entry_index,
+			     &node_entry_data,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve deleted node entry: %" PRIu16 " data.",
+				 function,
+				 entry_index );
+
+				goto on_error;
+			}
+			if( node_entry_data == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing deleted node entry: %" PRIu16 " data.",
+				 function,
+				 entry_index );
+
+				goto on_error;
+			}
+			if( libpff_index_value_initialize(
+			     &index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create index value.",
+				 function );
+
+				goto on_error;
+			}
+			if( libpff_index_value_read_data(
+			     index_value,
+			     io_handle,
+			     LIBPFF_INDEX_TYPE_OFFSET,
+			     node_entry_data,
+			     (size_t) index_node->entry_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read index value.",
+				 function );
+
+				goto on_error;
+			}
+			result = libpff_recover_analyze_offsets_index_value(
+			          offsets_index,
+			          io_handle,
+			          file_io_handle,
+			          index_value,
+			          maximum_data_block_data_size,
+			          error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GENERIC,
+				 "%s: unable to analyze deleted offsets index value: %" PRIu16 ".",
+				 function,
+				 entry_index );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				/* Add the recovered offsets index values to the index tree
+				 */
+#if defined( HAVE_DEBUG_OUTPUT )
+				if( libcnotify_verbose != 0 )
+				{
+					libcnotify_printf(
+					 "%s: offsets index value: %" PRIu16 " identifier: %" PRIu64 " is recoverable.\n",
+					 function,
+					 entry_index,
+					 index_value->identifier );
+				}
+#endif
+				node_data_offset = node_offset + ( entry_index * index_node->entry_size );
+				node_data_size   = index_node->entry_size;
+
+				if( libpff_offsets_index_insert_recovered_index_value(
+				     offsets_index,
+				     index_value,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to insert recovered offsets index value: %" PRIu64 " list.",
+					 function,
+					 index_value->identifier );
+
+					goto on_error;
+				}
+				index_value = NULL;
+			}
+			else
+			{
+				if( libpff_index_value_free(
+				     &index_value,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free index value.",
+					 function );
+
+					goto on_error;
+				}
+			}
+		}
+	}
+	else
+	{
+		if( node_back_pointer != index_node->back_pointer )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: back pointer mismatch (entry: %" PRIu64 ", node: %" PRIu64 ").",
+			 function,
+			 node_back_pointer,
+			 index_node->back_pointer );
+
+			goto on_error;
+		}
+		for( entry_index = 0;
+		     entry_index < index_node->number_of_entries;
+		     entry_index++ )
+		{
+/* TODO add if( io_handle->abort != 0 ) */
+			if( libpff_index_node_get_entry_data(
+			     index_node,
+			     entry_index,
+			     &node_entry_data,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve node entry: %" PRIu16 " data.",
+				 function,
+				 entry_index );
+
+				goto on_error;
+			}
+			if( node_entry_data == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing node entry: %" PRIu16 " data.",
+				 function,
+				 entry_index );
+
+				goto on_error;
+			}
+			if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+			{
+				byte_stream_copy_to_uint32_little_endian(
+				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->file_offset,
+				 sub_node_offset );
+
+				byte_stream_copy_to_uint32_little_endian(
+				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->back_pointer,
+				 sub_node_back_pointer );
+			}
+			else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+			      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+			{
+				byte_stream_copy_to_uint64_little_endian(
+				 ( (pff_index_node_branch_entry_64bit_t *) node_entry_data )->file_offset,
+				 sub_node_offset );
+
+				byte_stream_copy_to_uint64_little_endian(
+				 ( (pff_index_node_branch_entry_64bit_t *) node_entry_data )->back_pointer,
+				 sub_node_back_pointer );
+			}
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: node entry: %" PRIu16 " sub node offset\t: %" PRIi64 " (0x%08" PRIx64 ")\n",
+				 function,
+				 entry_index,
+				 sub_node_offset,
+				 sub_node_offset );
+			}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+			if( libpff_recover_analyze_offsets_index_node(
+			     offsets_index,
+			     io_handle,
+			     file_io_handle,
+			     sub_node_offset,
+			     sub_node_back_pointer,
+			     maximum_data_block_data_size,
+			     recursion_depth + 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to analyze offsets index node at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+				 function,
+				 sub_node_offset,
+				 sub_node_offset );
+
+				goto on_error;
+			}
+		}
+	}
+	if( libpff_index_node_free(
+	     &index_node,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free index node.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &index_value,
+		 NULL );
+	}
+	if( index_node != NULL )
+	{
+		libpff_index_node_free(
+		 &index_node,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Scans for recoverable data blocks
@@ -1320,7 +2489,6 @@ int libpff_recover_data_blocks(
      uint8_t recovery_flags,
      libcerror_error_t **error )
 {
-	libpff_index_value_t *index_value       = NULL;
 	uint8_t *block_buffer                   = NULL;
 	uint8_t *data_block_footer              = NULL;
 	intptr_t *value                         = NULL;
@@ -1346,8 +2514,6 @@ int libpff_recover_data_blocks(
 	uint16_t format_page_block_size         = 0;
 	uint16_t scan_block_size                = 0;
 	uint8_t supported_recovery_flags        = 0;
-	int index_value_iterator                = 0;
-	int number_of_index_values              = 0;
 	int number_of_unallocated_data_blocks   = 0;
 	int number_of_unallocated_page_blocks   = 0;
 	int result                              = 0;
@@ -1755,74 +2921,27 @@ int libpff_recover_data_blocks(
 
 						if( (size_t) data_block_data_size < read_size )
 						{
-							/* Check for duplicates
-							 */
-							if( libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-							     offsets_index->recovered_index_tree,
-							     file_io_handle,
-							     offsets_index->index_cache,
-							     data_block_back_pointer,
-							     &number_of_index_values,
-							     error ) != 1 )
+							result = libpff_recover_analyze_data_block_back_pointer(
+							          offsets_index,
+							          data_block_back_pointer,
+							          (off64_t) block_buffer_data_offset + data_block_data_offset,
+							          (size32_t) data_block_data_size,
+							          error );
+
+							if( result == -1 )
 							{
 								libcerror_error_set(
 								 error,
 								 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 								 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-								 "%s: unable to retrieve number of recovered offset index values for identifier: %" PRIu64 ".",
+								 "%s: unable to recovere data block: %" PRIu64 ".",
 								 function,
 								 data_block_back_pointer );
 
 								goto on_error;
 							}
-							result = 0;
-
-							for( index_value_iterator = 0;
-							     index_value_iterator < number_of_index_values;
-							     index_value_iterator++ )
+							else if( result != 0 )
 							{
-								result = libpff_index_tree_get_value_by_identifier(
-									  offsets_index->recovered_index_tree,
-									  file_io_handle,
-									  offsets_index->index_cache,
-									  data_block_back_pointer,
-									  index_value_iterator,
-									  &index_value,
-									  error );
-
-								if( result == -1 )
-								{
-									libcerror_error_set(
-									 error,
-									 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-									 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-									 "%s: unable to retrieve recovered offset index value for identifier: %" PRIu64 ".",
-									 function,
-									 data_block_back_pointer );
-
-									goto on_error;
-								}
-								else if( result != 0 )
-								{
-									if( ( (off64_t) ( block_buffer_data_offset + data_block_data_offset ) == index_value->file_offset )
-									 && ( (size32_t) data_block_data_size == index_value->data_size ) )
-									{
-										break;
-									}
-									result = 0;
-								}
-							}
-							if( result != 0 )
-							{
-#if defined( HAVE_DEBUG_OUTPUT )
-								if( libcnotify_verbose != 0 )
-								{
-									libcnotify_printf(
-									 "%s: recovered data block with identifier: %" PRIu64 " matches existing recovered item value.\n",
-									 function,
-									 data_block_back_pointer );
-								}
-#endif
 								block_offset += format_data_block_size;
 								block_size   -= format_data_block_size;
 
@@ -1832,7 +2951,7 @@ int libpff_recover_data_blocks(
 							}
 							if( data_block_stored_checksum != 0 )
 							{
-								if( libfmapi_checksum_calculate_weak_crc32(
+								if( libpff_checksum_calculate_weak_crc32(
 								     &data_block_calculated_checksum,
 								     &( block_buffer[ data_block_data_offset ] ),
 								     data_block_data_size,
@@ -1933,21 +3052,18 @@ int libpff_recover_index_values(
      uint8_t recovery_flags,
      libcerror_error_t **error )
 {
-	libpff_index_value_t *index_value                 = NULL;
-	libpff_index_node_t *index_node                   = NULL;
-	uint8_t *node_entry_data                          = NULL;
-	const char *index_string                          = NULL;
-	static char *function                             = "libpff_recover_index_values";
-	off64_t index_value_file_offset                   = 0;
-	uint64_t index_value_data_identifier              = 0;
-	uint64_t index_value_identifier                   = 0;
-	uint64_t index_value_local_descriptors_identifier = 0;
-        uint32_t maximum_data_block_data_size             = 0;
-	uint16_t index_value_data_size                    = 0;
-	uint8_t entry_index                               = 0;
-	int index_value_iterator                          = 0;
-	int number_of_index_values                        = 0;
-	int result                                        = 0;
+	libpff_index_node_t *index_node       = NULL;
+	libpff_index_value_t *index_value     = NULL;
+	uint8_t *node_entry_data              = NULL;
+	static char *function                 = "libpff_recover_index_values";
+	const char *index_string              = NULL;
+	off64_t index_value_file_offset       = 0;
+	uint64_t index_value_identifier       = 0;
+        uint32_t maximum_data_block_data_size = 0;
+	uint16_t index_value_data_size        = 0;
+	uint8_t entry_index                   = 0;
+	int recoverable                       = 0;
+	int result                            = 0;
 
 	if( io_handle == NULL )
 	{
@@ -1969,6 +3085,28 @@ int libpff_recover_index_values(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported file type.",
+		 function );
+
+		return( -1 );
+	}
+	if( descriptors_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid descriptors index.",
+		 function );
+
+		return( -1 );
+	}
+	if( offsets_index == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index.",
 		 function );
 
 		return( -1 );
@@ -2026,11 +3164,11 @@ int libpff_recover_index_values(
 	}
 	if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
 	{
-		index_string = "descriptor";
+		index_string = "descriptors";
 	}
 	else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
 	{
-		index_string = "offset";
+		index_string = "offsets";
 	}
 	if( ( index_node->type != LIBPFF_INDEX_TYPE_DESCRIPTOR )
 	 && ( index_node->type != LIBPFF_INDEX_TYPE_OFFSET ) )
@@ -2094,102 +3232,71 @@ int libpff_recover_index_values(
 
 				goto on_error;
 			}
-			if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
-			{
-				byte_stream_copy_to_uint32_little_endian(
-				 node_entry_data,
-				 index_value_identifier );
-			}
-			else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-			      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
-			{
-				byte_stream_copy_to_uint64_little_endian(
-				 node_entry_data,
-				 index_value_identifier );
-			}
-			/* Ignore the upper 32-bit of descriptor identifiers
-			 */
-			if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
-			{
-				index_value_identifier &= 0xffffffffUL;
-			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: analyzing %s index entry: %" PRIu8 " identifier: %" PRIu64 ".\n",
+				 "%s: analyzing %s index entry: %" PRIu8 ".\n",
 				 function,
 				 index_string,
-				 entry_index,
-				 index_value_identifier );
+				 entry_index );
 			}
 #endif
+			if( libpff_index_value_initialize(
+			     &index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create %s index value.",
+				 function,
+				 index_string );
+
+				goto on_error;
+			}
+			if( libpff_index_value_read_data(
+			     index_value,
+			     io_handle,
+			     index_node->type,
+			     node_entry_data,
+			     (size_t) index_node->entry_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read %s index value.",
+				 function,
+				 index_string );
+
+				goto on_error;
+			}
+			recoverable = 1;
+
 			/* Ignore index values without an identifier
 			 */
-			if( index_value_identifier == 0 )
+			if( index_value->identifier == 0 )
 			{
 #if defined( HAVE_DEBUG_OUTPUT )
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: %s index entry: %" PRIu8 " indentifier: %" PRIu64 " has an empty identifier.\n",
+					 "%s: %s index entry: %" PRIu8 " has an empty identifier.\n",
 					 function,
 					 index_string,
-					 entry_index,
-					 index_value_identifier );
+					 entry_index );
 				}
 #endif
-				continue;
+				recoverable = 0;
 			}
-			if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
+			else if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
 			{
-				if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
-				{
-					byte_stream_copy_to_uint32_little_endian(
-					 ( (pff_index_node_descriptor_entry_32bit_t *) node_entry_data )->data_identifier,
-					 index_value_data_identifier );
-					byte_stream_copy_to_uint32_little_endian(
-					 ( (pff_index_node_descriptor_entry_32bit_t *) node_entry_data )->local_descriptors_identifier,
-					 index_value_local_descriptors_identifier );
-				}
-				else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-				      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
-				{
-					byte_stream_copy_to_uint64_little_endian(
-					 ( (pff_index_node_descriptor_entry_64bit_t *) node_entry_data )->data_identifier,
-					 index_value_data_identifier );
-					byte_stream_copy_to_uint64_little_endian(
-					 ( (pff_index_node_descriptor_entry_64bit_t *) node_entry_data )->local_descriptors_identifier,
-					 index_value_local_descriptors_identifier );
-				}
-			}
-			else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
-			{
-				if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
-				{
-					byte_stream_copy_to_uint32_little_endian(
-					 ( (pff_index_node_offset_entry_32bit_t *) node_entry_data )->file_offset,
-					 index_value_file_offset );
-					byte_stream_copy_to_uint16_little_endian(
-					 ( (pff_index_node_offset_entry_32bit_t *) node_entry_data )->data_size,
-					 index_value_data_size );
-				}
-				else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
-				      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
-				{
-					byte_stream_copy_to_uint64_little_endian(
-					 ( (pff_index_node_offset_entry_64bit_t *) node_entry_data )->file_offset,
-					 index_value_file_offset );
-					byte_stream_copy_to_uint16_little_endian(
-					 ( (pff_index_node_offset_entry_64bit_t *) node_entry_data )->data_size,
-					 index_value_data_size );
-				}
-			}
-			if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
-			{
-				/* Ignore descriptor index values without a data identifier
+				/* Ignore descriptors index values without a data identifier
 				 */
-				if( index_value_data_identifier == 0 )
+				if( index_value->data_identifier == 0 )
 				{
 #if defined( HAVE_DEBUG_OUTPUT )
 					if( libcnotify_verbose != 0 )
@@ -2199,36 +3306,37 @@ int libpff_recover_index_values(
 						 function,
 						 index_string,
 						 entry_index,
-						 index_value_identifier );
+						 index_value->identifier );
 					}
 #endif
-					continue;
+					recoverable = 0;
 				}
 			}
 			else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
 			{
 				/* Ignore index values without a valid file offset
 				 */
-				if( index_value_file_offset <= 0 )
+				if( index_value->file_offset <= 0 )
 				{
 #if defined( HAVE_DEBUG_OUTPUT )
 					if( libcnotify_verbose != 0 )
 					{
 						libcnotify_printf(
-						 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " has an invalid file offset: %" PRIi64 ".\n",
+						 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " has an invalid file offset: %" PRIi64 " (0x%" PRIx64 ").\n",
 						 function,
 						 index_string,
 						 entry_index,
-						 index_value_identifier,
-						 index_value_file_offset );
+						 index_value->identifier,
+						 index_value->file_offset,
+						 index_value->file_offset );
 					}
 #endif
-					continue;
+					recoverable = 0;
 				}
 				/* Ignore index values without a valid data size
 				 */
-				if( ( index_value_data_size == 0 )
-				 || ( (uint32_t) index_value_data_size > maximum_data_block_data_size ) )
+				else if( ( index_value->data_size == 0 )
+				      || ( (uint32_t) index_value->data_size > maximum_data_block_data_size ) )
 				{
 #if defined( HAVE_DEBUG_OUTPUT )
 					if( libcnotify_verbose != 0 )
@@ -2238,149 +3346,32 @@ int libpff_recover_index_values(
 						 function,
 						 index_string,
 						 entry_index,
-						 index_value_identifier,
-						 index_value_data_size );
+						 index_value->identifier,
+						 index_value->data_size );
 					}
 #endif
-					continue;
+					recoverable = 0;
 				}
 			}
-			/* Check if the recovered item value matches the existing item value
-			 */
-			if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
-			{
-				result = libpff_index_tree_get_value_by_identifier(
-					  descriptors_index->index_tree,
-					  file_io_handle,
-					  descriptors_index->index_cache,
-					  index_value_identifier,
-					  0,
-					  &index_value,
-					  error );
-			}
-			else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
-			{
-				result = libpff_index_tree_get_value_by_identifier(
-					  offsets_index->index_tree,
-					  file_io_handle,
-					  offsets_index->index_cache,
-					  index_value_identifier,
-					  0,
-					  &index_value,
-					  error );
-			}
-			if( result == -1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve %s index value for identifier: %" PRIu64 ".",
-				 function,
-				 index_string,
-				 index_value_identifier );
-
-				goto on_error;
-			}
-			else if( result != 0 )
+			if( recoverable != 0 )
 			{
 				if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
 				{
-/* TODO what about parent changes ? */
-					if( ( index_value_data_identifier == index_value->data_identifier )
-					 && ( index_value_local_descriptors_identifier == index_value->local_descriptors_identifier ) )
-					{
-#if defined( HAVE_DEBUG_OUTPUT )
-						if( libcnotify_verbose != 0 )
-						{
-							libcnotify_printf(
-							 "%s: recovered descriptor index value: %" PRIu64 " matches existing item value.\n",
-							 function,
-							 index_value_identifier );
-						}
-#endif
-						continue;
-					}
-				}
-				else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
-				{
-					if( ( index_value_file_offset == index_value->file_offset )
-					 && ( (size32_t) index_value_data_size == index_value->data_size ) )
-					{
-#if defined( HAVE_DEBUG_OUTPUT )
-						if( libcnotify_verbose != 0 )
-						{
-							libcnotify_printf(
-							 "%s: recovered offset index value: %" PRIu64 " matches existing item value.\n",
-							 function,
-							 index_value_identifier );
-						}
-#endif
-						continue;
-					}
-				}
-			}
-			/* Check for duplicates
-			 */
-			if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
-			{
-				result = libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-					  descriptors_index->recovered_index_tree,
-					  file_io_handle,
-					  descriptors_index->index_cache,
-					  index_value_identifier,
-					  &number_of_index_values,
-					  error );
-			}
-			else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
-			{
-				result = libpff_index_tree_get_number_of_leaf_nodes_by_identifier(
-					  offsets_index->recovered_index_tree,
-					  file_io_handle,
-					  offsets_index->index_cache,
-					  index_value_identifier,
-					  &number_of_index_values,
-					  error );
-			}
-			if( result != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve number of recovered %s index values for identifier: %" PRIu64 ".",
-				 function,
-				 index_string,
-				 index_value_identifier );
-
-				goto on_error;
-			}
-			result = 0;
-
-			for( index_value_iterator = 0;
-			     index_value_iterator < number_of_index_values;
-			     index_value_iterator++ )
-			{
-				if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
-				{
-					result = libpff_index_tree_get_value_by_identifier(
-						  descriptors_index->recovered_index_tree,
+					result = libpff_recover_analyze_descriptors_index_value(
+						  descriptors_index,
+						  io_handle,
 						  file_io_handle,
-						  descriptors_index->index_cache,
-						  index_value_identifier,
-						  index_value_iterator,
-						  &index_value,
+						  index_value,
 						  error );
 				}
 				else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
 				{
-					result = libpff_index_tree_get_value_by_identifier(
-						  offsets_index->recovered_index_tree,
+					result = libpff_recover_analyze_offsets_index_value(
+						  offsets_index,
+						  io_handle,
 						  file_io_handle,
-						  offsets_index->index_cache,
-						  index_value_identifier,
-						  index_value_iterator,
-						  &index_value,
+						  index_value,
+						  maximum_data_block_data_size,
 						  error );
 				}
 				if( result == -1 )
@@ -2388,80 +3379,64 @@ int libpff_recover_index_values(
 					libcerror_error_set(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve recovered %s index value for identifier: %" PRIu64 ".",
+					 LIBCERROR_RUNTIME_ERROR_GENERIC,
+					 "%s: unable to analyze deleted %d index value: %" PRIu64 ".",
 					 function,
 					 index_string,
-					 index_value_identifier );
+					 index_value->identifier );
 
 					goto on_error;
 				}
-				else if( result != 0 )
-				{
-					if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
-					{
-/* TODO what about parent changes ? */
-						if( ( index_value_data_identifier == index_value->data_identifier )
-						 && ( index_value_local_descriptors_identifier == index_value->local_descriptors_identifier ) )
-						{
-							break;
-						}
-					}
-					else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
-					{
-						if( ( index_value_file_offset == index_value->file_offset )
-						 && ( (size32_t) index_value_data_size == index_value->data_size ) )
-						{
-							break;
-						}
-					}
-					result = 0;
-				}
+				recoverable = result;
 			}
-			if( result != 0 )
+			if( recoverable != 0 )
 			{
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libcnotify_verbose != 0 )
+				/* Check if the offsets index value is unallocated according to the
+				 * unallocated data block list
+				 */
+				if( ( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
+				 && ( ( recovery_flags & LIBPFF_RECOVERY_FLAG_IGNORE_ALLOCATION_DATA ) == 0 ) )
 				{
-					libcnotify_printf(
-					 "%s: recovered %s index value: %" PRIu64 " matches existing item value.\n",
-					 function,
-					 index_string,
-					 index_value_identifier );
-				}
+					result = libcdata_range_list_range_is_present(
+						  unallocated_data_block_list,
+						  (uint64_t) index_value_file_offset,
+						  (uint64_t) index_value_data_size,
+						  error );
+
+					if( result == -1 )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+						 "%s: error determining if offset range is unallocated.",
+						 function );
+
+						goto on_error;
+					}
+					else if( result == 0 )
+					{
+#if defined( HAVE_DEBUG_OUTPUT )
+						if( libcnotify_verbose != 0 )
+						{
+							libcnotify_printf(
+							 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " refers to allocated range: 0x%08" PRIx64 " - 0x%08" PRIx64 " (%" PRIu64 ").\n",
+							 function,
+							 index_string,
+							 entry_index,
+							 index_value_identifier,
+							 index_value_file_offset,
+							 index_value_file_offset + index_value_data_size,
+							 index_value_data_size );
+						}
 #endif
-				continue;
-			}
-			/* Check if the offset index value is unallocated according to the
-			 * unallocated data block list
-			 */
-			if( ( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
-			 && ( ( recovery_flags & LIBPFF_RECOVERY_FLAG_IGNORE_ALLOCATION_DATA ) == 0 ) )
-			{
-				result = libcdata_range_list_range_is_present(
-					  unallocated_data_block_list,
-					  (uint64_t) index_value_file_offset,
-					  (uint64_t) index_value_data_size,
-					  error );
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: error determining if offset range is unallocated.",
-					 function );
-
-					goto on_error;
-				}
-				else if( result == 0 )
-				{
+						recoverable = 0;
+					}
 #if defined( HAVE_DEBUG_OUTPUT )
-					if( libcnotify_verbose != 0 )
+					else if( libcnotify_verbose != 0 )
 					{
 						libcnotify_printf(
-						 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " refers to allocated range: 0x%08" PRIx64 " - 0x%08" PRIx64 " (%" PRIu64 ").\n",
+						 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " refers to unallocated range: 0x%08" PRIx64 " - 0x%08" PRIx64 " (%" PRIu64 ").\n",
 						 function,
 						 index_string,
 						 entry_index,
@@ -2471,70 +3446,67 @@ int libpff_recover_index_values(
 						 index_value_data_size );
 					}
 #endif
-					continue;
 				}
+			}
+			if( recoverable != 0 )
+			{
+				/* Move the recovered node to the index
+				 */
 #if defined( HAVE_DEBUG_OUTPUT )
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " refers to unallocated range: 0x%08" PRIx64 " - 0x%08" PRIx64 " (%" PRIu64 ").\n",
+					 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " is recoverable.\n",
 					 function,
 					 index_string,
 					 entry_index,
-					 index_value_identifier,
-					 index_value_file_offset,
-					 index_value_file_offset + index_value_data_size,
-					 index_value_data_size );
+					 index_value_identifier );
 				}
 #endif
-			}
-			/* Move the recovered node to the index
-			 */
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " is recoverable.\n",
-				 function,
-				 index_string,
-				 entry_index,
-				 index_value_identifier );
-			}
-#endif
-			if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
-			{
-				result = libpff_index_tree_insert_value(
-					  descriptors_index->recovered_index_tree,
-					  file_io_handle,
-					  descriptors_index->index_cache,
-					  index_value_identifier,
-					  node_offset,
-				          (size64_t) entry_index,
-					  error );
-			}
-			else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
-			{
-				result = libpff_index_tree_insert_value(
-					  offsets_index->recovered_index_tree,
-					  file_io_handle,
-					  offsets_index->index_cache,
-					  index_value_identifier,
-					  node_offset,
-				          (size64_t) entry_index,
-					  error );
-			}
-			if( result != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to insert %s index value: %" PRIu64 " to recovered index tree.",
-				 function,
-				 index_string,
-				 index_value_identifier );
+				if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
+				{
+					result = libpff_descriptors_index_insert_recovered_index_value(
+					          descriptors_index,
+					          index_value,
+					          error );
+				}
+				else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
+				{
+					result = libpff_offsets_index_insert_recovered_index_value(
+					          offsets_index,
+					          index_value,
+					          error );
+				}
+				if( result != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to insert recovered %s index value: %" PRIu64 " list.",
+					 function,
+					 index_string,
+					 index_value_identifier );
 
-				goto on_error;
+					goto on_error;
+				}
+				index_value = NULL;
+			}
+			else
+			{
+				if( libpff_index_value_free(
+				     &index_value,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free index value.",
+					 function );
+
+					goto on_error;
+				}
 			}
 			node_offset += index_node->entry_size;
 		}
@@ -2562,6 +3534,12 @@ int libpff_recover_index_values(
 	return( 1 );
 
 on_error:
+	if( index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &index_value,
+		 NULL );
+	}
 	if( index_node != NULL )
 	{
 		libpff_index_node_free(
@@ -2571,22 +3549,132 @@ on_error:
 	return( -1 );
 }
 
-/* Scans for recoverable local descriptors
- * Returns 1 if successful, returns 0 if no valid local descriptors node could be found or -1 on error
+/* Analyze if specific data block is recoverable
+ * Returns 1 if recoverable, 0 if not or -1 on error
  */
-int libpff_recover_local_descriptors(
+int libpff_recover_analyze_data_block(
+     libpff_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     uint32_t descriptor_identifier,
+     libpff_index_value_t *offsets_index_value,
+     libcerror_error_t **error )
+{
+	libpff_data_block_t *data_block = NULL;
+	static char *function           = "libpff_recover_analyze_data_block";
+	int result                      = 0;
+
+	if( offsets_index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid offsets index value.",
+		 function );
+
+		return( -1 );
+	}
+	/* Check if the data block is readable
+	 */
+	if( libpff_data_block_initialize(
+	     &data_block,
+	     io_handle,
+	     descriptor_identifier,
+	     offsets_index_value->identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create data block.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: attempting to read data block at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 offsets_index_value->file_offset,
+		 offsets_index_value->file_offset );
+	}
+#endif
+	result = libpff_data_block_read_file_io_handle(
+		  data_block,
+		  file_io_handle,
+		  offsets_index_value->file_offset,
+		  offsets_index_value->data_size,
+		  io_handle->file_type,
+		  error );
+
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read data block.",
+		 function );
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( ( libcnotify_verbose != 0 )
+		 && ( error != NULL )
+		 && ( *error != NULL ) )
+		{
+			libcnotify_print_error_backtrace(
+			 *error );
+		}
+#endif
+		libcerror_error_free(
+		 error );
+
+/* TODO delete unreadable offset identifier in offsets_index->recovered_index_tree */
+	}
+	if( libpff_data_block_free(
+	     &data_block,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free recovered data block.",
+		 function );
+
+		goto on_error;
+	}
+/* TODO validate the block data ? */
+
+	return( 1 );
+
+on_error:
+	if( data_block != NULL )
+	{
+		libpff_data_block_free(
+		 &data_block,
+		 NULL );
+	}
+	return( -1 );
+}
+
+/* Analyze if specific local descriptors are recoverable
+ * Returns 1 if recoverable, 0 if not or -1 on error
+ */
+int libpff_recover_analyze_local_descriptors(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
      uint64_t local_descriptors_identifier,
      libcerror_error_t **error )
 {
-	libpff_index_value_t *offset_index_value                     = NULL;
-	libpff_local_descriptor_node_t *local_descriptor_node        = NULL;
+	libpff_index_value_t *offsets_index_value                    = NULL;
+	libpff_local_descriptors_node_t *local_descriptors_node      = NULL;
 	uint8_t *node_entry_data                                     = NULL;
-	static char *function                                        = "libpff_recover_local_descriptors";
-	uint64_t local_descriptor_value_identifier                   = 0;
+	static char *function                                        = "libpff_recover_analyze_local_descriptors";
 	uint64_t local_descriptor_value_data_identifier              = 0;
+	uint64_t local_descriptor_value_identifier                   = 0;
 	uint64_t local_descriptor_value_local_descriptors_identifier = 0;
 	uint64_t local_descriptor_value_sub_node_identifier          = 0;
 	uint16_t entry_index                                         = 0;
@@ -2605,11 +3693,12 @@ int libpff_recover_local_descriptors(
 	}
 	if( libpff_offsets_index_get_index_value_by_identifier(
 	     offsets_index,
+	     io_handle,
 	     file_io_handle,
 	     local_descriptors_identifier,
 	     1,
 	     0,
-	     &offset_index_value,
+	     &offsets_index_value,
 	     error ) != 1 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -2626,13 +3715,13 @@ int libpff_recover_local_descriptors(
 
 		return( 0 );
 	}
-	if( offset_index_value == NULL )
+	if( offsets_index_value == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing offset index value.",
+		 "%s: missing offsets index value.",
 		 function );
 
 		return( -1 );
@@ -2641,35 +3730,35 @@ int libpff_recover_local_descriptors(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: local descriptor node identifier: %" PRIu64 " (%s) at offset: %" PRIi64 " of size: %" PRIu32 "\n",
+		 "%s: local descriptors node identifier: %" PRIu64 " (%s) at offset: %" PRIi64 " of size: %" PRIu32 "\n",
 		 function,
-		 offset_index_value->identifier,
-		 ( ( offset_index_value->identifier & LIBPFF_OFFSET_INDEX_IDENTIFIER_FLAG_INTERNAL ) ? "internal" : "external" ),
-		 offset_index_value->file_offset,
-		 offset_index_value->data_size );
+		 offsets_index_value->identifier,
+		 ( ( offsets_index_value->identifier & LIBPFF_OFFSET_INDEX_IDENTIFIER_FLAG_INTERNAL ) ? "internal" : "external" ),
+		 offsets_index_value->file_offset,
+		 offsets_index_value->data_size );
 	}
 #endif
-	if( libpff_local_descriptor_node_initialize(
-	     &local_descriptor_node,
+	if( libpff_local_descriptors_node_initialize(
+	     &local_descriptors_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create local descriptor node.",
+		 "%s: unable to create local descriptors node.",
 		 function );
 
 		return( -1 );
 	}
-	if( libpff_local_descriptor_node_read(
-	     local_descriptor_node,
+	if( libpff_local_descriptors_node_read_file_io_handle(
+	     local_descriptors_node,
 	     io_handle,
 	     file_io_handle,
 	     0 /* TODO descriptor identifier */,
-	     offset_index_value->identifier,
-	     offset_index_value->file_offset,
-	     offset_index_value->data_size,
+	     offsets_index_value->identifier,
+	     offsets_index_value->file_offset,
+	     offsets_index_value->data_size,
 	     error ) != 1 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -2684,18 +3773,18 @@ int libpff_recover_local_descriptors(
 		libcerror_error_free(
 		 error );
 
-		libpff_local_descriptor_node_free(
-		 &local_descriptor_node,
+		libpff_local_descriptors_node_free(
+		 &local_descriptors_node,
 		 NULL );
 
 		return( 0 );
 	}
 	for( entry_index = 0;
-	     entry_index < local_descriptor_node->number_of_entries;
+	     entry_index < local_descriptors_node->number_of_entries;
 	     entry_index++ )
 	{
-		if( libpff_local_descriptor_node_get_entry_data(
-		     local_descriptor_node,
+		if( libpff_local_descriptors_node_get_entry_data(
+		     local_descriptors_node,
 		     entry_index,
 		     &node_entry_data,
 		     error ) != 1 )
@@ -2761,7 +3850,7 @@ int libpff_recover_local_descriptors(
 
 			break;
 		}
-		if( local_descriptor_node->level == LIBPFF_LOCAL_DESCRIPTOR_NODE_LEVEL_LEAF )
+		if( local_descriptors_node->level == LIBPFF_LOCAL_DESCRIPTOR_NODE_LEVEL_LEAF )
 		{
 			if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
 			{
@@ -2848,7 +3937,7 @@ int libpff_recover_local_descriptors(
 
 				break;
 			}
-			result = libpff_recover_local_descriptors(
+			result = libpff_recover_analyze_local_descriptors(
 				  io_handle,
 				  file_io_handle,
 				  offsets_index,
@@ -2861,12 +3950,12 @@ int libpff_recover_local_descriptors(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_IO,
 				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read local descriptors with identifier: %" PRIu64 ".",
+				 "%s: unable to recover local descriptors: %" PRIu64 ".",
 				 function,
 				 local_descriptor_value_sub_node_identifier );
 
-				libpff_local_descriptor_node_free(
-				 &local_descriptor_node,
+				libpff_local_descriptors_node_free(
+				 &local_descriptors_node,
 				 NULL );
 
 				return( -1 );
@@ -2877,15 +3966,15 @@ int libpff_recover_local_descriptors(
 			}
 		}
 	}
-	if( libpff_local_descriptor_node_free(
-	     &local_descriptor_node,
+	if( libpff_local_descriptors_node_free(
+	     &local_descriptors_node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free local descriptor node.",
+		 "%s: unable to free local descriptors node.",
 		 function );
 
 		return( -1 );

@@ -1,7 +1,7 @@
 /*
  * Descriptors index functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,12 +25,12 @@
 #include <common.h>
 #include <types.h>
 
-#include "libpff_index_tree.h"
+#include "libpff_index.h"
+#include "libpff_index_value.h"
 #include "libpff_io_handle.h"
 #include "libpff_libbfio.h"
+#include "libpff_libcdata.h"
 #include "libpff_libcerror.h"
-#include "libpff_libfcache.h"
-#include "libpff_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -40,55 +40,37 @@ typedef struct libpff_descriptors_index libpff_descriptors_index_t;
 
 struct libpff_descriptors_index
 {
-	/* The IO handle
+	/* The index
 	 */
-	libpff_io_handle_t *io_handle;
+	libpff_index_t *index;
 
-	/* The index nodes vector
+	/* The recovered index values B-tree
 	 */
-	libfdata_vector_t *index_nodes_vector;
-
-	/* The index nodes cache
-	 */
-	libfcache_cache_t *index_nodes_cache;
-
-	/* The index tree
-	 */
-	libpff_index_tree_t *index_tree;
-
-	/* The recovered index tree
-	 */
-	libpff_index_tree_t *recovered_index_tree;
-
-	/* The index cache
-	 */
-	libfcache_cache_t *index_cache;
+	libcdata_btree_t *recovered_index_values_tree;
 };
 
 int libpff_descriptors_index_initialize(
      libpff_descriptors_index_t **descriptors_index,
-     libpff_io_handle_t *io_handle,
-     libfdata_vector_t *index_nodes_vector,
-     libfcache_cache_t *index_nodes_cache,
+     off64_t root_node_offset,
+     uint64_t root_node_back_pointer,
      libcerror_error_t **error );
 
 int libpff_descriptors_index_free(
      libpff_descriptors_index_t **descriptors_index,
      libcerror_error_t **error );
 
-int libpff_descriptors_index_set_root_node(
-     libpff_descriptors_index_t *descriptors_index,
-     off64_t root_node_offset,
-     uint64_t root_node_back_pointer,
-     uint8_t recovered,
-     libcerror_error_t **error );
-
 int libpff_descriptors_index_get_index_value_by_identifier(
      libpff_descriptors_index_t *descriptors_index,
+     libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint32_t descriptor_identifier,
      uint8_t recovered,
      libpff_index_value_t **index_value,
+     libcerror_error_t **error );
+
+int libpff_descriptors_index_insert_recovered_index_value(
+     libpff_descriptors_index_t *descriptors_index,
+     libpff_index_value_t *index_value,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

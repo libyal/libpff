@@ -1,7 +1,7 @@
 /*
  * Data block functions
  *
- * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2024, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libpff_checksum.h"
 #include "libpff_compression.h"
 #include "libpff_definitions.h"
 #include "libpff_data_block.h"
@@ -32,7 +33,8 @@
 #include "libpff_libbfio.h"
 #include "libpff_libcerror.h"
 #include "libpff_libcnotify.h"
-#include "libpff_libfmapi.h"
+#include "libpff_libfcache.h"
+#include "libpff_libfdata.h"
 #include "libpff_unused.h"
 
 #include "pff_block.h"
@@ -532,7 +534,6 @@ int libpff_data_block_read_file_io_handle(
 	uint8_t *uncompressed_data            = NULL;
 	static char *function                 = "libpff_data_block_read_file_io_handle";
 	size_t data_block_footer_offset       = 0;
-	size_t data_block_padding_size        = 0;
 	size_t uncompressed_data_size         = 0;
 	ssize_t read_count                    = 0;
 	uint64_t data_block_back_pointer      = 0;
@@ -543,6 +544,7 @@ int libpff_data_block_read_file_io_handle(
 	uint32_t maximum_data_block_size      = 0;
 
 #if defined( HAVE_VERBOSE_OUTPUT )
+	size_t data_block_padding_size        = 0;
 	uint32_t maximum_data_block_data_size = 0;
 #endif
 
@@ -689,11 +691,12 @@ int libpff_data_block_read_file_io_handle(
 			goto on_error;
 		}
 		data_block_footer_offset = data_block->data_size - data_block_footer_size;
-		data_block_padding_size  = data_block_footer_offset - data_size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
+			data_block_padding_size = data_block_footer_offset - data_size;
+
 			libcnotify_printf(
 			 "%s: data block padding size\t\t: %" PRIzd "\n",
 			 function,
@@ -769,7 +772,7 @@ int libpff_data_block_read_file_io_handle(
 			}
 			if( data_block->stored_checksum != 0 )
 			{
-				if( libfmapi_checksum_calculate_weak_crc32(
+				if( libpff_checksum_calculate_weak_crc32(
 				     &calculated_checksum,
 				     data_block->data,
 				     (size_t) data_size,
