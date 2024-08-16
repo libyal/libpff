@@ -445,19 +445,7 @@ int libpff_name_to_id_map_read(
 
 		goto on_error;
 	}
-	if( name_to_id_map_class_identifiers_data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing name to id map class identifiers data.",
-		 function );
-
-		goto on_error;
-	}
-	if( ( name_to_id_map_class_identifiers_data_size == 0 )
-	 || ( name_to_id_map_class_identifiers_data_size > (size64_t) SSIZE_MAX ) )
+	if( (name_to_id_map_class_identifiers_data_size > (size64_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -660,7 +648,7 @@ int libpff_name_to_id_map_entry_read(
 
 		return( -1 );
 	}
-	if( ( name_to_id_map_class_identifiers_data_size < 16 )
+	if( ( name_to_id_map_class_identifiers_data_size < 0 )
 	 || ( name_to_id_map_class_identifiers_data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
