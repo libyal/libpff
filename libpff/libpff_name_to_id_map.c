@@ -365,41 +365,34 @@ int libpff_name_to_id_map_read(
 
 		goto on_error;
 	}
-	if( name_to_id_map_entries_data == NULL )
+	if( name_to_id_map_entries_data == NULL || name_to_id_map_entries_data_size == 0)
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing name to id map entries data.",
-		 function );
+	    number_of_name_to_id_map_entries = 0;
+	} else {
+        if(( name_to_id_map_entries_data_size > (size_t) SSIZE_MAX ) )
+        {
+            libcerror_error_set(
+             error,
+             LIBCERROR_ERROR_DOMAIN_RUNTIME,
+             LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+             "%s: invalid name to id map entries data size value out of bounds.",
+             function );
 
-		goto on_error;
-	}
-	if( ( name_to_id_map_entries_data_size == 0 )
-	 || ( name_to_id_map_entries_data_size > (size_t) SSIZE_MAX ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid name to id map entries data size value out of bounds.",
-		 function );
+            goto on_error;
+        }
+        if( ( name_to_id_map_entries_data_size % 8 ) != 0 )
+        {
+            libcerror_error_set(
+             error,
+             LIBCERROR_ERROR_DOMAIN_RUNTIME,
+             LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+             "%s: unsupported name to id map entries size.",
+             function );
 
-		goto on_error;
-	}
-	if( ( name_to_id_map_entries_data_size % 8 ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported name to id map entries size.",
-		 function );
-
-		goto on_error;
-	}
-	number_of_name_to_id_map_entries = (uint32_t) ( name_to_id_map_entries_data_size / 8 );
+            goto on_error;
+        }
+        number_of_name_to_id_map_entries = (uint32_t) ( name_to_id_map_entries_data_size / 8 );
+    }
 
 	if( libpff_table_get_record_entry_by_type(
 	     item_values->table,
@@ -452,19 +445,7 @@ int libpff_name_to_id_map_read(
 
 		goto on_error;
 	}
-	if( name_to_id_map_class_identifiers_data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing name to id map class identifiers data.",
-		 function );
-
-		goto on_error;
-	}
-	if( ( name_to_id_map_class_identifiers_data_size == 0 )
-	 || ( name_to_id_map_class_identifiers_data_size > (size64_t) SSIZE_MAX ) )
+	if( (name_to_id_map_class_identifiers_data_size > (size64_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -667,7 +648,7 @@ int libpff_name_to_id_map_entry_read(
 
 		return( -1 );
 	}
-	if( ( name_to_id_map_class_identifiers_data_size < 16 )
+	if( ( name_to_id_map_class_identifiers_data_size < 0 )
 	 || ( name_to_id_map_class_identifiers_data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
