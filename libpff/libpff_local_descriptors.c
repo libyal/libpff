@@ -371,6 +371,8 @@ int libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
 	{
 		return( 0 );
 	}
+	// Reset the result flag.
+	result = 0;
 	if( offsets_index_value == NULL )
 	{
 		libcerror_error_set(
