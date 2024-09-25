@@ -20,8 +20,6 @@ class record_set:
 
     def __name__(self) -> str: ...
 
-    def __doc__(self) -> str: ...
-
     def get_number_of_entries(self) -> int:
         """
         Retrieves the number of entries.

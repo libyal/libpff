@@ -40,8 +40,6 @@ class record_entry:
 
     def __name__(self) -> str: ...
 
-    def __doc__(self) -> str: ...
-
     def get_entry_type(self) -> int:
         """
         Retrieves the entry type.

@@ -3,6 +3,7 @@ Type stubs for pypff_file, defined in [1]
 
 [1] https://github.com/Everlaw/libpff/blob/master/pypff/pypff_file.c
 """
+from typing import Any
 from typing import IO
 from .folder import folder
 from .item import item
@@ -46,8 +47,6 @@ class file:
 
     def __name__(self) -> str: ...
 
-    def __doc__(self) -> str: ...
-
     def signal_abort(self) -> None:
         """
         Signals the file to abort the current activity.
@@ -58,7 +57,7 @@ class file:
         Opens a file.
         """
 
-    def open_file_object(self, file_object: IO, mode: str = "r") -> None:
+    def open_file_object(self, file_object: IO[Any], mode: str = "r") -> None:
         """
         Opens a file using a file-like object.
         """

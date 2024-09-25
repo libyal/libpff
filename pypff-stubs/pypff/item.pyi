@@ -41,8 +41,6 @@ class item:
 
     def __name__(self) -> str: ...
 
-    def __doc__(self) -> str: ...
-
     def get_identifier(self) -> int:
         """
         Retrieves the identifier.

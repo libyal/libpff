@@ -14,8 +14,6 @@ class attachment(item):
     ### Methods
     def __name__(self) -> str: ...
 
-    def __doc__(self) -> str: ...
-
     def get_size(self) -> int:
         """
         Retrieves the attachment data size.
