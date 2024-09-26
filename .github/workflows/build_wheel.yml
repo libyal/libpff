@@ -32,6 +32,7 @@ jobs:
       run: |
         python -m pip install \
           'build' \
+          'mypy' \
           'setuptools>=65' \
           'wheel'
     - name: Build libpff-python wheel
@@ -39,3 +40,9 @@ jobs:
         python -m build --no-isolation --outdir=dist --wheel
         python -m pip install --no-index --find-links=dist libpff-python
         python tests/runtests.py
+    - name: Build pypff-stubs wheel
+      working-directory: stubs
+      run: |
+        python -m build --outdir=dist --wheel
+        python -m pip install --no-index --find-links=dist pypff-stubs
+        mypy --strict -c 'import pypff; reveal_type(pypff.file)'
