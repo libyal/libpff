@@ -35,3 +35,7 @@ jobs:
         python3 -m build --outdir=dist --wheel
         python3 -m pip install --no-index --find-links=dist pypff-stubs
         mypy --strict -c 'import pypff; reveal_type(pypff.file)'
+    - name: Upload wheels
+      run: |
+        ./upload-wheel.sh dist/libpff_python*.whl
+        ./upload-wheel.sh stubs/dist/pypff_stubs*.whl
