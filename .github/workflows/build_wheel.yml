@@ -5,7 +5,7 @@ jobs:
   build_wheel:
     runs-on: [self-hosted, libpff]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29
     - name: Download test data
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
