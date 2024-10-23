@@ -1,5 +1,5 @@
 name: build_wheel
-on: [push, pull_request]
+on: [push]
 permissions: read-all
 jobs:
   build_wheel:
