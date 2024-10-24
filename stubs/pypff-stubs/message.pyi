@@ -45,8 +45,6 @@ class message(item):
     ### Methods
     def __name__(self) -> str: ...
 
-    def __doc__(self) -> str: ...
-
     def get_subject(self) -> str:
         """
         Retrieves the subject.
