@@ -66,7 +66,7 @@ class item:
         Retrieves the number of sub items.
         """
 
-    def get_receipients(self) -> item:
+    def get_recipients(self) -> item:
         """
         Loads Recipients.
 
