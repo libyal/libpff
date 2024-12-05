@@ -66,7 +66,7 @@ class item:
         Retrieves the number of sub items.
         """
 
-    def get_receipients(self) -> item:
+    def get_recipients(self) -> item:
         """
         Loads Recipients.
 
@@ -89,3 +89,7 @@ class item:
         """
         Retrieves a specific attachment
         """
+
+    def get_embedded_attachment(self, attachment_index: int) -> attachment: ...
+    def get_size(self) -> int: ...
+    def read_buffer(self, n: int) -> bytes: ...

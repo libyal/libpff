@@ -6,5 +6,5 @@ build-backend = "setuptools.build_meta"
 name = "pypff-stubs"
 # The major version should match the version in `configure.ac`'s `AC_INIT`
 # with the minor version incremented as needed for new changes.
-version = "20240608.0"
+version = "20240608.1"
 requires-python = ">=3.9"
