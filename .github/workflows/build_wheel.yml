@@ -12,14 +12,22 @@ jobs:
     - name: Prepare build
       run: |
         ./synclibs.sh --use-head && ./autogen.sh && ./configure && make sources >/dev/null
+    - name: Install Python
+      run: |
+        uv python install 3.12.6
     - name: Create virtual environment
       run: |
         rm -rf venv
-        python3 -m venv venv
+        uv venv --python 3.12.6 venv
         echo "$(pwd)/venv/bin" >> $GITHUB_PATH
+    - name: Check stuff?
+      run: |
+        python3 --version
+        python3 -c 'import sys; print(sys.executable)'
+        uv --version
     - name: Install Python dependencies
       run: |
-        python3 -m pip install \
+        uv pip install \
           'build' \
           'mypy' \
           'setuptools>=65' \
