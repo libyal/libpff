@@ -30,6 +30,10 @@ if ! test -x "${BINDIR}/aclocal";
 then
 	# Default location of 64-bit MSYS2-MinGW installed binaries.
 	BINDIR="/mingw64/bin";
+fiif ! test -x "${BINDIR}/aclocal";
+then
+	# Default location of Homebrew installed binaries.
+	BINDIR="/opt/homebrew/bin";
 fi
 
 if ! test -x "${BINDIR}/aclocal";
