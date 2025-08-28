@@ -18,7 +18,7 @@ import sys
 import tarfile
 import zipfile
 
-from distutils.ccompiler import new_compiler
+from setuptools.ccompiler import new_compiler
 
 from setuptools import Extension
 from setuptools import setup
