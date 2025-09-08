@@ -11,6 +11,10 @@ While installing LIBPFF on GNU/Linux is straihgfoward, installing it on Windows 
 ## USAGE
 ### Terminal
 Three tool are available from terminal: pffinfo, pffexport, pffrecovery
+```
+>> pffexport -f -all -t my_pstfile.pst my_folder
+```
+
 
 ### Python
 ```
