@@ -22,7 +22,7 @@ These format are used by Microsoft Outlook to store email, contacts and other da
 
 ## Also see:
 - [PFF forensics - analyzing the horrible reference file format](https://github.com/libyal/documentation/blob/master/PFF%20Forensics%20-%20analyzing%20the%20horrible%20reference%20file%20format.pdf)
-- [PFF forensics - e-mail and appointment falsification analysis](https://github.com/libyal/documentation/blob/master/PFF%20forensics%20-%20e-mail%20and%20appoinment%20falsification%20analysis.pdf]
+- [PFF forensics - e-mail and appointment falsification analysis](https://github.com/libyal/documentation/blob/master/PFF%20forensics%20-%20e-mail%20and%20appoinment%20falsification%20analysis.pdf)
 - [MAPI definitions](https://github.com/libyal/libfmapi/blob/master/documentation/MAPI%20definitions.pdf)
 
 ## Planned:
