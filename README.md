@@ -1,14 +1,15 @@
 # LIBPFF
 libpff is a library to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format.
-These format are used by Microsoft Outlook to store email, contacts and other data.
+This library provides a foundational way to programmatically read and analyze the contents of PST files, which are used by Microsoft Outlook to store emails, calendar events, contacts, and other data.
+
 
 ## Project information:
 - Status: alpha
 - Licence: LGPLv3+
 
 ### PFF/OFF is used in several file types:
-- PAB (Personal Address Book)
 - PST (Personal Storage Table)
+- PAB (Personal Address Book)
 - OST (Offline Storage Table)
 
 ### Supported formats:
