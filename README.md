@@ -1,6 +1,5 @@
 # LIBPFF
 libpff is a library to access the Personal Folder File (PFF) and the Offline Folder File (OFF) format.
-
 These format are used by Microsoft Outlook to store email, contacts and other data.
 
 ## Project information:
