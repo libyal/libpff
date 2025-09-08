@@ -7,14 +7,24 @@ Supported formats are 32-bit ANSI (string), 64-bit Unicode (string), 64-bit with
 ## INSTALLING
 While installing LIBPFF on GNU/Linux is straihgfoward, installing it on Windows requires a little bit effort. The suggested method here is to bypass windows using the [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) functionality, that is the best and quite confortable solution for windows user.
 
-### ON GNU/LINUX
-EEE
 
-## ON WINDOWS
-Install wsl and follow the # GNU/LINUX install instructions
-
-# USAGE
+## USAGE
+### Terminal
 Three tool are available from terminal: pffinfo, pffexport, pffrecovery
+
+### Python
+```
+import pypff as pf
+
+mailbox = pypff.file()
+mailbox.open("mailbox.pst", mode = "r")
+root = mailbox.root_folder
+
+for folder in root.sub_folders:
+    print(folder.name)
+```
+
+
 
 
 ## Project information:
