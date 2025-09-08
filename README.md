@@ -14,14 +14,18 @@ Supported formats are:
 ## INSTALLING
 While installing LIBPFF on GNU/Linux is straihgfoward, installing it on Windows requires a little bit effort. The suggested method here is to bypass windows using the [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) functionality, that is the best and quite confortable solution for windows user.
 
-## Windows (wsl)
+### Windows (wsl)
+Install the wsl if you haven't:
+```
+wsl.exe --install Ubuntu
+```
+Than install tools:
 ```
 wsl sudo apt-get update
 wsl sudo apt-get install pff-tools
 ```
 
-
-## GNU/Linux (Ubuntu)
+### GNU/Linux (Ubuntu)
 ```
 sudo apt-get update
 sudo apt-get install pff-tools
