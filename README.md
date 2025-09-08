@@ -3,40 +3,40 @@ libpff is a library to access the Personal Folder File (PFF) and the Offline Fol
 
 These format are used by Microsoft Outlook to store email, contacts and other data.
 
-Project information:
+## Project information:
 
 - Status: alpha
 - Licence: LGPLv3+
 
-PFF/OFF is used in several file types:
+### PFF/OFF is used in several file types:
 
 * PAB (Personal Address Book)
 * PST (Personal Storage Table)
 * OST (Offline Storage Table)
 
-Supported formats:
+### Supported formats:
 
 * 32-bit ANSI (string)
 * 64-bit Unicode (string)
 * 64-bit with 4k pages with DEFLATE compression (Compressed OST files) (as of version 20130722)
 
-Additional features:
+### Additional features:
 
 * item recovery
 * handles corrupted encrypted PFF with encryption type none
 
-Also see:
+## Also see:
 
-* PFF forensics - analyzing the horrible reference file format: https://github.com/libyal/documentation/blob/master/PFF%20Forensics%20-%20analyzing%20the%20horrible%20reference%20file%20format.pdf
+* [PFF forensics - analyzing the horrible reference file format](https://github.com/libyal/documentation/blob/master/PFF%20Forensics%20-%20analyzing%20the%20horrible%20reference%20file%20format.pdf)
 * PFF forensics - e-mail and appointment falsification analysis: https://github.com/libyal/documentation/blob/master/PFF%20forensics%20-%20e-mail%20and%20appoinment%20falsification%20analysis.pdf
 * MAPI definitions: https://github.com/libyal/libfmapi/blob/master/documentation/MAPI%20definitions.pdf
 
-Planned:
+## Planned:
 
 * Multi-threading support
 * The Java (JNI) bindings are not operational and are there as long-term work in progress.
 
-For more information see:
+## For more information see:
 
 * Project documentation: https://github.com/libyal/libpff/wiki/Home
 * How to build from source: https://github.com/libyal/libpff/wiki/Building
