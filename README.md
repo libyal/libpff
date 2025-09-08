@@ -12,6 +12,21 @@ This library provides a foundational way to programmatically read and analyze th
 - 64-bit Unicode (string)
 - 64-bit with 4k pages with DEFLATE compression (Compressed OST files) (as of version 20130722)
 
+## INSTALLING
+While installing LIBPFF on GNU/Linux is straihgfoward, installing it on Windows requires a little bit effort. The suggested method here is to bypass windows using the [WSL]() functionality, that is the best and quite confortable solution for windows user.
+
+### ON GNU/LINUX
+EEE
+
+## ON WINDOWS
+Install wsl and follow the # GNU/LINUX install instructions
+
+# TERMINAL USAGE
+'''
+pffinfo
+'''
+
+
 
 ## Project information:
 - Status: alpha
