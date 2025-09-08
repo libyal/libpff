@@ -39,11 +39,10 @@ for folder in root.sub_folders:
 - Status: alpha
 - Licence: LGPLv3+
 
-### Additional features:
+## Additional features:
 - item recovery
 - handles corrupted encrypted PFF with encryption type none
 
-## Also see:
 ## For more information see:
 
 - [Project documentation](https://github.com/libyal/libpff/wiki/Home)
