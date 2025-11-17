@@ -18,7 +18,11 @@ import sys
 import tarfile
 import zipfile
 
-from distutils.ccompiler import new_compiler
+if (sys.version_info[0], sys.version_info[1]) < (3, 12):
+  from distutils.ccompiler import new_compiler
+else:
+  # Python 3.12+ removed distutils, use setuptools fallback
+  from setuptools._distutils.ccompiler import new_compiler
 
 from setuptools import Extension
 from setuptools import setup
