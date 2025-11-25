@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20230909
+# Version: 20251028
 
 from __future__ import print_function
 
@@ -111,7 +111,7 @@ class custom_sdist(sdist):
     source_package_file = glob.glob("*.tar.gz")[0]
     source_package_prefix, _, source_package_suffix = (
         source_package_file.partition("-"))
-    sdist_package_file = "{0:s}-python-{1:s}".format(
+    sdist_package_file = "{0:s}_python-{1:s}".format(
         source_package_prefix, source_package_suffix)
     sdist_package_file = os.path.join(self.dist_dir, sdist_package_file)
     os.rename(source_package_file, sdist_package_file)
