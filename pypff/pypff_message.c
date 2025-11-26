@@ -56,6 +56,13 @@ PyMethodDef pypff_message_object_methods[] = {
 	  "\n"
 	  "Retrieves the conversation topic." },
 
+	{ "get_conversation_index",
+	  (PyCFunction) pypff_message_get_conversation_index,
+	  METH_NOARGS,
+	  "get_conversation_index() -> the raw MAPI/PR_CONVERSATION_INDEX bytes or None\n"
+	  "/n"
+	  "Retrives the conversation index." },
+
 	{ "get_sender_name",
 	  (PyCFunction) pypff_message_get_sender_name,
 	  METH_NOARGS,
@@ -180,8 +187,12 @@ PyGetSetDef pypff_message_object_get_set_definitions[] = {
 	  (setter) 0,
 	  "The conversation topic.",
 	  NULL },
-
-/* TODO conversation index */
+	
+	{ "conversation_index",
+	  (getter) pypff_message_get_conversation_index,
+	  (setter) 0,
+	  "The conversation index.",
+	  NULL },
 
 	{ "sender_name",
 	  (getter) pypff_message_get_sender_name,
@@ -589,6 +600,121 @@ on_error:
 	{
 		PyMem_Free(
 		 value_string );
+	}
+	return( NULL );
+}
+
+/* Retrieves the conversation index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_conversation_index(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error  = NULL;
+	PyObject *bytes_object    = NULL;
+	uint8_t *value_data       = NULL;
+	static char *function     = "pypff_message_get_conversation_index";
+	size_t value_data_size    = 0;
+	int result                = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_conversation_index_size(
+	          pypff_item->item,
+	          &value_data_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve conversation index size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_data_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_data = (uint8_t *) PyMem_Malloc(
+			      sizeof( uint8_t ) * value_data_size );
+
+	if( value_data == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create conversation index.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_conversation_index(
+		  pypff_item->item,
+		  value_data,
+		  value_data_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve conversation index.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Return raw binary data (all bytes)
+	 */
+#if PY_MAJOR_VERSION >= 3
+	bytes_object = PyBytes_FromStringAndSize(
+			(char *) value_data,
+			(Py_ssize_t) value_data_size );
+#else
+	bytes_object = PyString_FromStringAndSize(
+			(char *) value_data,
+			(Py_ssize_t) value_data_size );
+#endif
+	PyMem_Free(
+	 value_data );
+
+	return( bytes_object );
+
+on_error:
+	if( value_data != NULL )
+	{
+		PyMem_Free(
+		 value_data );
 	}
 	return( NULL );
 }
