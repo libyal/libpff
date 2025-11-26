@@ -205,12 +205,6 @@ environment:
     HOMEBREW_NO_INSTALL_CLEANUP: 1
     PYTHON_VERSION: 3.14
     TOXENV: py314
-  - TARGET: linux-tox-py310
-    BUILD_ENVIRONMENT: python-tox
-    APPVEYOR_BUILD_WORKER_IMAGE: ubuntu2204
-    PYTHON_VERSION: 3.10
-    TOXENV: py310
-    AUDITWHEEL_PLAT: manylinux_2_35_x86_64
   - TARGET: cygwin64-gcc
     BUILD_ENVIRONMENT: cygwin64
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
@@ -267,7 +261,6 @@ install:
 - cmd: if [%BUILD_ENVIRONMENT%]==[python-tox] (
     "%PYTHON%" -m pip install -U tox twine )
 - sh: if test `uname -s` = "Darwin" && test ${BUILD_ENVIRONMENT} = "python-tox"; then brew install -q python@${PYTHON_VERSION} tox twine-pypi || true; fi
-- sh: if test `uname -s` = "Linux" && test ${BUILD_ENVIRONMENT} = "python-tox"; then sudo rm -f /etc/apt/sources.list.d/*llvm* /etc/apt/sources.list.d/*mongodb* /etc/apt/sources.list.d/*postgresql* /etc/apt/sources.list.d/*virtualbox* /etc/apt/sources.list.d/*yarnpkg* && sudo apt-get upgrade -y && sudo apt-get update -y --allow-releaseinfo-change && sudo apt-get -y install autoconf automake autopoint build-essential flex git libtool patchelf pkg-config python3 python3-dev python3-distutils python3-pip python3-setuptools tox && python3 -m pip install -U twine; fi
 - ps: If ($env:BUILD_ENVIRONMENT -eq "cygwin64") {
     (New-Object Net.WebClient).DownloadFile("https://cygwin.com/setup-x86_64.exe", "C:\\cygwin64\\setup-x86_64.exe") }
 - cmd: if [%BUILD_ENVIRONMENT%]==[cygwin64] (
@@ -293,7 +286,6 @@ build_script:
 - cmd: if [%BUILD_ENVIRONMENT%]==[python-tox] (
     "%PYTHON%" -m tox -e%TOXENV% )
 - sh: if test `uname -s` = "Darwin" && test ${BUILD_ENVIRONMENT} = "python-tox"; then export PATH="/usr/local/opt/gettext/bin:$PATH"; export SED="/usr/local/bin/gsed"; ./synclibs.sh && ./autogen.sh && ./configure --disable-nls --disable-shared-libs && make sources >/dev/null && tox -e${TOXENV}; fi
-- sh: if test `uname -s` = "Linux" && test ${BUILD_ENVIRONMENT} = "python-tox"; then ./synclibs.sh && ./autogen.sh && ./configure --disable-nls --disable-shared-libs && make sources >/dev/null && tox -e${TOXENV} && tox -eauditwheel -- --plat ${AUDITWHEEL_PLAT} dist/*.whl && rm -f dist/*.whl && mv wheelhouse/*.whl dist/; fi
 - cmd: if [%BUILD_ENVIRONMENT%]==[cygwin64] (
     xcopy /i /q /s C:\projects\libpff C:\cygwin64\home\appveyor\libpff &&
     C:\cygwin64\bin\bash -e -l -c "cd libpff && wget -q 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD' -O './config.guess' && wget -q 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD' -O './config.sub'" &&
@@ -328,5 +320,4 @@ deploy_script:
 - ps: If ($env:APPVEYOR_REPO_TAG -eq "true" -and $isWindows -and $env:BUILD_ENVIRONMENT -eq "python-tox") {
     Invoke-Expression "${env:PYTHON} -m twine upload dist/*.whl --username __token__ --password ${env:PYPI_TOKEN} --skip-existing" }
 - sh: if test ${APPVEYOR_REPO_TAG} = "true" && test `uname -s` = "Darwin" && test ${BUILD_ENVIRONMENT} = "python-tox"; then twine upload dist/*.whl --username __token__ --password ${PYPI_TOKEN} --skip-existing; fi
-- sh: if test ${APPVEYOR_REPO_TAG} = "true" && test `uname -s` = "Linux" && test ${BUILD_ENVIRONMENT} = "python-tox"; then python3 -m twine upload dist/*.whl --username __token__ --password ${PYPI_TOKEN} --skip-existing; fi
 

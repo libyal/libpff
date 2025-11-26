@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20251028
-
-from __future__ import print_function
+# Version: 20251125
 
 import copy
 import datetime
@@ -18,10 +16,9 @@ import sys
 import tarfile
 import zipfile
 
-from distutils.ccompiler import new_compiler
-
 from setuptools import Extension
 from setuptools import setup
+from setuptools._distutils.ccompiler import new_compiler
 from setuptools.command.build_ext import build_ext
 from setuptools.command.sdist import sdist
 
@@ -161,7 +158,7 @@ class custom_sdist(sdist):
       os.remove(sdist_package_file)
       sdist_package_file = zip_sdist_package_file
 
-    # Inform distutils what files were created.
+    # Inform setuptools what files were created.
     dist_files = getattr(self.distribution, "dist_files", [])
     dist_files.append(("sdist", "", sdist_package_file))
 
