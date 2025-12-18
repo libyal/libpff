@@ -1,8 +1,10 @@
 #!/bin/sh
 # Script that synchronizes the local test data
 #
-# Version: 20161009
+# Version: 20251217
 
+REPOSITORY="libyal/testdata";
+TEST_DATA_PATH="pst";
 TEST_SET="public";
 TEST_INPUT_DIRECTORY="tests/input";
 TEST_FILES="outlook.pst";
@@ -11,7 +13,7 @@ mkdir -p "${TEST_INPUT_DIRECTORY}/${TEST_SET}";
 
 for TEST_FILE in ${TEST_FILES};
 do
-	URL="https://github.com/libyal/testdata/blob/main/pst/${TEST_FILE}?raw=true";
+	URL="https://raw.githubusercontent.com/${REPOSITORY}/refs/heads/main/${TEST_DATA_PATH}/${TEST_FILE}";
 
 	curl -L -o "${TEST_INPUT_DIRECTORY}/${TEST_SET}/${TEST_FILE}" ${URL};
 done
