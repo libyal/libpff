@@ -6,6 +6,7 @@
   ],
   "timezone": "America/Los_Angeles",
   "includePaths": [".github/**"],
+  "minimumReleaseAge": "7 days",
   "packageRules": [
     // Pin GitHub Actions to immutable SHAs.
     {
