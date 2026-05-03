@@ -52,8 +52,11 @@ enum EXPORT_FORMATS
 	EXPORT_FORMAT_FTK			= (int) 'f',
 	EXPORT_FORMAT_HTML			= (int) 'h',
 	EXPORT_FORMAT_RTF			= (int) 'r',
-	EXPORT_FORMAT_TEXT			= (int) 't'
+	EXPORT_FORMAT_TEXT			= (int) 't',
+	EXPORT_FORMAT_MAILDIR			= (int) 'm'
 };
+
+typedef struct seen_message_ids_table seen_message_ids_table_t;
 
 typedef struct export_handle export_handle_t;
 
@@ -143,6 +146,22 @@ struct export_handle
 	/* Value to indicate if abort was signalled
 	 */
 	int abort;
+
+	/* Monotonic counter for Maildir message filename uniqueness
+	 */
+	uint32_t maildir_sequence;
+
+	/* Hash table of seen Message-IDs for cross-file deduplication
+	 */
+	seen_message_ids_table_t *seen_ids;
+
+	/* Path to the .seen_message_ids persistence file (narrow string)
+	 */
+	char *dedup_path;
+
+	/* Size of the dedup_path string including the end of string character
+	 */
+	size_t dedup_path_size;
 };
 
 int export_handle_initialize(
@@ -598,6 +617,19 @@ int export_handle_export_document(
      libcerror_error_t **error );
 
 int export_handle_export_email(
+     export_handle_t *export_handle,
+     libpff_item_t *email,
+     int email_index,
+     const system_character_t *export_path,
+     size_t export_path_length,
+     log_handle_t *log_handle,
+     libcerror_error_t **error );
+
+int export_handle_initialize_maildir(
+     export_handle_t *export_handle,
+     libcerror_error_t **error );
+
+int export_handle_export_email_maildir(
      export_handle_t *export_handle,
      libpff_item_t *email,
      int email_index,

@@ -129,6 +129,17 @@ int pffinput_determine_export_format(
 			result         = 1;
 		}
 	}
+	else if( string_length == 7 )
+	{
+		if( system_string_compare(
+		     string,
+		     _SYSTEM_STRING( "maildir" ),
+		     7 ) == 0 )
+		{
+			*export_format = EXPORT_FORMAT_MAILDIR;
+			result         = 1;
+		}
+	}
 	return( result );
 }
 
