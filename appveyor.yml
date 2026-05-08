@@ -215,7 +215,3 @@ after_test:
     C:\msys64\usr\bin\bash -e -l -c "cd libpff && for DIRECTORY in `find . -maxdepth 1 -type d`; do (cd ${DIRECTORY} && find . -maxdepth 1 -name \*.gcno -type f -exec gcov -pb {} \;) done" &&
     C:\projects\codecov.exe -R \msys64\home\appveyor\libpff --name %TARGET% )
 
-artifacts:
-
-deploy_script:
-

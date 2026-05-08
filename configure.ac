@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
   [libpff],
-  [20251218],
+  [20260508],
   [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -21,7 +21,6 @@ LT_INIT([win32-dll])
 
 dnl Checks for programs
 AC_PROG_CC
-AC_PROG_GCC_TRADITIONAL
 AC_PROG_CXX
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
