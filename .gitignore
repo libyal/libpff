@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20231119
+# Version: 20251129
 
 # Generic auto-generated build files
 *~
@@ -127,7 +127,7 @@ stamp-h[1-9]
 /libpff.spec
 /libpff/libpff.rc
 /libpff/libpff_definitions.h
-/setup.cfg
+/pyproject.toml
 /jpff/classnoinst.stamp
 /pfftools/*.exe
 /pfftools/pffexport

@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
   [libpff],
-  [20260508],
+  [20260512],
   [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -217,7 +217,7 @@ AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([libpff/libpff.rc])
 AC_CONFIG_FILES([libpff.pc])
 AC_CONFIG_FILES([libpff.spec])
-AC_CONFIG_FILES([setup.cfg])
+AC_CONFIG_FILES([pyproject.toml])
 dnl Generate a source configuration file
 AC_CONFIG_HEADERS([common/config.h])
 

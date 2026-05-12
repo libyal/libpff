@@ -6,11 +6,11 @@ on:
 permissions: read-all
 jobs:
   build_ossfuzz:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-        - architecture: 'x64'
+        - os: ubuntu-24.04
           compiler: 'gcc'
           configure_options: ''
     steps:
