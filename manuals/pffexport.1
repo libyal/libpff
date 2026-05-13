@@ -34,7 +34,14 @@ specify the codepage of ASCII strings, options: ascii, windows-874, windows-932,
 .It Fl d
 dumps the item values in a separate file: ItemValues.txt
 .It Fl f Ar format
-specify the preferred output format, options: all, html, rtf, text (default)
+specify the preferred output format, options: all, html, maildir, rtf, text (default).
+.Ar maildir
+writes each email as an RFC 2822 message into a Maildir tree (cur/, new/, tmp/ per folder).
+A djb2 hash table of seen Message-ID values is persisted to .seen_message_ids in the export root,
+enabling cross-run deduplication when exporting multiple archives into the same tree.
+Internal folder names are filtered by a rule table: synthetic containers are skipped,
+transparent wrappers pass through without creating a directory level,
+and select names are renamed (e.g. Root - Public becomes Public Folders).
 .It Fl h
 shows this help
 .It Fl l Ar logfile
