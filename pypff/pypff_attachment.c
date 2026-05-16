@@ -46,6 +46,13 @@ PyMethodDef pypff_attachment_object_methods[] = {
 	  "\n"
 	  "Retrieves the attachment data size." },
 
+	{ "get_name",
+	  (PyCFunction) pypff_attachment_get_name,
+	  METH_NOARGS,
+	  "get_name() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the name." },
+
 	{ "read_buffer",
 	  (PyCFunction) pypff_attachment_read_buffer,
 	  METH_VARARGS | METH_KEYWORDS,
@@ -70,6 +77,12 @@ PyGetSetDef pypff_attachment_object_get_set_definitions[] = {
 	  (getter) pypff_attachment_get_size,
 	  (setter) 0,
 	  "The data size.",
+	  NULL },
+
+	{ "name",
+	  (getter) pypff_attachment_get_name,
+	  (setter) 0,
+	  "The name.",
 	  NULL },
 
 	/* Sentinel */
@@ -400,3 +413,115 @@ PyObject *pypff_attachment_seek_offset(
 	return( Py_None );
 }
 
+/* Retrieves the name
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_attachment_get_name(
+	pypff_item_t *pypff_item,
+	PyObject *arguments PYPFF_ATTRIBUTE_UNUSED)
+{
+	PyObject *string_object = NULL;
+	libcerror_error_t *error = NULL;
+	uint8_t *utf8_string = NULL;
+	const char *errors = NULL;
+	static char *function = "pypff_attachment_get_name";
+	size_t utf8_string_size = 0;
+	int result = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER(arguments)
+
+	if (pypff_item == NULL)
+	{
+		PyErr_Format(
+			PyExc_TypeError,
+			"%s: invalid item.",
+			function);
+
+		return (NULL);
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_attachment_get_utf8_name_size(
+			pypff_item->item,
+			&utf8_string_size,
+			&error);
+
+	Py_END_ALLOW_THREADS
+
+		if (result == -1)
+	{
+		pypff_error_raise(
+			error,
+			PyExc_IOError,
+			"%s: unable to retrieve size of UTF-8 name.",
+			function);
+
+		libcerror_error_free(
+			&error);
+
+		goto on_error;
+	}
+	else if ((result == 0) || (utf8_string_size == 0))
+	{
+		Py_IncRef(
+			Py_None);
+
+		return (Py_None);
+	}
+	utf8_string = (uint8_t *)PyMem_Malloc(
+		sizeof(uint8_t) * utf8_string_size);
+
+	if (utf8_string == NULL)
+	{
+		PyErr_Format(
+			PyExc_IOError,
+			"%s: unable to create name.",
+			function);
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_attachment_get_utf8_name(
+			pypff_item->item,
+			utf8_string,
+			utf8_string_size,
+			&error);
+
+	Py_END_ALLOW_THREADS
+
+		if (result != 1)
+	{
+		pypff_error_raise(
+			error,
+			PyExc_IOError,
+			"%s: unable to retrieve UTF-8 name.",
+			function);
+
+		libcerror_error_free(
+			&error);
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+		(char *)utf8_string,
+		(Py_ssize_t)utf8_string_size - 1,
+		errors);
+
+	PyMem_Free(
+		utf8_string);
+
+	return (string_object);
+
+on_error:
+	if (utf8_string != NULL)
+	{
+		PyMem_Free(
+			utf8_string);
+	}
+	return (NULL);
+}

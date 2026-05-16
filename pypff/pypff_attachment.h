@@ -39,6 +39,10 @@ PyObject *pypff_attachment_get_size(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
+PyObject *pypff_attachment_get_name(
+            pypff_item_t *pypff_item,
+            PyObject *arguments);
+
 PyObject *pypff_attachment_read_buffer(
            pypff_item_t *pypff_item,
            PyObject *arguments,
