@@ -89,12 +89,12 @@ run_test_with_input()
 					INPUT_FILES+=("${TEST_SET_INPUT_DIRECTORY}/${FILENAME}")
 				fi
 			done < "${TEST_SET_DIRECTORY}/files"
-                else
+		else
 			for FILENAME in ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB};
 			do
 				INPUT_FILES+=("${FILENAME}")
 			done
-                fi
+		fi
 		for INPUT_FILE in "${INPUT_FILES[@]}";
 		do
 			OPTION_INPUT_FILE="${INPUT_FILE}";

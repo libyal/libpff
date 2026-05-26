@@ -1,6 +1,8 @@
 # Build from source on Mac OS.
 name: build_macos
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
 permissions: read-all
 jobs:
   build:
@@ -27,8 +29,6 @@ jobs:
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
     - name: Building from source
-      env:
-        CC: ${{ matrix.compiler }}
       run: |
         tests/build.sh ${{ matrix.configure_options }}
     - name: Run tests

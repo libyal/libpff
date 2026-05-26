@@ -1,6 +1,8 @@
 # Build from source on Windows.
 name: build_windows
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
 permissions: read-all
 jobs:
   build:
