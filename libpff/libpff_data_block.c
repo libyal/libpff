@@ -300,12 +300,12 @@ int libpff_data_block_read_footer_data(
 {
 	static char *function            = "libpff_data_block_read_footer_data";
 	size_t data_block_footer_size    = 0;
-	uint64_t data_block_back_pointer = 0;
-	uint16_t data_block_signature    = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
+	uint64_t data_block_back_pointer = 0;
 	uint32_t value_32bit             = 0;
 	uint16_t value_16bit             = 0;
+	uint16_t data_block_signature    = 0;
 #endif
 
 	if( data_block == NULL )
@@ -395,6 +395,7 @@ int libpff_data_block_read_footer_data(
 		 ( (pff_block_footer_32bit_t *) data )->data_size,
 		 data_block->data_size );
 
+#if defined( HAVE_DEBUG_OUTPUT )
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (pff_block_footer_32bit_t *) data )->signature,
 		 data_block_signature );
@@ -402,7 +403,7 @@ int libpff_data_block_read_footer_data(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_block_footer_32bit_t *) data )->back_pointer,
 		 data_block_back_pointer );
-
+#endif
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_block_footer_32bit_t *) data )->checksum,
 		 data_block->stored_checksum );
@@ -415,18 +416,20 @@ int libpff_data_block_read_footer_data(
 		 ( (pff_block_footer_64bit_t *) data )->data_size,
 		 data_block->data_size );
 
+#if defined( HAVE_DEBUG_OUTPUT )
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (pff_block_footer_64bit_t *) data )->signature,
 		 data_block_signature );
-
+#endif
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_block_footer_64bit_t *) data )->checksum,
 		 data_block->stored_checksum );
 
+#if defined( HAVE_DEBUG_OUTPUT )
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_block_footer_64bit_t *) data )->back_pointer,
 		 data_block_back_pointer );
-
+#endif
 		data_block->uncompressed_data_size = data_block->data_size;
 	}
 	else if( file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE )
@@ -435,18 +438,20 @@ int libpff_data_block_read_footer_data(
 		 ( (pff_block_footer_64bit_4k_page_t *) data )->data_size,
 		 data_block->data_size );
 
+#if defined( HAVE_DEBUG_OUTPUT )
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (pff_block_footer_64bit_4k_page_t *) data )->signature,
 		 data_block_signature );
-
+#endif
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (pff_block_footer_64bit_4k_page_t *) data )->checksum,
 		 data_block->stored_checksum );
 
+#if defined( HAVE_DEBUG_OUTPUT )
 		byte_stream_copy_to_uint64_little_endian(
 		 ( (pff_block_footer_64bit_4k_page_t *) data )->back_pointer,
 		 data_block_back_pointer );
-
+#endif
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (pff_block_footer_64bit_4k_page_t *) data )->uncompressed_data_size,
 		 data_block->uncompressed_data_size );

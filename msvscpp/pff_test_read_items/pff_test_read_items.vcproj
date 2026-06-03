@@ -193,6 +193,10 @@
 				RelativePath="..\..\tests\pff_test_libpff.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\tests\pff_test_macros.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

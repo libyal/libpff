@@ -48,9 +48,13 @@ int main(
 	PFF_TEST_UNREFERENCED_PARAMETER( argc )
 	PFF_TEST_UNREFERENCED_PARAMETER( argv )
 
+/* TODO add tests */
+
 	return( EXIT_SUCCESS );
 
+/* TODO add tests
 on_error:
 	return( EXIT_FAILURE );
+*/
 }
 

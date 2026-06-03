@@ -38,7 +38,7 @@
 #include "libpff_offsets_index.h"
 #include "libpff_types.h"
 
-#if defined( _MSC_VER ) || defined( __BORLANDC__ ) || defined( __MINGW32_VERSION ) || defined( __MINGW64_VERSION_MAJOR )
+#if defined( _MSC_VER ) || defined( __BORLANDC__ ) || defined( __MINGW32__ )
 
 /* This inclusion is needed otherwise some linkers
  * mess up exporting the legacy functions

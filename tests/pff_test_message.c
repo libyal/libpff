@@ -110,7 +110,9 @@ int main(
 
 	return( EXIT_SUCCESS );
 
+/* TODO add tests
 on_error:
 	return( EXIT_FAILURE );
+*/
 }
 

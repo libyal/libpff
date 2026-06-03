@@ -2911,9 +2911,12 @@ int libpff_table_read_index_entries(
 	uint16_t table_index_offset                   = 0;
 	uint16_t table_index_value_iterator           = 0;
 	uint16_t table_number_of_index_offsets        = 0;
-	uint16_t table_number_of_unused_index_offsets = 0;
 	uint16_t table_value_end_offset               = 0;
 	uint16_t table_value_start_offset             = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint16_t table_number_of_unused_index_offsets = 0;
+#endif
 
 	if( table == NULL )
 	{
@@ -3004,10 +3007,11 @@ int libpff_table_read_index_entries(
 	 ( (pff_table_index_t *) &( data_block->data[ data_offset ] ) )->number_of_offsets,
 	 table_number_of_index_offsets );
 
+#if defined( HAVE_DEBUG_OUTPUT )
 	byte_stream_copy_to_uint16_little_endian(
 	 ( (pff_table_index_t *) &( data_block->data[ data_offset ] ) )->number_of_unused_offsets,
 	 table_number_of_unused_index_offsets );
-
+#endif
 	data_offset += 4;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -5404,7 +5408,7 @@ int libpff_table_read_6c_record_entries(
 					 function,
 					 record_entry_index );
 
-					return( -1 );
+					goto on_error;
 				}
 				record_entry->identifier.format = LIBPFF_RECORD_ENTRY_IDENTIFIER_FORMAT_GUID;
 

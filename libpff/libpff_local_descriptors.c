@@ -680,6 +680,9 @@ int libpff_local_descriptors_get_value_by_identifier(
 
 			goto on_error;
 		}
+#if defined( __clang_analyzer__ )
+		__builtin_assume( leaf_node != NULL );
+#endif
 		if( node_entry_data == NULL )
 		{
 			libcerror_error_set(

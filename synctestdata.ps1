@@ -1,11 +1,11 @@
 # Script that synchronizes the local test data
 #
-# Version: 20251217
+# Version: 20260531
 
 $Repository = "libyal/testdata"
 $TestDataPath = "pst"
 $TestSet = "public"
-$TestInputDirectory = "tests/input"
+$TestInputDirectory = "tests\input"
 $TestFiles = "outlook.pst"
 
 If (-Not (Test-Path ${TestInputDirectory}))

@@ -789,9 +789,12 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 	libpff_index_value_t *index_value = NULL;
 	uint8_t *node_entry_data          = NULL;
 	static char *function             = "libpff_item_tree_create_node_from_descriptor_index_node";
-	uint64_t sub_node_back_pointer    = 0;
 	uint64_t sub_node_offset          = 0;
 	uint16_t entry_index              = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint64_t sub_node_back_pointer    = 0;
+#endif
 
 	if( item_tree == NULL )
 	{
@@ -985,10 +988,11 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 				byte_stream_copy_to_uint32_little_endian(
 				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->file_offset,
 				 sub_node_offset );
-
+#if defined( HAVE_DEBUG_OUTPUT )
 				byte_stream_copy_to_uint32_little_endian(
 				 ( (pff_index_node_branch_entry_32bit_t *) node_entry_data )->back_pointer,
 				 sub_node_back_pointer );
+#endif
 			}
 			else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
 			      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
@@ -996,10 +1000,11 @@ int libpff_item_tree_create_node_from_descriptor_index_node(
 				byte_stream_copy_to_uint64_little_endian(
 				 ( (pff_index_node_branch_entry_64bit_t *) node_entry_data )->file_offset,
 				 sub_node_offset );
-
+#if defined( HAVE_DEBUG_OUTPUT )
 				byte_stream_copy_to_uint64_little_endian(
 				 ( (pff_index_node_branch_entry_64bit_t *) node_entry_data )->back_pointer,
 				 sub_node_back_pointer );
+#endif
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )

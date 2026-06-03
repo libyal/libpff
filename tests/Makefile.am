@@ -23,6 +23,10 @@ AM_CPPFLAGS = \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBPFF_DLL_IMPORT@
 
+AM_TESTS_ENVIRONMENT = \
+	export PYTHON="@PYTHON@"; \
+	export TESTS_USE_WINAPI="@TESTS_USE_WINAPI@";
+
 if HAVE_PYTHON_TESTS
 TESTS_PYPFF = \
 	test_python_module.sh
@@ -668,6 +672,7 @@ pff_test_offsets_index_LDADD = \
 pff_test_read_items_SOURCES = \
 	pff_test_libcerror.h \
 	pff_test_libpff.h \
+	pff_test_macros.h \
 	pff_test_read_items.c
 
 pff_test_read_items_LDADD = \
@@ -810,7 +815,8 @@ pff_test_tools_output_SOURCES = \
 
 pff_test_tools_output_LDADD = \
 	../libpff/libpff.la \
-	@LIBCERROR_LIBADD@
+	@LIBCERROR_LIBADD@ \
+	@LIBINTL@
 
 pff_test_tools_signal_SOURCES = \
 	../pfftools/pfftools_signal.c ../pfftools/pfftools_signal.h \

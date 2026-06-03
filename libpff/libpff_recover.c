@@ -1431,8 +1431,6 @@ int libpff_recover_descriptors_index_values(
 	libpff_index_value_t *index_value = NULL;
 	uint8_t *node_entry_data          = NULL;
 	static char *function             = "libpff_recover_descriptors_index_values";
-	size64_t node_data_size           = 0;
-	off64_t node_data_offset          = 0;
 	uint64_t sub_node_back_pointer    = 0;
 	uint64_t sub_node_offset          = 0;
 	uint16_t entry_index              = 0;
@@ -1612,9 +1610,6 @@ int libpff_recover_descriptors_index_values(
 					 index_value->identifier );
 				}
 #endif
-				node_data_offset = node_offset + ( entry_index * index_node->entry_size );
-				node_data_size   = index_node->entry_size;
-
 				if( libpff_descriptors_index_insert_recovered_index_value(
 				     descriptors_index,
 				     index_value,
@@ -2121,8 +2116,6 @@ int libpff_recover_analyze_offsets_index_node(
 	libpff_index_value_t *index_value = NULL;
 	uint8_t *node_entry_data          = NULL;
 	static char *function             = "libpff_recover_analyze_offsets_index_node";
-	size64_t node_data_size           = 0;
-	off64_t node_data_offset          = 0;
 	uint64_t sub_node_back_pointer    = 0;
 	uint64_t sub_node_offset          = 0;
 	uint16_t entry_index              = 0;
@@ -2303,9 +2296,6 @@ int libpff_recover_analyze_offsets_index_node(
 					 index_value->identifier );
 				}
 #endif
-				node_data_offset = node_offset + ( entry_index * index_node->entry_size );
-				node_data_size   = index_node->entry_size;
-
 				if( libpff_offsets_index_insert_recovered_index_value(
 				     offsets_index,
 				     index_value,
@@ -3675,10 +3665,13 @@ int libpff_recover_analyze_local_descriptors(
 	static char *function                                        = "libpff_recover_analyze_local_descriptors";
 	uint64_t local_descriptor_value_data_identifier              = 0;
 	uint64_t local_descriptor_value_identifier                   = 0;
-	uint64_t local_descriptor_value_local_descriptors_identifier = 0;
 	uint64_t local_descriptor_value_sub_node_identifier          = 0;
 	uint16_t entry_index                                         = 0;
 	int result                                                   = 1;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint64_t local_descriptor_value_local_descriptors_identifier = 0;
+#endif
 
 	if( io_handle == NULL )
 	{
@@ -3859,11 +3852,11 @@ int libpff_recover_analyze_local_descriptors(
 				 local_descriptor_value_data_identifier );
 
 				node_entry_data += 4;
-
+#if defined( HAVE_DEBUG_OUTPUT )
 				byte_stream_copy_to_uint32_little_endian(
 				 node_entry_data,
 				 local_descriptor_value_local_descriptors_identifier );
-
+#endif
 				node_entry_data += 4;
 			}
 			else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
@@ -3874,11 +3867,11 @@ int libpff_recover_analyze_local_descriptors(
 				 local_descriptor_value_data_identifier );
 
 				node_entry_data += 8;
-
+#if defined( HAVE_DEBUG_OUTPUT )
 				byte_stream_copy_to_uint64_little_endian(
 				 node_entry_data,
 				 local_descriptor_value_local_descriptors_identifier );
-
+#endif
 				node_entry_data += 8;
 			}
 			/* Ignore local descriptor values without a data identifier

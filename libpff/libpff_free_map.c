@@ -377,7 +377,6 @@ int libpff_free_map_read_file_io_handle(
 
 			goto on_error;
 		}
-		unallocated_size = 0;
 	}
 	memory_free(
 	 free_map_data );

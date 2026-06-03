@@ -85,9 +85,9 @@ then
 	exit ${EXIT_FAILURE};
 fi
 
-PLATFORM=`uname -s`;
-
 source ${TEST_RUNNER};
+
+PLATFORM=`uname -s`;
 
 assert_availability_binary find;
 
@@ -161,7 +161,7 @@ do
 
 					IFS=" " read -a OPTIONS <<< $(read_test_data_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
 
-					run_test_on_input_file "${TEST_SET_DIRECTORY}" "pffinfo" "with_callback" "${OPTION_SET}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${PROFILE_OPTIONS[@]}" "${OPTIONS[@]}";
+					run_test_on_input_file "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "${OPTION_SET}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${PROFILE_OPTIONS[@]}" "${OPTIONS[@]}";
 					RESULT=$?;
 
 					if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -173,7 +173,7 @@ do
 
 			if test ${TESTED_WITH_OPTIONS} -eq 0;
 			then
-				run_test_on_input_file "${TEST_SET_DIRECTORY}" "pffinfo" "with_callback" "" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${PROFILE_OPTIONS[@]}";
+				run_test_on_input_file "${TEST_SET_DIRECTORY}" "pffexport" "with_callback" "" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${PROFILE_OPTIONS[@]}";
 				RESULT=$?;
 			fi
 

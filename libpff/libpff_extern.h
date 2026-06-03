@@ -24,21 +24,28 @@
 
 #include <common.h>
 
+#if !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute )
+#if __has_attribute( visibility )
+#define LIBPFF_INTERNAL	__attribute__((visibility("hidden"))) extern
+
+#else
+#define LIBPFF_INTERNAL	extern
+
+#endif /* __has_attribute( visibility ) */
+#else
+#define LIBPFF_INTERNAL	extern
+
+#endif /* !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute ) */
+
 /* Define HAVE_LOCAL_LIBPFF for local use of libpff
  */
 #if !defined( HAVE_LOCAL_LIBPFF )
 
 #include <libpff/extern.h>
 
-#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
-#define LIBPFF_EXTERN_VARIABLE	extern
-#else
-#define LIBPFF_EXTERN_VARIABLE	LIBPFF_EXTERN
-#endif
-
 #else
 #define LIBPFF_EXTERN		/* extern */
-#define LIBPFF_EXTERN_VARIABLE	extern
+#define LIBPFF_EXTERN_VARIABLE	LIBPFF_INTERNAL
 
 #endif /* !defined( HAVE_LOCAL_LIBPFF ) */
 

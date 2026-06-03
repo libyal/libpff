@@ -1,28 +1,15 @@
 #!/usr/bin/env bash
+# Read items testing script
 #
-# Library read item testing script
-#
-# Copyright (C) 2008-2026, Joachim Metz <joachim.metz@gmail.com>
-#
-# Refer to AUTHORS for acknowledgements.
-#
-# This software is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This software is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this software.  If not, see <http://www.gnu.org/licenses/>.
-#
+# Version: 20260603
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
+
+OPTION_SETS=();
+
+INPUT_GLOB="*";
 
 list_contains()
 {
@@ -40,89 +27,144 @@ list_contains()
 	return ${EXIT_FAILURE};
 }
 
-test_read_items()
-{ 
-	INPUT_FILE=$1;
+TEST_EXECUTABLE="pff_test_read_items";
 
-	echo "Testing read items of input: ${INPUT_FILE}";
-
-	./${PFF_TEST_READ_ITEMS} ${INPUT_FILE};
-
-	RESULT=$?;
-
-	echo "";
-
-	return ${RESULT};
-}
-
-PFF_TEST_READ_ITEMS="pff_test_read_items";
-
-if ! test -x ${PFF_TEST_READ_ITEMS};
+if ! test -x ${TEST_EXECUTABLE};
 then
-	PFF_TEST_READ_ITEMS="pff_test_read_items.exe";
+	TEST_EXECUTABLE="pff_test_read_items.exe";
 fi
 
-if ! test -x ${PFF_TEST_READ_ITEMS};
+if ! test -x ${TEST_EXECUTABLE};
 then
-	echo "Missing executable: ${PFF_TEST_READ_ITEMS}";
+	echo "Missing executable: ${TEST_EXECUTABLE}";
 
 	exit ${EXIT_FAILURE};
 fi
 
+TEST_DIRECTORY=`dirname $0`;
+
+TEST_RUNNER="${TEST_DIRECTORY}/test_runner.sh";
+
+if ! test -f "${TEST_RUNNER}";
+then
+	echo "Missing test runner: ${TEST_RUNNER}";
+
+	exit ${EXIT_FAILURE};
+fi
+
+source ${TEST_RUNNER};
+
 if ! test -d "input";
 then
-	echo "No input directory found.";
+	echo "Test input directory not found.";
+
+	exit ${EXIT_IGNORE};
+fi
+RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
+
+if test ${RESULT} -eq ${EXIT_SUCCESS};
+then
+	echo "No files or directories found in the test input directory";
 
 	exit ${EXIT_IGNORE};
 fi
 
-OLDIFS=${IFS};
-IFS="
-";
+local TEST_DESCRIPTION="Testing: read items";
 
-RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
-
-if test ${RESULT} -eq 0;
+if ! test -d "input";
 then
-	echo "No files or directories found in the input directory.";
+	echo "Test input directory not found.";
 
-	EXIT_RESULT=${EXIT_IGNORE};
-else
-	IGNORELIST="";
+	exit ${EXIT_IGNORE};
+fi
+local RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
 
-	if test -f "input/.libpff-read-items/ignore";
+if test ${RESULT} -eq ${EXIT_SUCCESS};
+then
+	echo "No files or directories found in the test input directory";
+
+	exit ${EXIT_IGNORE};
+fi
+
+local TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "input" "libpff-read-items");
+
+local IGNORE_LIST=$(read_ignore_list "${TEST_PROFILE_DIRECTORY}");
+
+RESULT=${EXIT_SUCCESS};
+
+for TEST_SET_INPUT_DIRECTORY in input/*;
+do
+	if ! test -d "${TEST_SET_INPUT_DIRECTORY}";
 	then
-		IGNORELIST=`cat input/.libpff-read-items/ignore | sed '/^#/d'`;
+		continue;
 	fi
-	for TESTDIR in input/*;
-	do
-		if test -d "${TESTDIR}";
-		then
-			DIRNAME=`basename ${TESTDIR}`;
+	if check_for_directory_in_ignore_list "${TEST_SET_INPUT_DIRECTORY}" "${IGNORE_LIST}";
+	then
+		continue;
+	fi
 
-			if ! list_contains "${IGNORELIST}" "${DIRNAME}";
+	local TEST_SET_DIRECTORY=$(get_test_set_directory "${TEST_PROFILE_DIRECTORY}" "${TEST_SET_INPUT_DIRECTORY}");
+
+	local INPUT_FILES=()
+
+	if test -f "${TEST_SET_DIRECTORY}/files";
+	then
+		while IFS= read -r FILENAME;
+		do
+			if test -n "${FILENAME}}";
 			then
-				if test -f "input/.libpff/${DIRNAME}/files";
-				then
-					TESTFILES=`cat input/.libpff/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
-				else
-					TESTFILES=`ls ${TESTDIR}/*`;
-				fi
-				for TESTFILE in ${TESTFILES};
-				do
-					if ! test_read_items "${TESTFILE}";
-					then
-						exit ${EXIT_FAILURE};
-					fi
-				done
+				INPUT_FILES+=("${TEST_SET_INPUT_DIRECTORY}/${FILENAME}")
 			fi
+		done < "${TEST_SET_DIRECTORY}/files"
+	else
+		for FILENAME in ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB};
+		do
+			INPUT_FILES+=("${FILENAME}")
+		done
+	fi
+	for INPUT_FILE in "${INPUT_FILES[@]}";
+	do
+		OPTION_INPUT_FILE="${INPUT_FILE}";
+
+		local TESTED_WITH_OPTIONS=0;
+
+		for OPTION_SET in ${OPTION_SETS[@]};
+		do
+			local TEST_DATA_OPTION_FILE=$(get_test_data_option_file "${TEST_SET_DIRECTORY}" "${OPTION_INPUT_FILE}" "${OPTION_SET}");
+
+			if test -f ${TEST_DATA_OPTION_FILE};
+			then
+				TESTED_WITH_OPTIONS=1;
+
+				IFS=" " read -a OPTIONS <<< $(read_test_data_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
+
+				run_test_on_input_file "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "default" "${OPTION_SET}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS[@]}";
+				RESULT=$?;
+
+				if test ${RESULT} -ne ${EXIT_SUCCESS};
+				then
+					break;
+				fi
+			fi
+		done
+
+		if test ${TESTED_WITH_OPTIONS} -eq 0;
+		then
+			run_test_on_input_file "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "default" "" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
+			RESULT=$?;
+		fi
+
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
+		then
+			break;
 		fi
 	done
 
-	EXIT_RESULT=${EXIT_SUCCESS};
-fi
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
+	then
+		break;
+	fi
+done
 
-IFS=${OLDIFS};
-
-exit ${EXIT_RESULT};
+exit ${RESULT};
 

@@ -437,7 +437,6 @@ int libpff_allocation_table_read_data(
 
 			goto on_error;
 		}
-		unallocated_size = 0;
 	}
 	return( 1 );
 

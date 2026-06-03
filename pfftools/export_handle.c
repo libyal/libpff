@@ -7430,14 +7430,6 @@ int export_handle_get_attachment_filename(
 
 		return( -1 );
 	}
-	result = export_handle_item_get_value_string_size_by_type(
-	          export_handle,
-	          attachment,
-	          0,
-	          LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG,
-	          &long_filename_size,
-	          NULL );
-
 	/* Reserve space for a leading decimal and a _
 	 */
 	while( number_of_attachments >= 10 )
@@ -7446,19 +7438,29 @@ int export_handle_get_attachment_filename(
 
 		name_index++;
 	}
-	if( long_filename_size > (size_t) ( SSIZE_MAX - ( 2 + name_index ) ) )
+	name_size = 2 + name_index;
+
+	if( export_handle_item_get_value_string_size_by_type(
+	     export_handle,
+	     attachment,
+	     0,
+	     LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG,
+	     &long_filename_size,
+	     NULL ) == 1 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: attachment long filename size value exceeds maximum.",
-		 function );
+		if( long_filename_size > (size_t) ( SSIZE_MAX - ( 2 + name_index ) ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: attachment long filename size value exceeds maximum.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
+		name_size += long_filename_size;
 	}
-	name_size = 2 + name_index + long_filename_size;
-
 	if( name_size < ( name_index + 17 ) )
 	{
 		name_size = name_index + 17;
@@ -7509,59 +7511,60 @@ int export_handle_get_attachment_filename(
 	if( result == 1 )
 	{
 		name_length = system_string_length(
-		               name );
+		               long_filename );
 
 		if( name_length == 0 )
 		{
 			result = 0;
 		}
-		else
-		{
-			log_handle_printf(
-			 log_handle,
-			 "Saving attachment with filename: %" PRIs_SYSTEM "",
-			 long_filename );
+	}
+	if( result == 1 )
+	{
+		log_handle_printf(
+		 log_handle,
+		 "Saving attachment with filename: %" PRIs_SYSTEM "",
+		 long_filename );
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-			if( libcpath_path_get_sanitized_filename_wide(
-			     name,
-			     name_length,
-			     &sanitized_name,
-			     &sanitized_name_size,
-			     error ) != 1 )
+		if( libcpath_path_get_sanitized_filename_wide(
+		     name,
+		     name_length,
+		     &sanitized_name,
+		     &sanitized_name_size,
+		     error ) != 1 )
 #else
-			if( libcpath_path_get_sanitized_filename(
-			     name,
-			     name_length,
-			     &sanitized_name,
-			     &sanitized_name_size,
-			     error ) != 1 )
+		if( libcpath_path_get_sanitized_filename(
+		     name,
+		     name_length,
+		     &sanitized_name,
+		     &sanitized_name_size,
+		     error ) != 1 )
 #endif
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable sanitize attachment filename.",
-				 function );
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable sanitize attachment filename.",
+			 function );
 
-				goto on_error;
-			}
-			memory_free(
-			 name );
-
-			name                = sanitized_name;
-			name_size           = sanitized_name_size;
-			sanitized_name      = NULL;
-			sanitized_name_size = 0;
-
-			log_handle_printf(
-			 log_handle,
-			 " as: %" PRIs_SYSTEM "\n",
-			 name );
+			goto on_error;
 		}
+		memory_free(
+		 name );
+
+		name                = sanitized_name;
+		name_size           = sanitized_name_size;
+		sanitized_name      = NULL;
+		sanitized_name_size = 0;
+
+		log_handle_printf(
+		 log_handle,
+		 " as: %" PRIs_SYSTEM "\n",
+		 name );
+
 	}
-	if( result != 1 )
+	else
 	{
 		if( system_string_copy(
 		     &( name[ name_index ] ),

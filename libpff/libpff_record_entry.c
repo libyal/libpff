@@ -2790,13 +2790,13 @@ int libpff_record_entry_get_multi_value(
 			internal_multi_value->value_size = (size_t *) memory_allocate(
 								       sizeof( size_t ) * internal_multi_value->number_of_values );
 
-			if( internal_multi_value->value_offset == NULL )
+			if( internal_multi_value->value_size == NULL )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_MEMORY,
 				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-				 "%s: unable to create multi value offsets.",
+				 "%s: unable to create multi value sizes.",
 				 function );
 
 				goto on_error;

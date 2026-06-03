@@ -34,15 +34,16 @@
 
 #include "pff_test_libcerror.h"
 #include "pff_test_libpff.h"
+#include "pff_test_macros.h"
 
 /* Define to make pff_test_read_items generate verbose output
 #define PFF_TEST_READ_ITEMS_VERBOSE
  */
 
 int pff_test_read_items(
-     libpff_item_t *item,
-     libpff_error_t **error )
+     libpff_item_t *item )
 {
+	libpff_error_t *error               = NULL;
 	libpff_item_t *sub_item             = NULL;
 	libpff_record_entry_t *record_entry = NULL;
 	libpff_record_set_t *record_set     = NULL;
@@ -51,126 +52,157 @@ int pff_test_read_items(
 	int result                          = 0;
 	int sub_item_index                  = 0;
 
-	if( item == NULL )
-	{
-		fprintf(
-		 stderr,
-		 "Invalid item.\n" );
+	result = libpff_item_get_record_set_by_index(
+	          item,
+	          0,
+	          &record_set,
+	          &error );
 
-		return( -1 );
-	}
-	if( libpff_item_get_record_set_by_index(
-	     item,
-	     0,
-	     &record_set,
-	     error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to retrieve record set: 0.\n" );
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
 
-		goto on_error;
-	}
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "record_set",
+	 record_set );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	result = libpff_record_set_get_entry_by_type(
 	          record_set,
 	          LIBPFF_ENTRY_TYPE_DISPLAY_NAME,
 	          0,
 	          &record_entry,
 	          LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
-	          error );
+	          &error );
 
-	if( result == -1 )
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "record_entry",
+	 record_entry );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	if( result != 0 )
 	{
-		fprintf(
-		 stderr,
-		 "Unable to retrieve display name record entry.\n" );
+		result = libpff_record_entry_get_data_as_utf8_string_size(
+		          record_entry,
+		          &value_string_size,
+		          &error );
 
-		goto on_error;
-	}
-	else if( result != 0 )
-	{
-		if( libpff_record_entry_get_data_as_utf8_string_size(
-		     record_entry,
-		     &value_string_size,
-		     error ) != 1 )
-		{
-			fprintf(
-			 stderr,
-			 "Unable to retrieve display name size.\n" );
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
 
-			goto on_error;
-		}
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 	}
-	if( libpff_record_entry_free(
-	     &record_entry,
-	     error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to free record entry.\n" );
+	result = libpff_record_entry_free(
+	          &record_entry,
+	          &error );
 
-		goto on_error;
-	}
-	if( libpff_record_set_free(
-	     &record_set,
-	     error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to free record set.\n" );
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
 
-		goto on_error;
-	}
-	if( libpff_item_get_number_of_sub_items(
-	     item,
-	     &number_of_sub_items,
-	     error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to retrieve number of sub items.\n" );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "record_entry",
+	 record_entry );
 
-		goto on_error;
-	}
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	result = libpff_record_set_free(
+	          &record_set,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "record_set",
+	 record_set );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	result = libpff_item_get_number_of_sub_items(
+	          item,
+	          &number_of_sub_items,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	for( sub_item_index = 0;
 	     sub_item_index < number_of_sub_items;
 	     sub_item_index++ )
 	{
-		if( libpff_item_get_sub_item(
-	             item,
-		     sub_item_index,
-		     &sub_item,
-		     error ) != 1 )
-		{
-			fprintf(
-			 stderr,
-			 "Unable to retrieve sub item: %d.\n",
-			 sub_item_index );
+		result = libpff_item_get_sub_item(
+		          item,
+		          sub_item_index,
+		          &sub_item,
+		          &error );
 
-			goto on_error;
-		}
-		if( pff_test_read_items(
-		     sub_item,
-		     error ) != 1 )
-		{
-			fprintf(
-			 stderr,
-			 "Unable to read sub item: %d.\n",
-			 sub_item_index );
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
 
-			goto on_error;
-		}
-		if( libpff_item_free(
-	             &sub_item,
-		     error ) != 1 )
-		{
-			fprintf(
-			 stderr,
-			 "Unable to free sub item: %d.\n",
-			 sub_item_index );
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "sub_item",
+		 sub_item );
 
-			goto on_error;
-		}
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
+
+		result = pff_test_read_items(
+		          sub_item );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		result = libpff_item_free(
+		          &sub_item,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "sub_item",
+		 sub_item );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 	}
 	return( 1 );
 
@@ -225,16 +257,23 @@ int main(
 	}
 	source = argv[ 1 ];
 
-	if( libpff_file_initialize(
-	     &file,
-	     &error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to create file.\n" );
+	result = libpff_file_initialize(
+	          &file,
+	          &error );
 
-		goto on_error;
-	}
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "file",
+	 file );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libpff_file_open_wide(
 	          file,
@@ -248,97 +287,118 @@ int main(
 	          LIBPFF_OPEN_READ,
 	          &error );
 #endif
-	if( result != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to open: %s.\n",
-		 argv[ 1 ] );
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
 
-		goto on_error;
-	}
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	result = libpff_file_get_root_folder(
 	          file,
 	          &item,
 	          &error );
 
-	if( result == -1 )
+	PFF_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	if( result != 0 )
 	{
-		fprintf(
-		 stderr,
-		 "Unable to retrieve root folder item.\n" );
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "item",
+		 item );
 
-		goto on_error;
+		result = pff_test_read_items(
+		          item );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		result = libpff_item_free(
+		          &item,
+		          &error );
+
+		PFF_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 1 );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "item",
+		 item );
+
+		PFF_TEST_ASSERT_IS_NULL(
+		 "error",
+		 error );
 	}
-	else if( result != 0 )
-	{
-		if( pff_test_read_items(
-		     item,
-		     &error ) != 1 )
-		{
-			fprintf(
-			 stderr,
-			 "Unable to read root folder item.\n" );
+	result = libpff_file_recover_items(
+	          file,
+	          0,
+	          &error );
 
-			goto on_error;
-		}
-		if( libpff_item_free(
-		     &item,
-		     &error ) != 1 )
-		{
-			fprintf(
-			 stderr,
-			 "Unable to free item.\n" );
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
 
-			goto on_error;
-		}
-		if( libpff_file_recover_items(
-		     file,
-		     0,
-		     &error ) != 1 )
-		{
-			fprintf(
-			 stderr,
-			 "Unable to recover items.\n" );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
-			goto on_error;
-		}
-		if( libpff_file_get_number_of_recovered_items(
-		     file,
-		     &number_of_recovered_items,
-		     &error ) != 1 )
-		{
-			fprintf(
-			 stderr,
-			 "Unable to retrieve number of recover items.\n" );
+	result = libpff_file_get_number_of_recovered_items(
+	          file,
+	          &number_of_recovered_items,
+	          &error );
 
-			goto on_error;
-		}
-		fprintf(
-		 stdout,
-		 "Number of recovered items: %d\n",
-		 number_of_recovered_items );
-	}
-	if( libpff_file_close(
-	     file,
-	     &error ) != 0 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to close file.\n" );
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
 
-		goto on_error;
-	}
-	if( libpff_file_free(
-	     &file,
-	     &error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to free file.\n" );
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
-		goto on_error;
-	}
+	result = libpff_file_close(
+	          file,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_file_free(
+	          &file,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "file",
+	 file );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	return( EXIT_SUCCESS );
 
 on_error:

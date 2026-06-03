@@ -512,7 +512,7 @@ int libpff_folder_determine_sub_folders(
 			 function,
 			 sub_folders_descriptor_identifier );
 
-			return( -1 );
+			goto on_error;
 		}
 		else if( result != 0 )
 		{
@@ -525,7 +525,7 @@ int libpff_folder_determine_sub_folders(
 				 "%s: invalid descriptor index value.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -558,7 +558,20 @@ int libpff_folder_determine_sub_folders(
 				 "%s: unable to create sub folders item values.",
 				 function );
 
-				return( -1 );
+				goto on_error;
+			}
+			if( libpff_index_value_free(
+			     &descriptor_index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free descriptor index value.",
+				 function );
+
+				goto on_error;
 			}
 			if( libpff_item_values_read(
 			     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_FOLDERS ],
@@ -577,11 +590,20 @@ int libpff_folder_determine_sub_folders(
 				 function,
 				 sub_folders_descriptor_identifier );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( descriptor_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &descriptor_index_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Determine if the item has sub messages
@@ -643,7 +665,7 @@ int libpff_folder_determine_sub_messages(
 			 function,
 			 sub_messages_descriptor_identifier );
 
-			return( -1 );
+			goto on_error;
 		}
 		else if( result != 0 )
 		{
@@ -656,7 +678,7 @@ int libpff_folder_determine_sub_messages(
 				 "%s: invalid descriptor index value.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -689,7 +711,20 @@ int libpff_folder_determine_sub_messages(
 				 "%s: unable to create sub messages item values.",
 				 function );
 
-				return( -1 );
+				goto on_error;
+			}
+			if( libpff_index_value_free(
+			     &descriptor_index_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free descriptor index value.",
+				 function );
+
+				goto on_error;
 			}
 			if( libpff_item_values_read(
 			     internal_item->sub_item_values[ LIBPFF_FOLDER_SUB_ITEM_SUB_MESSAGES ],
@@ -708,11 +743,20 @@ int libpff_folder_determine_sub_messages(
 				 function,
 				 sub_messages_descriptor_identifier );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( descriptor_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &descriptor_index_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Determine if the item has sub associated contents
