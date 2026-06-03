@@ -4946,7 +4946,7 @@ int export_handle_export_message_header_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error )
 {
-	mapi_property_definitions_t property_definitions[ 21 ] = {
+	mapi_property_definitions_t property_definitions[ 23 ] = {
 		{ _SYSTEM_STRING( "Client submit time:\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
 		{ _SYSTEM_STRING( "Delivery time:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_DELIVERY_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
 		{ _SYSTEM_STRING( "Creation time:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
@@ -4967,6 +4967,8 @@ int export_handle_export_message_header_to_item_file(
 		{ _SYSTEM_STRING( "Reminder time:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_REMINDER_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
 		{ _SYSTEM_STRING( "Reminder signal time:\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_REMINDER_SIGNAL_TIME, LIBPFF_VALUE_TYPE_FILETIME, 0, NULL },
 		{ _SYSTEM_STRING( "Is private:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_IS_PRIVATE, LIBPFF_VALUE_TYPE_BOOLEAN, 0, NULL },
+		{ _SYSTEM_STRING( "Message-ID:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_INTERNET_MESSAGE_ID, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
+		{ _SYSTEM_STRING( "In-Reply-To:\t\t\t\t" ), LIBPFF_ENTRY_TYPE_IN_REPLY_TO_ID, LIBPFF_VALUE_TYPE_STRING, 0, NULL },
 		{ _SYSTEM_STRING( "Status:\t\t\t\t\t" ), LIBPFF_ENTRY_TYPE_MESSAGE_STATUS, LIBPFF_VALUE_TYPE_INTEGER_32BIT_SIGNED, 0, &export_handle_export_message_status_to_item_file } };
 
 	static char *function = "export_handle_export_message_header_to_item_file";
@@ -4978,7 +4980,7 @@ int export_handle_export_message_header_to_item_file(
 	     message,
 	     0,
 	     (mapi_property_definitions_t *) &property_definitions,
-	     21,
+	     23,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
