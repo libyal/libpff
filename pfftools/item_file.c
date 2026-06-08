@@ -1239,7 +1239,7 @@ int item_file_write_value_description(
 
 	description_length = system_string_length(
 	                      description );
-	
+
 	if( item_file_write_string(
 	     item_file,
 	     description,
@@ -1285,7 +1285,7 @@ int item_file_write_value_integer_32bit_as_decimal(
 
 	description_length = system_string_length(
 	                      description );
-	
+
 	if( item_file_write_string(
 	     item_file,
 	     description,
@@ -1345,7 +1345,7 @@ int item_file_write_value_integer_32bit_as_hexadecimal(
 
 	description_length = system_string_length(
 	                      description );
-	
+
 	if( item_file_write_string(
 	     item_file,
 	     description,
@@ -1406,7 +1406,7 @@ int item_file_write_value_string(
 
 	description_length = system_string_length(
 	                      description );
-	
+
 	if( item_file_write_string(
 	     item_file,
 	     description,
@@ -1467,7 +1467,7 @@ int item_file_write_value_filetime(
 
 	description_length = system_string_length(
 	                      description );
-	
+
 	if( item_file_write_string(
 	     item_file,
 	     description,
@@ -2119,7 +2119,7 @@ int item_file_write_record_set_value(
 	{
 		description_length = system_string_length(
 		                      description );
-		
+
 		if( item_file_write_string(
 		     item_file,
 		     description,

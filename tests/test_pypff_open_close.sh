@@ -32,7 +32,7 @@ list_contains()
 }
 
 run_test()
-{ 
+{
 	TEST_SET_DIR=$1;
 	TEST_DESCRIPTION=$2;
 	TEST_EXECUTABLE=$3;

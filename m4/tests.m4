@@ -1,6 +1,51 @@
 dnl Functions for testing
 dnl
-dnl Version: 20260601
+dnl Version: 20260607
+
+dnl Function to check if pthread_rwlock_unlock can be hooked for testing
+AC_DEFUN([AX_TESTS_CHECK_PTHREAD_RWLOCK_UNLOCK_HOOK],
+  [AC_REQUIRE([AC_PROG_CC])
+
+  AC_MSG_CHECKING([whether pthread_rwlock_unlock can be hooked for testing])
+
+  BACKUP_LIBS="$LIBS"
+  LIBS="-ldl -lpthread $LIBS"
+  AC_LANG_PUSH(C)
+
+  AC_RUN_IFELSE(
+    [AC_LANG_PROGRAM(
+      [[#include <errno.h>
+#include <stdio.h>
+#include <pthread.h>
+#define __USE_GNU
+#include <dlfcn.h>
+#undef __USE_GNU]],
+      [[static int (*hooked_pthread_rwlock_unlock)(pthread_rwlock_t *) = NULL;
+hooked_pthread_rwlock_unlock = dlsym( RTLD_NEXT, "pthread_rwlock_unlock" );
+if( hooked_pthread_rwlock_unlock == NULL ) { return 1; }
+pthread_rwlock_t rwlock;
+if( pthread_rwlock_init( &rwlock, NULL ) != 0 ) { return 2; }
+pthread_rwlock_wrlock( &rwlock );
+if( hooked_pthread_rwlock_unlock( &rwlock ) != 0 ) { return 3; }
+if( pthread_rwlock_destroy( &rwlock ) != 0 ) { return 4; }]] )],
+    [ac_cv_have_pthread_rwlock_unlock_hook=yes],
+    [ac_cv_have_pthread_rwlock_unlock_hook=no],
+    [ac_cv_have_pthread_rwlock_unlock_hook=undetermined])
+
+  AC_LANG_POP(C)
+  LIBS="$BACKUP_LIBS"
+
+  AC_MSG_RESULT(
+    [$ac_cv_have_pthread_rwlock_unlock_hook])
+
+  AS_IF(
+    [test "x$ac_cv_have_pthread_rwlock_unlock_hook" = xyes],
+    [AC_DEFINE(
+      [HAVE_PTHREAD_RWLOCK_UNLOCK_HOOK],
+      [1],
+      [Define to 1 whether pthread_rwlock_unlock can be hooked for testing.])
+    ])
+  ])
 
 dnl Function to detect whether the file system is case-insensitive
 AC_DEFUN([AX_TEST_CHECK_FILE_SYSTEM_IS_CASE_INSENSITIVE],
@@ -32,15 +77,13 @@ dnl Function to check whether libasan is functional
 AC_DEFUN([AX_TESTS_CHECK_LIBASAN],
   [AC_MSG_CHECKING([whether libasan is functional])
 
-  BACKUP_CFLAGS="$CFLAGS"
-  BACKUP_LDFLAGS="$LDFLAGS"
-
   ASAN_CFLAGS="-fno-omit-frame-pointer -fsanitize=address -g -O0"
   ASAN_LDFLAGS="-fsanitize=address"
 
+  BACKUP_CFLAGS="$CFLAGS"
+  BACKUP_LDFLAGS="$LDFLAGS"
   CFLAGS="$CFLAGS $ASAN_CFLAGS"
   LDFLAGS="$LDFLAGS $ASAN_LDFLAGS"
-
   AC_LANG_PUSH(C)
 
   AC_RUN_IFELSE(
@@ -55,7 +98,6 @@ free(array);]] )],
       [ac_cv_have_asan=undetermined])
 
   AC_LANG_POP(C)
-
   CFLAGS="$BACKUP_CFLAGS"
   LDFLAGS="$BACKUP_LDFLAGS"
 
@@ -84,9 +126,8 @@ AC_DEFUN([AX_TESTS_CHECK_LIBUBSAN],
       [[int shift = 1;
 int negative = -5;
 int result = (negative << shift);]] )],
-      [ac_cv_have_ubsan=no],
-      [ac_cv_have_ubsan=yes],
-      [ac_cv_have_ubsan=undetermined])
+    [ac_cv_have_ubsan=no],
+    [ac_cv_have_ubsan=yes])
 
   AC_LANG_POP(C)
 
@@ -190,6 +231,8 @@ AC_DEFUN([AX_TESTS_CHECK_LOCAL],
       [1],
       [Define to 1 if dlsym function is available in GNU dl.])
     ])
+
+  AX_TESTS_CHECK_PTHREAD_RWLOCK_UNLOCK_HOOK
 
   AX_TEST_CHECK_FILE_SYSTEM_IS_CASE_INSENSITIVE
 

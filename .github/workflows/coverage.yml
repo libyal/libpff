@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - configure_options: '--enable-code-coverage --enable-wide-character-type --enable-winapi'
+        - configure_options: '--enable-code-coverage --enable-wide-character-type --enable-winapi --with-zlib=no'
           codecov_name: 'cygwin64-gcc-no-optimization'
     steps:
     - name: Configure git
@@ -63,6 +63,7 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       run: |
+        $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest -Uri "https://cli.codecov.io/latest/windows/codecov.exe" -OutFile "codecov.exe"
         Unblock-File -Path "./codecov.exe"
         ./codecov.exe --verbose upload-coverage --git-service github --gcov-executable gcov --name "${{ matrix.codecov_name }}"
@@ -111,7 +112,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - configure_options: '--enable-code-coverage --enable-wide-character-type --enable-winapi'
+        - configure_options: '--enable-code-coverage --enable-wide-character-type --enable-winapi --with-zlib=no'
           codecov_name: 'mingw-w64-gcc-no-optimization'
     steps:
     - uses: actions/checkout@v6

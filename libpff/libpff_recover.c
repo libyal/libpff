@@ -624,7 +624,7 @@ int libpff_recover_analyze_descriptor_data_identifier(
 	          offsets_index->recovered_index_values_tree,
 	          (intptr_t *) lookup_index_value,
 	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
-	          &upper_node, 
+	          &upper_node,
 	          (intptr_t **) &index_values_list,
 	          error );
 
@@ -843,7 +843,7 @@ int libpff_recover_analyze_descriptor_local_descriptors_identifier(
 	          offsets_index->recovered_index_values_tree,
 	          (intptr_t *) lookup_index_value,
 	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
-	          &upper_node, 
+	          &upper_node,
 	          (intptr_t **) &index_values_list,
 	          error );
 
@@ -1021,7 +1021,7 @@ int libpff_recover_analyze_data_block_back_pointer(
 	          offsets_index->recovered_index_values_tree,
 	          (intptr_t *) lookup_index_value,
 	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libpff_index_values_list_compare,
-	          &upper_node, 
+	          &upper_node,
 	          (intptr_t **) &index_values_list,
 	          error );
 

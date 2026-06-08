@@ -41,7 +41,7 @@ list_contains()
 }
 
 test_export()
-{ 
+{
 	DIRNAME=$1;
 	INPUT_FILE=$2;
 	BASENAME=`basename ${INPUT_FILE}`;

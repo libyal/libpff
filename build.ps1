@@ -1,12 +1,12 @@
 # Script that builds libpff
 #
-# Version: 20251125
+# Version: 20260607
 
 Param (
 	[string]$Configuration = ${Env:Configuration},
 	[string]$Platform = ${Env:Platform},
 	[string]$PlatformToolset = "",
-	[string]$PythonPath = "C:\Python311",
+	[string]$PythonPath = "C:\Python314",
 	[string]$VisualStudioVersion = "",
 	[string]$VSToolsOptions = "--extend-with-x64",
 	[string]$VSToolsPath = "..\vstools"
@@ -60,54 +60,65 @@ If (-Not ${VisualStudioVersion})
 
 	Write-Host "Visual Studio version not set defauting to: ${VisualStudioVersion}" -foreground Red
 }
-If ((${VisualStudioVersion} -ne "2008") -And (${VisualStudioVersion} -ne "2010") -And (${VisualStudioVersion} -ne "2012") -And (${VisualStudioVersion} -ne "2013") -And (${VisualStudioVersion} -ne "2015") -And (${VisualStudioVersion} -ne "2017") -And (${VisualStudioVersion} -ne "2019") -And (${VisualStudioVersion} -ne "2022"))
+if ($VisualStudioVersion -NotIn ("2008", "2010", "2012", "2013", "2015", "2017", "2019", "2022", "2026"))
 {
 	Write-Host "Unsupported Visual Studio version: ${VisualStudioVersion}" -foreground Red
 
 	Exit ${ExitFailure}
 }
-$MSBuild = ""
+$MSBuild = If (Get-Command "MSBuild.exe" -ErrorAction SilentlyContinue) { (Get-Command "MSBuild.exe").Source } else { "" }
 
-If (${VisualStudioVersion} -eq "2008")
+If (-Not ${MSBuild})
 {
-	$MSBuild = "C:\Windows\Microsoft.NET\Framework\v3.5\MSBuild.exe"
-}
-ElseIf ((${VisualStudioVersion} -eq "2010") -Or (${VisualStudioVersion} -eq "2012"))
-{
-	$MSBuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
-}
-ElseIf (${VisualStudioVersion} -eq "2013")
-{
-	$MSBuild = "C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe"
-}
-ElseIf (${VisualStudioVersion} -eq "2015")
-{
-	$MSBuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
-}
-ElseIf (${VisualStudioVersion} -eq "2017")
-{
-	$Results = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio\${VisualStudioVersion}\*\MSBuild\15.0\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
+	Switch ($VisualStudioVersion) {
+		"2008" {
+			$MSBuild = "C:\Windows\Microsoft.NET\Framework\v3.5\MSBuild.exe"
+		}
+		{ $_ -in "2010", "2012" } {
+			$MSBuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
+		}
+		"2013" {
+			$MSBuild = "C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe"
+		}
+		"2015" {
+			$MSBuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
+		}
+		"2017" {
+			$Results = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio\${VisualStudioVersion}\*\MSBuild\15.0\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
 
-	If ($Results.Count -eq 0)
-	{
-		$Results = Get-ChildItem -Path "C:\Program Files (x86)\Microsoft Visual Studio\${VisualStudioVersion}\*\MSBuild\15.0\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
-	}
-	If ($Results.Count -gt 0)
-	{
-		$MSBuild = $Results[0].FullName
-	}
-}
-ElseIf (${VisualStudioVersion} -eq "2019" -Or ${VisualStudioVersion} -eq "2022")
-{
-	$Results = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio\${VisualStudioVersion}\*\MSBuild\Current\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
+			If ($Results.Count -eq 0)
+			{
+				$Results = Get-ChildItem -Path "C:\Program Files (x86)\Microsoft Visual Studio\${VisualStudioVersion}\*\MSBuild\15.0\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
+			}
+			If ($Results.Count -gt 0)
+			{
+				$MSBuild = $Results[0].FullName
+			}
+		}
+		{ $_ -in "2019", "2022" } {
+			$Results = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio\${VisualStudioVersion}\*\MSBuild\Current\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
 
-	If ($Results.Count -eq 0)
-	{
-		$Results = Get-ChildItem -Path "C:\Program Files (x86)\Microsoft Visual Studio\${VisualStudioVersion}\*\MSBuild\Current\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
-	}
-	If ($Results.Count -gt 0)
-	{
-		$MSBuild = $Results[0].FullName
+			If ($Results.Count -eq 0)
+			{
+				$Results = Get-ChildItem -Path "C:\Program Files (x86)\Microsoft Visual Studio\${VisualStudioVersion}\*\MSBuild\Current\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
+			}
+			If ($Results.Count -gt 0)
+			{
+				$MSBuild = $Results[0].FullName
+			}
+		}
+		"2026" {
+			$Results = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio\18\*\MSBuild\Current\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
+
+			If ($Results.Count -eq 0)
+			{
+				$Results = Get-ChildItem -Path "C:\Program Files (x86)\Microsoft Visual Studio\18\*\MSBuild\Current\Bin\MSBuild.exe" -Recurse -ErrorAction SilentlyContinue -Force
+			}
+			If ($Results.Count -gt 0)
+			{
+				$MSBuild = $Results[0].FullName
+			}
+		}
 	}
 }
 If (-Not ${MSBuild})
@@ -138,8 +149,14 @@ Else
 		Invoke-Expression -Command "& '${Python}' ${MSVSCppConvert} --output-format ${VisualStudioVersion} ${VSToolsOptions} msvscpp\libpff.sln 2>&1" | %{ "$_" }
 	}
 }
-$VSSolutionFile = "${VSSolutionPath}\libpff.sln"
-
+If (${VisualStudioVersion} -eq "2026")
+{
+	$VSSolutionFile = "${VSSolutionPath}\libpff.slnx"
+}
+Else
+{
+	$VSSolutionFile = "${VSSolutionPath}\libpff.sln"
+}
 If (-Not (Test-Path "${VSSolutionFile}"))
 {
 	Write-Host "Missing Visual Studio ${VisualStudioVersion} solution file: ${VSSolutionFile}" -foreground Red

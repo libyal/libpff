@@ -81,7 +81,7 @@ jobs:
         make > /dev/null
     - name: Run tests
       run: |
-        make distcheck
+        make distcheck VERBOSE=1
   build_python:
     runs-on: ${{ matrix.os }}
     strategy:
