@@ -371,6 +371,8 @@ int libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
 	{
 		return( 0 );
 	}
+	result = 0;
+
 	if( offsets_index_value == NULL )
 	{
 		libcerror_error_set(
@@ -633,7 +635,7 @@ int libpff_local_descriptors_get_value_by_identifier(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: requested identifier\t\t: 0x%08" PRIx64 " (%" PRIu64 ").\n",
+		 "%s: requested identifier\t\t\t: 0x%08" PRIx64 " (%" PRIu64 ").\n",
 		 function,
 		 identifier,
 		 identifier );

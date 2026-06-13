@@ -56,7 +56,7 @@ test_export()
 
 	RESULT=$?;
 
-	find tmp/${BASENAME}.recovered -type f -exec md5sum {} \; | sort -k 2 > tmp/${BASENAME}.log
+	find tmp/${BASENAME}.recovered -type f -exec md5sum {} \; | LC_ALL=C sort -k2,2 -k1,1 > tmp/${BASENAME}.log
 
 	if test -f "input/.pffexport_recovered/${DIRNAME}/${BASENAME}.log.gz";
 	then

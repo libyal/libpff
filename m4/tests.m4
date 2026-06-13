@@ -1,9 +1,9 @@
 dnl Functions for testing
 dnl
-dnl Version: 20260607
+dnl Version: 20260612
 
 dnl Function to check if pthread_rwlock_unlock can be hooked for testing
-AC_DEFUN([AX_TESTS_CHECK_PTHREAD_RWLOCK_UNLOCK_HOOK],
+AC_DEFUN([AX_TESTS_CHECK_CAN_HOOK_PTHREAD_RWLOCK_UNLOCK],
   [AC_REQUIRE([AC_PROG_CC])
 
   AC_MSG_CHECKING([whether pthread_rwlock_unlock can be hooked for testing])
@@ -48,7 +48,7 @@ if( pthread_rwlock_destroy( &rwlock ) != 0 ) { return 4; }]] )],
   ])
 
 dnl Function to detect whether the file system is case-insensitive
-AC_DEFUN([AX_TEST_CHECK_FILE_SYSTEM_IS_CASE_INSENSITIVE],
+AC_DEFUN([AX_TESTS_CHECK_FILE_SYSTEM_IS_CASE_INSENSITIVE],
   [AC_MSG_CHECKING([whether the file system is case-insensitive])
 
   as_tmp_case_file="conftest.case.tst"
@@ -70,6 +70,39 @@ AC_DEFUN([AX_TEST_CHECK_FILE_SYSTEM_IS_CASE_INSENSITIVE],
       [HAVE_CASE_INSENSITIVE_FILE_SYSTEM],
       [1],
       [Define to 1 whether file system is case-insensitive.])
+    ])
+  ])
+
+dnl Function to check for a manpage linting command
+AC_DEFUN([AX_TESTS_CHECK_HAVE_MANPAGE_LINTER],
+  [AC_PATH_PROG([MAN], [man])
+  AC_PATH_PROG([MANDOC], [mandoc])
+
+  AC_CACHE_CHECK(
+    [for manpage linter],
+    [ac_cv_have_manpage_linter],
+    [ac_cv_have_manpage_linter=no
+
+    printf '.Dd June 10, 2026\n.Dt TITLE 1\n.Os\n.Sh NAME\n.Nm command\n.Nd example\n' > conftest.1
+
+    AS_IF(
+      [test "x$MAN" != x],
+      [LC_ALL="en_US.UTF-8" MANROFFSEQ="" MANWIDTH="80" "$MAN" --warnings -E UTF-8 -l -Tutf8 -Z conftest.1 >/dev/null 2>&1
+      AS_IF(
+        [test $? -eq 0],
+	[ac_cv_have_manpage_linter="man-db"])
+      ])
+
+    AS_IF(
+      [test "x$ac_cv_have_manpage_linter" = xno && test "x$MANDOC" != x],
+      [LC_ALL="en_US.UTF-8" "$MANDOC" -O width=80 -T lint -W all ./conftest.1 >/dev/null 2>&1
+
+      AS_IF(
+        [test $? -eq 0],
+	[ac_cv_have_manpage_linter="mandoc"])
+      ])
+
+    rm -f conftest.1
     ])
   ])
 
@@ -232,10 +265,42 @@ AC_DEFUN([AX_TESTS_CHECK_LOCAL],
       [Define to 1 if dlsym function is available in GNU dl.])
     ])
 
-  AX_TESTS_CHECK_PTHREAD_RWLOCK_UNLOCK_HOOK
+  AX_TESTS_CHECK_CAN_HOOK_PTHREAD_RWLOCK_UNLOCK
+  AX_TESTS_CHECK_FILE_SYSTEM_IS_CASE_INSENSITIVE
 
-  AX_TEST_CHECK_FILE_SYSTEM_IS_CASE_INSENSITIVE
+  dnl Check for programs used in test_macros.at
+  AC_PATH_PROG([CYGPATH], [cygpath])
+  AC_PATH_PROG([WINEPATH], [winepath])
 
+  dnl Check for programs used in test_manpages.at
+  AX_TESTS_CHECK_HAVE_MANPAGE_LINTER
+
+  dnl Check for programs used in test_tools.at
+  AC_PROG_SED
+
+  dnl Note cannot use GZIP given it has a special purpose within gzip
+  AC_PATH_PROG(GZIP_COMMAND, [gzip])
+  AC_PATH_PROGS([MD5SUM], [md5sum md5])
+  AC_PATH_PROG(ZCAT, [zcat])
+
+  AC_SUBST(
+    [TESTS_MANPAGE_LINTER],
+    [$ac_cv_have_manpage_linter])
+
+  ac_tests_target_string="$target"
+
+  AS_IF(
+    [test "x$ac_tests_target_string" = x],
+    [ac_tests_target_string="$host"])
+
+  AS_CASE(
+    [$ac_tests_target_string],
+    [*mingw*],[ac_cv_tests_use_mingw=yes],
+    [*],[ac_cv_tests_use_mingw=no])
+
+  AC_SUBST(
+    [TESTS_USE_MINGW],
+    [$ac_cv_tests_use_mingw])
   AC_SUBST(
     [TESTS_USE_WINAPI],
     [$ac_cv_enable_winapi])

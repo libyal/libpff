@@ -657,7 +657,7 @@ int libpff_index_get_value_by_identifier(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: requested identifier\t\t: 0x%08" PRIx64 " (%" PRIu64 ").\n",
+		 "%s: requested identifier\t\t\t: 0x%08" PRIx64 " (%" PRIu64 ").\n",
 		 function,
 		 identifier,
 		 identifier );
