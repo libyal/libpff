@@ -1,234 +1,68 @@
 # Tests library functions and types.
 #
-# Version: 20260608
-
-$ExitSuccess = 0
-$ExitFailure = 1
-$ExitIgnore = 77
+# Version: 20260615
 
 $LibraryTests = "allocation_table attached_file_io_handle attachment bit_stream block_descriptor block_tree block_tree_node checksum column_definition compression data_array data_array_entry data_block deflate descriptors_index encryption error file_header folder free_map huffman_tree index index_node index_value io_handle item item_descriptor item_tree item_values local_descriptor_value local_descriptors local_descriptors_node local_descriptors_tree mapi_value message multi_value name_to_id_map_entry notify offsets_index record_entry record_set reference_descriptor table table_block_index table_header table_index_value value_type"
 $LibraryTestsWithInput = "file support"
-$OptionSets = ""
+$OptionSets = "" -split " "
 
-$InputGlob = "*"
-
-$VSDirectories = @(
-	"msvscpp",
-	"vs2008",
-	"vs2010",
-	"vs2012",
-	"vs2013",
-	"vs2015",
-	"vs2017",
-	"vs2019",
-	"vs2022",
-	"vs2026"
-)
-
-$VSConfigurations = @(
-	"Release",
-	"VSDebug"
-)
-
-$VSPlatforms = @(
-	"Win32",
-	"x64"
-)
-
-Function GetTestExecutablesDirectory
-{
-	$TestExecutablesDirectory = ""
-
-	ForEach (${VSDirectory} in $VSDirectories)
-	{
-		ForEach (${VSConfiguration} in $VSConfigurations)
-		{
-			ForEach (${VSPlatform} in $VSPlatforms)
-			{
-				$TestExecutablesDirectory = "..\${VSDirectory}\${VSConfiguration}\${VSPlatform}"
-
-				If (Test-Path ${TestExecutablesDirectory})
-				{
-					Return ${TestExecutablesDirectory}
-				}
-			}
-			$TestExecutablesDirectory = "..\${VSDirectory}\${VSConfiguration}"
-
-			If (Test-Path ${TestExecutablesDirectory})
-			{
-				Return ${TestExecutablesDirectory}
-			}
-		}
-	}
-	Return ${TestExecutablesDirectory}
-}
-
-Function ReadIgnoreList
-{
-	param( [string]$TestProfileDirectory )
-
-	$IgnoreFile = "${TestProfileDirectory}\ignore"
-	$IgnoreList = ""
-
-	If (Test-Path -Path ${IgnoreFile} -PathType Leaf)
-	{
-		$IgnoreList = Get-Content -Path ${IgnoreFile} |
-			Where {$_ -notmatch '^#.*'}
-	}
-	Return $IgnoreList
-}
+. .\test_functions.ps1
 
 Function RunTest
 {
-	param( [string]$TestType )
+	param( [string]$TestName )
 
-	$TestDescription = "Testing: ${TestName}"
-	$TestExecutable = "${TestExecutablesDirectory}\pff_test_${TestName}.exe"
+	$TestBinary = "pff_test_${TestName}"
+
+	$TestDescription = "${TestBinary}"
+	$TestExecutable = "${TestExecutablesDirectory}\${TestBinary}.exe"
 
 	If (-Not (Test-Path -Path ${TestExecutable} -PathType Leaf))
 	{
-		Write-Host "${TestDescription} (" -nonewline
-		Write-Host "SKIP" -foreground Cyan -nonewline
-		Write-Host ")"
+		WriteTestResult ${TestDescription} ${ExitIgnore}
 
 		Return ${ExitIgnore}
 	}
 	$Output = Invoke-Expression ${TestExecutable}
-	$Result = ${LastExitCode}
+	$Result = $global:LastExitCode
 
 	If (${Result} -ne ${ExitSuccess})
 	{
 		Write-Host ${Output} -foreground Red
 	}
-	Write-Host "${TestDescription} (" -nonewline
-
-	If (${Result} -ne ${ExitSuccess})
-	{
-		Write-Host "FAIL" -foreground Red -nonewline
-	}
-	Else
-	{
-		Write-Host "PASS" -foreground Green -nonewline
-	}
-	Write-Host ")"
+	WriteTestResult ${TestDescription} ${Result}
 
 	Return ${Result}
 }
 
 Function RunTestWithInput
 {
-	param( [string]$TestType )
+	param( [string]$TestName, [string[]]$TestInput )
 
-	$TestDescription = "Testing: ${TestName}"
-	$TestExecutable = "${TestExecutablesDirectory}\pff_test_${TestName}.exe"
+	$OptionSet = $TestInput[0]
+	$Options = $TestInput[1]
+	$TestFile = $TestInput[2]
+
+	$TestBinary = "pff_test_${TestName}"
+	$TestFileName = (${TestFile} -split '\\')[-2..-1] -join '\'
+
+	$TestDescription = "${TestBinary} with input: '${TestFileName}"
+	$TestExecutable = "${TestExecutablesDirectory}\${TestBinary}.exe"
 
 	If (-Not (Test-Path -Path ${TestExecutable} -PathType Leaf))
 	{
-		Write-Host "${TestDescription} (" -nonewline
-		Write-Host "SKIP" -foreground Cyan -nonewline
-		Write-Host ")"
+		WriteTestResult ${TestDescription} ${ExitIgnore}
 
 		Return ${ExitIgnore}
 	}
-	$TestProfileDirectory = "input\.libpff"
+	$Output = Invoke-Expression "${TestExecutable} ${Options} ${TestFile}"
+	$Result = $global:LastExitCode
 
-	If (-Not (Test-Path -Path ${TestProfileDirectory} -PathType Container))
-	{
-		New-Item -ItemType "directory" -Path ${TestProfileDirectory}
-	}
-	$IgnoreList = ReadIgnoreList ${TestProfileDirectory}
-
-	$Result = ${ExitSuccess}
-
-	ForEach ($TestSetInputDirectory in Get-ChildItem -Path "input" -Exclude ".*")
-	{
-		If (-Not (Test-Path -Path ${TestSetInputDirectory} -PathType Container))
-		{
-			Continue
-		}
-		If (${TestSetInputDirectory} -Contains ${IgnoreList})
-		{
-			Continue
-		}
-		$TestSetName = ${TestSetInputDirectory}.Name
-
-		If (Test-Path -Path "${TestProfileDirectory}\${TestSetName}\files" -PathType Leaf)
-		{
-			$InputFiles = Get-Content -Path "${TestProfileDirectory}\${TestSetName}\files" |
-				Where {$_ -ne ""}
-			$InputFiles = $InputFiles -replace "^","${TestSetInputDirectory}\"
-		}
-		Else
-		{
-			$InputFiles = Get-ChildItem -Path ${TestSetInputDirectory} -Include ${InputGlob}
-		}
-		ForEach ($InputFile in ${InputFiles})
-		{
-			$TestedWithOptions = $False
-
-			ForEach ($OptionSet in ${OptionSets} -split " ")
-			{
-				$InputFileName = ${InputFile}.Name
-				$TestDataOptionFile = "${TestProfileDirectory}\${TestSetName}\${InputFileName}.${OptionSet}"
-
-				If (-Not (Test-Path -Path "${TestDataOptionFile}" -PathType Leaf))
-				{
-					Continue
-				}
-				$OptionsHeader = Get-content -Path "${TestDataOptionFile}" -First 1
-
-				If (-Not (${OptionsHeader} -match "^# libyal test data options"))
-				{
-					Continue
-				}
-				$InputOptions = Get-content -Path "${TestDataOptionFile}" |
-					Select-Object -Skip 1
-
-				$InputOptions = $InputOptions -replace "^offset=","-o"
-				$InputOptions = $InputOptions -replace "^password=","-p"
-				$InputOptions = $InputOptions -replace "^recovery_password=","-r"
-				$InputOptions = $InputOptions -replace "^startup_key=","-s"
-				$InputOptions = $InputOptions -replace "^virtual_address=","-v"
-
-				$Output = Invoke-Expression "${TestExecutable} ${InputOptions} ${InputFile}"
-				$Result = $LastExitCode
-
-				If (${Result} -ne ${ExitSuccess})
-				{
-					Break
-				}
-				$TestedWithOptions = $True
-			}
-			If ((${Result} -eq ${ExitSuccess}) -And (-Not (${TestedWithOptions})))
-			{
-				$Output = Invoke-Expression "${TestExecutable} ${InputFile}"
-				$Result = ${LastExitCode}
-			}
-			If (${Result} -ne ${ExitSuccess})
-			{
-				Break
-			}
-		}
-		If (${Result} -ne ${ExitSuccess})
-		{
-			Break
-		}
-	}
 	If (${Result} -ne ${ExitSuccess})
 	{
 		Write-Host ${Output} -foreground Red
 	}
-	Write-Host "${TestDescription} (" -nonewline
-
-	If (${Result} -ne ${ExitSuccess})
-	{
-		Write-Host "FAIL" -foreground Red -nonewline
-	}
-	Else
-	{
-		Write-Host "PASS" -foreground Green -nonewline
-	}
-	Write-Host ")"
+	WriteTestResult ${TestDescription} ${Result}
 
 	Return ${Result}
 }
@@ -237,7 +71,7 @@ $TestExecutablesDirectory = GetTestExecutablesDirectory
 
 If (-Not (Test-Path ${TestExecutablesDirectory}))
 {
-	Write-Host "Missing test executables directory." -foreground Red
+	Write-Error "Missing test executables directory"
 
 	Exit ${ExitFailure}
 }
@@ -259,6 +93,8 @@ Foreach (${TestName} in ${LibraryTests} -split " ")
 	}
 }
 
+$TestInputs = GenerateTestInputs "libpff" ${OptionSets}
+
 Foreach (${TestName} in ${LibraryTestsWithInput} -split " ")
 {
 	# Split will return an array of a single empty string when LibraryTestsWithInput is empty.
@@ -266,13 +102,14 @@ Foreach (${TestName} in ${LibraryTestsWithInput} -split " ")
 	{
 		Continue
 	}
-	If (Test-Path -Path "input" -PathType Container)
+	ForEach ($TestInput in ${TestInputs})
 	{
-		$Result = RunTestWithInput ${TestName}
-	}
-	Else
-	{
-		$Result = RunTest ${TestName}
+		$Result = RunTestWithInput ${TestName} ${TestInput}
+
+		If ((${Result} -ne ${ExitSuccess}) -And (${Result} -ne ${ExitIgnore}))
+		{
+			Break
+		}
 	}
 	If ((${Result} -ne ${ExitSuccess}) -And (${Result} -ne ${ExitIgnore}))
 	{
@@ -281,4 +118,3 @@ Foreach (${TestName} in ${LibraryTestsWithInput} -split " ")
 }
 
 Exit ${Result}
-

@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
   [libpff],
-  [20260613],
+  [20260617],
   [https://github.com/libyal/libpff/issues])
 
 AC_CONFIG_SRCDIR(
