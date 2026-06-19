@@ -26,12 +26,10 @@ AM_CPPFLAGS = \
 AM_TESTS_ENVIRONMENT = \
 	export TESTS_USE_WINAPI="@TESTS_USE_WINAPI@";
 
-check_PYTHONdir = $(abs_top_builddir)
-
 BUILT_SOURCES = package.m4
 
 TESTS = \
-	$(check_SCRIPTS)
+	test_read_items.sh
 
 check_AUTOTESTS = \
 	test_library \
@@ -43,9 +41,6 @@ check_AUTOTESTS += test_python_module
 endif
 
 check_SCRIPTS = \
-	test_read_items.sh
-
-check_PYTHON_SCRIPTS = \
 	pypff_test_file.py \
 	pypff_test_support.py
 
@@ -909,11 +904,11 @@ test_tools: \
 EXTRA_DIST = \
 	$(check_AUTOTESTS:=.at) \
 	$(check_SCRIPTS) \
-	$(check_PYTHON_SCRIPTS) \
 	generate_test_inputs.sh \
 	package.m4 \
 	test_macros.at \
 	test_pffexport_recovered.sh \
+	test_read_items.sh \
 	test_runner.sh
 
 CLEANFILES = \
