@@ -391,7 +391,7 @@ read_test_data_option_file()
 #   an array containing the arguments for the test executable
 #
 # Returns:
-#   an integer containg the exit status of the test executable
+#   an integer containing the exit status of the test executable
 #
 run_test_with_arguments()
 {
@@ -519,7 +519,7 @@ run_test_with_arguments()
 #   an array containing the arguments for the test executable
 #
 # Returns:
-#   an integer containg the exit status of the test executable
+#   an integer containing the exit status of the test executable
 #
 run_test_with_input_and_arguments()
 {
@@ -676,7 +676,7 @@ run_test_with_input_and_arguments()
 #   an array containing the arguments for the test executable
 #
 # Returns:
-#   an integer containg the exit status of the test executable
+#   an integer containing the exit status of the test executable
 #
 run_test_on_input_file()
 {

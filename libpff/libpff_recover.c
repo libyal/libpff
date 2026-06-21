@@ -1604,7 +1604,7 @@ int libpff_recover_descriptors_index_values(
 				if( libcnotify_verbose != 0 )
 				{
 					libcnotify_printf(
-					 "%s: decriptor index value: %" PRIu16 " identifier: %" PRIu64 " is recoverable.\n",
+					 "%s: descriptor index value: %" PRIu16 " identifier: %" PRIu64 " is recoverable.\n",
 					 function,
 					 entry_index,
 					 index_value->identifier );

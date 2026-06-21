@@ -213,7 +213,7 @@ int item_file_open(
 }
 
 /* Closes the item file
- * Returns the 0 if succesful or -1 on error
+ * Returns the 0 if successful or -1 on error
  */
 int item_file_close(
      item_file_t *item_file,

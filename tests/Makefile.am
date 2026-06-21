@@ -892,13 +892,14 @@ test_manpages: \
 test_python_module: \
 	package.m4 \
 	test_inputs_pypff.at \
+	test_macros.at \
 	test_python_module.at
 
 test_tools: \
 	package.m4 \
-	test_macros.at \
 	test_inputs_pffexport.at \
 	test_inputs_pffinfo.at \
+	test_macros.at \
 	test_tools.at
 
 EXTRA_DIST = \
