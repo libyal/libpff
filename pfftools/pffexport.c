@@ -82,8 +82,8 @@ void usage_fprint(
 	                 "\t        windows-1253, windows-1254, windows-1255, windows-1256\n"
 	                 "\t        windows-1257 or windows-1258\n" );
 	fprintf( stream, "\t-d:     dumps the item values in a separate file: ItemValues.txt\n" );
-	fprintf( stream, "\t-f:     preferred output format, options: all, html, rtf,\n"
-	                 "\t        text (default)\n" );
+	fprintf( stream, "\t-f:     preferred output format, options: all, html, maildir,\n"
+	                 "\t        rtf, text (default)\n" );
 	fprintf( stream, "\t-h:     shows this help\n" );
 	fprintf( stream, "\t-l:     logs information about the exported items\n" );
 	fprintf( stream, "\t-m:     export mode, option: all, debug, items (default), recovered.\n"
@@ -441,12 +441,32 @@ int main( int argc, char * const argv[] )
 	}
 	else if( result == 0 )
 	{
-		fprintf(
-		 stderr,
-		 "%" PRIs_SYSTEM " already exists.\n",
-		 pffexport_export_handle->items_export_path );
+		/* Maildir mode allows appending to an existing export directory
+		 * so that multiple OST files can share the same Maildir tree
+		 * and cross-file deduplication via the persisted seen-IDs file works.
+		 */
+		if( pffexport_export_handle->preferred_export_format != EXPORT_FORMAT_MAILDIR )
+		{
+			fprintf(
+			 stderr,
+			 "%" PRIs_SYSTEM " already exists.\n",
+			 pffexport_export_handle->items_export_path );
 
-		goto on_error;
+			goto on_error;
+		}
+	}
+	if( pffexport_export_handle->preferred_export_format == EXPORT_FORMAT_MAILDIR )
+	{
+		if( export_handle_initialize_maildir(
+		     pffexport_export_handle,
+		     &error ) != 1 )
+		{
+			fprintf(
+			 stderr,
+			 "Unable to initialize Maildir deduplication.\n" );
+
+			goto on_error;
+		}
 	}
 	result = export_handle_create_orphans_export_path(
 	          pffexport_export_handle,

@@ -28,6 +28,25 @@
 #include <types.h>
 #include <wide_string.h>
 
+#include <errno.h>
+#include <time.h>
+
+#if defined( HAVE_SYS_TIME_H )
+#include <sys/time.h>
+#endif
+
+#if defined( HAVE_UNISTD_H )
+#include <unistd.h>
+#endif
+
+#define MAILDIR_FILENAME_MAX       256
+#define SEEN_IDS_FILENAME          ".seen_message_ids"
+
+/* MAPI attachment MIME properties absent from the shared enum */
+#define PR_ATTACH_MIME_TAG    0x370eu
+#define PR_ATTACH_CONTENT_ID  0x3712u
+#define SEEN_IDS_FILENAME_LENGTH   17
+
 #include "export_handle.h"
 #include "item_file.h"
 #include "mapi_property_definition.h"
@@ -45,6 +64,402 @@
 
 #define EXPORT_HANDLE_BUFFER_SIZE		8192
 #define EXPORT_HANDLE_NOTIFY_STREAM		stdout
+
+/* Number of hash buckets for the seen-Message-ID deduplication table */
+#define SEEN_IDS_BUCKETS 1024
+
+/* Linked list node tracking a single seen Message-ID value */
+typedef struct seen_message_id seen_message_id_t;
+
+struct seen_message_id
+{
+	char *id;
+	seen_message_id_t *next;
+};
+
+/* Hash table mapping Message-ID strings to chain heads */
+typedef struct seen_message_ids_table seen_message_ids_table_t;
+
+struct seen_message_ids_table
+{
+	seen_message_id_t *buckets[ SEEN_IDS_BUCKETS ];
+};
+
+/* djb2 hash of a NUL-terminated string, bucketed to SEEN_IDS_BUCKETS
+ * Returns bucket index in [0, SEEN_IDS_BUCKETS)
+ */
+static uint32_t seen_ids_hash(
+                 const char *id )
+{
+	uint32_t h = 5381;
+
+	while( *id != 0 )
+	{
+		h = ( ( h << 5 ) + h ) ^ (uint8_t) *id++;
+	}
+	return( h % SEEN_IDS_BUCKETS );
+}
+
+/* Releases the hash table and all nodes
+ * Sets the table pointer to NULL on return
+ */
+static void seen_ids_table_free(
+             seen_message_ids_table_t **table )
+{
+	seen_message_id_t *current = NULL;
+	seen_message_id_t *next    = NULL;
+	uint32_t bucket_index      = 0;
+
+	if( ( table == NULL ) || ( *table == NULL ) )
+	{
+		return;
+	}
+	for( bucket_index = 0;
+	     bucket_index < SEEN_IDS_BUCKETS;
+	     bucket_index++ )
+	{
+		current = ( *table )->buckets[ bucket_index ];
+
+		while( current != NULL )
+		{
+			next = current->next;
+
+			if( current->id != NULL )
+			{
+				memory_free(
+				 current->id );
+			}
+			memory_free(
+			 current );
+
+			current = next;
+		}
+	}
+	memory_free(
+	 *table );
+
+	*table = NULL;
+}
+
+/* Prepends a Message-ID string into its hash bucket
+ * Ownership of id is transferred to the table
+ * Returns 1 if successful or -1 on error
+ */
+static int seen_ids_table_add(
+            seen_message_ids_table_t *table,
+            char *id,
+            libcerror_error_t **error )
+{
+	seen_message_id_t *node = NULL;
+	uint32_t bucket_index   = 0;
+	static char *function   = "seen_ids_table_add";
+
+	if( table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	node = (seen_message_id_t *) memory_allocate(
+	                              sizeof( seen_message_id_t ) );
+
+	if( node == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to allocate list node.",
+		 function );
+
+		return( -1 );
+	}
+	bucket_index    = seen_ids_hash( id );
+	node->id        = id;
+	node->next      = table->buckets[ bucket_index ];
+	table->buckets[ bucket_index ] = node;
+
+	return( 1 );
+}
+
+/* Tests whether a Message-ID string is in the table
+ * Returns 1 if found, 0 if not found
+ */
+static int seen_ids_table_contains(
+            seen_message_ids_table_t *table,
+            const char *id )
+{
+	seen_message_id_t *current = NULL;
+	uint32_t bucket_index      = 0;
+	size_t id_len              = 0;
+
+	if( table == NULL )
+	{
+		return( 0 );
+	}
+	bucket_index = seen_ids_hash( id );
+	current      = table->buckets[ bucket_index ];
+	id_len       = narrow_string_length( id );
+
+	while( current != NULL )
+	{
+		if( ( narrow_string_length( current->id ) == id_len )
+		 && ( narrow_string_compare(
+		       current->id,
+		       id,
+		       id_len ) == 0 ) )
+		{
+			return( 1 );
+		}
+		current = current->next;
+	}
+	return( 0 );
+}
+
+/* Populates a new table from a newline-delimited file
+ * Absence of the file is not an error on first run
+ * Returns 1 if successful or -1 on error
+ */
+static int seen_ids_table_load(
+            seen_message_ids_table_t **table,
+            const char *path,
+            libcerror_error_t **error )
+{
+	FILE *file            = NULL;
+	char *line            = NULL;
+	char *newline         = NULL;
+	char *id              = NULL;
+	size_t id_length      = 0;
+	static char *function = "seen_ids_table_load";
+	static const size_t line_size = 4096;
+
+	if( table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	*table = (seen_message_ids_table_t *) memory_allocate(
+	                                       sizeof( seen_message_ids_table_t ) );
+
+	if( *table == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to allocate hash table.",
+		 function );
+
+		return( -1 );
+	}
+	memory_set(
+	 *table,
+	 0,
+	 sizeof( seen_message_ids_table_t ) );
+
+	line = (char *) memory_allocate(
+	                 sizeof( char ) * line_size );
+
+	if( line == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to allocate line buffer.",
+		 function );
+
+		return( -1 );
+	}
+	file = file_stream_open(
+	        path,
+	        "r" );
+
+	if( file == NULL )
+	{
+		if( errno != ENOENT )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_OPEN_FAILED,
+			 "%s: unable to open dedup file for reading: %s.",
+			 function,
+			 path );
+
+			memory_free(
+			 line );
+
+			return( -1 );
+		}
+		/* file absent on first run; not an error */
+		memory_free(
+		 line );
+
+		return( 1 );
+	}
+	while( file_stream_get_string(
+	        file,
+	        line,
+	        (int) line_size ) != NULL )
+	{
+		newline = narrow_string_search_character(
+		           line,
+		           (int) '\n',
+		           narrow_string_length( line ) );
+
+		if( newline != NULL )
+		{
+			*newline = 0;
+		}
+		else if( feof( file ) == 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: dedup file line exceeds buffer; state may be incomplete.",
+			 function );
+
+			file_stream_close(
+			 file );
+
+			memory_free(
+			 line );
+
+			return( -1 );
+		}
+		id_length = narrow_string_length(
+		             line );
+
+		if( id_length == 0 )
+		{
+			continue;
+		}
+		id = (char *) memory_allocate(
+		               sizeof( char ) * ( id_length + 1 ) );
+
+		if( id == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to allocate id string.",
+			 function );
+
+			file_stream_close(
+			 file );
+
+			memory_free(
+			 line );
+
+			return( -1 );
+		}
+		narrow_string_copy(
+		 id,
+		 line,
+		 id_length + 1 );
+
+		if( seen_ids_table_add(
+		     *table,
+		     id,
+		     error ) != 1 )
+		{
+			memory_free(
+			 id );
+
+			file_stream_close(
+			 file );
+
+			memory_free(
+			 line );
+
+			return( -1 );
+		}
+	}
+	file_stream_close(
+	 file );
+
+	memory_free(
+	 line );
+
+	return( 1 );
+}
+
+/* Writes all table entries to a newline-delimited file
+ * Returns 1 if successful or -1 on error
+ */
+static int seen_ids_table_save(
+            seen_message_ids_table_t *table,
+            const char *path,
+            libcerror_error_t **error )
+{
+	seen_message_id_t *current = NULL;
+	FILE *file                 = NULL;
+	uint32_t bucket_index      = 0;
+	static char *function      = "seen_ids_table_save";
+
+	if( path == NULL )
+	{
+		return( 1 );
+	}
+	file = file_stream_open(
+	        path,
+	        "w" );
+
+	if( file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open dedup file for writing: %s.",
+		 function,
+		 path );
+
+		return( -1 );
+	}
+	if( table != NULL )
+	{
+		for( bucket_index = 0;
+		     bucket_index < SEEN_IDS_BUCKETS;
+		     bucket_index++ )
+		{
+			current = table->buckets[ bucket_index ];
+
+			while( current != NULL )
+			{
+				file_stream_write(
+				 file,
+				 current->id,
+				 narrow_string_length( current->id ) );
+
+				file_stream_write(
+				 file,
+				 "\n",
+				 1 );
+
+				current = current->next;
+			}
+		}
+	}
+	file_stream_close(
+	 file );
+
+	return( 1 );
+}
 
 /* Creates an export handle
  * Make sure the value export_handle is referencing, is set to NULL
@@ -132,7 +547,8 @@ int export_handle_free(
      export_handle_t **export_handle,
      libcerror_error_t **error )
 {
-	static char *function = "export_handle_free";
+	seen_message_ids_table_t *seen_ids_ptr = NULL;
+	static char *function                  = "export_handle_free";
 
 	if( export_handle == NULL )
 	{
@@ -166,6 +582,32 @@ int export_handle_free(
 		{
 			memory_free(
 			 ( *export_handle )->recovered_export_path );
+		}
+		if( ( *export_handle )->dedup_path != NULL )
+		{
+			seen_ids_ptr = ( *export_handle )->seen_ids;
+
+			if( seen_ids_table_save(
+			     seen_ids_ptr,
+			     ( *export_handle )->dedup_path,
+			     error ) != 1 )
+			{
+				if( ( *export_handle )->notify_stream != NULL )
+				{
+					fprintf(
+					 ( *export_handle )->notify_stream,
+					 "Unable to save deduplication state.\n" );
+				}
+				libcerror_error_free(
+				 error );
+			}
+			seen_ids_table_free(
+			 &seen_ids_ptr );
+
+			( *export_handle )->seen_ids = NULL;
+
+			memory_free(
+			 ( *export_handle )->dedup_path );
 		}
 		memory_free(
 		 *export_handle );
@@ -1341,6 +1783,19 @@ int export_handle_export_item(
 
 		return( 1 );
 	}
+
+	/* in Maildir mode only export items with an RFC 2822 representation */
+	if( export_handle->preferred_export_format == EXPORT_FORMAT_MAILDIR )
+	{
+		if( ( item_type != LIBPFF_ITEM_TYPE_CONFLICT_MESSAGE )
+		 && ( item_type != LIBPFF_ITEM_TYPE_EMAIL )
+		 && ( item_type != LIBPFF_ITEM_TYPE_EMAIL_SMIME )
+		 && ( item_type != LIBPFF_ITEM_TYPE_FOLDER ) )
+		{
+			return( 1 );
+		}
+	}
+
 	switch( item_type )
 	{
 		case LIBPFF_ITEM_TYPE_ACTIVITY:
@@ -10711,9 +11166,2002 @@ on_error:
 	return( -1 );
 }
 
-/* Exports the email
+/* base64 character table */
+static const char mime_b64_chars[] =
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+/* Streams attachment data to output_file as base64, wrapped at 76 chars per line
+ * with CRLF line endings.  Reads in 57-byte chunks (= 76 base64 chars exactly).
+ * Returns 1 if successful or -1 on error.
+ */
+static int mime_base64_write_attachment(
+            item_file_t *output_file,
+            libpff_item_t *attachment,
+            libcerror_error_t **error )
+{
+	uint8_t in_buf[ 57 ];
+	uint8_t out_buf[ 80 ];
+	static char *function = "mime_base64_write_attachment";
+	ssize_t bytes_read    = 0;
+	size_t out_pos        = 0;
+	size_t i              = 0;
+	uint32_t v            = 0;
+
+	while( 1 )
+	{
+		bytes_read = libpff_attachment_data_read_buffer(
+		              attachment,
+		              in_buf,
+		              57,
+		              error );
+
+		if( bytes_read < 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read attachment data.",
+			 function );
+
+			return( -1 );
+		}
+		if( bytes_read == 0 )
+		{
+			break;
+		}
+		out_pos = 0;
+
+		/* Encode complete 3-byte groups */
+		for( i = 0; i + 2 < (size_t) bytes_read; i += 3 )
+		{
+			v = ( (uint32_t) in_buf[ i ]     << 16 )
+			  | ( (uint32_t) in_buf[ i + 1 ] <<  8 )
+			  |   (uint32_t) in_buf[ i + 2 ];
+
+			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >> 18 ) & 0x3fu ];
+			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >> 12 ) & 0x3fu ];
+			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >>  6 ) & 0x3fu ];
+			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[   v         & 0x3fu ];
+		}
+		/* Handle final 1 or 2 remaining bytes with = padding */
+		if( i < (size_t) bytes_read )
+		{
+			v = (uint32_t) in_buf[ i ] << 16;
+
+			if( ( i + 1 ) < (size_t) bytes_read )
+			{
+				v |= (uint32_t) in_buf[ i + 1 ] << 8;
+			}
+			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >> 18 ) & 0x3fu ];
+			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >> 12 ) & 0x3fu ];
+			out_buf[ out_pos++ ] = ( ( i + 1 ) < (size_t) bytes_read )
+			                     ? (uint8_t) mime_b64_chars[ ( v >> 6 ) & 0x3fu ]
+			                     : (uint8_t) '=';
+			out_buf[ out_pos++ ] = (uint8_t) '=';
+		}
+		out_buf[ out_pos++ ] = (uint8_t) '\r';
+		out_buf[ out_pos++ ] = (uint8_t) '\n';
+
+		if( item_file_write_buffer(
+		     output_file,
+		     out_buf,
+		     out_pos,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write base64 line.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
+}
+
+/* Allocates and returns a copy of the NUL-terminated headers string with
+ * Content-Type, Content-Transfer-Encoding, and MIME-Version header lines
+ * removed (including any RFC 2822 continuation lines that follow them).
+ * The caller must free the returned pointer.
+ * Returns allocated string or NULL on allocation failure.
+ */
+static char *maildir_strip_mime_headers(
+              const char *headers,
+              size_t headers_length )
+{
+	const char *src   = NULL;
+	const char *p     = NULL;
+	char *stripped    = NULL;
+	char *dst         = NULL;
+	size_t line_bytes = 0;
+	int skip_line     = 0;
+
+	stripped = (char *) memory_allocate(
+	                     sizeof( char ) * ( headers_length + 1 ) );
+
+	if( stripped == NULL )
+	{
+		return( NULL );
+	}
+	dst      = stripped;
+	src      = headers;
+	skip_line = 0;
+
+	while( src < headers + headers_length )
+	{
+		/* Find end of current line (position after the \n, or end of buffer) */
+		p = src;
+
+		while( ( p < headers + headers_length ) && ( *p != '\n' ) )
+		{
+			p++;
+		}
+		if( p < headers + headers_length )
+		{
+			p++;
+		}
+		line_bytes = (size_t) ( p - src );
+
+		/* Continuation lines begin with SP or HT; inherit skip from parent header */
+		if( ( src < headers + headers_length )
+		 && ( ( *src == ' ' ) || ( *src == '\t' ) ) )
+		{
+			/* skip_line retains value from the header line above */
+		}
+		else
+		{
+			/* New header field: check whether to strip */
+			skip_line = 0;
+
+			if( ( line_bytes >= 13 )
+			 && ( narrow_string_compare_no_case(
+			       src,
+			       "Content-Type:",
+			       13 ) == 0 ) )
+			{
+				skip_line = 1;
+			}
+			else if( ( line_bytes >= 26 )
+			      && ( narrow_string_compare_no_case(
+			            src,
+			            "Content-Transfer-Encoding:",
+			            26 ) == 0 ) )
+			{
+				skip_line = 1;
+			}
+			else if( ( line_bytes >= 13 )
+			      && ( narrow_string_compare_no_case(
+			            src,
+			            "MIME-Version:",
+			            13 ) == 0 ) )
+			{
+				skip_line = 1;
+			}
+		}
+		if( skip_line == 0 )
+		{
+			memory_copy(
+			 dst,
+			 src,
+			 line_bytes );
+
+			dst += line_bytes;
+		}
+		src += line_bytes;
+	}
+	*dst = 0;
+
+	return( stripped );
+}
+
+/**
+ * export_handle_initialize_maildir - build the dedup_path from items_export_path,
+ * then load the seen-Message-ID hash table from the persistence file.
+ * A missing file is not an error (first run).
+ *
+ * @export_handle: the export handle (items_export_path must already be set)
+ * @error:         libcerror error object
+ *
  * Returns 1 if successful or -1 on error
  */
+int export_handle_initialize_maildir(
+     export_handle_t *export_handle,
+     libcerror_error_t **error )
+{
+	seen_message_ids_table_t *table_ptr = NULL;
+	static char *function               = "export_handle_initialize_maildir";
+	int result                          = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( export_handle->dedup_path != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: Maildir already initialized.",
+		 function );
+
+		return( -1 );
+	}
+	result = libcpath_path_join(
+	          &export_handle->dedup_path,
+	          &export_handle->dedup_path_size,
+	          (const char *) export_handle->items_export_path,
+	          export_handle->items_export_path_size - 1,
+	          SEEN_IDS_FILENAME,
+	          SEEN_IDS_FILENAME_LENGTH,
+	          error );
+
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create dedup path.",
+		 function );
+
+		return( -1 );
+	}
+	result = seen_ids_table_load(
+	          &table_ptr,
+	          export_handle->dedup_path,
+	          error );
+
+	export_handle->seen_ids = table_ptr;
+
+	return( result );
+}
+
+/* Exports the email as a structurally valid RFC 2822 Maildir message.
+ * Transport headers are written verbatim after stripping the original
+ * Content-Type, Content-Transfer-Encoding, and MIME-Version lines;
+ * fresh MIME envelope headers are synthesised to match the body parts
+ * actually available (plain text, HTML, inline attachments, regular
+ * attachments).
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_email_maildir(
+     export_handle_t *export_handle,
+     libpff_item_t *email,
+     int email_index,
+     const system_character_t *export_path,
+     size_t export_path_length,
+     log_handle_t *log_handle,
+     libcerror_error_t **error )
+{
+	item_file_t *output_file                        = NULL;
+	libpff_item_t *attachment                       = NULL;
+	libpff_item_t **attachment_items                = NULL;
+	char **attachment_content_ids                   = NULL;
+	char **attachment_mime_types                    = NULL;
+	char **attachment_filenames                     = NULL;
+	system_character_t *message_path                = NULL;
+	system_character_t *cur_path                    = NULL;
+	system_character_t message_filename[ MAILDIR_FILENAME_MAX ];
+	char boundary_outer[ 80 ];
+	char boundary_inner[ 80 ];
+	char *stripped_headers                          = NULL;
+	char *message_id_start                          = NULL;
+	char *message_id_end                            = NULL;
+	char *message_id                                = NULL;
+	char part_header_buf[ 256 ];
+	char hostname[ 256 ];
+	uint8_t *headers_buffer                         = NULL;
+	uint8_t *text_buffer                            = NULL;
+	uint8_t *html_buffer                            = NULL;
+	static char *function                           = "export_handle_export_email_maildir";
+	size_t cur_path_size                            = 0;
+	size_t headers_size                             = 0;
+	size_t text_size                                = 0;
+	size_t html_size                                = 0;
+	size_t message_path_size                        = 0;
+	size_t message_id_length                        = 0;
+	size_t value_string_size                        = 0;
+	struct timeval timestamp                        = { 0, 0 };
+	uint32_t message_flags                          = 0;
+	int attachment_index                            = 0;
+	int filename_length                             = 0;
+	int has_plain_text                              = 0;
+	int has_html                                    = 0;
+	int n_attachments                               = 0;
+	int n_inline                                    = 0;
+	int n_regular                                   = 0;
+	int part_header_len                             = 0;
+	int result                                      = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( export_path == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export path.",
+		 function );
+
+		return( -1 );
+	}
+	/* Retrieve transport headers */
+	result = libpff_message_get_entry_value_utf8_string_size(
+	          email,
+	          LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
+	          &headers_size,
+	          error );
+
+	if( result == -1 )
+	{
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_print_error_backtrace(
+			 *error );
+		}
+		libcerror_error_free(
+		 error );
+
+		log_handle_printf(
+		 log_handle,
+		 "Unable to retrieve transport headers size for email %05d.\n",
+		 email_index );
+	}
+	else if( result == 1 )
+	{
+		headers_buffer = (uint8_t *) memory_allocate(
+		                              sizeof( uint8_t ) * headers_size );
+
+		if( headers_buffer == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to allocate transport headers buffer.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_message_get_entry_value_utf8_string(
+		     email,
+		     LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
+		     headers_buffer,
+		     headers_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve transport headers.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	/* Extract Message-ID from headers for deduplication */
+	if( headers_buffer != NULL )
+	{
+		{
+			char *scan_pos   = (char *) headers_buffer;
+			char *line_start = scan_pos;
+			size_t line_len  = 0;
+
+			while( *scan_pos != 0 )
+			{
+				if( *scan_pos == '\n' )
+				{
+					line_len = (size_t) ( scan_pos - line_start );
+
+					if( ( line_len >= 11 )
+					 && ( narrow_string_compare_no_case(
+					       line_start,
+					       "Message-ID:",
+					       11 ) == 0 ) )
+					{
+						message_id_start = narrow_string_search_character(
+						                    line_start,
+						                    (int) '<',
+						                    line_len );
+						break;
+					}
+					line_start = scan_pos + 1;
+				}
+				scan_pos++;
+			}
+		}
+		if( message_id_start != NULL )
+		{
+			message_id_end = narrow_string_search_character(
+			                  message_id_start,
+			                  (int) '>',
+			                  narrow_string_length( message_id_start ) );
+
+			if( message_id_end != NULL )
+			{
+				/* include the < and > delimiters */
+				message_id_length = (size_t) ( message_id_end - message_id_start ) + 1;
+
+				message_id = (char *) memory_allocate(
+				                       sizeof( char ) * ( message_id_length + 1 ) );
+
+				if( message_id == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+					 "%s: unable to allocate message-id string.",
+					 function );
+
+					goto on_error;
+				}
+				narrow_string_copy(
+				 message_id,
+				 message_id_start,
+				 message_id_length );
+
+				message_id[ message_id_length ] = 0;
+			}
+		}
+	}
+	/* Skip duplicate messages */
+	if( message_id != NULL )
+	{
+		if( seen_ids_table_contains(
+		     export_handle->seen_ids,
+		     message_id ) != 0 )
+		{
+			log_handle_printf(
+			 log_handle,
+			 "Skipping duplicate email %05d (Message-ID: %s)\n",
+			 email_index,
+			 message_id );
+
+			memory_free(
+			 message_id );
+
+			return( 1 );
+		}
+	}
+	/* Retrieve plain-text body */
+	result = libpff_message_get_plain_text_body_size(
+	          email,
+	          &text_size,
+	          error );
+
+	if( result == -1 )
+	{
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_print_error_backtrace(
+			 *error );
+		}
+		libcerror_error_free(
+		 error );
+	}
+	else if( result == 1 )
+	{
+		text_buffer = (uint8_t *) memory_allocate(
+		                           sizeof( uint8_t ) * text_size );
+
+		if( text_buffer == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to allocate plain-text body buffer.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_message_get_plain_text_body(
+		     email,
+		     text_buffer,
+		     text_size,
+		     error ) == 1 )
+		{
+			has_plain_text = 1;
+		}
+		else
+		{
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+			libcerror_error_free(
+			 error );
+
+			memory_free(
+			 text_buffer );
+
+			text_buffer = NULL;
+		}
+	}
+	/* Retrieve HTML body */
+	result = libpff_message_get_html_body_size(
+	          email,
+	          &html_size,
+	          error );
+
+	if( result == -1 )
+	{
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_print_error_backtrace(
+			 *error );
+		}
+		libcerror_error_free(
+		 error );
+	}
+	else if( result == 1 )
+	{
+		html_buffer = (uint8_t *) memory_allocate(
+		                           sizeof( uint8_t ) * html_size );
+
+		if( html_buffer == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to allocate HTML body buffer.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_message_get_html_body(
+		     email,
+		     html_buffer,
+		     html_size,
+		     error ) == 1 )
+		{
+			has_html = 1;
+		}
+		else
+		{
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+			libcerror_error_free(
+			 error );
+
+			memory_free(
+			 html_buffer );
+
+			html_buffer = NULL;
+		}
+	}
+	/* Collect attachment metadata to determine MIME structure */
+	/* Suppress libpff verbose output for this non-fatal probe;
+	 * missing local descriptors are common in real-world OST files. */
+	{
+		if( libpff_message_get_number_of_attachments(
+		     email,
+		     &n_attachments,
+		     error ) == -1 )
+		{
+			libcerror_error_free(
+			 error );
+
+			n_attachments = 0;
+		}
+	}
+	if( n_attachments > 0 )
+	{
+		attachment_items = (libpff_item_t **) memory_allocate(
+		                                       sizeof( libpff_item_t * ) * n_attachments );
+
+		attachment_content_ids = (system_character_t **) memory_allocate(
+		                                                   sizeof( system_character_t * ) * n_attachments );
+
+		attachment_mime_types = (system_character_t **) memory_allocate(
+		                                                  sizeof( system_character_t * ) * n_attachments );
+
+		attachment_filenames = (system_character_t **) memory_allocate(
+		                                                sizeof( system_character_t * ) * n_attachments );
+
+		if( ( attachment_items == NULL )
+		 || ( attachment_content_ids == NULL )
+		 || ( attachment_mime_types == NULL )
+		 || ( attachment_filenames == NULL ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to allocate attachment metadata arrays.",
+			 function );
+
+			goto on_error;
+		}
+		memory_set(
+		 attachment_items,
+		 0,
+		 sizeof( libpff_item_t * ) * n_attachments );
+
+		memory_set(
+		 attachment_content_ids,
+		 0,
+		 sizeof( system_character_t * ) * n_attachments );
+
+		memory_set(
+		 attachment_mime_types,
+		 0,
+		 sizeof( system_character_t * ) * n_attachments );
+
+		memory_set(
+		 attachment_filenames,
+		 0,
+		 sizeof( system_character_t * ) * n_attachments );
+
+		for( attachment_index = 0;
+		     attachment_index < n_attachments;
+		     attachment_index++ )
+		{
+			if( libpff_message_get_attachment(
+			     email,
+			     attachment_index,
+			     &attachment_items[ attachment_index ],
+			     error ) != 1 )
+			{
+				if( libcnotify_verbose != 0 )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+				libcerror_error_free(
+				 error );
+
+				continue;
+			}
+			attachment = attachment_items[ attachment_index ];
+
+			/* Read Content-ID (PR_ATTACH_CONTENT_ID = 0x3712) */
+			result = export_handle_item_get_value_string_size_by_type(
+			          export_handle,
+			          attachment,
+			          0,
+			          PR_ATTACH_CONTENT_ID,
+			          &value_string_size,
+			          NULL );
+
+			if( result == 1 )
+			{
+				attachment_content_ids[ attachment_index ] =
+				    (char *) memory_allocate(
+				              sizeof( char ) * value_string_size );
+
+				if( attachment_content_ids[ attachment_index ] != NULL )
+				{
+					if( export_handle_item_get_value_string_by_type(
+					     export_handle,
+					     attachment,
+					     0,
+					     PR_ATTACH_CONTENT_ID,
+					     (system_character_t *) attachment_content_ids[ attachment_index ],
+					     value_string_size,
+					     NULL ) == 1 )
+					{
+						n_inline++;
+					}
+					else
+					{
+						memory_free(
+						 attachment_content_ids[ attachment_index ] );
+
+						attachment_content_ids[ attachment_index ] = NULL;
+					}
+				}
+			}
+			if( attachment_content_ids[ attachment_index ] == NULL )
+			{
+				n_regular++;
+			}
+			/* Read MIME type (PR_ATTACH_MIME_TAG = 0x370e) */
+			result = export_handle_item_get_value_string_size_by_type(
+			          export_handle,
+			          attachment,
+			          0,
+			          PR_ATTACH_MIME_TAG,
+			          &value_string_size,
+			          NULL );
+
+			if( result == 1 )
+			{
+				attachment_mime_types[ attachment_index ] =
+				    (char *) memory_allocate(
+				              sizeof( char ) * value_string_size );
+
+				if( attachment_mime_types[ attachment_index ] != NULL )
+				{
+					if( export_handle_item_get_value_string_by_type(
+					     export_handle,
+					     attachment,
+					     0,
+					     PR_ATTACH_MIME_TAG,
+					     (system_character_t *) attachment_mime_types[ attachment_index ],
+					     value_string_size,
+					     NULL ) != 1 )
+					{
+						memory_free(
+						 attachment_mime_types[ attachment_index ] );
+
+						attachment_mime_types[ attachment_index ] = NULL;
+					}
+				}
+			}
+			/* Read long filename */
+			result = export_handle_item_get_value_string_size_by_type(
+			          export_handle,
+			          attachment,
+			          0,
+			          LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG,
+			          &value_string_size,
+			          NULL );
+
+			if( result == 1 )
+			{
+				attachment_filenames[ attachment_index ] =
+				    (char *) memory_allocate(
+				              sizeof( char ) * value_string_size );
+
+				if( attachment_filenames[ attachment_index ] != NULL )
+				{
+					if( export_handle_item_get_value_string_by_type(
+					     export_handle,
+					     attachment,
+					     0,
+					     LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG,
+					     (system_character_t *) attachment_filenames[ attachment_index ],
+					     value_string_size,
+					     NULL ) != 1 )
+					{
+						memory_free(
+						 attachment_filenames[ attachment_index ] );
+
+						attachment_filenames[ attachment_index ] = NULL;
+					}
+				}
+			}
+		}
+	}
+	if( n_attachments > 0 )
+	{
+		log_handle_printf(
+		 log_handle,
+		 "Email %05d: %d attachment(s) (%d inline, %d regular).\n",
+		 email_index,
+		 n_attachments,
+		 n_inline,
+		 n_regular );
+	}
+
+	/* Query read state for Maildir info flags */
+	if( export_handle_item_get_value_32bit_by_type(
+	     export_handle,
+	     email,
+	     0,
+	     LIBPFF_ENTRY_TYPE_MESSAGE_FLAGS,
+	     &message_flags,
+	     NULL ) != 1 )
+	{
+		log_handle_printf(
+		 log_handle,
+		 "Unable to retrieve message flags for email %05d; treating as unread.\n",
+		 email_index );
+
+		message_flags = 0;
+	}
+	/* Build the Maildir message filename: <sec>.M<usec>P<pid>_<seq>.<host>:2,[S] */
+	if( gettimeofday(
+	     &timestamp,
+	     NULL ) != 0 )
+	{
+		log_handle_printf(
+		 log_handle,
+		 "Unable to retrieve time of day for email %05d; using coarse timestamp.\n",
+		 email_index );
+
+		timestamp.tv_sec  = time( NULL );
+		timestamp.tv_usec = 0;
+	}
+	if( gethostname(
+	     hostname,
+	     sizeof( hostname ) ) != 0 )
+	{
+		log_handle_printf(
+		 log_handle,
+		 "Unable to retrieve hostname for email %05d; using localhost.\n",
+		 email_index );
+
+		narrow_string_copy(
+		 hostname,
+		 "localhost",
+		 sizeof( "localhost" ) );
+	}
+	/* POSIX permits non-terminated result when hostname fills the buffer */
+	hostname[ sizeof( hostname ) - 1 ] = 0;
+
+	/* sanitize hostname: replace '/' and ':' which are reserved in Maildir filenames */
+	{
+		char *ch = hostname;
+
+		while( *ch != 0 )
+		{
+			if( ( *ch == '/' ) || ( *ch == ':' ) )
+			{
+				*ch = '_';
+			}
+			ch++;
+		}
+	}
+	filename_length = system_string_sprintf(
+	                   message_filename,
+	                   MAILDIR_FILENAME_MAX,
+	                   _SYSTEM_STRING( "%ld.M%06ldP%d_%" PRIu32 ".%s:2,%s" ),
+	                   (long) timestamp.tv_sec,
+	                   (long) timestamp.tv_usec,
+	                   (int) getpid(),
+	                   export_handle->maildir_sequence,
+	                   hostname,
+	                   ( message_flags & LIBPFF_MESSAGE_FLAG_READ ) != 0 ? "S" : "" );
+
+	if( ( filename_length <= 0 )
+	 || ( filename_length >= MAILDIR_FILENAME_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to build Maildir filename.",
+		 function );
+
+		goto on_error;
+	}
+	export_handle->maildir_sequence++;
+
+	/* Generate MIME boundary strings; the outer boundary wraps multipart/mixed,
+	 * the inner boundary wraps multipart/alternative or multipart/related. */
+	snprintf(
+	 boundary_outer,
+	 sizeof( boundary_outer ),
+	 "=pffX=%ld.%u=",
+	 (long) timestamp.tv_sec,
+	 export_handle->maildir_sequence );
+
+	snprintf(
+	 boundary_inner,
+	 sizeof( boundary_inner ),
+	 "=pffY=%ld.%u=",
+	 (long) timestamp.tv_sec,
+	 export_handle->maildir_sequence );
+
+	/* Strip MIME envelope headers so we write our own */
+	if( headers_buffer != NULL )
+	{
+		stripped_headers = maildir_strip_mime_headers(
+		                    (const char *) headers_buffer,
+		                    headers_size - 1 );
+
+		if( stripped_headers == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to allocate stripped headers buffer.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	/* Join export_path + "cur" -> cur_path */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libcpath_path_join_wide(
+	          &cur_path,
+	          &cur_path_size,
+	          export_path,
+	          export_path_length,
+	          _SYSTEM_STRING( "cur" ),
+	          3,
+	          error );
+#else
+	result = libcpath_path_join(
+	          &cur_path,
+	          &cur_path_size,
+	          export_path,
+	          export_path_length,
+	          _SYSTEM_STRING( "cur" ),
+	          3,
+	          error );
+#endif
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create cur/ path.",
+		 function );
+
+		goto on_error;
+	}
+	/* Join cur_path + message_filename -> message_path */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libcpath_path_join_wide(
+	          &message_path,
+	          &message_path_size,
+	          cur_path,
+	          cur_path_size - 1,
+	          message_filename,
+	          (size_t) filename_length,
+	          error );
+#else
+	result = libcpath_path_join(
+	          &message_path,
+	          &message_path_size,
+	          cur_path,
+	          cur_path_size - 1,
+	          message_filename,
+	          (size_t) filename_length,
+	          error );
+#endif
+	if( result != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create message file path.",
+		 function );
+
+		goto on_error;
+	}
+	memory_free(
+	 cur_path );
+
+	cur_path = NULL;
+
+	if( item_file_initialize(
+	     &output_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize output file.",
+		 function );
+
+		goto on_error;
+	}
+	if( item_file_open(
+	     output_file,
+	     message_path,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open message file: %" PRIs_SYSTEM ".",
+		 function,
+		 message_path );
+
+		goto on_error;
+	}
+	/* Write stripped transport headers */
+	if( stripped_headers != NULL )
+	{
+		if( item_file_write_buffer(
+		     output_file,
+		     (uint8_t *) stripped_headers,
+		     narrow_string_length( stripped_headers ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write transport headers.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	/* Write MIME-Version */
+	if( item_file_write_buffer(
+	     output_file,
+	     (uint8_t *) "MIME-Version: 1.0\r\n",
+	     sizeof( "MIME-Version: 1.0\r\n" ) - 1,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write MIME-Version.",
+		 function );
+
+		goto on_error;
+	}
+	/* Write top-level Content-Type.
+	 *
+	 * Structure selection:
+	 *   n_attachments == 0, single body type: write Content-Type directly
+	 *   n_attachments == 0, both body types:  multipart/alternative (inner)
+	 *   n_attachments > 0:                    multipart/mixed (outer) wrapping:
+	 *     has_html && n_inline > 0:             multipart/related (inner)
+	 *     has_plain_text && has_html:           multipart/alternative (inner)
+	 *     single body type:                    that type directly as body part
+	 */
+	if( n_attachments == 0 )
+	{
+		if( has_plain_text && has_html )
+		{
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "Content-Type: multipart/alternative;\r\n"
+			                   "\tboundary=\"%s\"\r\n"
+			                   "\r\n",
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			/* text/plain part */
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "--%s\r\n"
+			                   "Content-Type: text/plain; charset=utf-8\r\n"
+			                   "Content-Transfer-Encoding: 8bit\r\n"
+			                   "\r\n",
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     text_buffer,
+			     text_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write plain-text body.",
+				 function );
+
+				goto on_error;
+			}
+			/* text/html part */
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "\r\n--%s\r\n"
+			                   "Content-Type: text/html; charset=utf-8\r\n"
+			                   "Content-Transfer-Encoding: 8bit\r\n"
+			                   "\r\n",
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     html_buffer,
+			     html_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write HTML body.",
+				 function );
+
+				goto on_error;
+			}
+			/* closing boundary */
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "\r\n--%s--\r\n",
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		else if( has_html )
+		{
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) "Content-Type: text/html; charset=utf-8\r\n"
+			                 "Content-Transfer-Encoding: 8bit\r\n"
+			                 "\r\n",
+			     sizeof( "Content-Type: text/html; charset=utf-8\r\n"
+			              "Content-Transfer-Encoding: 8bit\r\n"
+			              "\r\n" ) - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write HTML part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     html_buffer,
+			     html_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write HTML body.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		else if( has_plain_text )
+		{
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) "Content-Type: text/plain; charset=utf-8\r\n"
+			                 "Content-Transfer-Encoding: 8bit\r\n"
+			                 "\r\n",
+			     sizeof( "Content-Type: text/plain; charset=utf-8\r\n"
+			              "Content-Transfer-Encoding: 8bit\r\n"
+			              "\r\n" ) - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write plain-text part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     text_buffer,
+			     text_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write plain-text body.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		else
+		{
+			/* No body available; write empty body */
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) "Content-Type: text/plain; charset=utf-8\r\n\r\n",
+			     sizeof( "Content-Type: text/plain; charset=utf-8\r\n\r\n" ) - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write empty body header.",
+				 function );
+
+				goto on_error;
+			}
+		}
+	}
+	else
+	{
+		/* n_attachments > 0: outer multipart/mixed */
+		part_header_len = snprintf(
+		                   part_header_buf,
+		                   sizeof( part_header_buf ),
+		                   "Content-Type: multipart/mixed;\r\n"
+		                   "\tboundary=\"%s\"\r\n"
+		                   "\r\n",
+		                   boundary_outer );
+
+		if( item_file_write_buffer(
+		     output_file,
+		     (uint8_t *) part_header_buf,
+		     (size_t) part_header_len,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write MIME part header.",
+			 function );
+
+			goto on_error;
+		}
+		/* Body section as first part of multipart/mixed */
+		if( has_html && ( n_inline > 0 ) )
+		{
+			/* multipart/related wrapping HTML + inline attachments */
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "--%s\r\n"
+			                   "Content-Type: multipart/related;\r\n"
+			                   "\tboundary=\"%s\"\r\n"
+			                   "\r\n",
+			                   boundary_outer,
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			/* HTML body as first part of related */
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "--%s\r\n"
+			                   "Content-Type: text/html; charset=utf-8\r\n"
+			                   "Content-Transfer-Encoding: 8bit\r\n"
+			                   "\r\n",
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     html_buffer,
+			     html_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write HTML body.",
+				 function );
+
+				goto on_error;
+			}
+			/* Inline attachments inside related */
+			for( attachment_index = 0;
+			     attachment_index < n_attachments;
+			     attachment_index++ )
+			{
+				if( attachment_items[ attachment_index ] == NULL )
+				{
+					continue;
+				}
+				if( attachment_content_ids[ attachment_index ] == NULL )
+				{
+					continue;
+				}
+				part_header_len = snprintf(
+				                   part_header_buf,
+				                   sizeof( part_header_buf ),
+				                   "\r\n--%s\r\n"
+				                   "Content-Type: %s\r\n"
+				                   "Content-Transfer-Encoding: base64\r\n"
+				                   "Content-ID: <%s>\r\n",
+				                   boundary_inner,
+				                   attachment_mime_types[ attachment_index ] != NULL
+				                       ? (char *) attachment_mime_types[ attachment_index ]
+				                       : "application/octet-stream",
+				                   (char *) attachment_content_ids[ attachment_index ] );
+
+				if( item_file_write_buffer(
+				     output_file,
+				     (uint8_t *) part_header_buf,
+				     (size_t) part_header_len,
+				     error ) != 1 )
+				{
+					goto on_error;
+				}
+				if( attachment_filenames[ attachment_index ] != NULL )
+				{
+					part_header_len = snprintf(
+					                   part_header_buf,
+					                   sizeof( part_header_buf ),
+					                   "Content-Disposition: inline;"
+					                   " filename=\"%s\"\r\n",
+					                   (char *) attachment_filenames[ attachment_index ] );
+
+					if( item_file_write_buffer(
+					     output_file,
+					     (uint8_t *) part_header_buf,
+					     (size_t) part_header_len,
+					     error ) != 1 )
+					{
+						goto on_error;
+					}
+				}
+				if( item_file_write_buffer(
+				     output_file,
+				     (uint8_t *) "\r\n",
+				     2,
+				     error ) != 1 )
+				{
+					goto on_error;
+				}
+				if( mime_base64_write_attachment(
+				     output_file,
+				     attachment_items[ attachment_index ],
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_WRITE_FAILED,
+					 "%s: unable to write inline attachment %d.",
+					 function,
+					 attachment_index );
+
+					goto on_error;
+				}
+			}
+			/* Close inner multipart/related */
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "\r\n--%s--\r\n",
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		else if( has_plain_text && has_html )
+		{
+			/* multipart/alternative as body part of mixed */
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "--%s\r\n"
+			                   "Content-Type: multipart/alternative;\r\n"
+			                   "\tboundary=\"%s\"\r\n"
+			                   "\r\n",
+			                   boundary_outer,
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "--%s\r\n"
+			                   "Content-Type: text/plain; charset=utf-8\r\n"
+			                   "Content-Transfer-Encoding: 8bit\r\n"
+			                   "\r\n",
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     text_buffer,
+			     text_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write plain-text body.",
+				 function );
+
+				goto on_error;
+			}
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "\r\n--%s\r\n"
+			                   "Content-Type: text/html; charset=utf-8\r\n"
+			                   "Content-Transfer-Encoding: 8bit\r\n"
+			                   "\r\n",
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     html_buffer,
+			     html_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write HTML body.",
+				 function );
+
+				goto on_error;
+			}
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "\r\n--%s--\r\n",
+			                   boundary_inner );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		else if( has_html )
+		{
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "--%s\r\n"
+			                   "Content-Type: text/html; charset=utf-8\r\n"
+			                   "Content-Transfer-Encoding: 8bit\r\n"
+			                   "\r\n",
+			                   boundary_outer );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     html_buffer,
+			     html_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write HTML body.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		else if( has_plain_text )
+		{
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "--%s\r\n"
+			                   "Content-Type: text/plain; charset=utf-8\r\n"
+			                   "Content-Transfer-Encoding: 8bit\r\n"
+			                   "\r\n",
+			                   boundary_outer );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     text_buffer,
+			     text_size - 1,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write plain-text body.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		/* Regular (non-inline) attachments as parts of multipart/mixed */
+		for( attachment_index = 0;
+		     attachment_index < n_attachments;
+		     attachment_index++ )
+		{
+			if( attachment_items[ attachment_index ] == NULL )
+			{
+				continue;
+			}
+			if( attachment_content_ids[ attachment_index ] != NULL )
+			{
+				/* inline attachment already written inside related */
+				continue;
+			}
+			part_header_len = snprintf(
+			                   part_header_buf,
+			                   sizeof( part_header_buf ),
+			                   "\r\n--%s\r\n"
+			                   "Content-Type: %s\r\n"
+			                   "Content-Transfer-Encoding: base64\r\n",
+			                   boundary_outer,
+			                   attachment_mime_types[ attachment_index ] != NULL
+			                       ? (char *) attachment_mime_types[ attachment_index ]
+			                       : "application/octet-stream" );
+
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) part_header_buf,
+			     (size_t) part_header_len,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write MIME part header.",
+				 function );
+
+				goto on_error;
+			}
+			if( attachment_filenames[ attachment_index ] != NULL )
+			{
+				part_header_len = snprintf(
+				                   part_header_buf,
+				                   sizeof( part_header_buf ),
+				                   "Content-Disposition: attachment;"
+				                   " filename=\"%s\"\r\n",
+				                   (char *) attachment_filenames[ attachment_index ] );
+
+				if( item_file_write_buffer(
+				     output_file,
+				     (uint8_t *) part_header_buf,
+				     (size_t) part_header_len,
+				     error ) != 1 )
+				{
+					goto on_error;
+				}
+			}
+			if( item_file_write_buffer(
+			     output_file,
+			     (uint8_t *) "\r\n",
+			     2,
+			     error ) != 1 )
+			{
+				goto on_error;
+			}
+			if( mime_base64_write_attachment(
+			     output_file,
+			     attachment_items[ attachment_index ],
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write attachment %d.",
+				 function,
+				 attachment_index );
+
+				goto on_error;
+			}
+		}
+		/* Close outer multipart/mixed */
+		part_header_len = snprintf(
+		                   part_header_buf,
+		                   sizeof( part_header_buf ),
+		                   "\r\n--%s--\r\n",
+		                   boundary_outer );
+
+		if( item_file_write_buffer(
+		     output_file,
+		     (uint8_t *) part_header_buf,
+		     (size_t) part_header_len,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write MIME part header.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( item_file_close(
+	     output_file,
+	     error ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close message file.",
+		 function );
+
+		goto on_error;
+	}
+	if( item_file_free(
+	     &output_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free output file.",
+		 function );
+
+		goto on_error;
+	}
+	/* Record Message-ID in dedup table (transfers ownership of message_id) */
+	if( message_id != NULL )
+	{
+		if( seen_ids_table_add(
+		     export_handle->seen_ids,
+		     message_id,
+		     error ) != 1 )
+		{
+			goto on_error;
+		}
+		message_id = NULL;
+	}
+	log_handle_printf(
+	 log_handle,
+	 "Exported email %05d to Maildir: %s\n",
+	 email_index,
+	 message_filename );
+
+	/* Clean up attachment metadata */
+	if( attachment_items != NULL )
+	{
+		for( attachment_index = 0;
+		     attachment_index < n_attachments;
+		     attachment_index++ )
+		{
+			if( attachment_items[ attachment_index ] != NULL )
+			{
+				libpff_item_free(
+				 &attachment_items[ attachment_index ],
+				 NULL );
+			}
+			if( attachment_content_ids[ attachment_index ] != NULL )
+			{
+				memory_free(
+				 attachment_content_ids[ attachment_index ] );
+			}
+			if( attachment_mime_types[ attachment_index ] != NULL )
+			{
+				memory_free(
+				 attachment_mime_types[ attachment_index ] );
+			}
+			if( attachment_filenames[ attachment_index ] != NULL )
+			{
+				memory_free(
+				 attachment_filenames[ attachment_index ] );
+			}
+		}
+		memory_free(
+		 attachment_items );
+
+		memory_free(
+		 attachment_content_ids );
+
+		memory_free(
+		 attachment_mime_types );
+
+		memory_free(
+		 attachment_filenames );
+	}
+	memory_free(
+	 message_path );
+
+	memory_free(
+	 headers_buffer );
+
+	if( stripped_headers != NULL )
+	{
+		memory_free(
+		 stripped_headers );
+	}
+	if( text_buffer != NULL )
+	{
+		memory_free(
+		 text_buffer );
+	}
+	if( html_buffer != NULL )
+	{
+		memory_free(
+		 html_buffer );
+	}
+	return( 1 );
+
+on_error:
+	if( output_file != NULL )
+	{
+		item_file_close(
+		 output_file,
+		 NULL );
+		item_file_free(
+		 &output_file,
+		 NULL );
+	}
+	if( attachment_items != NULL )
+	{
+		for( attachment_index = 0;
+		     attachment_index < n_attachments;
+		     attachment_index++ )
+		{
+			if( attachment_items[ attachment_index ] != NULL )
+			{
+				libpff_item_free(
+				 &attachment_items[ attachment_index ],
+				 NULL );
+			}
+			if( attachment_content_ids != NULL
+			 && attachment_content_ids[ attachment_index ] != NULL )
+			{
+				memory_free(
+				 attachment_content_ids[ attachment_index ] );
+			}
+			if( attachment_mime_types != NULL
+			 && attachment_mime_types[ attachment_index ] != NULL )
+			{
+				memory_free(
+				 attachment_mime_types[ attachment_index ] );
+			}
+			if( attachment_filenames != NULL
+			 && attachment_filenames[ attachment_index ] != NULL )
+			{
+				memory_free(
+				 attachment_filenames[ attachment_index ] );
+			}
+		}
+		memory_free(
+		 attachment_items );
+	}
+	if( attachment_content_ids != NULL )
+	{
+		memory_free(
+		 attachment_content_ids );
+	}
+	if( attachment_mime_types != NULL )
+	{
+		memory_free(
+		 attachment_mime_types );
+	}
+	if( attachment_filenames != NULL )
+	{
+		memory_free(
+		 attachment_filenames );
+	}
+	if( message_path != NULL )
+	{
+		memory_free(
+		 message_path );
+	}
+	if( cur_path != NULL )
+	{
+		memory_free(
+		 cur_path );
+	}
+	if( stripped_headers != NULL )
+	{
+		memory_free(
+		 stripped_headers );
+	}
+	if( text_buffer != NULL )
+	{
+		memory_free(
+		 text_buffer );
+	}
+	if( html_buffer != NULL )
+	{
+		memory_free(
+		 html_buffer );
+	}
+	if( headers_buffer != NULL )
+	{
+		memory_free(
+		 headers_buffer );
+	}
+	if( message_id != NULL )
+	{
+		memory_free(
+		 message_id );
+	}
+	return( -1 );
+}
+
 int export_handle_export_email(
      export_handle_t *export_handle,
      libpff_item_t *email,
@@ -10790,6 +13238,18 @@ int export_handle_export_email(
 			 function,
 			 identifier );
 		}
+	}
+	/* Maildir mode: write RFC 2822 file directly to cur/ and return early */
+	if( export_handle->preferred_export_format == EXPORT_FORMAT_MAILDIR )
+	{
+		return( export_handle_export_email_maildir(
+		         export_handle,
+		         email,
+		         email_index,
+		         export_path,
+		         export_path_length,
+		         log_handle,
+		         error ) );
 	}
 	if( export_handle_create_default_item_directory(
 	     export_handle,
@@ -13327,6 +15787,14 @@ int export_handle_get_folder_name(
 		 log_handle,
 		 "Missing folder name defaulting to: %" PRIs_SYSTEM "\n",
 		 name );
+
+		if( export_handle->preferred_export_format == EXPORT_FORMAT_MAILDIR )
+		{
+			fprintf(
+			 export_handle->notify_stream,
+			 "Missing folder name defaulting to: %" PRIs_SYSTEM "\n",
+			 name );
+		}
 	}
 	*folder_name      = name;
 	*folder_name_size = name_size;
@@ -13347,6 +15815,41 @@ on_error:
 	return( -1 );
 }
 
+/* Maildir folder disposition applied during export_handle_export_folder */
+typedef enum
+{
+	MAILDIR_FOLDER_NORMAL      = 0,
+	MAILDIR_FOLDER_SKIP        = 1,
+	MAILDIR_FOLDER_PASSTHROUGH = 2,
+	MAILDIR_FOLDER_RENAME      = 3
+} maildir_folder_action_t;
+
+typedef struct
+{
+	const system_character_t *name;
+	maildir_folder_action_t   action;
+	const system_character_t *rename_to;
+} maildir_folder_rule_t;
+
+static const maildir_folder_rule_t maildir_folder_rules[] =
+{
+	{ _SYSTEM_STRING( "Common Views" ),         MAILDIR_FOLDER_SKIP,        NULL                              },
+	{ _SYSTEM_STRING( "Drizzle" ),              MAILDIR_FOLDER_SKIP,        NULL                              },
+	{ _SYSTEM_STRING( "Finder" ),               MAILDIR_FOLDER_SKIP,        NULL                              },
+	{ _SYSTEM_STRING( "IPM_SUBTREE" ),          MAILDIR_FOLDER_PASSTHROUGH, NULL                              },
+	{ _SYSTEM_STRING( "ItemProcSearch" ),       MAILDIR_FOLDER_SKIP,        NULL                              },
+	{ _SYSTEM_STRING( "NON_IPM_SUBTREE" ),      MAILDIR_FOLDER_SKIP,        NULL                              },
+	{ _SYSTEM_STRING( "Root - Mailbox" ),       MAILDIR_FOLDER_PASSTHROUGH, NULL                              },
+	{ _SYSTEM_STRING( "Root - Public" ),        MAILDIR_FOLDER_RENAME,      _SYSTEM_STRING( "Public Folders" ) },
+	{ _SYSTEM_STRING( "Shared Data" ),          MAILDIR_FOLDER_SKIP,        NULL                              },
+	{ _SYSTEM_STRING( "Shortcuts" ),            MAILDIR_FOLDER_SKIP,        NULL                              },
+	{ _SYSTEM_STRING( "SPAM Search Folder 2" ), MAILDIR_FOLDER_SKIP,        NULL                              },
+	{ _SYSTEM_STRING( "Views" ),                MAILDIR_FOLDER_SKIP,        NULL                              },
+	{ _SYSTEM_STRING( "~MAPISP(Internal)" ),    MAILDIR_FOLDER_SKIP,        NULL                              },
+};
+
+#define MAILDIR_FOLDER_RULES_COUNT ( (int) ( sizeof( maildir_folder_rules ) / sizeof( maildir_folder_rules[ 0 ] ) ) )
+
 /* Exports the folder
  * Returns 1 if successful or -1 on error
  */
@@ -13359,14 +15862,26 @@ int export_handle_export_folder(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	system_character_t *folder_name = NULL;
-	system_character_t *target_path = NULL;
-	static char *function           = "export_handle_export_folder";
-	size_t folder_name_size         = 0;
-	size_t target_path_size         = 0;
-	uint32_t identifier             = 0;
-	int print_count                 = 0;
-	int result                      = 0;
+	system_character_t *folder_name        = NULL;
+	system_character_t *maildir_subdir_path = NULL;
+	system_character_t *target_path        = NULL;
+	static char *function                  = "export_handle_export_folder";
+	const system_character_t *rename_to   = NULL;
+	size_t folder_name_size                = 0;
+	size_t maildir_subdir_path_size        = 0;
+	size_t rule_name_length                = 0;
+	size_t target_path_size                = 0;
+	uint32_t identifier                    = 0;
+	maildir_folder_action_t folder_action  = MAILDIR_FOLDER_NORMAL;
+	int print_count                        = 0;
+	int result                             = 0;
+	int rule_index                         = 0;
+	int subdir_index                       = 0;
+	const system_character_t *maildir_subdirs[ 3 ] = {
+		_SYSTEM_STRING( "cur" ),
+		_SYSTEM_STRING( "new" ),
+		_SYSTEM_STRING( "tmp" )
+	};
 
 	if( export_handle == NULL )
 	{
@@ -13453,6 +15968,105 @@ int export_handle_export_folder(
 		 folder_index );
 
 		goto on_error;
+	}
+	if( export_handle->preferred_export_format == EXPORT_FORMAT_MAILDIR )
+	{
+		for( rule_index = 0;
+		     rule_index < MAILDIR_FOLDER_RULES_COUNT;
+		     rule_index++ )
+		{
+			rule_name_length = system_string_length(
+			                    maildir_folder_rules[ rule_index ].name );
+
+			if( ( ( folder_name_size - 1 ) == rule_name_length )
+			 && ( system_string_compare(
+			       folder_name,
+			       maildir_folder_rules[ rule_index ].name,
+			       rule_name_length ) == 0 ) )
+			{
+				folder_action = maildir_folder_rules[ rule_index ].action;
+				rename_to     = maildir_folder_rules[ rule_index ].rename_to;
+				break;
+			}
+		}
+		switch( folder_action )
+		{
+			case MAILDIR_FOLDER_SKIP:
+				memory_free(
+				 folder_name );
+
+				return( 1 );
+
+			case MAILDIR_FOLDER_PASSTHROUGH:
+				memory_free(
+				 folder_name );
+
+				if( export_handle_export_sub_folders(
+				     export_handle,
+				     folder,
+				     export_path,
+				     export_path_length,
+				     log_handle,
+				     error ) != 1 )
+				{
+					return( -1 );
+				}
+				if( export_handle_export_sub_messages(
+				     export_handle,
+				     folder,
+				     export_path,
+				     export_path_length,
+				     log_handle,
+				     error ) != 1 )
+				{
+					return( -1 );
+				}
+				return( 1 );
+
+			case MAILDIR_FOLDER_RENAME:
+				memory_free(
+				 folder_name );
+
+				folder_name = NULL;
+
+				folder_name_size = system_string_length(
+				                    rename_to ) + 1;
+
+				folder_name = (system_character_t *) memory_allocate(
+				               sizeof( system_character_t ) * folder_name_size );
+
+				if( folder_name == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+					 "%s: unable to allocate folder name.",
+					 function );
+
+					goto on_error;
+				}
+				system_string_copy(
+				 folder_name,
+				 rename_to,
+				 folder_name_size );
+
+				break;
+
+			case MAILDIR_FOLDER_NORMAL:
+				break;
+
+			default:
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported folder action: %d.",
+				 function,
+				 (int) folder_action );
+
+				goto on_error;
+		}
 	}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libcpath_path_join_wide(
@@ -13584,21 +16198,94 @@ int export_handle_export_folder(
 	     error ) != 1 )
 #endif
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to make directory: %" PRIs_SYSTEM ".",
-		 function,
-		 target_path );
+		if( errno != EEXIST )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to make directory: %" PRIs_SYSTEM ".",
+			 function,
+			 target_path );
 
-		goto on_error;
+			goto on_error;
+		}
+		libcerror_error_free(
+		 error );
 	}
 	log_handle_printf(
 	 log_handle,
 	 "Created directory: %" PRIs_SYSTEM ".\n",
 	 target_path );
 
+	/* Create Maildir subdirectories cur/, new/, tmp/ for each folder */
+	if( export_handle->preferred_export_format == EXPORT_FORMAT_MAILDIR )
+	{
+		for( subdir_index = 0;
+		     subdir_index < 3;
+		     subdir_index++ )
+		{
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libcpath_path_join_wide(
+			          &maildir_subdir_path,
+			          &maildir_subdir_path_size,
+			          target_path,
+			          target_path_size - 1,
+			          maildir_subdirs[ subdir_index ],
+			          3,
+			          error );
+#else
+			result = libcpath_path_join(
+			          &maildir_subdir_path,
+			          &maildir_subdir_path_size,
+			          target_path,
+			          target_path_size - 1,
+			          maildir_subdirs[ subdir_index ],
+			          3,
+			          error );
+#endif
+			if( result != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create Maildir subdir path.",
+				 function );
+
+				goto on_error;
+			}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+			if( libcpath_path_make_directory_wide(
+			     maildir_subdir_path,
+			     error ) != 1 )
+#else
+			if( libcpath_path_make_directory(
+			     maildir_subdir_path,
+			     error ) != 1 )
+#endif
+			{
+				if( errno != EEXIST )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_WRITE_FAILED,
+					 "%s: unable to make Maildir subdirectory: %" PRIs_SYSTEM ".",
+					 function,
+					 maildir_subdir_path );
+
+					goto on_error;
+				}
+				libcerror_error_free(
+				 error );
+			}
+			memory_free(
+			 maildir_subdir_path );
+
+			maildir_subdir_path = NULL;
+		}
+	}
 	if( export_handle->dump_item_values != 0 )
 	{
 		if( export_handle_export_item_values(
@@ -13728,6 +16415,11 @@ int export_handle_export_folder(
 	return( 1 );
 
 on_error:
+	if( maildir_subdir_path != NULL )
+	{
+		memory_free(
+		 maildir_subdir_path );
+	}
 	if( target_path != NULL )
 	{
 		memory_free(
@@ -14228,20 +16920,54 @@ int export_handle_export_items(
 		     error ) != 1 )
 #endif
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_WRITE_FAILED,
-			 "%s: unable to make directory: %" PRIs_SYSTEM ".",
-			 function,
-			 export_path );
+			/* Maildir mode allows appending to an existing export directory */
+			if( export_handle->preferred_export_format == EXPORT_FORMAT_MAILDIR )
+			{
+				libcerror_error_free(
+				 error );
 
-			goto on_error;
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+				result = libcfile_file_exists_wide(
+				          export_path,
+				          error );
+#else
+				result = libcfile_file_exists(
+				          export_path,
+				          error );
+#endif
+				if( result != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_WRITE_FAILED,
+					 "%s: unable to make directory: %" PRIs_SYSTEM ".",
+					 function,
+					 export_path );
+
+					goto on_error;
+				}
+			}
+			else
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to make directory: %" PRIs_SYSTEM ".",
+				 function,
+				 export_path );
+
+				goto on_error;
+			}
 		}
-		log_handle_printf(
-		 log_handle,
-		 "Created directory: %" PRIs_SYSTEM ".\n",
-		 export_path );
+		else
+		{
+			log_handle_printf(
+			 log_handle,
+			 "Created directory: %" PRIs_SYSTEM ".\n",
+			 export_path );
+		}
 
 		if( libpff_item_get_number_of_sub_items(
 		     pff_root_item,
