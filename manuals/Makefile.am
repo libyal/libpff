@@ -4,9 +4,7 @@ man_MANS = \
 	libpff.3
 
 EXTRA_DIST = \
-	pffexport.1 \
-	pffinfo.1 \
-	libpff.3
+	$(man_MANS)
 
 DISTCLEANFILES = \
 	Makefile \

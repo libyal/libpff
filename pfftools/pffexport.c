@@ -1,5 +1,5 @@
 /*
- * Extracts items from a Personal Folder File (OST, PAB and PST)
+ * Extracts items from a Personal Folder File (OST, PAB and PST).
  *
  * Copyright (C) 2008-2026, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -58,47 +58,6 @@
 export_handle_t *pffexport_export_handle = NULL;
 libpff_file_t *pffexport_file            = NULL;
 int pffexport_abort                      = 0;
-
-/* Prints the executable usage information
- */
-void usage_fprint(
-      FILE *stream )
-{
-	if( stream == NULL )
-	{
-		return;
-	}
-	fprintf( stream, "Use pffexport to export items stored in a Personal Folder File (OST, PAB\n"
-	                 "and PST).\n\n" );
-
-	fprintf( stream, "Usage: pffexport [ -c codepage ] [ -f format ] [ -l logfile ] [ -m mode ]\n"
-	                 "                 [ -t target ] [ -dhqvV ] source\n\n" );
-
-	fprintf( stream, "\tsource: the source file\n\n" );
-
-	fprintf( stream, "\t-c:     codepage of ASCII strings, options: ascii, windows-874,\n"
-	                 "\t        windows-932, windows-936, windows-949, windows-950,\n"
-	                 "\t        windows-1250, windows-1251, windows-1252 (default),\n"
-	                 "\t        windows-1253, windows-1254, windows-1255, windows-1256\n"
-	                 "\t        windows-1257 or windows-1258\n" );
-	fprintf( stream, "\t-d:     dumps the item values in a separate file: ItemValues.txt\n" );
-	fprintf( stream, "\t-f:     preferred output format, options: all, html, rtf,\n"
-	                 "\t        text (default)\n" );
-	fprintf( stream, "\t-h:     shows this help\n" );
-	fprintf( stream, "\t-l:     logs information about the exported items\n" );
-	fprintf( stream, "\t-m:     export mode, option: all, debug, items (default), recovered.\n"
-	                 "\t        'all' exports the (allocated) items, orphan and recovered\n"
-	                 "\t        items. 'debug' exports all the (allocated) items, also those\n"
-	                 "\t        outside the the root folder. 'items' exports the (allocated)\n"
-	                 "\t        items. 'recovered' exports the orphan and recovered items.\n" );
-	fprintf( stream, "\t-q:     quiet shows minimal status information\n" );
-	fprintf( stream, "\t-t:     specify the basename of the target directory to export to\n"
-	                 "\t        (default is the source filename) pffexport will add the\n"
-	                 "\t        following suffixes to the basename: .export, .orphans,\n"
-	                 "\t        .recovered\n" );
-	fprintf( stream, "\t-v:     verbose output to stderr\n" );
-	fprintf( stream, "\t-V:     print version\n" );
-}
 
 /* Signal handler for pffexport
  */
@@ -168,10 +127,28 @@ int wmain( int argc, wchar_t * const argv[] )
 int main( int argc, char * const argv[] )
 #endif
 {
+	const char *description    = \
+		"Use pffexport to export items stored in a Personal Folder File (OST, PAB and PST).";
+
+	pfftools_option_t options[ ] = {
+		{ 'c', "codepage", "codepage of ASCII strings, options: ascii, windows-874, windows-932, windows-936, windows-949, windows-950, windows-1250, windows-1251, windows-1252 (default), windows-1253, windows-1254, windows-1255, windows-1256, windows-1257 or windows-1258" },
+		{ 'd', NULL, "dumps the item values in a separate file: ItemValues.txt" },
+		{ 'f', "format", "preferred output format, options: all, html, rtf, text (default)" },
+		{ 'h', NULL, "shows this help" },
+		{ 'l', "log_file", "logs information about the exported items" },
+		{ 'm', "mode", "export mode, option: all, debug, items (default), recovered. 'all' exports the (allocated) items, orphan and recovered items. 'debug' exports all the (allocated) items, also those outside the the root folder. 'items' exports the (allocated) items. 'recovered' exports the orphan and recovered items." },
+		{ 'q', NULL, "quiet shows minimal status information" },
+		{ 't', "target", "specify the basename of the target directory to export to (default is the source filename) pffexport will add the following suffixes to the basename: .export, .orphans, .recovered" },
+		{ 'v', NULL, "verbose output to stderr" },
+		{ 'V', NULL, "print version" },
+		{ 0, "source", "the source file" },
+	};
+	system_character_t options_string[ 32 ];
+
 	libcerror_error_t *error                           = NULL;
 	log_handle_t *log_handle                           = NULL;
 	system_character_t *log_filename                   = NULL;
-	system_character_t *option_ascii_codepage          = NULL;
+	system_character_t *option_codepage                = NULL;
 	system_character_t *option_export_mode             = NULL;
 	system_character_t *option_preferred_export_format = NULL;
 	system_character_t *option_target_path             = NULL;
@@ -182,6 +159,7 @@ int main( int argc, char * const argv[] )
 	size_t source_length                               = 0;
 	uint8_t dump_item_values                           = 0;
 	uint8_t print_status_information                   = 1;
+	int number_of_options                              = (int) ( sizeof( options ) / sizeof( pfftools_option_t ) );
 	int result                                         = 0;
 	int verbose                                        = 0;
 
@@ -220,10 +198,22 @@ int main( int argc, char * const argv[] )
 	 stdout,
 	 program );
 
+	if( pfftools_getopt_get_options_string(
+	     options,
+	     number_of_options,
+	     options_string,
+	     32 ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to determine options string.\n" );
+
+		goto on_error;
+	}
 	while( ( option = pfftools_getopt(
 	                   argc,
 	                   argv,
-	                   _SYSTEM_STRING( "c:df:hl:m:qt:vV" ) ) ) != (system_integer_t) -1 )
+	                   options_string ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
@@ -234,13 +224,17 @@ int main( int argc, char * const argv[] )
 				 "Invalid argument: %" PRIs_SYSTEM "\n",
 				 argv[ optind - 1 ] );
 
-				usage_fprint(
-				 stdout );
+				pfftools_getopt_usage_fprint(
+				 stdout,
+				 program,
+				 description,
+				 options,
+				 number_of_options );
 
 				return( EXIT_FAILURE );
 
 			case (system_integer_t) 'c':
-				option_ascii_codepage = optarg;
+				option_codepage = optarg;
 
 				break;
 
@@ -255,8 +249,12 @@ int main( int argc, char * const argv[] )
 				break;
 
 			case (system_integer_t) 'h':
-				usage_fprint(
-				 stdout );
+				pfftools_getopt_usage_fprint(
+				 stdout,
+				 program,
+				 description,
+				 options,
+				 number_of_options );
 
 				return( EXIT_SUCCESS );
 
@@ -298,8 +296,12 @@ int main( int argc, char * const argv[] )
 		 stderr,
 		 "Missing source file.\n" );
 
-		usage_fprint(
-		 stdout );
+		pfftools_getopt_usage_fprint(
+		 stdout,
+		 program,
+		 description,
+		 options,
+		 number_of_options );
 
 		return( EXIT_FAILURE );
 	}
@@ -394,11 +396,11 @@ int main( int argc, char * const argv[] )
 			 "Unsupported preferred export format defaulting to: text.\n" );
 		}
 	}
-	if( option_ascii_codepage != NULL )
+	if( option_codepage != NULL )
 	{
 		result = export_handle_set_ascii_codepage(
 		          pffexport_export_handle,
-		          option_ascii_codepage,
+		          option_codepage,
 		          &error );
 
 		if( result == -1 )
