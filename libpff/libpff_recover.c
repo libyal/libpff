@@ -3246,103 +3246,30 @@ int libpff_recover_index_values(
 
 				goto on_error;
 			}
-			if( libpff_index_value_read_data(
-			     index_value,
-			     io_handle,
-			     index_node->type,
-			     node_entry_data,
-			     (size_t) index_node->entry_size,
-			     error ) != 1 )
+			result = libpff_recover_index_value_read_data(
+			          index_value,
+			          io_handle,
+			          index_node->type,
+			          node_entry_data,
+			          (size_t) index_node->entry_size,
+			          maximum_data_block_data_size,
+			          error );
+
+			if( result == -1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_IO,
 				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read %s index value.",
+				 "%s: unable to read %s index entry: %" PRIu8 " value.",
 				 function,
-				 index_string );
+				 index_string,
+				 entry_index );
 
 				goto on_error;
 			}
-			recoverable = 1;
+			recoverable = result;
 
-			/* Ignore index values without an identifier
-			 */
-			if( index_value->identifier == 0 )
-			{
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libcnotify_verbose != 0 )
-				{
-					libcnotify_printf(
-					 "%s: %s index entry: %" PRIu8 " has an empty identifier.\n",
-					 function,
-					 index_string,
-					 entry_index );
-				}
-#endif
-				recoverable = 0;
-			}
-			else if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
-			{
-				/* Ignore descriptors index values without a data identifier
-				 */
-				if( index_value->data_identifier == 0 )
-				{
-#if defined( HAVE_DEBUG_OUTPUT )
-					if( libcnotify_verbose != 0 )
-					{
-						libcnotify_printf(
-						 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " has an empty data identifier.\n",
-						 function,
-						 index_string,
-						 entry_index,
-						 index_value->identifier );
-					}
-#endif
-					recoverable = 0;
-				}
-			}
-			else if( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
-			{
-				/* Ignore index values without a valid file offset
-				 */
-				if( index_value->file_offset <= 0 )
-				{
-#if defined( HAVE_DEBUG_OUTPUT )
-					if( libcnotify_verbose != 0 )
-					{
-						libcnotify_printf(
-						 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " has an invalid file offset: %" PRIi64 " (0x%" PRIx64 ").\n",
-						 function,
-						 index_string,
-						 entry_index,
-						 index_value->identifier,
-						 index_value->file_offset,
-						 index_value->file_offset );
-					}
-#endif
-					recoverable = 0;
-				}
-				/* Ignore index values without a valid data size
-				 */
-				else if( ( index_value->data_size == 0 )
-				      || ( (uint32_t) index_value->data_size > maximum_data_block_data_size ) )
-				{
-#if defined( HAVE_DEBUG_OUTPUT )
-					if( libcnotify_verbose != 0 )
-					{
-						libcnotify_printf(
-						 "%s: %s index entry: %" PRIu8 " identifier: %" PRIu64 " has an invalid data size: %" PRIu16 ".\n",
-						 function,
-						 index_string,
-						 entry_index,
-						 index_value->identifier,
-						 index_value->data_size );
-					}
-#endif
-					recoverable = 0;
-				}
-			}
 			if( recoverable != 0 )
 			{
 				if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
@@ -3537,6 +3464,338 @@ on_error:
 		 NULL );
 	}
 	return( -1 );
+}
+
+/* Reads the index value data
+ * Returns 1 if successful, returns 0 if not or -1 on error
+ */
+int libpff_recover_index_value_read_data(
+     libpff_index_value_t *index_value,
+     libpff_io_handle_t *io_handle,
+     uint8_t index_node_type,
+     const uint8_t *data,
+     size_t data_size,
+     uint32_t maximum_data_block_data_size,
+     libcerror_error_t **error )
+{
+	static char *function    = "libpff_recover_index_value_read_data";
+	size_t value_size        = 0;
+	uint64_t file_offset     = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	const char *index_string = NULL;
+#endif
+
+	if( index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index value.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_node_type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
+	{
+		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+		{
+			value_size = sizeof( pff_index_node_descriptor_entry_32bit_t );
+		}
+		else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+		      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+		{
+			value_size = sizeof( pff_index_node_descriptor_entry_64bit_t );
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		index_string = "descriptors";
+#endif
+	}
+	else if( index_node_type == LIBPFF_INDEX_TYPE_OFFSET )
+	{
+		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+		{
+			value_size = sizeof( pff_index_node_offset_entry_32bit_t );
+		}
+		else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+		      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+		{
+			value_size = sizeof( pff_index_node_offset_entry_64bit_t );
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		index_string = "offsets";
+#endif
+	}
+	if( data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size > SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: unsupported data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size < value_size )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: %s index value data too small.\n",
+			 function,
+			 index_string );
+		}
+#endif
+		return( 0 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: %s index value data:\n",
+		 function,
+		 index_string );
+		libcnotify_print_data(
+		 data,
+		 value_size,
+		 0 );
+	}
+#endif
+	if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 data,
+		 index_value->identifier );
+	}
+	else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+	      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+	{
+		byte_stream_copy_to_uint64_little_endian(
+		 data,
+		 index_value->identifier );
+	}
+	/* Ignore the upper 32-bit of descriptor identifiers
+	 */
+	if( index_node_type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
+	{
+		index_value->identifier &= 0xffffffffUL;
+	}
+	if( index_node_type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
+	{
+		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+		{
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (pff_index_node_descriptor_entry_32bit_t *) data )->data_identifier,
+			 index_value->data_identifier );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (pff_index_node_descriptor_entry_32bit_t *) data )->local_descriptors_identifier,
+			 index_value->local_descriptors_identifier );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (pff_index_node_descriptor_entry_32bit_t *) data )->parent_identifier,
+			 index_value->parent_identifier );
+		}
+		else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+		      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+		{
+			byte_stream_copy_to_uint64_little_endian(
+			 ( (pff_index_node_descriptor_entry_64bit_t *) data )->data_identifier,
+			 index_value->data_identifier );
+
+			byte_stream_copy_to_uint64_little_endian(
+			 ( (pff_index_node_descriptor_entry_64bit_t *) data )->local_descriptors_identifier,
+			 index_value->local_descriptors_identifier );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (pff_index_node_descriptor_entry_64bit_t *) data )->parent_identifier,
+			 index_value->parent_identifier );
+		}
+	}
+	else if( index_node_type == LIBPFF_INDEX_TYPE_OFFSET )
+	{
+		if( io_handle->file_type == LIBPFF_FILE_TYPE_32BIT )
+		{
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (pff_index_node_offset_entry_32bit_t *) data )->file_offset,
+			 file_offset );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (pff_index_node_offset_entry_32bit_t *) data )->data_size,
+			 index_value->data_size );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (pff_index_node_offset_entry_32bit_t *) data )->reference_count,
+			 index_value->reference_count );
+		}
+		else if( ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT )
+		      || ( io_handle->file_type == LIBPFF_FILE_TYPE_64BIT_4K_PAGE ) )
+		{
+			byte_stream_copy_to_uint64_little_endian(
+			 ( (pff_index_node_offset_entry_64bit_t *) data )->file_offset,
+			 file_offset );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (pff_index_node_offset_entry_64bit_t *) data )->data_size,
+			 index_value->data_size );
+
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (pff_index_node_offset_entry_64bit_t *) data )->reference_count,
+			 index_value->reference_count );
+		}
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: identifier\t\t\t\t: %" PRIu64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 index_value->identifier,
+		 index_value->identifier );
+
+		if( index_node_type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
+		{
+			libcnotify_printf(
+			 "%s: data identifier\t\t\t\t: %" PRIu64 " (0x%08" PRIx64 ")\n",
+			 function,
+			 index_value->data_identifier,
+			 index_value->data_identifier );
+
+			libcnotify_printf(
+			 "%s: local descriptors identifier\t\t: %" PRIu64 " (0x%08" PRIx64 ")\n",
+			 function,
+			 index_value->local_descriptors_identifier,
+			 index_value->local_descriptors_identifier );
+
+			libcnotify_printf(
+			 "%s: parent identifier\t\t\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
+			 function,
+			 index_value->parent_identifier,
+			 index_value->parent_identifier );
+		}
+		else if( index_node_type == LIBPFF_INDEX_TYPE_OFFSET )
+		{
+			libcnotify_printf(
+			 "%s: file offset\t\t\t\t: %" PRIu64 " (0x%08" PRIx64 ")\n",
+			 function,
+			 file_offset,
+			 file_offset );
+
+			libcnotify_printf(
+			 "%s: data size\t\t\t\t\t: %" PRIu64 "\n",
+			 function,
+			 index_value->data_size );
+
+			libcnotify_printf(
+			 "%s: reference count\t\t\t\t: %" PRIu64 "\n",
+			 function,
+			 index_value->reference_count );
+		}
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+	/* Ignore index values without an identifier
+	 */
+	if( index_value->identifier == 0 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: %s index value has an empty identifier.\n",
+			 function,
+			 index_string );
+		}
+#endif
+		return( 0 );
+	}
+	if( index_node_type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
+	{
+		/* Ignore descriptors index values without a data identifier
+		 */
+		if( index_value->data_identifier == 0 )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: %s index value identifier: %" PRIu64 " has an empty data identifier.\n",
+				 function,
+				 index_string,
+				 index_value->identifier );
+			}
+#endif
+			return( 0 );
+		}
+	}
+	else if( index_node_type == LIBPFF_INDEX_TYPE_OFFSET )
+	{
+		/* Ignore index values without a valid file offset
+		 */
+		if( file_offset > (uint64_t) INT64_MAX )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: %s index identifier: %" PRIu64 " has an invalid file offset: %" PRIi64 " (0x%" PRIx64 ").\n",
+				 function,
+				 index_string,
+				 index_value->identifier,
+				 (int64_t) file_offset,
+				 file_offset );
+			}
+#endif
+			return( 0 );
+		}
+		/* Ignore index values without a valid data size
+		 */
+		if( ( index_value->data_size == 0 )
+		 || ( (uint32_t) index_value->data_size > maximum_data_block_data_size ) )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: %s index identifier: %" PRIu64 " has an invalid data size: %" PRIu16 ".\n",
+				 function,
+				 index_string,
+				 index_value->identifier,
+				 index_value->data_size );
+			}
+#endif
+			return( 0 );
+		}
+		index_value->file_offset = file_offset;
+	}
+	return( 1 );
 }
 
 /* Analyze if specific data block is recoverable

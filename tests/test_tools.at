@@ -2,6 +2,7 @@ m4_include([package.m4])
 m4_include([test_macros.at])
 
 include_test_inputs([pffexport])
+include_test_inputs([pffexport_recovered])
 include_test_inputs([pffinfo])
 
 AT_TEST_HELPER_FN(
@@ -254,3 +255,9 @@ RUN_TEST_PFFTOOL_AND_COMPARE_FILES(
   [pffexport],
   [],
   test_inputs_pffexport)
+
+RUN_TEST_PFFTOOL_AND_COMPARE_FILES(
+  [pffexport],
+  [pffexport],
+  [],
+  test_inputs_pffexport_recovered)
