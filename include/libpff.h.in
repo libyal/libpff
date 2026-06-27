@@ -1449,6 +1449,32 @@ int libpff_item_get_entry_multi_value(
      uint8_t flags,
      libpff_error_t **error );
 
+/* Retrieves the size of the UTF-16 encoded item Message-ID
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+#define libpff_item_get_utf16_internet_message_id_size( item, utf16_string_size, error ) \
+        libpff_item_get_entry_value_utf16_string_size( item, 0, LIBPFF_ENTRY_TYPE_INTERNET_MESSAGE_ID, utf16_string_size, 0, error )
+
+/* Retrieves the UTF-16 encoded item Message-ID
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+#define libpff_item_get_utf16_internet_message_id( item, utf16_string, utf16_string_size, error ) \
+        libpff_item_get_entry_value_utf16_string( item, 0, LIBPFF_ENTRY_TYPE_INTERNET_MESSAGE_ID, utf16_string, utf16_string_size, 0, error )
+
+/* Retrieves the size of the UTF-16 encoded item In-Reply-To
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+#define libpff_item_get_utf16_in_reply_to_id_size( item, utf16_string_size, error ) \
+        libpff_item_get_entry_value_utf16_string_size( item, 0, LIBPFF_ENTRY_TYPE_IN_REPLY_TO_ID, utf16_string_size, 0, error )
+
+/* Retrieves the UTF-16 encoded item In-Reply-To
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+#define libpff_item_get_utf16_in_reply_to_id( item, utf16_string, utf16_string_size, error ) \
+        libpff_item_get_entry_value_utf16_string( item, 0, LIBPFF_ENTRY_TYPE_IN_REPLY_TO_ID, utf16_string, utf16_string_size, 0, error )
+
 /* Retrieves the size of the UTF-16 encoded item display name
  * Size includes the end of string character
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1488,6 +1514,20 @@ int libpff_item_get_entry_multi_value(
 #define libpff_item_get_utf16_email_address( item, utf16_string, size, error ) \
         libpff_item_get_entry_value_utf16_string( item, 0, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf16_string, utf16_string_size, 0, error )
 
+/* Retrieves the size of the UTF-8 encoded item Message-ID
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+#define libpff_item_get_utf8_internet_message_id_size( item, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string_size( item, 0, LIBPFF_ENTRY_TYPE_INTERNET_MESSAGE_ID, utf8_string_size, 0, error )
+
+/* Retrieves the size of the UTF-8 encoded item In-Reply-To
+ * Size includes the end of string character
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+#define libpff_item_get_utf8_in_reply_to_id_size( item, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string_size( item, 0, LIBPFF_ENTRY_TYPE_IN_REPLY_TO_ID, utf8_string_size, 0, error )
+
 /* Retrieves the size of the UTF-8 encoded item display name
  * Size includes the end of string character
  * Returns 1 if successful, 0 if not available or -1 on error
@@ -1508,6 +1548,18 @@ int libpff_item_get_entry_multi_value(
  */
 #define libpff_item_get_utf8_email_address_size( item, utf8_string_size, error ) \
         libpff_item_get_entry_value_utf8_string_size( item, 0, LIBPFF_ENTRY_TYPE_EMAIL_ADDRESS, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded item Message-ID
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+#define libpff_item_get_utf8_internet_message_id( item, utf8_string, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string( item, 0, LIBPFF_ENTRY_TYPE_INTERNET_MESSAGE_ID, utf8_string, utf8_string_size, 0, error )
+
+/* Retrieves the UTF-8 encoded item In-Reply-To
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+#define libpff_item_get_utf8_in_reply_to_id( item, utf8_string, utf8_string_size, error ) \
+        libpff_item_get_entry_value_utf8_string( item, 0, LIBPFF_ENTRY_TYPE_IN_REPLY_TO_ID, utf8_string, utf8_string_size, 0, error )
 
 /* Retrieves the UTF-8 encoded item display name
  * Returns 1 if successful, 0 if not available or -1 on error
