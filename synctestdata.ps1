@@ -4,6 +4,12 @@ $TestsInputDirectory = "tests\input"
 $TestSet = "public"
 $TestFiles = "outlook.pst"
 
+If (-Not (Test-Path "${TestsInputDirectory}\.pffexport_recovered"))
+{
+	New-Item -Name "${TestsInputDirectory}\.pffexport_recovered" -ItemType "directory" | Out-Null
+	Write-Output "-mrecovered" | Out-File -Encoding ascii -FilePath "${TestsInputDirectory}\.pffexport_recovered\options"
+}
+
 If (-Not (Test-Path ${TestsInputDirectory}))
 {
 	New-Item -Name ${TestsInputDirectory} -ItemType "directory" | Out-Null

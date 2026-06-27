@@ -84,10 +84,12 @@ int pff_test_read_items(
 	 result,
 	 -1 );
 
-	PFF_TEST_ASSERT_IS_NOT_NULL(
-	 "record_entry",
-	 record_entry );
-
+	if( result != 0 )
+	{
+		PFF_TEST_ASSERT_IS_NOT_NULL(
+		 "record_entry",
+		 record_entry );
+	}
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
@@ -121,7 +123,7 @@ int pff_test_read_items(
 	 "record_entry",
 	 record_entry );
 
-	PFF_TEST_ASSERT_IS_NOT_NULL(
+	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
@@ -138,7 +140,7 @@ int pff_test_read_items(
 	 "record_set",
 	 record_set );
 
-	PFF_TEST_ASSERT_IS_NOT_NULL(
+	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 

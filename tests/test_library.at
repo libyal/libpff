@@ -37,5 +37,5 @@ RUN_TEST_BINARIES(
 
 RUN_TEST_BINARIES_WITH_INPUT(
   [SKIP_LIBRARY_TESTS],
-  [file support],
+  [file read_items support],
   test_inputs_libpff)

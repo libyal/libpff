@@ -23,13 +23,7 @@ AM_CPPFLAGS = \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBPFF_DLL_IMPORT@
 
-AM_TESTS_ENVIRONMENT = \
-	export TESTS_USE_WINAPI="@TESTS_USE_WINAPI@";
-
 BUILT_SOURCES = package.m4
-
-TESTS = \
-	test_read_items.sh
 
 check_AUTOTESTS = \
 	test_library \
@@ -873,11 +867,14 @@ test_inputs_libpff.at: generate_test_inputs.sh
 test_inputs_pypff.at: generate_test_inputs.sh
 	$(SHELL) $(srcdir)/generate_test_inputs.sh $(PACKAGE_NAME) pypff
 
-test_inputs_pffinfo.at: generate_test_inputs.sh
-	$(SHELL) $(srcdir)/generate_test_inputs.sh $(PACKAGE_NAME) pffinfo
-
 test_inputs_pffexport.at: generate_test_inputs.sh
 	$(SHELL) $(srcdir)/generate_test_inputs.sh $(PACKAGE_NAME) pffexport
+
+test_inputs_pffexport_recovered.at: generate_test_inputs.sh
+	$(SHELL) $(srcdir)/generate_test_inputs.sh $(PACKAGE_NAME) pffexport_recovered
+
+test_inputs_pffinfo.at: generate_test_inputs.sh
+	$(SHELL) $(srcdir)/generate_test_inputs.sh $(PACKAGE_NAME) pffinfo
 
 test_library: \
 	package.m4 \
@@ -898,6 +895,7 @@ test_python_module: \
 test_tools: \
 	package.m4 \
 	test_inputs_pffexport.at \
+	test_inputs_pffexport_recovered.at \
 	test_inputs_pffinfo.at \
 	test_macros.at \
 	test_tools.at
@@ -907,10 +905,7 @@ EXTRA_DIST = \
 	$(check_SCRIPTS) \
 	generate_test_inputs.sh \
 	package.m4 \
-	test_macros.at \
-	test_pffexport_recovered.sh \
-	test_read_items.sh \
-	test_runner.sh
+	test_macros.at
 
 CLEANFILES = \
 	$(check_AUTOTESTS) \

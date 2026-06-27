@@ -138,5 +138,5 @@ SETUP_PYTHON_HELPER_FUNCTIONS
 SETUP_HELPER_FUNCTIONS
 
 RUN_TEST_SCRIPTS_WITH_INPUT(
-  [file support],
+  [file folder item message record_entry record_set support],
   test_inputs_pypff)

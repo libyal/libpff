@@ -132,6 +132,15 @@ int libpff_recover_index_values(
      uint8_t recovery_flags,
      libcerror_error_t **error );
 
+int libpff_recover_index_value_read_data(
+     libpff_index_value_t *index_value,
+     libpff_io_handle_t *io_handle,
+     uint8_t index_node_type,
+     const uint8_t *data,
+     size_t data_size,
+     uint32_t maximum_data_block_data_size,
+     libcerror_error_t **error );
+
 int libpff_recover_analyze_data_block(
      libpff_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
