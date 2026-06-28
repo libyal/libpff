@@ -43,6 +43,10 @@ PyObject *pypff_message_get_conversation_topic(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 
+PyObject *pypff_message_get_conversation_index(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
 PyObject *pypff_message_get_sender_name(
            pypff_item_t *pypff_item,
            PyObject *arguments );
@@ -109,6 +113,10 @@ PyObject *pypff_message_get_attachment(
            PyObject *keywords );
 
 PyObject *pypff_message_get_attachments(
+           pypff_item_t *pypff_item,
+           PyObject *arguments );
+
+PyObject *pypff_message_get_recipients(
            pypff_item_t *pypff_item,
            PyObject *arguments );
 

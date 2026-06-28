@@ -76,6 +76,11 @@ PyObject *pypff_record_set_get_entry(
            PyObject *arguments,
            PyObject *keywords );
 
+PyObject *pypff_record_set_get_entry_by_type(
+           pypff_record_set_t *pypff_record_set,
+           PyObject *arguments,
+           PyObject *keywords );
+
 PyObject *pypff_record_set_get_entries(
            pypff_record_set_t *pypff_record_set,
            PyObject *arguments );

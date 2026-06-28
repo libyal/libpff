@@ -300,9 +300,10 @@ int pypff_item_init(
 
 		return( -1 );
 	}
-	/* Make sure libpff item is set to NULL
+	/* Make sure libpff item and record_set are set to NULL
 	 */
-	pypff_item->item = NULL;
+	pypff_item->item       = NULL;
+	pypff_item->record_set = NULL;
 
 	return( 0 );
 }
@@ -355,6 +356,28 @@ void pypff_item_free(
 		 function );
 
 		return;
+	}
+	if( pypff_item->record_set != NULL )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_set_free(
+		          &( pypff_item->record_set ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record set.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
 	Py_BEGIN_ALLOW_THREADS
 
@@ -946,7 +969,7 @@ PyObject *pypff_item_get_sub_item_by_index(
 	item_object = pypff_item_new(
 	               type_object,
 	               sub_item,
-	               ( (pypff_item_t *) pypff_item )->parent_object );
+	               pypff_item );
 
 	if( item_object == NULL )
 	{
@@ -956,6 +979,32 @@ PyObject *pypff_item_get_sub_item_by_index(
 		 function );
 
 		goto on_error;
+	}
+	if( type_object == &pypff_message_type_object )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_item_get_record_set_by_index(
+			  ( (pypff_item_t *) item_object )->item,
+			  0,
+			  &( ( (pypff_item_t *) item_object )->record_set ),
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve message item record set: 0.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
 	}
 	return( item_object );
 

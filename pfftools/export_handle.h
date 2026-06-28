@@ -247,6 +247,12 @@ int export_handle_export_record_entry_to_item_file(
      item_file_t *item_file,
      libcerror_error_t **error );
 
+int export_handle_export_multi_value_to_item_file(
+     export_handle_t *export_handle,
+     libpff_multi_value_t *multi_value,
+     item_file_t *item_file,
+     libcerror_error_t **error );
+
 void export_handle_write_record_set_value_to_item_file(
       item_file_t *item_file,
       const system_character_t *description,

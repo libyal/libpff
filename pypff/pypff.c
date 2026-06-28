@@ -40,6 +40,7 @@
 #include "pypff_libpff.h"
 #include "pypff_message.h"
 #include "pypff_python.h"
+#include "pypff_recipients.h"
 #include "pypff_record_entries.h"
 #include "pypff_record_entry.h"
 #include "pypff_record_set.h"
@@ -713,6 +714,23 @@ PyMODINIT_FUNC initpypff(
 	 module,
 	 "message",
 	 (PyObject *) &pypff_message_type_object );
+
+	/* Setup the recipients type object
+	 */
+	pypff_recipients_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pypff_recipients_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pypff_recipients_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "recipients",
+	 (PyObject *) &pypff_recipients_type_object );
 
 	/* Setup the record_entries type object
 	 */

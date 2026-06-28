@@ -2302,7 +2302,21 @@ int export_handle_export_record_entry_to_item_file(
 
 			goto on_error;
 		}
-/* TODO do something useful with the multi value */
+		if( export_handle_export_multi_value_to_item_file(
+		     export_handle,
+		     multi_value,
+		     item_file,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to export multi value.",
+			 function );
+
+			goto on_error;
+		}
 		if( libpff_multi_value_free(
 		     &multi_value,
 		     error ) != 1 )
@@ -2330,6 +2344,205 @@ on_error:
 	{
 		memory_free(
 		 name_to_id_map_entry_string );
+	}
+	return( -1 );
+}
+
+/* Exports a specific multi value to the item file
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_multi_value_to_item_file(
+     export_handle_t *export_handle,
+     libpff_multi_value_t *multi_value,
+     item_file_t *item_file,
+     libcerror_error_t **error )
+{
+	static char *function  = "export_handle_export_multi_value_to_item_file";
+	uint8_t *value_data    = 0;
+	int number_of_values   = 0;
+	size_t value_data_size = 0;
+	int value_index        = 0;
+
+	if( export_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libpff_multi_value_get_number_of_values(
+	     multi_value,
+	     &number_of_values,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of values.",
+		 function );
+
+		goto on_error;
+	}
+	if( item_file_write_value_integer_32bit_as_decimal(
+	     item_file,
+	     _SYSTEM_STRING( "Number of (multi) values:\t" ),
+	     (uint32_t) number_of_values,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write 32-bit integer value.",
+		 function );
+
+		goto on_error;
+	}
+	if( item_file_write_new_line(
+	     item_file,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
+		 "%s: unable to write new line.",
+		 function );
+
+		goto on_error;
+	}
+	for( value_index = 0;
+	     value_index < number_of_values;
+	     value_index++ )
+	{
+		if( item_file_write_value_integer_32bit_as_decimal(
+		     item_file,
+		     _SYSTEM_STRING( "Multi value:\t\t\t" ),
+		     (uint32_t) value_index,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write 32-bit integer value.",
+			 function );
+
+			goto on_error;
+		}
+		if( libpff_multi_value_get_value_binary_data_size(
+		     multi_value,
+		     value_index,
+		     &value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data size.",
+			 function,
+			 value_index );
+
+			goto on_error;
+		}
+		if( value_data_size == 0 )
+		{
+			if( item_file_write_new_line(
+			     item_file,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write new line.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		else
+		{
+			value_data = (uint8_t *) memory_allocate(
+			                          sizeof( uint8_t ) * value_data_size );
+
+			if( value_data == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create value: %d data.",
+				 function,
+				 value_index );
+
+				goto on_error;
+			}
+			if( libpff_multi_value_get_value_binary_data(
+			     multi_value,
+			     value_index,
+			     value_data,
+			     value_data_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve value: %d data.",
+				 function,
+				 value_index );
+
+				goto on_error;
+			}
+			if( item_file_write_value_description(
+			     item_file,
+			     _SYSTEM_STRING( "Value:" ),
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write string.",
+				 function );
+
+				goto on_error;
+			}
+			if( item_file_write_buffer_as_hexdump(
+			     item_file,
+			     value_data,
+			     value_data_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to write buffer.",
+				 function );
+
+				goto on_error;
+			}
+			memory_free(
+			 value_data );
+
+			value_data = NULL;
+		}
+	}
+	return( 1 );
+
+on_error:
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
 	}
 	return( -1 );
 }
@@ -4881,7 +5094,8 @@ int export_handle_export_message_subject_to_item_file(
 		}
 		/* Ignore the subject control codes for now
 		 */
-		if( value_string[ 0 ] < 0x20 )
+		if( ( value_string_size >= 3 )
+		 && ( value_string[ 0 ] < 0x20 ) )
 		{
 			result = item_file_write_string(
 			          item_file,

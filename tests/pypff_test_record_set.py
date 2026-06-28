@@ -93,6 +93,39 @@ class RecordSetTypeTests(unittest.TestCase):
 
     # TODO: add tests for entries
 
+    def test_get_entry_by_type(self):
+        """Tests the get_entry_by_type function."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        pff_file = pypff.file()
+
+        pff_file.open(test_source)
+
+        try:
+            root_folder = pff_file.get_root_folder()
+            if not root_folder:
+                raise unittest.SkipTest("missing root folder")
+
+            if not root_folder.number_of_record_sets:
+                raise unittest.SkipTest("missing record sets")
+
+            record_set = root_folder.get_record_set(0)
+            if not record_set:
+                raise unittest.SkipTest("missing record set")
+
+            if not record_set.number_of_entries:
+                raise unittest.SkipTest("missing record entries")
+
+            _ = record_set.get_entry_by_type(0x3007, 0x0040)
+
+            _ = record_set.get_entry_by_type(0x3008)
+
+        finally:
+            pff_file.close()
+
+
 
 if __name__ == "__main__":
     argument_parser = argparse.ArgumentParser()

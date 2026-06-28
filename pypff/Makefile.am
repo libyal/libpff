@@ -36,6 +36,7 @@ pypff_la_SOURCES = \
 	pypff_libpff.h \
 	pypff_message.c pypff_message.h \
 	pypff_python.h \
+	pypff_recipients.c pypff_recipients.h \
 	pypff_record_entry.c pypff_record_entry.h \
 	pypff_record_entries.c pypff_record_entries.h \
 	pypff_record_set.c pypff_record_set.h \

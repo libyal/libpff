@@ -98,7 +98,25 @@ class FolderItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-    # TODO: add tests for sub_folders
+    def test_get_sub_folders(self):
+        """Tests the sub_folders property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        pff_file = pypff.file()
+
+        pff_file.open(test_source)
+
+        try:
+            root_folder = pff_file.get_root_folder()
+            if not root_folder:
+                raise unittest.SkipTest("missing root folder")
+
+            _ = list(root_folder.sub_folders)
+
+        finally:
+            pff_file.close()
 
     def test_get_number_of_sub_messages(self):
         """Tests the get_number_of_sub_messages function and number_of_sub_messages property."""
@@ -147,7 +165,25 @@ class FolderItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-    # TODO: add tests for sub_messages
+    def test_get_sub_messages(self):
+        """Tests the sub_messages property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        pff_file = pypff.file()
+
+        pff_file.open(test_source)
+
+        try:
+            root_folder = pff_file.get_root_folder()
+            if not root_folder:
+                raise unittest.SkipTest("missing root folder")
+
+            _ = list(root_folder.sub_messages)
+
+        finally:
+            pff_file.close()
 
 
 if __name__ == "__main__":

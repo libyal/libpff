@@ -2550,6 +2550,7 @@ int libpff_record_entry_get_multi_value(
 	libpff_internal_multi_value_t *internal_multi_value   = NULL;
 	libpff_internal_record_entry_t *internal_record_entry = NULL;
 	static char *function                                 = "libpff_record_entry_get_entry_value";
+	size_t value_data_offset                              = 0;
 	size_t value_size                                     = 0;
 	uint32_t number_of_values                             = 0;
 	uint32_t value_index                                  = 0;
@@ -2708,11 +2709,24 @@ int libpff_record_entry_get_multi_value(
 			case LIBPFF_VALUE_TYPE_MULTI_VALUE_STRING_ASCII:
 			case LIBPFF_VALUE_TYPE_MULTI_VALUE_STRING_UNICODE:
 			case LIBPFF_VALUE_TYPE_MULTI_VALUE_BINARY_DATA:
+				if( internal_record_entry->value_data_size < 4 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid record entry - value data size value out of bounds.",
+					 function );
+
+					goto on_error;
+				}
 				/* The first 4 bytes contain the number of values
 				 */
-				byte_stream_copy_from_uint32_little_endian(
+				byte_stream_copy_to_uint32_little_endian(
 				 internal_record_entry->value_data,
 				 internal_multi_value->number_of_values );
+
+				value_data_offset += 4;
 
 				break;
 
@@ -2809,11 +2823,22 @@ int libpff_record_entry_get_multi_value(
 				 || ( internal_multi_value->value_type == LIBPFF_VALUE_TYPE_MULTI_VALUE_STRING_UNICODE )
 				 || ( internal_multi_value->value_type == LIBPFF_VALUE_TYPE_MULTI_VALUE_BINARY_DATA ) )
 				{
-					internal_record_entry->value_data += 4;
+					if( value_data_offset > ( internal_record_entry->value_data_size - 4 ) )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid record entry - value data size value out of bounds.",
+						 function );
 
+						goto on_error;
+					}
 					byte_stream_copy_to_uint32_little_endian(
-					 internal_record_entry->value_data,
+					 &( internal_record_entry->value_data[ value_data_offset ] ),
 					 internal_multi_value->value_offset[ value_index ] );
+
+					value_data_offset += 4;
 
 					if( internal_multi_value->value_offset[ value_index ] > internal_multi_value->value_data_size )
 					{

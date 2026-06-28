@@ -39,6 +39,13 @@ PyMethodDef pypff_attachment_object_methods[] = {
 
 	/* Functions to access the attachment values */
 
+	{ "get_long_filename",
+	  (PyCFunction) pypff_attachment_get_long_filename,
+	  METH_NOARGS,
+	  "get_long_filename() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the long filename." },
+
 	{ "get_size",
 	  (PyCFunction) pypff_attachment_get_size,
 	  METH_NOARGS,
@@ -65,6 +72,12 @@ PyMethodDef pypff_attachment_object_methods[] = {
 };
 
 PyGetSetDef pypff_attachment_object_get_set_definitions[] = {
+
+	{ "long_filename",
+	  (getter) pypff_attachment_get_long_filename,
+	  (setter) 0,
+	  "The long filename.",
+	  NULL },
 
 	{ "size",
 	  (getter) pypff_attachment_get_size,
@@ -170,6 +183,178 @@ PyTypeObject pypff_attachment_type_object = {
 	/* tp_del */
 	0
 };
+
+/* Retrieves the long filename
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_attachment_get_long_filename(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *string_object             = NULL;
+	uint8_t *value_string               = NULL;
+	static char *function               = "pypff_attachment_get_long_filename";
+	size_t value_string_size            = 0;
+	int result                          = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_ATTACHMENT_FILENAME_LONG,
+		  0,
+		  &record_entry,
+		  LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve long filename record entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_get_data_as_utf8_string_size(
+			  record_entry,
+			  &value_string_size,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve long filename UTF-8 string size.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		else if( value_string_size > 0 )
+		{
+			value_string = (uint8_t *) PyMem_Malloc(
+						    sizeof( uint8_t ) * value_string_size );
+
+			if( value_string == NULL )
+			{
+				PyErr_Format(
+				 PyExc_MemoryError,
+				 "%s: unable to create long filename.",
+				 function );
+
+				goto on_error;
+			}
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data_as_utf8_string(
+				  record_entry,
+				  value_string,
+				  value_string_size,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			if( result != 1 )
+			{
+				pypff_error_raise(
+				 error,
+				 PyExc_IOError,
+				 "%s: unable to retrieve long filename UTF-8 string.",
+				 function );
+
+				libcerror_error_free(
+				 &error );
+
+				goto on_error;
+			}
+			/* Pass the string length to PyUnicode_DecodeUTF8
+			 * otherwise it makes the end of string character is part
+			 * of the string
+			 */
+			string_object = PyUnicode_DecodeUTF8(
+					 (char *) value_string,
+					 (Py_ssize_t) value_string_size - 1,
+					 NULL );
+
+			PyMem_Free(
+			 value_string );
+
+			value_string = NULL;
+		}
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( string_object == NULL )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
+}
 
 /* Retrieves the size
  * Returns a Python object if successful or NULL on error

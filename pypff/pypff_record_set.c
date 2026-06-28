@@ -40,16 +40,23 @@ PyMethodDef pypff_record_set_object_methods[] = {
 	{ "get_number_of_entries",
 	  (PyCFunction) pypff_record_set_get_number_of_entries,
 	  METH_NOARGS,
-	  "get_number_of_entries() -> Integer or None\n"
+	  "get_number_of_entries() -> Integer\n"
 	  "\n"
 	  "Retrieves the number of entries." },
 
 	{ "get_entry",
 	  (PyCFunction) pypff_record_set_get_entry,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "get_entry(entry_index) -> Object or None\n"
+	  "get_entry(entry_index) -> Object\n"
 	  "\n"
 	  "Retrieves the entry specified by the index." },
+
+	{ "get_entry_by_type",
+	  (PyCFunction) pypff_record_set_get_entry_by_type,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_entry_by_type(entry_type) -> Object or None\n"
+	  "\n"
+	  "Retrieves the record entry matching the entry and value type pair." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -507,6 +514,119 @@ PyObject *pypff_record_set_get_entry(
 	                entry_index );
 
 	return( entry_object );
+}
+
+/* Retrieves the record entry matching the entry and value type pair
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_record_set_get_entry_by_type(
+           pypff_record_set_t *pypff_record_set,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error     = NULL;
+	libpff_record_entry_t *entry = NULL;
+	PyObject *entry_object       = NULL;
+	PyTypeObject *type_object    = NULL;
+	static char *keyword_list[]  = { "entry_type", "value_type", NULL };
+	static char *function        = "pypff_record_set_get_entry_by_type";
+	uint8_t flags                = 0;
+	int entry_type               = 0;
+	int value_type               = 0;
+	int result                   = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "I|I",
+	     keyword_list,
+	     &entry_type,
+	     &value_type ) == 0 )
+	{
+		return( NULL );
+	}
+	if( pypff_record_set == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid record set.",
+		 function );
+
+		return( NULL );
+	}
+	if( value_type == 0 )
+	{
+		flags = LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_set_get_entry_by_type(
+	          ( (pypff_record_set_t *) pypff_record_set )->record_set,
+	          (uint32_t) entry_type,
+	          (uint32_t) value_type,
+	          &entry,
+		  flags,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve entry type: 0x%04x.",
+		 function,
+		 entry_type );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	type_object = pypff_record_set_get_record_entry_type_object(
+	               entry );
+
+	if( type_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to retrieve record entry type object.",
+		 function );
+
+		goto on_error;
+	}
+	entry_object = pypff_record_entry_new(
+	                type_object,
+	                entry,
+	                (PyObject *) pypff_record_set );
+
+	if( entry_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create record entry object.",
+		 function );
+
+		goto on_error;
+	}
+	return( entry_object );
+
+on_error:
+	if( entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves a sequence and iterator object for the entries

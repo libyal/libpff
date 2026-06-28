@@ -30,35 +30,6 @@ import pypff
 class MessageItemTypeTests(unittest.TestCase):
     """Tests the message item type."""
 
-    def _get_message_item(self):
-        """Retrieves the first message item for testing.
-
-        Returns:
-          pypff.message: first message item or None.
-        """
-        test_source = getattr(unittest, "source", None)
-        if not test_source:
-            raise unittest.SkipTest("missing source")
-
-        pff_file = pypff.file()
-
-        pff_file.open(test_source)
-
-        try:
-            root_folder = pff_file.get_root_folder()
-            if not root_folder:
-                raise unittest.SkipTest("missing root folder")
-
-            if root_folder.number_of_sub_items:
-                message_item = self._get_message_sub_item(root_folder)
-                if message_item:
-                    return message_item
-
-        finally:
-            pff_file.close()
-
-        return None
-
     def _get_message_sub_item(self, item):
         """Retrieves the first message sub item for testing.
 
@@ -98,8 +69,6 @@ class MessageItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-        return None
-
     def test_get_conversation_topic(self):
         """Tests the get_conversation_topic function and conversation_topic property."""
         test_source = getattr(unittest, "source", None)
@@ -122,7 +91,27 @@ class MessageItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-        return None
+    def test_get_conversation_index(self):
+        """Tests the get_conversation_index function and conversation_index property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        pff_file = pypff.file()
+
+        pff_file.open(test_source)
+
+        try:
+            message_item = self._get_message_sub_item(pff_file.root_folder)
+            if not message_item:
+                raise unittest.SkipTest("missing message item")
+
+            _ = message_item.get_conversation_index()
+
+            _ = message_item.conversation_index
+
+        finally:
+            pff_file.close()
 
     def test_get_sender_name(self):
         """Tests the get_sender_name function and sender_name property."""
@@ -145,8 +134,6 @@ class MessageItemTypeTests(unittest.TestCase):
 
         finally:
             pff_file.close()
-
-        return None
 
     def test_get_client_submit_time(self):
         """Tests the get_client_submit_time function and client_submit_time property."""
@@ -171,8 +158,6 @@ class MessageItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-        return None
-
     def test_get_delivery_time(self):
         """Tests the get_delivery_time function and delivery_time property."""
         test_source = getattr(unittest, "source", None)
@@ -195,8 +180,6 @@ class MessageItemTypeTests(unittest.TestCase):
 
         finally:
             pff_file.close()
-
-        return None
 
     def test_get_creation_time(self):
         """Tests the get_creation_time function and creation_time property."""
@@ -221,8 +204,6 @@ class MessageItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-        return None
-
     def test_get_modification_time(self):
         """Tests the get_modification_time function and modification_time property."""
         test_source = getattr(unittest, "source", None)
@@ -246,8 +227,6 @@ class MessageItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-        return None
-
     def test_get_transport_headers(self):
         """Tests the get_transport_headers function and transport_headers property."""
         test_source = getattr(unittest, "source", None)
@@ -269,8 +248,6 @@ class MessageItemTypeTests(unittest.TestCase):
 
         finally:
             pff_file.close()
-
-        return None
 
     def test_get_plain_text_body(self):
         """Tests the get_plain_text_body function and plain_text_body property."""
@@ -294,8 +271,6 @@ class MessageItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-        return None
-
     def test_get_rtf_body(self):
         """Tests the get_rtf_body function and rtf_body property."""
         test_source = getattr(unittest, "source", None)
@@ -317,8 +292,6 @@ class MessageItemTypeTests(unittest.TestCase):
 
         finally:
             pff_file.close()
-
-        return None
 
     def test_get_html_body(self):
         """Tests the get_html_body function and html_body property."""
@@ -342,8 +315,6 @@ class MessageItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-        return None
-
     def test_get_number_of_attachments(self):
         """Tests the get_number_of_attachments function and number_of_attachments property."""
         test_source = getattr(unittest, "source", None)
@@ -366,8 +337,6 @@ class MessageItemTypeTests(unittest.TestCase):
 
         finally:
             pff_file.close()
-
-        return None
 
     def test_get_attachment(self):
         """Tests the get_attachment function."""
@@ -393,7 +362,48 @@ class MessageItemTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
-        return None
+    def test_get_attachments(self):
+        """Tests the attachments property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        pff_file = pypff.file()
+
+        pff_file.open(test_source)
+
+        try:
+            message_item = self._get_message_sub_item(pff_file.root_folder)
+            if not message_item:
+                raise unittest.SkipTest("missing message item")
+
+            if not message_item.number_of_attachments:
+                raise unittest.SkipTest("missing attachments")
+
+            _ = list(message_item.attachments)
+
+        finally:
+            pff_file.close()
+
+    def test_get_recipients(self):
+        """Tests the recipients property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        pff_file = pypff.file()
+
+        pff_file.open(test_source)
+
+        try:
+            message_item = self._get_message_sub_item(pff_file.root_folder)
+            if not message_item:
+                raise unittest.SkipTest("missing message item")
+
+            _ = message_item.recipients
+
+        finally:
+            pff_file.close()
 
 
 if __name__ == "__main__":

@@ -456,7 +456,7 @@ PyObject *pypff_folder_get_sub_folder_by_index(
 	sub_item_object = pypff_item_new(
 	                   &pypff_folder_type_object,
 	                   sub_item,
-	                   (PyObject *) ( (pypff_item_t *) pypff_item )->parent_object );
+	                   pypff_item );
 
 	if( sub_item_object == NULL )
 	{
@@ -699,7 +699,7 @@ PyObject *pypff_folder_get_sub_message_by_index(
 	sub_item_object = pypff_item_new(
 	                   &pypff_message_type_object,
 	                   sub_item,
-	                   (PyObject *) ( (pypff_item_t *) pypff_item )->parent_object );
+	                   pypff_item );
 
 	if( sub_item_object == NULL )
 	{

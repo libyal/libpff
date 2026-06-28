@@ -36,6 +36,7 @@
 #include "pypff_libpff.h"
 #include "pypff_message.h"
 #include "pypff_python.h"
+#include "pypff_recipients.h"
 #include "pypff_unused.h"
 
 PyMethodDef pypff_message_object_methods[] = {
@@ -45,7 +46,7 @@ PyMethodDef pypff_message_object_methods[] = {
 	{ "get_subject",
 	  (PyCFunction) pypff_message_get_subject,
 	  METH_NOARGS,
-	  "get_subject() -> Unicode string or -None\n"
+	  "get_subject() -> Unicode string or None\n"
 	  "\n"
 	  "Retrieves the subject." },
 
@@ -55,6 +56,13 @@ PyMethodDef pypff_message_object_methods[] = {
 	  "get_conversation_topic() -> Unicode string or None\n"
 	  "\n"
 	  "Retrieves the conversation topic." },
+
+	{ "get_conversation_index",
+	  (PyCFunction) pypff_message_get_conversation_index,
+	  METH_NOARGS,
+	  "get_conversation_index() -> Bytes or None\n"
+	  "\n"
+	  "Retrieves the conversation index." },
 
 	{ "get_sender_name",
 	  (PyCFunction) pypff_message_get_sender_name,
@@ -159,7 +167,7 @@ PyMethodDef pypff_message_object_methods[] = {
 	{ "get_attachment",
 	  (PyCFunction) pypff_message_get_attachment,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "get_attachment(attachment_index) -> Object or None\n"
+	  "get_attachment(attachment_index) -> Object\n"
 	  "\n"
 	  "Retrieves a specific attachment." },
 
@@ -181,7 +189,11 @@ PyGetSetDef pypff_message_object_get_set_definitions[] = {
 	  "The conversation topic.",
 	  NULL },
 
-/* TODO conversation index */
+	{ "conversation_index",
+	  (getter) pypff_message_get_conversation_index,
+	  (setter) 0,
+	  "The conversation index.",
+	  NULL },
 
 	{ "sender_name",
 	  (getter) pypff_message_get_sender_name,
@@ -247,6 +259,12 @@ PyGetSetDef pypff_message_object_get_set_definitions[] = {
 	  (getter) pypff_message_get_attachments,
 	  (setter) 0,
 	  "The attachments",
+	  NULL },
+
+	{ "recipients",
+	  (getter) pypff_message_get_recipients,
+	  (setter) 0,
+	  "The recipients",
 	  NULL },
 
 	/* Sentinel */
@@ -355,12 +373,13 @@ PyObject *pypff_message_get_subject(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "pypff_message_get_subject";
-	size_t value_string_size = 0;
-	int result               = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *string_object             = NULL;
+	uint8_t *value_string               = NULL;
+	static char *function               = "pypff_message_get_subject";
+	size_t value_string_size            = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -375,11 +394,13 @@ PyObject *pypff_message_get_subject(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_message_get_entry_value_utf8_string_size(
-	          pypff_item->item,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT,
-	          &value_string_size,
-	          &error );
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT,
+		  0,
+		  &record_entry,
+		  LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+		  &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -388,7 +409,7 @@ PyObject *pypff_message_get_subject(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve subject size.",
+		 "%s: unable to retrieve subject entry.",
 		 function );
 
 		libcerror_error_free(
@@ -396,84 +417,144 @@ PyObject *pypff_message_get_subject(
 
 		goto on_error;
 	}
-	else if( ( result == 0 )
-	      || ( value_string_size == 0 ) )
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_get_data_as_utf8_string_size(
+		          record_entry,
+		          &value_string_size,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve subject UTF-8 string size.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		if( value_string_size > 0 )
+		{
+			value_string = (uint8_t *) PyMem_Malloc(
+						    sizeof( uint8_t ) * value_string_size );
+
+			if( value_string == NULL )
+			{
+				PyErr_Format(
+				 PyExc_MemoryError,
+				 "%s: unable to create subject ",
+				 function );
+
+				goto on_error;
+			}
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data_as_utf8_string(
+				  record_entry,
+				  value_string,
+				  value_string_size,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			if( result != 1 )
+			{
+				pypff_error_raise(
+				 error,
+				 PyExc_IOError,
+				 "%s: unable to retrieve subject UTF-8 string.",
+				 function );
+
+				libcerror_error_free(
+				 &error );
+
+				goto on_error;
+			}
+			/* Ignore the subject control codes for now
+			 */
+			if( ( value_string_size >= 3 )
+			 && ( value_string[ 0 ] < 0x20 ) )
+			{
+				/* Pass the string length to PyUnicode_DecodeUTF8
+				 * otherwise it makes the end of string character is part
+				 * of the string
+				 */
+				string_object = PyUnicode_DecodeUTF8(
+						 (char *) &( value_string[ 2 ] ),
+						 (Py_ssize_t) value_string_size - 3,
+						 NULL );
+			}
+			else
+			{
+				/* Pass the string length to PyUnicode_DecodeUTF8
+				 * otherwise it makes the end of string character is part
+				 * of the string
+				 */
+				string_object = PyUnicode_DecodeUTF8(
+						 (char *) value_string,
+						 (Py_ssize_t) value_string_size - 1,
+						 NULL );
+			}
+			PyMem_Free(
+			 value_string );
+
+			value_string = NULL;
+		}
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( string_object == NULL )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	value_string = (uint8_t *) PyMem_Malloc(
-				    sizeof( uint8_t ) * value_string_size );
-
-	if( value_string == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to create subject.",
-		 function );
-
-		goto on_error;
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_message_get_entry_value_utf8_string(
-		  pypff_item->item,
-		  LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT,
-		  value_string,
-		  value_string_size,
-		  &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve subject.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		goto on_error;
-	}
-	/* Ignore the subject control codes for now
-	 */
-	if( value_string[ 0 ] < 0x20 )
-	{
-		/* Pass the string length to PyUnicode_DecodeUTF8
-		 * otherwise it makes the end of string character is part
-		 * of the string
-		 */
-		string_object = PyUnicode_DecodeUTF8(
-				 (char *) &( value_string[ 2 ] ),
-				 (Py_ssize_t) value_string_size - 3,
-				 NULL );
-	}
-	else
-	{
-		/* Pass the string length to PyUnicode_DecodeUTF8
-		 * otherwise it makes the end of string character is part
-		 * of the string
-		 */
-		string_object = PyUnicode_DecodeUTF8(
-				 (char *) value_string,
-				 (Py_ssize_t) value_string_size - 1,
-				 NULL );
-	}
-	PyMem_Free(
-	 value_string );
-
 	return( string_object );
 
 on_error:
+	if( string_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) string_object );
+	}
 	if( value_string != NULL )
 	{
 		PyMem_Free(
 		 value_string );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
 	}
 	return( NULL );
 }
@@ -485,12 +566,13 @@ PyObject *pypff_message_get_conversation_topic(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "pypff_message_get_conversation_topic";
-	size_t value_string_size = 0;
-	int result               = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *string_object             = NULL;
+	uint8_t *value_string               = NULL;
+	static char *function               = "pypff_message_get_conversation_topic";
+	size_t value_string_size            = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -505,11 +587,13 @@ PyObject *pypff_message_get_conversation_topic(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_message_get_entry_value_utf8_string_size(
-	          pypff_item->item,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_TOPIC,
-	          &value_string_size,
-	          &error );
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_TOPIC,
+		  0,
+		  &record_entry,
+		  LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+		  &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -518,7 +602,7 @@ PyObject *pypff_message_get_conversation_topic(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve conversation topic size.",
+		 "%s: unable to retrieve conversation topic entry.",
 		 function );
 
 		libcerror_error_free(
@@ -526,43 +610,176 @@ PyObject *pypff_message_get_conversation_topic(
 
 		goto on_error;
 	}
-	else if( ( result == 0 )
-	      || ( value_string_size == 0 ) )
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_get_data_as_utf8_string_size(
+		          record_entry,
+		          &value_string_size,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve conversation topic UTF-8 string size.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		if( value_string_size > 0 )
+		{
+			value_string = (uint8_t *) PyMem_Malloc(
+						    sizeof( uint8_t ) * value_string_size );
+
+			if( value_string == NULL )
+			{
+				PyErr_Format(
+				 PyExc_MemoryError,
+				 "%s: unable to create conversation topic.",
+				 function );
+
+				goto on_error;
+			}
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data_as_utf8_string(
+				  record_entry,
+				  value_string,
+				  value_string_size,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			if( result != 1 )
+			{
+				pypff_error_raise(
+				 error,
+				 PyExc_IOError,
+				 "%s: unable to retrieve conversation topic UTF-8 string.",
+				 function );
+
+				libcerror_error_free(
+				 &error );
+
+				goto on_error;
+			}
+			/* Pass the string length to PyUnicode_DecodeUTF8
+			 * otherwise it makes the end of string character is part
+			 * of the string
+			 */
+			string_object = PyUnicode_DecodeUTF8(
+					 (char *) value_string,
+					 (Py_ssize_t) value_string_size - 1,
+					 NULL );
+
+			PyMem_Free(
+			 value_string );
+
+			value_string = NULL;
+		}
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( string_object == NULL )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	value_string = (uint8_t *) PyMem_Malloc(
-				    sizeof( uint8_t ) * value_string_size );
+	return( string_object );
 
-	if( value_string == NULL )
+on_error:
+	if( string_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) string_object );
+	}
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves the conversation index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_conversation_index(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *bytes_object              = NULL;
+	uint8_t *value_data                 = NULL;
+	static char *function               = "pypff_message_get_conversation_index";
+	size_t value_data_size              = 0;
+	int result                          = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( pypff_item == NULL )
 	{
 		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to create conversation topic.",
+		 PyExc_TypeError,
+		 "%s: invalid item.",
 		 function );
 
-		goto on_error;
+		return( NULL );
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_message_get_entry_value_utf8_string(
-		  pypff_item->item,
-		  LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_TOPIC,
-		  value_string,
-		  value_string_size,
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_CONVERSATION_INDEX,
+		  LIBPFF_VALUE_TYPE_BINARY_DATA,
+		  &record_entry,
+		  0,
 		  &error );
 
 	Py_END_ALLOW_THREADS
 
-	if( result != 1 )
+	if( result == -1 )
 	{
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve conversation topic.",
+		 "%s: unable to retrieve conversation index entry.",
 		 function );
 
 		libcerror_error_free(
@@ -570,25 +787,128 @@ PyObject *pypff_message_get_conversation_topic(
 
 		goto on_error;
 	}
-	/* Pass the string length to PyUnicode_DecodeUTF8
-	 * otherwise it makes the end of string character is part
-	 * of the string
-	 */
-	string_object = PyUnicode_DecodeUTF8(
-			 (char *) value_string,
-			 (Py_ssize_t) value_string_size - 1,
-			 NULL );
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
 
-	PyMem_Free(
-	 value_string );
+		result = libpff_record_entry_get_data_size(
+			  record_entry,
+			  &value_data_size,
+			  &error );
 
-	return( string_object );
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve conversation index data size.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		if( value_data_size > 0 )
+		{
+			value_data = (uint8_t *) PyMem_Malloc(
+			                          sizeof( uint8_t ) * value_data_size );
+
+			if( value_data == NULL )
+			{
+				PyErr_Format(
+				 PyExc_MemoryError,
+				 "%s: unable to create conversation index.",
+				 function );
+
+				goto on_error;
+			}
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data(
+				  record_entry,
+				  value_data,
+				  value_data_size,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			if( result != 1 )
+			{
+				pypff_error_raise(
+				 error,
+				 PyExc_IOError,
+				 "%s: unable to retrieve conversation index data.",
+				 function );
+
+				libcerror_error_free(
+				 &error );
+
+				goto on_error;
+			}
+#if PY_MAJOR_VERSION >= 3
+			bytes_object = PyBytes_FromStringAndSize(
+			                (char *) value_data,
+			                (Py_ssize_t) value_data_size - 1 );
+#else
+			bytes_object = PyString_FromStringAndSize(
+			                (char *) value_data,
+			                (Py_ssize_t) value_data_size - 1 );
+#endif
+			PyMem_Free(
+			 value_data );
+
+			value_data = NULL;
+		}
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( bytes_object == NULL )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	return( bytes_object );
 
 on_error:
-	if( value_string != NULL )
+	if( bytes_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) bytes_object );
+	}
+	if( value_data != NULL )
 	{
 		PyMem_Free(
-		 value_string );
+		 value_data );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
 	}
 	return( NULL );
 }
@@ -600,12 +920,13 @@ PyObject *pypff_message_get_sender_name(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "pypff_message_get_sender_name";
-	size_t value_string_size = 0;
-	int result               = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *string_object             = NULL;
+	uint8_t *value_string               = NULL;
+	static char *function               = "pypff_message_get_sender_name";
+	size_t value_string_size            = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -620,11 +941,13 @@ PyObject *pypff_message_get_sender_name(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_message_get_entry_value_utf8_string_size(
-	          pypff_item->item,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME,
-	          &value_string_size,
-	          &error );
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME,
+		  0,
+		  &record_entry,
+		  LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+		  &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -633,7 +956,7 @@ PyObject *pypff_message_get_sender_name(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve sender name size.",
+		 "%s: unable to retrieve sender name entry.",
 		 function );
 
 		libcerror_error_free(
@@ -641,69 +964,128 @@ PyObject *pypff_message_get_sender_name(
 
 		goto on_error;
 	}
-	else if( ( result == 0 )
-	      || ( value_string_size == 0 ) )
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_get_data_as_utf8_string_size(
+		          record_entry,
+		          &value_string_size,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve sender name UTF-8 string size.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		if( value_string_size > 0 )
+		{
+			value_string = (uint8_t *) PyMem_Malloc(
+						    sizeof( uint8_t ) * value_string_size );
+
+			if( value_string == NULL )
+			{
+				PyErr_Format(
+				 PyExc_MemoryError,
+				 "%s: unable to create sender name.",
+				 function );
+
+				goto on_error;
+			}
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data_as_utf8_string(
+				  record_entry,
+				  value_string,
+				  value_string_size,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			if( result != 1 )
+			{
+				pypff_error_raise(
+				 error,
+				 PyExc_IOError,
+				 "%s: unable to retrieve sender name UTF-8 string.",
+				 function );
+
+				libcerror_error_free(
+				 &error );
+
+				goto on_error;
+			}
+			/* Pass the string length to PyUnicode_DecodeUTF8
+			 * otherwise it makes the end of string character is part
+			 * of the string
+			 */
+			string_object = PyUnicode_DecodeUTF8(
+					 (char *) value_string,
+					 (Py_ssize_t) value_string_size - 1,
+					 NULL );
+
+			PyMem_Free(
+			 value_string );
+
+			value_string = NULL;
+		}
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( string_object == NULL )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	value_string = (uint8_t *) PyMem_Malloc(
-				    sizeof( uint8_t ) * value_string_size );
-
-	if( value_string == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to create sender name.",
-		 function );
-
-		goto on_error;
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_message_get_entry_value_utf8_string(
-		  pypff_item->item,
-		  LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME,
-		  value_string,
-		  value_string_size,
-		  &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve sender name.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		goto on_error;
-	}
-	/* Pass the string length to PyUnicode_DecodeUTF8
-	 * otherwise it makes the end of string character is part
-	 * of the string
-	 */
-	string_object = PyUnicode_DecodeUTF8(
-			 (char *) value_string,
-			 (Py_ssize_t) value_string_size - 1,
-			 NULL );
-
-	PyMem_Free(
-	 value_string );
-
 	return( string_object );
 
 on_error:
+	if( string_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) string_object );
+	}
 	if( value_string != NULL )
 	{
 		PyMem_Free(
 		 value_string );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
 	}
 	return( NULL );
 }
@@ -715,11 +1097,12 @@ PyObject *pypff_message_get_client_submit_time(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	PyObject *date_time_object = NULL;
-	libcerror_error_t *error   = NULL;
-	static char *function      = "pypff_message_get_client_submit_time";
-	uint64_t filetime          = 0;
-	int result                 = 0;
+	PyObject *date_time_object          = NULL;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "pypff_message_get_client_submit_time";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -734,10 +1117,13 @@ PyObject *pypff_message_get_client_submit_time(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_message_get_client_submit_time(
-	          pypff_item->item,
-	          &filetime,
-	          &error );
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_CLIENT_SUBMIT_TIME,
+		  LIBPFF_VALUE_TYPE_FILETIME,
+		  &record_entry,
+		  0,
+		  &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -746,25 +1132,85 @@ PyObject *pypff_message_get_client_submit_time(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve message client submit time.",
+		 "%s: unable to retrieve client submit time entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
 	}
-	else if( result == 0 )
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_get_data_as_filetime(
+		          record_entry,
+		          &filetime,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve client submit time FILETIME value.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		date_time_object = pypff_datetime_new_from_filetime(
+		                    filetime );
+
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( date_time_object == NULL )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	date_time_object = pypff_datetime_new_from_filetime(
-	                    filetime );
-
 	return( date_time_object );
+
+on_error:
+	if( date_time_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) date_time_object );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the client submit date and time as an integer
@@ -833,11 +1279,12 @@ PyObject *pypff_message_get_delivery_time(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	PyObject *date_time_object = NULL;
-	libcerror_error_t *error   = NULL;
-	static char *function      = "pypff_message_get_delivery_time";
-	uint64_t filetime          = 0;
-	int result                 = 0;
+	PyObject *date_time_object          = NULL;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "pypff_message_get_delivery_time";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -852,10 +1299,13 @@ PyObject *pypff_message_get_delivery_time(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_message_get_delivery_time(
-	          pypff_item->item,
-	          &filetime,
-	          &error );
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_DELIVERY_TIME,
+		  LIBPFF_VALUE_TYPE_FILETIME,
+		  &record_entry,
+		  0,
+		  &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -864,25 +1314,85 @@ PyObject *pypff_message_get_delivery_time(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve message delivery time.",
+		 "%s: unable to retrieve delivery time entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
 	}
-	else if( result == 0 )
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_get_data_as_filetime(
+		          record_entry,
+		          &filetime,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve delivery time FILETIME value.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		date_time_object = pypff_datetime_new_from_filetime(
+		                    filetime );
+
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( date_time_object == NULL )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	date_time_object = pypff_datetime_new_from_filetime(
-	                    filetime );
-
 	return( date_time_object );
+
+on_error:
+	if( date_time_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) date_time_object );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the delivery date and time as an integer
@@ -951,11 +1461,12 @@ PyObject *pypff_message_get_creation_time(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	PyObject *date_time_object = NULL;
-	libcerror_error_t *error   = NULL;
-	static char *function      = "pypff_message_get_creation_time";
-	uint64_t filetime          = 0;
-	int result                 = 0;
+	PyObject *date_time_object          = NULL;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "pypff_message_get_creation_time";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -970,10 +1481,13 @@ PyObject *pypff_message_get_creation_time(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_message_get_creation_time(
-	          pypff_item->item,
-	          &filetime,
-	          &error );
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_CREATION_TIME,
+		  LIBPFF_VALUE_TYPE_FILETIME,
+		  &record_entry,
+		  0,
+		  &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -982,25 +1496,85 @@ PyObject *pypff_message_get_creation_time(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve message creation time.",
+		 "%s: unable to retrieve creation time entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
 	}
-	else if( result == 0 )
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_get_data_as_filetime(
+		          record_entry,
+		          &filetime,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve creation time FILETIME value.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		date_time_object = pypff_datetime_new_from_filetime(
+		                    filetime );
+
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( date_time_object == NULL )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	date_time_object = pypff_datetime_new_from_filetime(
-	                    filetime );
-
 	return( date_time_object );
+
+on_error:
+	if( date_time_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) date_time_object );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the creation date and time as an integer
@@ -1069,11 +1643,12 @@ PyObject *pypff_message_get_modification_time(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	PyObject *date_time_object = NULL;
-	libcerror_error_t *error   = NULL;
-	static char *function      = "pypff_message_get_modification_time";
-	uint64_t filetime          = 0;
-	int result                 = 0;
+	PyObject *date_time_object          = NULL;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	static char *function               = "pypff_message_get_modification_time";
+	uint64_t filetime                   = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1088,10 +1663,13 @@ PyObject *pypff_message_get_modification_time(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_message_get_modification_time(
-	          pypff_item->item,
-	          &filetime,
-	          &error );
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_MODIFICATION_TIME,
+		  LIBPFF_VALUE_TYPE_FILETIME,
+		  &record_entry,
+		  0,
+		  &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -1100,25 +1678,85 @@ PyObject *pypff_message_get_modification_time(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve message modification time.",
+		 "%s: unable to retrieve modification time entry.",
 		 function );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
 	}
-	else if( result == 0 )
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_get_data_as_filetime(
+		          record_entry,
+		          &filetime,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve modification time FILETIME value.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		date_time_object = pypff_datetime_new_from_filetime(
+		                    filetime );
+
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( date_time_object == NULL )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	date_time_object = pypff_datetime_new_from_filetime(
-	                    filetime );
-
 	return( date_time_object );
+
+on_error:
+	if( date_time_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) date_time_object );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
+	}
+	return( NULL );
 }
 
 /* Retrieves the modification date and time as an integer
@@ -1187,12 +1825,13 @@ PyObject *pypff_message_get_transport_headers(
            pypff_item_t *pypff_item,
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
-	libcerror_error_t *error = NULL;
-	PyObject *string_object  = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "pypff_message_get_transport_headers";
-	size_t value_string_size = 0;
-	int result               = 0;
+	libcerror_error_t *error            = NULL;
+	libpff_record_entry_t *record_entry = NULL;
+	PyObject *string_object             = NULL;
+	uint8_t *value_string               = NULL;
+	static char *function               = "pypff_message_get_transport_headers";
+	size_t value_string_size            = 0;
+	int result                          = 0;
 
 	PYPFF_UNREFERENCED_PARAMETER( arguments )
 
@@ -1207,11 +1846,13 @@ PyObject *pypff_message_get_transport_headers(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libpff_message_get_entry_value_utf8_string_size(
-	          pypff_item->item,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
-	          &value_string_size,
-	          &error );
+	result = libpff_record_set_get_entry_by_type(
+		  pypff_item->record_set,
+		  LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
+		  0,
+		  &record_entry,
+		  LIBPFF_ENTRY_VALUE_FLAG_MATCH_ANY_VALUE_TYPE,
+		  &error );
 
 	Py_END_ALLOW_THREADS
 
@@ -1220,7 +1861,7 @@ PyObject *pypff_message_get_transport_headers(
 		pypff_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to retrieve transport headers size.",
+		 "%s: unable to retrieve transport headers entry.",
 		 function );
 
 		libcerror_error_free(
@@ -1228,69 +1869,128 @@ PyObject *pypff_message_get_transport_headers(
 
 		goto on_error;
 	}
-	else if( ( result == 0 )
-	      || ( value_string_size == 0 ) )
+	else if( result == 1 )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_get_data_as_utf8_string_size(
+		          record_entry,
+		          &value_string_size,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve transport headers UTF-8 string size.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+		if( value_string_size > 0 )
+		{
+			value_string = (uint8_t *) PyMem_Malloc(
+						    sizeof( uint8_t ) * value_string_size );
+
+			if( value_string == NULL )
+			{
+				PyErr_Format(
+				 PyExc_MemoryError,
+				 "%s: unable to create transport headers.",
+				 function );
+
+				goto on_error;
+			}
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libpff_record_entry_get_data_as_utf8_string(
+				  record_entry,
+				  value_string,
+				  value_string_size,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			if( result != 1 )
+			{
+				pypff_error_raise(
+				 error,
+				 PyExc_IOError,
+				 "%s: unable to retrieve transport headers UTF-8 string.",
+				 function );
+
+				libcerror_error_free(
+				 &error );
+
+				goto on_error;
+			}
+			/* Pass the string length to PyUnicode_DecodeUTF8
+			 * otherwise it makes the end of string character is part
+			 * of the string
+			 */
+			string_object = PyUnicode_DecodeUTF8(
+					 (char *) value_string,
+					 (Py_ssize_t) value_string_size - 1,
+					 NULL );
+
+			PyMem_Free(
+			 value_string );
+
+			value_string = NULL;
+		}
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_record_entry_free(
+			  &record_entry,
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libpff record entry.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	if( string_object == NULL )
 	{
 		Py_IncRef(
 		 Py_None );
 
 		return( Py_None );
 	}
-	value_string = (uint8_t *) PyMem_Malloc(
-				    sizeof( uint8_t ) * value_string_size );
-
-	if( value_string == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to create transport headers.",
-		 function );
-
-		goto on_error;
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_message_get_entry_value_utf8_string(
-		  pypff_item->item,
-	          LIBPFF_ENTRY_TYPE_MESSAGE_TRANSPORT_HEADERS,
-		  value_string,
-		  value_string_size,
-		  &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve transport headers.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		goto on_error;
-	}
-	/* Pass the string length to PyUnicode_DecodeUTF8
-	 * otherwise it makes the end of string character is part
-	 * of the string
-	 */
-	string_object = PyUnicode_DecodeUTF8(
-			 (char *) value_string,
-			 (Py_ssize_t) value_string_size - 1,
-			 NULL );
-
-	PyMem_Free(
-	 value_string );
-
 	return( string_object );
 
 on_error:
+	if( string_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) string_object );
+	}
 	if( value_string != NULL )
 	{
 		PyMem_Free(
 		 value_string );
+	}
+	if( record_entry != NULL )
+	{
+		libpff_record_entry_free(
+		 &record_entry,
+		 NULL );
 	}
 	return( NULL );
 }
@@ -1707,7 +2407,6 @@ PyObject *pypff_message_get_attachment_by_index(
 	libpff_item_t *sub_item   = NULL;
 	PyObject *sub_item_object = NULL;
 	static char *function     = "pypff_message_get_attachment_by_index";
-	uint8_t sub_item_type     = 0;
 	int result                = 0;
 
 	if( pypff_item == NULL )
@@ -1743,33 +2442,10 @@ PyObject *pypff_message_get_attachment_by_index(
 
 		goto on_error;
 	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_item_get_type(
-	          sub_item,
-	          &sub_item_type,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve attachment: %d type.",
-		 function,
-		 attachment_index );
-
-		libcerror_error_free(
-		 &error );
-
-		goto on_error;
-	}
 	sub_item_object = pypff_item_new(
 	                   &pypff_attachment_type_object,
 	                   sub_item,
-	                   (PyObject *) ( (pypff_item_t *) pypff_item )->parent_object );
+	                   pypff_item );
 
 	if( sub_item_object == NULL )
 	{
@@ -1777,6 +2453,29 @@ PyObject *pypff_message_get_attachment_by_index(
 		 PyExc_MemoryError,
 		 "%s: unable to create attachment object.",
 		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_record_set_by_index(
+		  ( (pypff_item_t *) sub_item_object )->item,
+		  0,
+		  &( ( (pypff_item_t *) sub_item_object )->record_set ),
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve attachment item record set: 0.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
 
 		goto on_error;
 	}
@@ -1881,5 +2580,82 @@ PyObject *pypff_message_get_attachments(
 		return( NULL );
 	}
 	return( sub_items_object );
+}
+
+/* Retrieves recipients
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_message_get_recipients(
+           pypff_item_t *pypff_item,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error  = NULL;
+	libpff_item_t *sub_item   = NULL;
+	PyObject *sub_item_object = NULL;
+	static char *function     = "pypff_message_get_recipients";
+	int result                = 0;
+
+	if( pypff_item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_message_get_recipients(
+	          ( (pypff_item_t *) pypff_item )->item,
+	          &sub_item,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve recipients.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	sub_item_object = pypff_item_new(
+	                   &pypff_recipients_type_object,
+	                   sub_item,
+	                   (PyObject *) pypff_item );
+
+	if( sub_item_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create recipients object.",
+		 function );
+
+		goto on_error;
+	}
+	return( sub_item_object );
+
+on_error:
+	if( sub_item != NULL )
+	{
+		libpff_item_free(
+		 &sub_item,
+		 NULL );
+	}
+	return( NULL );
 }
 

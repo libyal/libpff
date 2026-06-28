@@ -2497,10 +2497,6 @@ int libpff_message_get_entry_value_utf16_string(
      size_t utf16_string_size,
      libpff_error_t **error );
 
-/* TODO add convenience functions for subject */
-/* TODO add convenience functions for conversation_topic */
-/* TODO add convenience functions for sender_name */
-
 /* Retrieves the 64-bit FILETIME value containing message client submit time
  * Returns 1 if successful, 0 if not available or -1 on error
  */
