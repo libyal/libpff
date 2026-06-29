@@ -28,6 +28,7 @@
 #include "item_file.h"
 #include "log_handle.h"
 #include "mapi_property_definition.h"
+#include "seen_message_ids.h"
 #include "pfftools_libcerror.h"
 #include "pfftools_libfdatetime.h"
 #include "pfftools_libfguid.h"
@@ -55,8 +56,6 @@ enum EXPORT_FORMATS
 	EXPORT_FORMAT_TEXT			= (int) 't',
 	EXPORT_FORMAT_MAILDIR			= (int) 'm'
 };
-
-typedef struct seen_message_ids_table seen_message_ids_table_t;
 
 typedef struct export_handle export_handle_t;
 

@@ -27,6 +27,7 @@ bin_PROGRAMS = \
 
 pffexport_SOURCES = \
 	export_handle.c export_handle.h \
+	seen_message_ids.c seen_message_ids.h \
 	item_file.c item_file.h \
 	log_handle.c log_handle.h \
 	mapi_property_definition.h \

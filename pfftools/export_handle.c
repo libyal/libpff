@@ -49,9 +49,11 @@
 
 #include "export_handle.h"
 #include "item_file.h"
+#include "seen_message_ids.h"
 #include "mapi_property_definition.h"
 #include "log_handle.h"
 #include "pffinput.h"
+#include "pfftools_libuna.h"
 #include "pfftools_libcerror.h"
 #include "pfftools_libclocale.h"
 #include "pfftools_libcnotify.h"
@@ -64,402 +66,6 @@
 
 #define EXPORT_HANDLE_BUFFER_SIZE		8192
 #define EXPORT_HANDLE_NOTIFY_STREAM		stdout
-
-/* Number of hash buckets for the seen-Message-ID deduplication table */
-#define SEEN_IDS_BUCKETS 1024
-
-/* Linked list node tracking a single seen Message-ID value */
-typedef struct seen_message_id seen_message_id_t;
-
-struct seen_message_id
-{
-	char *id;
-	seen_message_id_t *next;
-};
-
-/* Hash table mapping Message-ID strings to chain heads */
-typedef struct seen_message_ids_table seen_message_ids_table_t;
-
-struct seen_message_ids_table
-{
-	seen_message_id_t *buckets[ SEEN_IDS_BUCKETS ];
-};
-
-/* djb2 hash of a NUL-terminated string, bucketed to SEEN_IDS_BUCKETS
- * Returns bucket index in [0, SEEN_IDS_BUCKETS)
- */
-static uint32_t seen_ids_hash(
-                 const char *id )
-{
-	uint32_t h = 5381;
-
-	while( *id != 0 )
-	{
-		h = ( ( h << 5 ) + h ) ^ (uint8_t) *id++;
-	}
-	return( h % SEEN_IDS_BUCKETS );
-}
-
-/* Releases the hash table and all nodes
- * Sets the table pointer to NULL on return
- */
-static void seen_ids_table_free(
-             seen_message_ids_table_t **table )
-{
-	seen_message_id_t *current = NULL;
-	seen_message_id_t *next    = NULL;
-	uint32_t bucket_index      = 0;
-
-	if( ( table == NULL ) || ( *table == NULL ) )
-	{
-		return;
-	}
-	for( bucket_index = 0;
-	     bucket_index < SEEN_IDS_BUCKETS;
-	     bucket_index++ )
-	{
-		current = ( *table )->buckets[ bucket_index ];
-
-		while( current != NULL )
-		{
-			next = current->next;
-
-			if( current->id != NULL )
-			{
-				memory_free(
-				 current->id );
-			}
-			memory_free(
-			 current );
-
-			current = next;
-		}
-	}
-	memory_free(
-	 *table );
-
-	*table = NULL;
-}
-
-/* Prepends a Message-ID string into its hash bucket
- * Ownership of id is transferred to the table
- * Returns 1 if successful or -1 on error
- */
-static int seen_ids_table_add(
-            seen_message_ids_table_t *table,
-            char *id,
-            libcerror_error_t **error )
-{
-	seen_message_id_t *node = NULL;
-	uint32_t bucket_index   = 0;
-	static char *function   = "seen_ids_table_add";
-
-	if( table == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table.",
-		 function );
-
-		return( -1 );
-	}
-	node = (seen_message_id_t *) memory_allocate(
-	                              sizeof( seen_message_id_t ) );
-
-	if( node == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to allocate list node.",
-		 function );
-
-		return( -1 );
-	}
-	bucket_index    = seen_ids_hash( id );
-	node->id        = id;
-	node->next      = table->buckets[ bucket_index ];
-	table->buckets[ bucket_index ] = node;
-
-	return( 1 );
-}
-
-/* Tests whether a Message-ID string is in the table
- * Returns 1 if found, 0 if not found
- */
-static int seen_ids_table_contains(
-            seen_message_ids_table_t *table,
-            const char *id )
-{
-	seen_message_id_t *current = NULL;
-	uint32_t bucket_index      = 0;
-	size_t id_len              = 0;
-
-	if( table == NULL )
-	{
-		return( 0 );
-	}
-	bucket_index = seen_ids_hash( id );
-	current      = table->buckets[ bucket_index ];
-	id_len       = narrow_string_length( id );
-
-	while( current != NULL )
-	{
-		if( ( narrow_string_length( current->id ) == id_len )
-		 && ( narrow_string_compare(
-		       current->id,
-		       id,
-		       id_len ) == 0 ) )
-		{
-			return( 1 );
-		}
-		current = current->next;
-	}
-	return( 0 );
-}
-
-/* Populates a new table from a newline-delimited file
- * Absence of the file is not an error on first run
- * Returns 1 if successful or -1 on error
- */
-static int seen_ids_table_load(
-            seen_message_ids_table_t **table,
-            const char *path,
-            libcerror_error_t **error )
-{
-	FILE *file            = NULL;
-	char *line            = NULL;
-	char *newline         = NULL;
-	char *id              = NULL;
-	size_t id_length      = 0;
-	static char *function = "seen_ids_table_load";
-	static const size_t line_size = 4096;
-
-	if( table == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table.",
-		 function );
-
-		return( -1 );
-	}
-	*table = (seen_message_ids_table_t *) memory_allocate(
-	                                       sizeof( seen_message_ids_table_t ) );
-
-	if( *table == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to allocate hash table.",
-		 function );
-
-		return( -1 );
-	}
-	memory_set(
-	 *table,
-	 0,
-	 sizeof( seen_message_ids_table_t ) );
-
-	line = (char *) memory_allocate(
-	                 sizeof( char ) * line_size );
-
-	if( line == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_MEMORY,
-		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to allocate line buffer.",
-		 function );
-
-		return( -1 );
-	}
-	file = file_stream_open(
-	        path,
-	        "r" );
-
-	if( file == NULL )
-	{
-		if( errno != ENOENT )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to open dedup file for reading: %s.",
-			 function,
-			 path );
-
-			memory_free(
-			 line );
-
-			return( -1 );
-		}
-		/* file absent on first run; not an error */
-		memory_free(
-		 line );
-
-		return( 1 );
-	}
-	while( file_stream_get_string(
-	        file,
-	        line,
-	        (int) line_size ) != NULL )
-	{
-		newline = narrow_string_search_character(
-		           line,
-		           (int) '\n',
-		           narrow_string_length( line ) );
-
-		if( newline != NULL )
-		{
-			*newline = 0;
-		}
-		else if( feof( file ) == 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: dedup file line exceeds buffer; state may be incomplete.",
-			 function );
-
-			file_stream_close(
-			 file );
-
-			memory_free(
-			 line );
-
-			return( -1 );
-		}
-		id_length = narrow_string_length(
-		             line );
-
-		if( id_length == 0 )
-		{
-			continue;
-		}
-		id = (char *) memory_allocate(
-		               sizeof( char ) * ( id_length + 1 ) );
-
-		if( id == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to allocate id string.",
-			 function );
-
-			file_stream_close(
-			 file );
-
-			memory_free(
-			 line );
-
-			return( -1 );
-		}
-		narrow_string_copy(
-		 id,
-		 line,
-		 id_length + 1 );
-
-		if( seen_ids_table_add(
-		     *table,
-		     id,
-		     error ) != 1 )
-		{
-			memory_free(
-			 id );
-
-			file_stream_close(
-			 file );
-
-			memory_free(
-			 line );
-
-			return( -1 );
-		}
-	}
-	file_stream_close(
-	 file );
-
-	memory_free(
-	 line );
-
-	return( 1 );
-}
-
-/* Writes all table entries to a newline-delimited file
- * Returns 1 if successful or -1 on error
- */
-static int seen_ids_table_save(
-            seen_message_ids_table_t *table,
-            const char *path,
-            libcerror_error_t **error )
-{
-	seen_message_id_t *current = NULL;
-	FILE *file                 = NULL;
-	uint32_t bucket_index      = 0;
-	static char *function      = "seen_ids_table_save";
-
-	if( path == NULL )
-	{
-		return( 1 );
-	}
-	file = file_stream_open(
-	        path,
-	        "w" );
-
-	if( file == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open dedup file for writing: %s.",
-		 function,
-		 path );
-
-		return( -1 );
-	}
-	if( table != NULL )
-	{
-		for( bucket_index = 0;
-		     bucket_index < SEEN_IDS_BUCKETS;
-		     bucket_index++ )
-		{
-			current = table->buckets[ bucket_index ];
-
-			while( current != NULL )
-			{
-				file_stream_write(
-				 file,
-				 current->id,
-				 narrow_string_length( current->id ) );
-
-				file_stream_write(
-				 file,
-				 "\n",
-				 1 );
-
-				current = current->next;
-			}
-		}
-	}
-	file_stream_close(
-	 file );
-
-	return( 1 );
-}
 
 /* Creates an export handle
  * Make sure the value export_handle is referencing, is set to NULL
@@ -11163,12 +10769,9 @@ on_error:
 	return( -1 );
 }
 
-/* base64 character table */
-static const char mime_b64_chars[] =
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 /* Streams attachment data to output_file as base64, wrapped at 76 chars per line
- * with CRLF line endings.  Reads in 57-byte chunks (= 76 base64 chars exactly).
+ * with CRLF line endings.  Reads in 57-byte chunks (= 76 base64 chars exactly)
+ * and encodes each chunk with the libuna base64 stream functions.
  * Returns 1 if successful or -1 on error.
  */
 static int mime_base64_write_attachment(
@@ -11178,13 +10781,15 @@ static int mime_base64_write_attachment(
 {
 	uint8_t in_buf[ 57 ];
 	uint8_t out_buf[ 80 ];
-	static char *function = "mime_base64_write_attachment";
-	ssize_t bytes_read    = 0;
-	size_t out_pos        = 0;
-	size_t i              = 0;
-	uint32_t v            = 0;
+	static char *function   = "mime_base64_write_attachment";
+	ssize_t bytes_read      = 0;
+	size_t byte_index       = 0;
+	size_t out_index        = 0;
+	uint32_t base64_triplet = 0;
+	uint8_t padding_size    = 0;
+	int done                = 0;
 
-	while( 1 )
+	while( done == 0 )
 	{
 		bytes_read = libpff_attachment_data_read_buffer(
 		              attachment,
@@ -11205,45 +10810,59 @@ static int mime_base64_write_attachment(
 		}
 		if( bytes_read == 0 )
 		{
-			break;
+			done = 1;
+
+			continue;
 		}
-		out_pos = 0;
+		byte_index = 0;
+		out_index  = 0;
 
-		/* Encode complete 3-byte groups */
-		for( i = 0; i + 2 < (size_t) bytes_read; i += 3 )
+		/* Encode the chunk one base64 triplet at a time */
+		while( byte_index < (size_t) bytes_read )
 		{
-			v = ( (uint32_t) in_buf[ i ]     << 16 )
-			  | ( (uint32_t) in_buf[ i + 1 ] <<  8 )
-			  |   (uint32_t) in_buf[ i + 2 ];
-
-			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >> 18 ) & 0x3fu ];
-			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >> 12 ) & 0x3fu ];
-			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >>  6 ) & 0x3fu ];
-			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[   v         & 0x3fu ];
-		}
-		/* Handle final 1 or 2 remaining bytes with = padding */
-		if( i < (size_t) bytes_read )
-		{
-			v = (uint32_t) in_buf[ i ] << 16;
-
-			if( ( i + 1 ) < (size_t) bytes_read )
+			if( libuna_base64_triplet_copy_from_byte_stream(
+			     &base64_triplet,
+			     in_buf,
+			     (size_t) bytes_read,
+			     &byte_index,
+			     &padding_size,
+			     error ) != 1 )
 			{
-				v |= (uint32_t) in_buf[ i + 1 ] << 8;
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+				 LIBCERROR_CONVERSION_ERROR_GENERIC,
+				 "%s: unable to copy base64 triplet from byte stream.",
+				 function );
+
+				return( -1 );
 			}
-			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >> 18 ) & 0x3fu ];
-			out_buf[ out_pos++ ] = (uint8_t) mime_b64_chars[ ( v >> 12 ) & 0x3fu ];
-			out_buf[ out_pos++ ] = ( ( i + 1 ) < (size_t) bytes_read )
-			                     ? (uint8_t) mime_b64_chars[ ( v >> 6 ) & 0x3fu ]
-			                     : (uint8_t) '=';
-			out_buf[ out_pos++ ] = (uint8_t) '=';
+			if( libuna_base64_triplet_copy_to_base64_stream(
+			     base64_triplet,
+			     out_buf,
+			     sizeof( out_buf ),
+			     &out_index,
+			     padding_size,
+			     LIBUNA_BASE64_VARIANT_ALPHABET_NORMAL | LIBUNA_BASE64_VARIANT_PADDING_REQUIRED,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+				 LIBCERROR_CONVERSION_ERROR_GENERIC,
+				 "%s: unable to copy base64 triplet to base64 stream.",
+				 function );
+
+				return( -1 );
+			}
 		}
-		out_buf[ out_pos++ ] = (uint8_t) '\r';
-		out_buf[ out_pos++ ] = (uint8_t) '\n';
+		out_buf[ out_index++ ] = (uint8_t) '\r';
+		out_buf[ out_index++ ] = (uint8_t) '\n';
 
 		if( item_file_write_buffer(
 		     output_file,
 		     out_buf,
-		     out_pos,
+		     out_index,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
