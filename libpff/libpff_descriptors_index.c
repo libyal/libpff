@@ -156,6 +156,7 @@ on_error:
 	return( -1 );
 }
 
+
 /* Frees a descriptors index
  * Returns 1 if successful or -1 on error
  */
@@ -345,12 +346,20 @@ int libpff_descriptors_index_get_index_value_by_identifier(
 
 				goto on_error;
 			}
-			lookup_index_value->data_identifier              = lookup_index_value->data_identifier;
-			lookup_index_value->local_descriptors_identifier = lookup_index_value->local_descriptors_identifier;
-			lookup_index_value->parent_identifier            = lookup_index_value->parent_identifier;
+			lookup_index_value->data_identifier              = safe_index_value->data_identifier;
+			lookup_index_value->local_descriptors_identifier = safe_index_value->local_descriptors_identifier;
+			lookup_index_value->parent_identifier            = safe_index_value->parent_identifier;
 
 			*index_value = lookup_index_value;
+
+			lookup_index_value = NULL;
 		}
+	}
+	if( lookup_index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &lookup_index_value,
+		 NULL );
 	}
 	return( result );
 
@@ -483,4 +492,3 @@ on_error:
 	}
 	return( -1 );
 }
-
