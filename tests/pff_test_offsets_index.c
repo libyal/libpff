@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #endif
 
+#include "pff_test_libcdata.h"
 #include "pff_test_libcerror.h"
 #include "pff_test_libpff.h"
 #include "pff_test_macros.h"
@@ -36,6 +37,7 @@
 #include "../libpff/libpff_index_value.h"
 #include "../libpff/libpff_io_handle.h"
 #include "../libpff/libpff_offsets_index.h"
+#include "../libpff/libpff_recover.h"
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
@@ -440,6 +442,142 @@ on_error:
 	return( 0 );
 }
 
+/* Tests recovered offset index allocation range validation.
+ * Returns 1 if successful or 0 if not.
+ */
+int pff_test_recover_index_value_range_is_unallocated(
+     void )
+{
+	libcdata_range_list_t *unallocated_data_block_list = NULL;
+	libcerror_error_t *error                           = NULL;
+	libpff_index_value_t *index_value                  = NULL;
+	int result                                         = 0;
+
+	result = libcdata_range_list_initialize(
+	          &unallocated_data_block_list,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	result = libcdata_range_list_insert_range(
+	          unallocated_data_block_list,
+	          4096,
+	          8192,
+	          NULL,
+	          NULL,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	result = libpff_index_value_initialize(
+	          &index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	index_value->file_offset = 4096;
+	index_value->data_size   = 512;
+
+	result = libpff_recover_index_value_range_is_unallocated(
+	          unallocated_data_block_list,
+	          index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	index_value->file_offset = 12288;
+
+	result = libpff_recover_index_value_range_is_unallocated(
+	          unallocated_data_block_list,
+	          index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	result = libpff_recover_index_value_range_is_unallocated(
+	          NULL,
+	          index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libpff_index_value_free(
+	          &index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	result = libcdata_range_list_free(
+	          &unallocated_data_block_list,
+	          NULL,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &index_value,
+		 NULL );
+	}
+	if( unallocated_data_block_list != NULL )
+	{
+		libcdata_range_list_free(
+		 &unallocated_data_block_list,
+		 NULL,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -471,6 +609,10 @@ int main(
 	 "libpff_offsets_index_get_index_value_by_identifier",
 	 pff_test_offsets_index_get_index_value_by_identifier );
 
+	PFF_TEST_RUN(
+	 "libpff_recover_index_value_range_is_unallocated",
+	 pff_test_recover_index_value_range_is_unallocated );
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
@@ -482,4 +624,3 @@ on_error:
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 }
-

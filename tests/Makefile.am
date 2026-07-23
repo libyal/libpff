@@ -641,6 +641,7 @@ pff_test_notify_LDADD = \
 	@LIBCERROR_LIBADD@
 
 pff_test_offsets_index_SOURCES = \
+	pff_test_libcdata.h \
 	pff_test_libcerror.h \
 	pff_test_libpff.h \
 	pff_test_macros.h \
@@ -919,4 +920,3 @@ DISTCLEANFILES = \
 	atconfig \
 	Makefile \
 	Makefile.in
-
