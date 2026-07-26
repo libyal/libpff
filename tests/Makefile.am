@@ -650,6 +650,7 @@ pff_test_offsets_index_SOURCES = \
 	pff_test_unused.h
 
 pff_test_offsets_index_LDADD = \
+	@LIBCDATA_LIBADD@ \
 	../libpff/libpff.la \
 	@LIBCERROR_LIBADD@
 
