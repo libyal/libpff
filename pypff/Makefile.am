@@ -35,12 +35,16 @@ pypff_la_SOURCES = \
 	pypff_libclocale.h \
 	pypff_libpff.h \
 	pypff_message.c pypff_message.h \
+	pypff_message_store.c pypff_message_store.h \
+	pypff_multi_value.c pypff_multi_value.h \
+	pypff_name_to_id_map_entry.c pypff_name_to_id_map_entry.h \
 	pypff_python.h \
 	pypff_recipients.c pypff_recipients.h \
 	pypff_record_entry.c pypff_record_entry.h \
 	pypff_record_entries.c pypff_record_entries.h \
 	pypff_record_set.c pypff_record_set.h \
 	pypff_record_sets.c pypff_record_sets.h \
+	pypff_task.c pypff_task.h \
 	pypff_unused.h
 
 pypff_la_LIBADD = \

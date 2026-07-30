@@ -400,7 +400,16 @@ class MessageItemTypeTests(unittest.TestCase):
             if not message_item:
                 raise unittest.SkipTest("missing message item")
 
-            _ = message_item.recipients
+            recipients = message_item.recipients
+
+            if recipients:
+                self.assertIsInstance(recipients, pypff.recipients)
+                number_of_recipients = recipients.get_number_of_recipients()
+                self.assertEqual(number_of_recipients, recipients.number_of_recipients)
+
+                if number_of_recipients:
+                    self.assertIsNotNone(recipients.get_recipient(0))
+                    self.assertEqual(len(recipients.recipients), number_of_recipients)
 
         finally:
             pff_file.close()

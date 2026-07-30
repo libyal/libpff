@@ -36,6 +36,7 @@ endif
 
 check_SCRIPTS = \
 	pypff_test_file.py \
+	pypff_test_module.py \
 	pypff_test_support.py
 
 check_PROGRAMS = \

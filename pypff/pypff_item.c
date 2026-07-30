@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #endif
 
+#include "pypff_attachment.h"
 #include "pypff_error.h"
 #include "pypff_folder.h"
 #include "pypff_item.h"
@@ -34,8 +35,10 @@
 #include "pypff_libpff.h"
 #include "pypff_message.h"
 #include "pypff_python.h"
+#include "pypff_recipients.h"
 #include "pypff_record_set.h"
 #include "pypff_record_sets.h"
+#include "pypff_task.h"
 #include "pypff_unused.h"
 
 PyMethodDef pypff_item_object_methods[] = {
@@ -887,17 +890,23 @@ PyTypeObject *pypff_item_get_item_type_object(
 		case LIBPFF_ITEM_TYPE_RSS_FEED:
 		case LIBPFF_ITEM_TYPE_SHARING:
 		case LIBPFF_ITEM_TYPE_SMS:
-		case LIBPFF_ITEM_TYPE_TASK:
-		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
 		case LIBPFF_ITEM_TYPE_VOICEMAIL:
 			return( &pypff_message_type_object );
+
+		case LIBPFF_ITEM_TYPE_TASK:
+		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
+			return( &pypff_task_type_object );
+
+		case LIBPFF_ITEM_TYPE_ATTACHMENT:
+			return( &pypff_attachment_type_object );
 
 		case LIBPFF_ITEM_TYPE_FOLDER:
 			return( &pypff_folder_type_object );
 
-		case LIBPFF_ITEM_TYPE_ATTACHMENT:
-		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
 		case LIBPFF_ITEM_TYPE_RECIPIENTS:
+			return( &pypff_recipients_type_object );
+
+		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
 		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:
 		case LIBPFF_ITEM_TYPE_SUB_FOLDERS:
 		case LIBPFF_ITEM_TYPE_SUB_MESSAGES:

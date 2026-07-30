@@ -37,12 +37,37 @@
 PyMethodDef pypff_recipients_object_methods[] = {
 
 	/* Functions to access the recipients values */
+	{ "get_number_of_recipients",
+	  (PyCFunction) pypff_item_get_number_of_record_sets,
+	  METH_NOARGS,
+	  "get_number_of_recipients() -> Integer or None\n"
+	  "\n"
+	  "Retrieves the number of recipients." },
+
+	{ "get_recipient",
+	  (PyCFunction) pypff_recipients_get_recipient,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_recipient(recipient_index) -> Object or None\n"
+	  "\n"
+	  "Retrieves the recipient specified by the index." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
 
 PyGetSetDef pypff_recipients_object_get_set_definitions[] = {
+
+	{ "number_of_recipients",
+	  (getter) pypff_item_get_number_of_record_sets,
+	  (setter) 0,
+	  "The number of recipients.",
+	  NULL },
+
+	{ "recipients",
+	  (getter) pypff_item_get_record_sets,
+	  (setter) 0,
+	  "The recipients.",
+	  NULL },
 
 	/* Sentinel */
 	{ NULL, NULL, NULL, NULL, NULL }
@@ -142,4 +167,42 @@ PyTypeObject pypff_recipients_type_object = {
 	/* tp_del */
 	0
 };
+
+/* Retrieves a specific recipient by index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_recipients_get_recipient(
+           pypff_item_t *pypff_recipients,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *recipient_object   = NULL;
+	static char *function        = "pypff_recipients_get_recipient";
+	static char *keyword_list[]  = { "recipient_index", NULL };
+	int recipient_index          = 0;
+
+	if( pypff_recipients == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid recipients.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &recipient_index ) == 0 )
+	{
+		return( NULL );
+	}
+	recipient_object = pypff_item_get_record_set_by_index(
+	                    (PyObject *) pypff_recipients,
+	                    recipient_index );
+
+	return( recipient_object );
+}
 

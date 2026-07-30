@@ -41,7 +41,10 @@
 #include "pypff_libclocale.h"
 #include "pypff_libpff.h"
 #include "pypff_message.h"
+#include "pypff_message_store.h"
 #include "pypff_python.h"
+#include "pypff_recipients.h"
+#include "pypff_task.h"
 #include "pypff_unused.h"
 
 #if !defined( LIBPFF_HAVE_BFIO )
@@ -1458,10 +1461,12 @@ PyTypeObject *pypff_file_get_item_type_object(
 		case LIBPFF_ITEM_TYPE_RSS_FEED:
 		case LIBPFF_ITEM_TYPE_SHARING:
 		case LIBPFF_ITEM_TYPE_SMS:
-		case LIBPFF_ITEM_TYPE_TASK:
-		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
 		case LIBPFF_ITEM_TYPE_VOICEMAIL:
 			return( &pypff_message_type_object );
+
+		case LIBPFF_ITEM_TYPE_TASK:
+		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
+			return( &pypff_task_type_object );
 
 		case LIBPFF_ITEM_TYPE_ATTACHMENT:
 			return( &pypff_attachment_type_object );
@@ -1469,8 +1474,10 @@ PyTypeObject *pypff_file_get_item_type_object(
 		case LIBPFF_ITEM_TYPE_FOLDER:
 			return( &pypff_folder_type_object );
 
-		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
 		case LIBPFF_ITEM_TYPE_RECIPIENTS:
+			return( &pypff_recipients_type_object );
+
+		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
 		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:
 		case LIBPFF_ITEM_TYPE_SUB_FOLDERS:
 		case LIBPFF_ITEM_TYPE_SUB_MESSAGES:
@@ -1562,7 +1569,6 @@ PyObject *pypff_file_get_message_store(
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
 	PyObject *message_store_object = NULL;
-	PyTypeObject *type_object      = NULL;
 	libcerror_error_t *error       = NULL;
 	libpff_item_t *message_store   = NULL;
 	static char *function          = "pypff_file_get_message_store";
@@ -1608,20 +1614,8 @@ PyObject *pypff_file_get_message_store(
 
 		return( Py_None );
 	}
-	type_object = pypff_file_get_item_type_object(
-	               message_store );
-
-	if( type_object == NULL )
-	{
-		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to retrieve message store type object.",
-		 function );
-
-		goto on_error;
-	}
 	message_store_object = pypff_item_new(
-	                        type_object,
+	                        &pypff_message_store_type_object,
 	                        message_store,
 	                        (PyObject *) pypff_file );
 

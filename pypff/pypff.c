@@ -39,12 +39,16 @@
 #include "pypff_libcerror.h"
 #include "pypff_libpff.h"
 #include "pypff_message.h"
+#include "pypff_message_store.h"
+#include "pypff_multi_value.h"
+#include "pypff_name_to_id_map_entry.h"
 #include "pypff_python.h"
 #include "pypff_recipients.h"
 #include "pypff_record_entries.h"
 #include "pypff_record_entry.h"
 #include "pypff_record_set.h"
 #include "pypff_record_sets.h"
+#include "pypff_task.h"
 #include "pypff_unused.h"
 
 #if !defined( LIBPFF_HAVE_BFIO )
@@ -681,6 +685,23 @@ PyMODINIT_FUNC initpypff(
 	 "item",
 	 (PyObject *) &pypff_item_type_object );
 
+	/* Setup the message_store type object
+	 */
+	pypff_message_store_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pypff_message_store_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pypff_message_store_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "message_store",
+	 (PyObject *) &pypff_message_store_type_object );
+
 	/* Setup the items type object
 	 */
 	pypff_items_type_object.tp_new = PyType_GenericNew;
@@ -715,6 +736,23 @@ PyMODINIT_FUNC initpypff(
 	 "message",
 	 (PyObject *) &pypff_message_type_object );
 
+	/* Setup the task type object
+	 */
+	pypff_task_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pypff_task_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pypff_task_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "task",
+	 (PyObject *) &pypff_task_type_object );
+
 	/* Setup the recipients type object
 	 */
 	pypff_recipients_type_object.tp_new = PyType_GenericNew;
@@ -731,6 +769,40 @@ PyMODINIT_FUNC initpypff(
 	 module,
 	 "recipients",
 	 (PyObject *) &pypff_recipients_type_object );
+
+	/* Setup the multi_value type object
+	 */
+	pypff_multi_value_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pypff_multi_value_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pypff_multi_value_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "multi_value",
+	 (PyObject *) &pypff_multi_value_type_object );
+
+	/* Setup the name_to_id_map_entry type object
+	 */
+	pypff_name_to_id_map_entry_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pypff_name_to_id_map_entry_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pypff_name_to_id_map_entry_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "name_to_id_map_entry",
+	 (PyObject *) &pypff_name_to_id_map_entry_type_object );
 
 	/* Setup the record_entries type object
 	 */

@@ -267,9 +267,15 @@ class FileTypeTests(unittest.TestCase):
 
         pff_file.open(test_source)
 
-        _ = pff_file.get_message_store()
+        message_store = pff_file.get_message_store()
 
-        _ = pff_file.message_store
+        if message_store:
+            self.assertIsInstance(message_store, pypff.message_store)
+
+        message_store = pff_file.message_store
+
+        if message_store:
+            self.assertIsInstance(message_store, pypff.message_store)
 
         pff_file.close()
 

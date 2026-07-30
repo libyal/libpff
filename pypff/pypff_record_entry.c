@@ -31,6 +31,8 @@
 #include "pypff_integer.h"
 #include "pypff_libcerror.h"
 #include "pypff_libpff.h"
+#include "pypff_multi_value.h"
+#include "pypff_name_to_id_map_entry.h"
 #include "pypff_python.h"
 #include "pypff_record_entry.h"
 #include "pypff_unused.h"
@@ -50,6 +52,20 @@ PyMethodDef pypff_record_entry_object_methods[] = {
 	  "get_value_type() -> Integer or None\n"
 	  "\n"
 	  "Retrieves the value type." },
+
+	{ "get_name_to_id_map_entry",
+	  (PyCFunction) pypff_record_entry_get_name_to_id_map_entry,
+	  METH_NOARGS,
+	  "get_name_to_id_map_entry() -> Object or None\n"
+	  "\n"
+	  "Retrieves the name to ID map entry." },
+
+	{ "get_multi_value",
+	  (PyCFunction) pypff_record_entry_get_multi_value,
+	  METH_NOARGS,
+	  "get_multi_value() -> Object or None\n"
+	  "\n"
+	  "Retrieves the multi value." },
 
 	{ "get_data",
 	  (PyCFunction) pypff_record_entry_get_data,
@@ -116,6 +132,18 @@ PyGetSetDef pypff_record_entry_object_get_set_definitions[] = {
 	  (getter) pypff_record_entry_get_value_type,
 	  (setter) 0,
 	  "The value type.",
+	  NULL },
+
+	{ "name_to_id_map_entry",
+	  (getter) pypff_record_entry_get_name_to_id_map_entry,
+	  (setter) 0,
+	  "The name to ID map entry.",
+	  NULL },
+
+	{ "multi_value",
+	  (getter) pypff_record_entry_get_multi_value,
+	  (setter) 0,
+	  "The multi value.",
 	  NULL },
 
 	{ "data",
@@ -536,6 +564,165 @@ PyObject *pypff_record_entry_get_value_type(
 	                  (unsigned long) value_32bit );
 
 	return( integer_object );
+}
+
+/* Retrieves the name to ID map entry
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_record_entry_get_name_to_id_map_entry(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *name_to_id_map_entry_object                = NULL;
+	libcerror_error_t *error                             = NULL;
+	libpff_name_to_id_map_entry_t *name_to_id_map_entry = NULL;
+	static char *function                                = "pypff_record_entry_get_name_to_id_map_entry";
+	int result                                           = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( ( pypff_record_entry == NULL )
+	 || ( pypff_record_entry->record_entry == NULL ) )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_name_to_id_map_entry(
+	          pypff_record_entry->record_entry,
+	          &name_to_id_map_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve name to ID map entry.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	name_to_id_map_entry_object = pypff_name_to_id_map_entry_new(
+	                               name_to_id_map_entry,
+	                               (PyObject *) pypff_record_entry );
+
+	return( name_to_id_map_entry_object );
+}
+
+/* Retrieves the multi value
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_record_entry_get_multi_value(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
+{
+	PyObject *multi_value_object = NULL;
+	libcerror_error_t *error     = NULL;
+	libpff_multi_value_t *multi_value = NULL;
+	static char *function        = "pypff_record_entry_get_multi_value";
+	uint32_t value_type          = 0;
+	int result                   = 0;
+
+	PYPFF_UNREFERENCED_PARAMETER( arguments )
+
+	if( ( pypff_record_entry == NULL )
+	 || ( pypff_record_entry->record_entry == NULL ) )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid record entry.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_value_type(
+	          pypff_record_entry->record_entry,
+	          &value_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve value type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	if( ( result == 0 )
+	 || ( ( value_type & LIBPFF_VALUE_TYPE_MULTI_VALUE_FLAG ) == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_record_entry_get_multi_value(
+	          pypff_record_entry->record_entry,
+	          &multi_value,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve multi value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	multi_value_object = pypff_multi_value_new(
+	                      multi_value,
+	                      (PyObject *) pypff_record_entry );
+
+	if( multi_value_object == NULL )
+	{
+		libpff_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
+	return( multi_value_object );
 }
 
 /* Retrieves the data
