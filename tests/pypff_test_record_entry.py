@@ -30,6 +30,17 @@ import pypff
 class RecordEntryTypeTests(unittest.TestCase):
     """Tests the record_entry type."""
 
+    def _get_record_entries(self, item):
+        """Yields record entries from an item tree."""
+        if not item:
+            return
+
+        for record_set in item.record_sets:
+            yield from record_set.entries
+
+        for sub_item in item.sub_items:
+            yield from self._get_record_entries(sub_item)
+
     def test_get_entry_type(self):
         """Tests the get_entry_type function and entry_type property."""
         test_source = getattr(unittest, "source", None)
@@ -136,6 +147,75 @@ class RecordEntryTypeTests(unittest.TestCase):
             _ = record_entry.get_data()
 
             _ = record_entry.data
+
+        finally:
+            pff_file.close()
+
+    def test_get_name_to_id_map_entry(self):
+        """Tests the name_to_id_map_entry property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        pff_file = pypff.file()
+
+        pff_file.open(test_source)
+
+        try:
+            map_entry = None
+
+            for record_entry in self._get_record_entries(pff_file.root_folder):
+                map_entry = record_entry.get_name_to_id_map_entry()
+                if map_entry:
+                    break
+
+            if not map_entry:
+                raise unittest.SkipTest("missing name to ID map entry")
+
+            self.assertIsInstance(map_entry, pypff.name_to_id_map_entry)
+            self.assertEqual(map_entry.get_type(), map_entry.type)
+            self.assertEqual(map_entry.get_guid(), map_entry.guid)
+            self.assertEqual(len(map_entry.guid), 16)
+
+            number = map_entry.get_number()
+            string = map_entry.get_string()
+            self.assertTrue(number is not None or string is not None)
+            self.assertEqual(number, map_entry.number)
+            self.assertEqual(string, map_entry.string)
+
+        finally:
+            pff_file.close()
+
+    def test_get_multi_value(self):
+        """Tests the multi_value property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        pff_file = pypff.file()
+
+        pff_file.open(test_source)
+
+        try:
+            multi_value = None
+
+            for record_entry in self._get_record_entries(pff_file.root_folder):
+                multi_value = record_entry.get_multi_value()
+                if multi_value:
+                    break
+
+            if not multi_value:
+                raise unittest.SkipTest("missing multi value")
+
+            self.assertIsInstance(multi_value, pypff.multi_value)
+            self.assertEqual(
+                multi_value.get_number_of_values(), multi_value.number_of_values
+            )
+
+            if multi_value.number_of_values:
+                self.assertIsInstance(multi_value.get_value_type(0), int)
+                value = multi_value.get_value(0)
+                self.assertTrue(value is None or isinstance(value, bytes))
 
         finally:
             pff_file.close()
