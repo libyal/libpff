@@ -1,5 +1,5 @@
 /*
- * Python object wrapper of libpff_item_t type LIBPFF_ITEM_TYPE_RECIPIENTS
+ * Python object wrapper of libpff_item_t type LIBPFF_ITEM_TYPE_TASK
  *
  * Copyright (C) 2008-2026, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYPFF_RECIPIENTS_H )
-#define _PYPFF_RECIPIENTS_H
+#if !defined( _PYPFF_TASK_H )
+#define _PYPFF_TASK_H
 
 #include <common.h>
 #include <types.h>
@@ -32,17 +32,12 @@
 extern "C" {
 #endif
 
-extern PyMethodDef pypff_recipients_object_methods[];
-extern PyTypeObject pypff_recipients_type_object;
-
-PyObject *pypff_recipients_get_recipient_by_index(
-           pypff_item_t *pypff_recipients,
-           PyObject *arguments,
-           PyObject *keywords );
+extern PyMethodDef pypff_task_object_methods[];
+extern PyTypeObject pypff_task_type_object;
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _PYPFF_RECIPIENTS_H ) */
+#endif /* !defined( _PYPFF_TASK_H ) */
 

@@ -253,6 +253,10 @@
 				RelativePath="..\..\pypff\pypff_record_sets.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\pypff\pypff_task.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -361,6 +365,10 @@
 			</File>
 			<File
 				RelativePath="..\..\pypff\pypff_record_sets.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pypff\pypff_task.h"
 				>
 			</File>
 			<File

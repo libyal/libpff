@@ -311,14 +311,6 @@ int export_handle_item_get_value_32bit_by_type(
      uint32_t *value_32bit,
      libcerror_error_t **error );
 
-int export_handle_item_get_value_string_size_by_type(
-     export_handle_t *export_handle,
-     libpff_item_t *item,
-     int record_set_index,
-     uint32_t entry_type,
-     size_t *value_string_size,
-     libcerror_error_t **error );
-
 int export_handle_item_get_value_string_by_type(
      export_handle_t *export_handle,
      libpff_item_t *item,

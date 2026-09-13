@@ -36,6 +36,7 @@
 #include "pypff_python.h"
 #include "pypff_record_set.h"
 #include "pypff_record_sets.h"
+#include "pypff_task.h"
 #include "pypff_unused.h"
 
 PyMethodDef pypff_item_object_methods[] = {
@@ -887,13 +888,15 @@ PyTypeObject *pypff_item_get_item_type_object(
 		case LIBPFF_ITEM_TYPE_RSS_FEED:
 		case LIBPFF_ITEM_TYPE_SHARING:
 		case LIBPFF_ITEM_TYPE_SMS:
-		case LIBPFF_ITEM_TYPE_TASK:
 		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
 		case LIBPFF_ITEM_TYPE_VOICEMAIL:
 			return( &pypff_message_type_object );
 
 		case LIBPFF_ITEM_TYPE_FOLDER:
 			return( &pypff_folder_type_object );
+
+		case LIBPFF_ITEM_TYPE_TASK:
+			return( &pypff_task_type_object );
 
 		case LIBPFF_ITEM_TYPE_ATTACHMENT:
 		case LIBPFF_ITEM_TYPE_ATTACHMENTS:

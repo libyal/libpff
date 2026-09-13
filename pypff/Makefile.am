@@ -41,6 +41,7 @@ pypff_la_SOURCES = \
 	pypff_record_entries.c pypff_record_entries.h \
 	pypff_record_set.c pypff_record_set.h \
 	pypff_record_sets.c pypff_record_sets.h \
+	pypff_task.c pypff_task.h \
 	pypff_unused.h
 
 pypff_la_LIBADD = \

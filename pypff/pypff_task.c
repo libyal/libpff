@@ -1,5 +1,5 @@
 /*
- * Python object wrapper of libpff_item_t type LIBPFF_ITEM_TYPE_RECIPIENTS
+ * Python object wrapper of libpff_item_t type LIBPFF_ITEM_TYPE_TASK
  *
  * Copyright (C) 2008-2026, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -27,58 +27,32 @@
 #endif
 
 #include "pypff_error.h"
-#include "pypff_item.h"
 #include "pypff_libcerror.h"
 #include "pypff_libpff.h"
+#include "pypff_message.h"
 #include "pypff_python.h"
-#include "pypff_recipients.h"
+#include "pypff_task.h"
 #include "pypff_unused.h"
 
-PyMethodDef pypff_recipients_object_methods[] = {
+PyMethodDef pypff_task_object_methods[] = {
 
-	/* Functions to access the recipients values */
-
-	{ "get_number_of_recipients",
-	  (PyCFunction) pypff_item_get_number_of_record_sets,
-	  METH_NOARGS,
-	  "get_number_of_recipients() -> Integer or None\n"
-	  "\n"
-	  "Retrieves the number of recipients." },
-
-	{ "get_recipient",
-	  (PyCFunction) pypff_recipients_get_recipient_by_index,
-	  METH_VARARGS | METH_KEYWORDS,
-	  "get_recipient(recipient_index) -> Object or None\n"
-	  "\n"
-	  "Retrieves a specific recipient." },
+	/* Functions to access the task values */
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
 };
 
-PyGetSetDef pypff_recipients_object_get_set_definitions[] = {
-
-	{ "number_of_recipients",
-	  (getter) pypff_item_get_number_of_record_sets,
-	  (setter) 0,
-	  "The number of recipients.",
-	  NULL },
-
-	{ "recipients",
-	  (getter) pypff_item_get_record_sets,
-	  (setter) 0,
-	  "The recipients.",
-	  NULL },
+PyGetSetDef pypff_task_object_get_set_definitions[] = {
 
 	/* Sentinel */
 	{ NULL, NULL, NULL, NULL, NULL }
 };
 
-PyTypeObject pypff_recipients_type_object = {
+PyTypeObject pypff_task_type_object = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
 
 	/* tp_name */
-	"pypff.recipients",
+	"pypff.task",
 	/* tp_basicsize */
 	sizeof( pypff_item_t ),
 	/* tp_itemsize */
@@ -116,7 +90,7 @@ PyTypeObject pypff_recipients_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
-	"pypff recipients object (wraps recipients type libpff_item_t)",
+	"pypff task object (wraps task type libpff_message_t)",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -130,13 +104,13 @@ PyTypeObject pypff_recipients_type_object = {
 	/* tp_iternext */
 	0,
 	/* tp_methods */
-	pypff_recipients_object_methods,
+	pypff_task_object_methods,
 	/* tp_members */
 	0,
 	/* tp_getset */
-	pypff_recipients_object_get_set_definitions,
+	pypff_task_object_get_set_definitions,
 	/* tp_base */
-	&pypff_item_type_object,
+	&pypff_message_type_object,
 	/* tp_dict */
 	0,
 	/* tp_descr_get */
@@ -168,42 +142,4 @@ PyTypeObject pypff_recipients_type_object = {
 	/* tp_del */
 	0
 };
-
-/* Retrieves a specific recipient by index
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pypff_recipients_get_recipient_by_index(
-           pypff_item_t *pypff_recipients,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	PyObject *recipient_object  = NULL;
-	static char *function       = "pypff_recipients_get_recipient_by_index";
-	static char *keyword_list[] = { "recipient_index", NULL };
-	int recipient_index         = 0;
-
-	if( pypff_recipients == NULL )
-	{
-		PyErr_Format(
-		 PyExc_ValueError,
-		 "%s: invalid recipients.",
-		 function );
-
-		return( NULL );
-	}
-	if( PyArg_ParseTupleAndKeywords(
-	     arguments,
-	     keywords,
-	     "i",
-	     keyword_list,
-	     &recipient_index ) == 0 )
-	{
-		return( NULL );
-	}
-	recipient_object = pypff_item_get_record_set_by_index(
-	                    (PyObject *) pypff_recipients,
-	                    recipient_index );
-
-	return( recipient_object );
-}
 

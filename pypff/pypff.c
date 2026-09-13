@@ -45,6 +45,7 @@
 #include "pypff_record_entry.h"
 #include "pypff_record_set.h"
 #include "pypff_record_sets.h"
+#include "pypff_task.h"
 #include "pypff_unused.h"
 
 #if !defined( LIBPFF_HAVE_BFIO )
@@ -799,6 +800,23 @@ PyMODINIT_FUNC initpypff(
 	 module,
 	 "record_sets",
 	 (PyObject *) &pypff_record_sets_type_object );
+
+	/* Setup the task type object
+	 */
+	pypff_task_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pypff_task_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pypff_task_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "task",
+	 (PyObject *) &pypff_task_type_object );
 
 	PyGILState_Release(
 	 gil_state );
