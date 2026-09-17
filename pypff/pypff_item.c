@@ -34,6 +34,7 @@
 #include "pypff_libpff.h"
 #include "pypff_message.h"
 #include "pypff_python.h"
+#include "pypff_recipients.h"
 #include "pypff_record_set.h"
 #include "pypff_record_sets.h"
 #include "pypff_task.h"
@@ -895,12 +896,14 @@ PyTypeObject *pypff_item_get_item_type_object(
 		case LIBPFF_ITEM_TYPE_FOLDER:
 			return( &pypff_folder_type_object );
 
+		case LIBPFF_ITEM_TYPE_RECIPIENTS:
+			return( &pypff_recipients_type_object );
+
 		case LIBPFF_ITEM_TYPE_TASK:
 			return( &pypff_task_type_object );
 
 		case LIBPFF_ITEM_TYPE_ATTACHMENT:
 		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
-		case LIBPFF_ITEM_TYPE_RECIPIENTS:
 		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:
 		case LIBPFF_ITEM_TYPE_SUB_FOLDERS:
 		case LIBPFF_ITEM_TYPE_SUB_MESSAGES:

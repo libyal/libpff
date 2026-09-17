@@ -234,6 +234,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pypff\pypff_message_store.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pypff\pypff_name_to_id_map_entry.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pypff\pypff_recipients.c"
 				>
 			</File>
@@ -341,6 +349,14 @@
 			</File>
 			<File
 				RelativePath="..\..\pypff\pypff_message.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pypff\pypff_message_store.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pypff\pypff_name_to_id_map_entry.h"
 				>
 			</File>
 			<File

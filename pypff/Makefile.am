@@ -35,6 +35,8 @@ pypff_la_SOURCES = \
 	pypff_libclocale.h \
 	pypff_libpff.h \
 	pypff_message.c pypff_message.h \
+	pypff_message_store.c pypff_message_store.h \
+	pypff_name_to_id_map_entry.c pypff_name_to_id_map_entry.h \
 	pypff_python.h \
 	pypff_recipients.c pypff_recipients.h \
 	pypff_record_entry.c pypff_record_entry.h \

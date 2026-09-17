@@ -71,6 +71,10 @@ PyObject *pypff_record_entry_get_value_type(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments );
 
+PyObject *pypff_record_entry_get_name_to_id_map_entry(
+           pypff_record_entry_t *pypff_record_entry,
+           PyObject *arguments );
+
 PyObject *pypff_record_entry_get_data(
            pypff_record_entry_t *pypff_record_entry,
            PyObject *arguments );

@@ -104,6 +104,41 @@ class RecordEntryTypeTests(unittest.TestCase):
         finally:
             pff_file.close()
 
+    def test_get_name_to_id_map_entry(self):
+        """Tests the get_name_to_id_map_entry function and name_to_id_map_entry property."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
+
+        pff_file = pypff.file()
+
+        pff_file.open(test_source)
+
+        try:
+            root_folder = pff_file.get_root_folder()
+            if not root_folder:
+                raise unittest.SkipTest("missing root folder")
+
+            if not root_folder.number_of_record_sets:
+                raise unittest.SkipTest("missing record sets")
+
+            record_set = root_folder.get_record_set(0)
+            if not record_set:
+                raise unittest.SkipTest("missing record set")
+
+            if not record_set.number_of_entries:
+                raise unittest.SkipTest("missing record entries")
+
+            record_entry = record_set.get_entry(0)
+            if not record_entry:
+                raise unittest.SkipTest("missing record entry")
+
+            _ = record_entry.get_name_to_id_map_entry()
+            _ = record_entry.name_to_id_map_entry
+
+        finally:
+            pff_file.close()
+
     def test_get_data(self):
         """Tests the get_data function and data property."""
         test_source = getattr(unittest, "source", None)
