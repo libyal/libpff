@@ -24,5 +24,26 @@ ForEach ($TestFile in ${TestFiles} -split " ")
 	$Url = "https://raw.githubusercontent.com/libyal/testdata/refs/heads/main/pst/${UrlTestFile}"
 
 	$ProgressPreference = 'SilentlyContinue'
-	Invoke-WebRequest -Uri ${Url} -OutFile "${TestsInputDirectory}\${TestSet}\${TestFile}"
+	$Attempt = 1
+	$Sleep = 4
+
+	while ($true)
+	{
+		try
+		{
+			Invoke-WebRequest -Uri ${Url} -OutFile "${TestsInputDirectory}\${TestSet}\${TestFile}"
+			break
+		}
+		catch
+		{
+			if ($Attempt -ge 5)
+			{
+				Write-Error "Unable to download: ${TestFile}"
+				exit 1
+			}
+			Start-Sleep -Seconds $Sleep
+			$Attempt++
+			$Sleep = $Sleep * 2
+		}
+	}
 }
