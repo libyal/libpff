@@ -1,5 +1,34 @@
 # Script that synchronizes the local test data
 
+Function Retry
+{
+	param(
+		[scriptblock]$Command
+	)
+
+	$Attempt = 1
+	$Sleep = 4
+
+	while ($true)
+	{
+		try
+		{
+			& $Command
+			return
+		}
+		catch
+		{
+			if ($Attempt -ge 5)
+			{
+				throw
+			}
+			Start-Sleep -Seconds $Sleep
+			$Attempt++
+			$Sleep = $Sleep * 2
+		}
+	}
+}
+
 $TestsInputDirectory = "tests\input"
 $TestSet = "public"
 $TestFiles = "outlook.pst"
@@ -24,26 +53,5 @@ ForEach ($TestFile in ${TestFiles} -split " ")
 	$Url = "https://raw.githubusercontent.com/libyal/testdata/refs/heads/main/pst/${UrlTestFile}"
 
 	$ProgressPreference = 'SilentlyContinue'
-	$Attempt = 1
-	$Sleep = 4
-
-	while ($true)
-	{
-		try
-		{
-			Invoke-WebRequest -Uri ${Url} -OutFile "${TestsInputDirectory}\${TestSet}\${TestFile}"
-			break
-		}
-		catch
-		{
-			if ($Attempt -ge 5)
-			{
-				Write-Error "Unable to download: ${TestFile}"
-				exit 1
-			}
-			Start-Sleep -Seconds $Sleep
-			$Attempt++
-			$Sleep = $Sleep * 2
-		}
-	}
+	Retry { Invoke-WebRequest -Uri ${Url} -OutFile "${TestsInputDirectory}\${TestSet}\${TestFile}" }
 }
