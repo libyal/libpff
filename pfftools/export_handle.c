@@ -4982,6 +4982,7 @@ int export_handle_export_message_subject_to_item_file(
 		/* Ignore the subject control codes for now
 		 */
 		if( ( value_string_size >= 3 )
+		 && ( value_string[ 0 ] > 0 )
 		 && ( value_string[ 0 ] < 0x20 ) )
 		{
 			result = item_file_write_string(
