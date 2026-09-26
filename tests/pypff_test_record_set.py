@@ -126,7 +126,6 @@ class RecordSetTypeTests(unittest.TestCase):
             pff_file.close()
 
 
-
 if __name__ == "__main__":
     argument_parser = argparse.ArgumentParser()
 

@@ -1258,6 +1258,7 @@ int libpff_table_clone_value_data_by_reference(
      libcerror_error_t **error )
 {
 	uint8_t *table_value_data    = NULL;
+	uint8_t *safe_value_data     = NULL;
 	static char *function        = "libpff_table_clone_value_data_by_reference";
 	size_t table_value_data_size = 0;
 
@@ -1324,10 +1325,10 @@ int libpff_table_clone_value_data_by_reference(
 
 		goto on_error;
 	}
-	*value_data = (uint8_t *) memory_allocate(
-	                           table_value_data_size );
+	safe_value_data = (uint8_t *) memory_allocate(
+	                               table_value_data_size );
 
-	if( *value_data == NULL )
+	if( safe_value_data == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -1338,10 +1339,8 @@ int libpff_table_clone_value_data_by_reference(
 
 		goto on_error;
 	}
-	*value_data_size = table_value_data_size;
-
 	if( memory_copy(
-	     *value_data,
+	     safe_value_data,
 	     table_value_data,
 	     table_value_data_size ) == NULL )
 	{
@@ -1354,18 +1353,17 @@ int libpff_table_clone_value_data_by_reference(
 
 		goto on_error;
 	}
+	*value_data      = safe_value_data;
+	*value_data_size = table_value_data_size;
+
 	return( 1 );
 
 on_error:
-	if( *value_data != NULL )
+	if( safe_value_data != NULL )
 	{
 		memory_free(
-		 *value_data );
-
-		*value_data = NULL;
+		 safe_value_data );
 	}
-	*value_data_size = 0;
-
 	return( -1 );
 }
 
@@ -7613,6 +7611,7 @@ int libpff_table_read_bc_record_entries(
 {
 	libpff_reference_descriptor_t *reference_descriptor = NULL;
 	uint8_t *record_entries_data                        = NULL;
+	uint8_t *safe_record_entries_data                   = NULL;
 	static char *function                               = "libpff_table_read_bc_record_entries";
 	size_t number_of_record_entries                     = 0;
 	size_t record_entries_data_size                     = 0;
@@ -7656,7 +7655,7 @@ int libpff_table_read_bc_record_entries(
 		 "%s: unable to retrieve number of record entries references.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( number_of_record_entries_references > 0 )
 	{
@@ -7674,7 +7673,7 @@ int libpff_table_read_bc_record_entries(
 			 "%s: unable to resize record entries.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		for( record_entries_reference_index = 0;
 		     record_entries_reference_index < number_of_record_entries_references;
@@ -7703,7 +7702,7 @@ int libpff_table_read_bc_record_entries(
 				 function,
 				 record_entries_reference_index );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( reference_descriptor == NULL )
 			{
@@ -7714,14 +7713,17 @@ int libpff_table_read_bc_record_entries(
 				 "%s: missing reference descriptor.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
-			if( libpff_table_get_value_data_by_reference(
+			/* The call to libpff_table_read_entry_value below could cache-out the value data
+			 * hence a local copy is used.
+			 */
+			if( libpff_table_clone_value_data_by_reference(
 			     table,
+			     reference_descriptor->value,
 			     io_handle,
 			     file_io_handle,
-			     reference_descriptor->value,
-			     &record_entries_data,
+			     &safe_record_entries_data,
 			     &record_entries_data_size,
 			     error ) != 1 )
 			{
@@ -7732,9 +7734,9 @@ int libpff_table_read_bc_record_entries(
 				 "%s: unable to retrieve record entries data.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
-			if( ( record_entries_data == NULL )
+			if( ( safe_record_entries_data == NULL )
 			 || ( record_entries_data_size == 0 ) )
 			{
 				libcerror_error_set(
@@ -7744,7 +7746,7 @@ int libpff_table_read_bc_record_entries(
 				 "%s: missing record entries data.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( ( record_entries_data_size % sizeof( pff_table_record_entry_bc_t ) ) != 0 )
 			{
@@ -7755,8 +7757,10 @@ int libpff_table_read_bc_record_entries(
 				 "%s: unsupported record entries data size.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
+			record_entries_data = safe_record_entries_data;
+
 			number_of_record_entries = record_entries_data_size / sizeof( pff_table_record_entry_bc_t );
 
 			if( number_of_record_entries > (size_t) INT_MAX )
@@ -7768,7 +7772,7 @@ int libpff_table_read_bc_record_entries(
 				 "%s: number of record entries value exceeds maximum.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( libpff_table_expand_record_entries(
 			     table,
@@ -7784,7 +7788,7 @@ int libpff_table_read_bc_record_entries(
 				 "%s: unable to expand record entries.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			while( record_entries_data_size > 0 )
 			{
@@ -7821,16 +7825,28 @@ int libpff_table_read_bc_record_entries(
 					 function,
 					 record_entry_index );
 
-					return( -1 );
+					goto on_error;
 				}
 				record_entries_data      += sizeof( pff_table_record_entry_bc_t );
 				record_entries_data_size -= sizeof( pff_table_record_entry_bc_t );
 
 				record_entry_index++;
 			}
+			memory_free(
+			 safe_record_entries_data );
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( safe_record_entries_data != NULL )
+	{
+		memory_free(
+		 safe_record_entries_data );
+
+		safe_record_entries_data = NULL;
+	}
+	return( -1 );
 }
 
 /* Retrieves a specific values array data entry
