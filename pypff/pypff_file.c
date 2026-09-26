@@ -1399,94 +1399,6 @@ int pypff_file_set_ascii_codepage_setter(
 	return( -1 );
 }
 
-/* Retrieves the item type object
- * Returns a Python type object if successful or NULL on error
- */
-PyTypeObject *pypff_file_get_item_type_object(
-               libpff_item_t *item )
-{
-	libcerror_error_t *error = NULL;
-	static char *function    = "pypff_file_get_item_type_object";
-	uint8_t item_type        = 0;
-	int result               = 0;
-
-	if( item == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid item.",
-		 function );
-
-		return( NULL );
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_item_get_type(
-	          item,
-	          &item_type,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve item type.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		return( NULL );
-	}
-	switch( item_type )
-	{
-		case LIBPFF_ITEM_TYPE_ACTIVITY:
-		case LIBPFF_ITEM_TYPE_APPOINTMENT:
-		case LIBPFF_ITEM_TYPE_COMMON:
-		case LIBPFF_ITEM_TYPE_CONFIGURATION:
-		case LIBPFF_ITEM_TYPE_CONFLICT_MESSAGE:
-		case LIBPFF_ITEM_TYPE_CONTACT:
-		case LIBPFF_ITEM_TYPE_DISTRIBUTION_LIST:
-		case LIBPFF_ITEM_TYPE_DOCUMENT:
-		case LIBPFF_ITEM_TYPE_EMAIL:
-		case LIBPFF_ITEM_TYPE_EMAIL_SMIME:
-		case LIBPFF_ITEM_TYPE_FAX:
-		case LIBPFF_ITEM_TYPE_MEETING:
-		case LIBPFF_ITEM_TYPE_MMS:
-		case LIBPFF_ITEM_TYPE_NOTE:
-		case LIBPFF_ITEM_TYPE_POSTING_NOTE:
-		case LIBPFF_ITEM_TYPE_RSS_FEED:
-		case LIBPFF_ITEM_TYPE_SHARING:
-		case LIBPFF_ITEM_TYPE_SMS:
-		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
-		case LIBPFF_ITEM_TYPE_VOICEMAIL:
-			return( &pypff_message_type_object );
-
-		case LIBPFF_ITEM_TYPE_ATTACHMENT:
-			return( &pypff_attachment_type_object );
-
-		case LIBPFF_ITEM_TYPE_FOLDER:
-			return( &pypff_folder_type_object );
-
-		case LIBPFF_ITEM_TYPE_RECIPIENTS:
-			return( &pypff_recipients_type_object );
-
-		case LIBPFF_ITEM_TYPE_TASK:
-			return( &pypff_task_type_object );
-
-		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
-		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:
-		case LIBPFF_ITEM_TYPE_SUB_FOLDERS:
-		case LIBPFF_ITEM_TYPE_SUB_MESSAGES:
-		default:
-			break;
-	}
-	return( &pypff_item_type_object );
-}
-
 /* Retrieves the root item
  * Returns a Python object if successful or NULL on error
  */
@@ -1648,7 +1560,6 @@ PyObject *pypff_file_get_name_to_id_map(
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
 	PyObject *name_to_id_map_object = NULL;
-	PyTypeObject *type_object       = NULL;
 	libcerror_error_t *error        = NULL;
 	libpff_item_t *name_to_id_map   = NULL;
 	static char *function           = "pypff_file_get_name_to_id_map";
@@ -1694,20 +1605,8 @@ PyObject *pypff_file_get_name_to_id_map(
 
 		return( Py_None );
 	}
-	type_object = pypff_file_get_item_type_object(
-	               name_to_id_map );
-
-	if( type_object == NULL )
-	{
-		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to retrieve name to id map type object.",
-		 function );
-
-		goto on_error;
-	}
 	name_to_id_map_object = pypff_item_new(
-	                         type_object,
+	                         &pypff_item_type_object,
 	                         name_to_id_map,
 	                         (PyObject *) pypff_file );
 
@@ -1740,7 +1639,6 @@ PyObject *pypff_file_get_root_folder(
            PyObject *arguments PYPFF_ATTRIBUTE_UNUSED )
 {
 	PyObject *folder_object    = NULL;
-	PyTypeObject *type_object  = NULL;
 	libcerror_error_t *error   = NULL;
 	libpff_item_t *root_folder = NULL;
 	static char *function      = "pypff_file_get_root_folder";
@@ -1786,20 +1684,7 @@ PyObject *pypff_file_get_root_folder(
 
 		return( Py_None );
 	}
-	type_object = pypff_file_get_item_type_object(
-	               root_folder );
-
-	if( type_object == NULL )
-	{
-		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to retrieve root folder type object.",
-		 function );
-
-		goto on_error;
-	}
-	folder_object = pypff_item_new(
-	                 type_object,
+	folder_object = pypff_item_create(
 	                 root_folder,
 	                 (PyObject *) pypff_file );
 
@@ -1888,7 +1773,6 @@ PyObject *pypff_file_get_orphan_item_by_index(
            int orphan_item_index )
 {
 	PyObject *orphan_item_object = NULL;
-	PyTypeObject *type_object    = NULL;
 	libcerror_error_t *error     = NULL;
 	libpff_item_t *orphan_item   = NULL;
 	static char *function        = "pypff_file_get_orphan_item_by_index";
@@ -1927,20 +1811,7 @@ PyObject *pypff_file_get_orphan_item_by_index(
 
 		goto on_error;
 	}
-	type_object = pypff_file_get_item_type_object(
-	               orphan_item );
-
-	if( type_object == NULL )
-	{
-		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to retrieve item type object.",
-		 function );
-
-		goto on_error;
-	}
-	orphan_item_object = pypff_item_new(
-	                      type_object,
+	orphan_item_object = pypff_item_create(
 	                      orphan_item,
 	                      (PyObject *) pypff_file );
 

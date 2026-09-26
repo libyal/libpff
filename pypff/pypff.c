@@ -40,6 +40,7 @@
 #include "pypff_libpff.h"
 #include "pypff_message.h"
 #include "pypff_message_store.h"
+#include "pypff_multi_value.h"
 #include "pypff_name_to_id_map_entry.h"
 #include "pypff_python.h"
 #include "pypff_recipients.h"
@@ -734,6 +735,23 @@ PyMODINIT_FUNC initpypff(
 	 module,
 	 "message_store",
 	 (PyObject *) &pypff_message_store_type_object );
+
+	/* Setup the multi value type object
+	 */
+	pypff_multi_value_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pypff_multi_value_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pypff_multi_value_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "multi_value",
+	 (PyObject *) &pypff_multi_value_type_object );
 
 	/* Setup the name to ID map entry type object
 	 */

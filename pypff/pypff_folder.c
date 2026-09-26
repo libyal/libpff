@@ -453,8 +453,7 @@ PyObject *pypff_folder_get_sub_folder_by_index(
 
 		goto on_error;
 	}
-	sub_item_object = pypff_item_new(
-	                   &pypff_folder_type_object,
+	sub_item_object = pypff_item_create(
 	                   sub_item,
 	                   pypff_item );
 
@@ -696,8 +695,7 @@ PyObject *pypff_folder_get_sub_message_by_index(
 
 		goto on_error;
 	}
-	sub_item_object = pypff_item_new(
-	                   &pypff_message_type_object,
+	sub_item_object = pypff_item_create(
 	                   sub_item,
 	                   pypff_item );
 

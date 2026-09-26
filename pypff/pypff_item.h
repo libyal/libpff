@@ -61,6 +61,10 @@ PyObject *pypff_item_new(
            libpff_item_t *item,
            PyObject *parent_object );
 
+PyObject *pypff_item_create(
+           libpff_item_t *item,
+           PyObject *parent_object );
+
 int pypff_item_init(
      pypff_item_t *pypff_item );
 

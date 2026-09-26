@@ -30,6 +30,26 @@ import pypff
 class FolderItemTypeTests(unittest.TestCase):
     """Tests the folder item type."""
 
+    def _get_folder_with_messages(self, folder):
+        """Retrieves the first folder with messages for testing.
+
+        Args:
+          folder (pypff.folder): folder.
+
+        Returns:
+          pypff.folder: folder with messages or None.
+        """
+        if folder:
+            if folder.number_of_sub_messages:
+                return folder
+
+            for sub_folder in folder.sub_folders:
+                folder_with_messages = self._get_folder_with_messages(sub_folder)
+                if folder_with_messages:
+                    return folder_with_messages
+
+        return None
+
     def test_get_name(self):
         """Tests the get_name function and name property."""
         test_source = getattr(unittest, "source", None)
@@ -156,11 +176,15 @@ class FolderItemTypeTests(unittest.TestCase):
             if not root_folder:
                 raise unittest.SkipTest("missing root folder")
 
-            if not root_folder.number_of_sub_messages:
-                raise unittest.SkipTest("missing sub messages")
+            folder = self._get_folder_with_messages(root_folder)
+            if not folder:
+                raise unittest.SkipTest("missing folder with messages")
 
-            sub_message = root_folder.get_sub_message(0)
+            sub_message = folder.get_sub_message(0)
             self.assertIsNotNone(sub_message)
+
+            # Check if message is initialized correctly.
+            _ = sub_message.subject
 
         finally:
             pff_file.close()

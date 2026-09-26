@@ -33,6 +33,9 @@ class MessageItemTypeTests(unittest.TestCase):
     def _get_message_sub_item(self, item):
         """Retrieves the first message sub item for testing.
 
+        Args:
+          item (pypff.item): item.
+
         Returns:
           pypff.message: first message item or None.
         """

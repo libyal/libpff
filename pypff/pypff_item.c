@@ -285,6 +285,149 @@ on_error:
 	return( NULL );
 }
 
+/* Creates a new item object
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pypff_item_create(
+           libpff_item_t *item,
+           PyObject *parent_object )
+{
+	libcerror_error_t *error  = NULL;
+	PyObject *item_object     = NULL;
+	PyTypeObject *type_object = NULL;
+	static char *function     = "pypff_item_create";
+	uint8_t item_type         = 0;
+	int result                = 0;
+
+	if( item == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid item.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libpff_item_get_type(
+	          item,
+	          &item_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pypff_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve item type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	switch( item_type )
+	{
+		case LIBPFF_ITEM_TYPE_ACTIVITY:
+		case LIBPFF_ITEM_TYPE_APPOINTMENT:
+		case LIBPFF_ITEM_TYPE_COMMON:
+		case LIBPFF_ITEM_TYPE_CONFIGURATION:
+		case LIBPFF_ITEM_TYPE_CONFLICT_MESSAGE:
+		case LIBPFF_ITEM_TYPE_CONTACT:
+		case LIBPFF_ITEM_TYPE_DISTRIBUTION_LIST:
+		case LIBPFF_ITEM_TYPE_DOCUMENT:
+		case LIBPFF_ITEM_TYPE_EMAIL:
+		case LIBPFF_ITEM_TYPE_EMAIL_SMIME:
+		case LIBPFF_ITEM_TYPE_FAX:
+		case LIBPFF_ITEM_TYPE_MEETING:
+		case LIBPFF_ITEM_TYPE_MMS:
+		case LIBPFF_ITEM_TYPE_NOTE:
+		case LIBPFF_ITEM_TYPE_POSTING_NOTE:
+		case LIBPFF_ITEM_TYPE_RSS_FEED:
+		case LIBPFF_ITEM_TYPE_SHARING:
+		case LIBPFF_ITEM_TYPE_SMS:
+		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
+		case LIBPFF_ITEM_TYPE_VOICEMAIL:
+			type_object = &pypff_message_type_object;
+			break;
+
+		case LIBPFF_ITEM_TYPE_FOLDER:
+			type_object = &pypff_folder_type_object;
+			break;
+
+		case LIBPFF_ITEM_TYPE_RECIPIENTS:
+			type_object = &pypff_recipients_type_object;
+			break;
+
+		case LIBPFF_ITEM_TYPE_TASK:
+			type_object = &pypff_task_type_object;
+			break;
+
+		case LIBPFF_ITEM_TYPE_ATTACHMENT:
+		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
+		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:
+		case LIBPFF_ITEM_TYPE_SUB_FOLDERS:
+		case LIBPFF_ITEM_TYPE_SUB_MESSAGES:
+		default:
+			type_object = &pypff_item_type_object;
+			break;
+	}
+	item_object = pypff_item_new(
+	               type_object,
+	               item,
+	               parent_object );
+
+	if( item_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create sub item object.",
+		 function );
+
+		goto on_error;
+	}
+	if( ( type_object == &pypff_message_type_object )
+	 || ( type_object == &pypff_task_type_object ) )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libpff_item_get_record_set_by_index(
+			  ( (pypff_item_t *) item_object )->item,
+			  0,
+			  &( ( (pypff_item_t *) item_object )->record_set ),
+			  &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pypff_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to retrieve message item record set: 0.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			goto on_error;
+		}
+	}
+	return( item_object );
+
+on_error:
+	if( item_object != NULL )
+	{
+		Py_DecRef(
+		 item_object );
+	}
+	return( NULL );
+}
+
 /* Initializes an item object
  * Returns 0 if successful or -1 on error
  */
@@ -827,92 +970,6 @@ PyObject *pypff_item_get_number_of_sub_items(
 	return( integer_object );
 }
 
-/* Retrieves the item type object
- * Returns a Python type object if successful or NULL on error
- */
-PyTypeObject *pypff_item_get_item_type_object(
-               libpff_item_t *item )
-{
-	libcerror_error_t *error = NULL;
-	static char *function    = "pypff_item_get_sub_item_by_index";
-	uint8_t item_type        = 0;
-	int result               = 0;
-
-	if( item == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid item.",
-		 function );
-
-		return( NULL );
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libpff_item_get_type(
-	          item,
-	          &item_type,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pypff_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to retrieve item type.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		return( NULL );
-	}
-	switch( item_type )
-	{
-		case LIBPFF_ITEM_TYPE_ACTIVITY:
-		case LIBPFF_ITEM_TYPE_APPOINTMENT:
-		case LIBPFF_ITEM_TYPE_COMMON:
-		case LIBPFF_ITEM_TYPE_CONFIGURATION:
-		case LIBPFF_ITEM_TYPE_CONFLICT_MESSAGE:
-		case LIBPFF_ITEM_TYPE_CONTACT:
-		case LIBPFF_ITEM_TYPE_DISTRIBUTION_LIST:
-		case LIBPFF_ITEM_TYPE_DOCUMENT:
-		case LIBPFF_ITEM_TYPE_EMAIL:
-		case LIBPFF_ITEM_TYPE_EMAIL_SMIME:
-		case LIBPFF_ITEM_TYPE_FAX:
-		case LIBPFF_ITEM_TYPE_MEETING:
-		case LIBPFF_ITEM_TYPE_MMS:
-		case LIBPFF_ITEM_TYPE_NOTE:
-		case LIBPFF_ITEM_TYPE_POSTING_NOTE:
-		case LIBPFF_ITEM_TYPE_RSS_FEED:
-		case LIBPFF_ITEM_TYPE_SHARING:
-		case LIBPFF_ITEM_TYPE_SMS:
-		case LIBPFF_ITEM_TYPE_TASK_REQUEST:
-		case LIBPFF_ITEM_TYPE_VOICEMAIL:
-			return( &pypff_message_type_object );
-
-		case LIBPFF_ITEM_TYPE_FOLDER:
-			return( &pypff_folder_type_object );
-
-		case LIBPFF_ITEM_TYPE_RECIPIENTS:
-			return( &pypff_recipients_type_object );
-
-		case LIBPFF_ITEM_TYPE_TASK:
-			return( &pypff_task_type_object );
-
-		case LIBPFF_ITEM_TYPE_ATTACHMENT:
-		case LIBPFF_ITEM_TYPE_ATTACHMENTS:
-		case LIBPFF_ITEM_TYPE_SUB_ASSOCIATED_CONTENTS:
-		case LIBPFF_ITEM_TYPE_SUB_FOLDERS:
-		case LIBPFF_ITEM_TYPE_SUB_MESSAGES:
-		default:
-			break;
-	}
-	return( &pypff_item_type_object );
-}
-
 /* Retrieves a specific sub item by index
  * Returns a Python object if successful or NULL on error
  */
@@ -920,12 +977,11 @@ PyObject *pypff_item_get_sub_item_by_index(
            PyObject *pypff_item,
            int sub_item_index )
 {
-	PyObject *item_object     = NULL;
-	PyTypeObject *type_object = NULL;
-	libcerror_error_t *error  = NULL;
-	libpff_item_t *sub_item   = NULL;
-	static char *function     = "pypff_item_get_sub_item_by_index";
-	int result                = 0;
+	PyObject *item_object    = NULL;
+	libcerror_error_t *error = NULL;
+	libpff_item_t *sub_item  = NULL;
+	static char *function    = "pypff_item_get_sub_item_by_index";
+	int result               = 0;
 
 	if( pypff_item == NULL )
 	{
@@ -960,20 +1016,7 @@ PyObject *pypff_item_get_sub_item_by_index(
 
 		goto on_error;
 	}
-	type_object = pypff_item_get_item_type_object(
-	               sub_item );
-
-	if( type_object == NULL )
-	{
-		PyErr_Format(
-		 PyExc_IOError,
-		 "%s: unable to retrieve item type object.",
-		 function );
-
-		goto on_error;
-	}
-	item_object = pypff_item_new(
-	               type_object,
+	item_object = pypff_item_create(
 	               sub_item,
 	               pypff_item );
 
@@ -985,32 +1028,6 @@ PyObject *pypff_item_get_sub_item_by_index(
 		 function );
 
 		goto on_error;
-	}
-	if( type_object == &pypff_message_type_object )
-	{
-		Py_BEGIN_ALLOW_THREADS
-
-		result = libpff_item_get_record_set_by_index(
-			  ( (pypff_item_t *) item_object )->item,
-			  0,
-			  &( ( (pypff_item_t *) item_object )->record_set ),
-			  &error );
-
-		Py_END_ALLOW_THREADS
-
-		if( result == -1 )
-		{
-			pypff_error_raise(
-			 error,
-			 PyExc_IOError,
-			 "%s: unable to retrieve message item record set: 0.",
-			 function );
-
-			libcerror_error_free(
-			 &error );
-
-			goto on_error;
-		}
 	}
 	return( item_object );
 

@@ -238,6 +238,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pypff\pypff_multi_value.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pypff\pypff_name_to_id_map_entry.c"
 				>
 			</File>
@@ -353,6 +357,10 @@
 			</File>
 			<File
 				RelativePath="..\..\pypff\pypff_message_store.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pypff\pypff_multi_value.h"
 				>
 			</File>
 			<File

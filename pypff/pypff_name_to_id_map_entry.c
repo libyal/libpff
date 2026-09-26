@@ -226,9 +226,7 @@ void pypff_name_to_id_map_entry_free(
       pypff_name_to_id_map_entry_t *pypff_name_to_id_map_entry )
 {
 	struct _typeobject *ob_type = NULL;
-	libcerror_error_t *error    = NULL;
 	static char *function       = "pypff_name_to_id_map_entry_free";
-	int result                  = 0;
 
 	if( pypff_name_to_id_map_entry == NULL )
 	{
