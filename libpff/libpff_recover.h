@@ -132,6 +132,11 @@ int libpff_recover_index_values(
      uint8_t recovery_flags,
      libcerror_error_t **error );
 
+int libpff_recover_index_value_range_is_unallocated(
+     libcdata_range_list_t *unallocated_data_block_list,
+     libpff_index_value_t *index_value,
+     libcerror_error_t **error );
+
 int libpff_recover_index_value_read_data(
      libpff_index_value_t *index_value,
      libpff_io_handle_t *io_handle,
@@ -160,4 +165,3 @@ int libpff_recover_analyze_local_descriptors(
 #endif
 
 #endif /* !defined( _LIBPFF_RECOVER_H ) */
-
