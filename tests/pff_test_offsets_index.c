@@ -290,6 +290,7 @@ int pff_test_offsets_index_get_index_value_by_identifier(
 {
 	libcerror_error_t *error              = NULL;
 	libpff_index_value_t *index_value     = NULL;
+	libpff_index_value_t *recovered_value = NULL;
 	libpff_io_handle_t *io_handle         = NULL;
 	libpff_offsets_index_t *offsets_index = NULL;
 	int result                            = 0;
@@ -332,30 +333,107 @@ int pff_test_offsets_index_get_index_value_by_identifier(
 	 "error",
 	 error );
 
-	/* Test regular cases
+	/* Test retrieving a selected recovered value preserves its location and
+	 * size metadata.
 	 */
-/* TODO implement
-	result = libpff_offsets_index_get_index_value_by_identifier(
-	          offsets_index,
-	          io_handle,
-	          NULL,
-	          0,
-	          0,
-	          0,
-	          &index_value,
+	result = libpff_index_value_initialize(
+	          &recovered_value,
 	          &error );
-
-PFF_TEST_FPRINT_ERROR( error );
 
 	PFF_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
 	 1 );
 
+	recovered_value->identifier      = 0x1234;
+	recovered_value->file_offset     = 4096;
+	recovered_value->data_size       = 512;
+	recovered_value->reference_count = 7;
+
+	result = libpff_offsets_index_insert_recovered_index_value(
+	          offsets_index,
+	          recovered_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	recovered_value = NULL;
+
+	result = libpff_index_value_initialize(
+	          &recovered_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	recovered_value->identifier      = 0x1234;
+	recovered_value->file_offset     = 8192;
+	recovered_value->data_size       = 1024;
+	recovered_value->reference_count = 9;
+
+	result = libpff_offsets_index_insert_recovered_index_value(
+	          offsets_index,
+	          recovered_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	recovered_value = NULL;
+
+	result = libpff_offsets_index_get_index_value_by_identifier(
+	          offsets_index,
+	          io_handle,
+	          NULL,
+	          0x1234,
+	          1,
+	          1,
+	          &index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "index_value",
+	 index_value );
+
+	PFF_TEST_ASSERT_EQUAL_INT64(
+	 "index_value->file_offset",
+	 index_value->file_offset,
+	 (int64_t) 8192 );
+
+	PFF_TEST_ASSERT_EQUAL_UINT32(
+	 "index_value->data_size",
+	 index_value->data_size,
+	 1024 );
+
+	PFF_TEST_ASSERT_EQUAL_UINT16(
+	 "index_value->reference_count",
+	 index_value->reference_count,
+	 9 );
+
 	PFF_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-*/
+
+	result = libpff_index_value_free(
+	          &index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
 
 	/* Test error cases
 	 */
@@ -425,6 +503,18 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
+	if( index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &index_value,
+		 NULL );
+	}
+	if( recovered_value != NULL )
+	{
+		libpff_index_value_free(
+		 &recovered_value,
+		 NULL );
+	}
 	if( offsets_index != NULL )
 	{
 		libpff_offsets_index_free(
@@ -482,4 +572,3 @@ on_error:
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 }
-
