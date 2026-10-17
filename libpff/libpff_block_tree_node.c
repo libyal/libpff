@@ -146,7 +146,8 @@ int libpff_block_tree_node_initialize(
 	}
 	sub_node_size = leaf_value_size;
 
-	while( ( size / sub_node_size ) > LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES )
+	/* Round up: truncating let a file just over a multiple of the span (e.g. 8 GiB + 16 MiB) get a table too small for its last blocks */
+	while( ( ( size + sub_node_size - 1 ) / sub_node_size ) > LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES )
 	{
 		sub_node_size *= LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES;
 	}
