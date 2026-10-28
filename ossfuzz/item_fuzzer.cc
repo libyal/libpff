@@ -22,6 +22,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <stdlib.h>
+
 /* Note that some of the OSS-Fuzz engines use C++
  */
 extern "C" {
@@ -51,7 +53,14 @@ int LLVMFuzzerTestOneInput(
 	libpff_file_t *file              = NULL;
 	libpff_item_t *root_folder       = NULL;
 	libpff_item_t *sub_item          = NULL;
+	libpff_item_t *recipients        = NULL;
+	uint8_t *message_body            = NULL;
+	size_t message_body_size         = 0;
 	int number_of_sub_items          = 0;
+	int number_of_sub_folders        = 0;
+	int number_of_sub_messages       = 0;
+	int number_of_sub_contents       = 0;
+	int number_of_attachments        = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -93,15 +102,92 @@ int LLVMFuzzerTestOneInput(
 		{
 			goto on_error_libpff_root_folder;
 		}
-		if( number_of_sub_items > 0 )
+		for( int sub_item_index = 0;
+		     sub_item_index < number_of_sub_items;
+		     sub_item_index++ )
 		{
+			if( sub_item_index >= 8 )
+			{
+				break;
+			}
+			sub_item = NULL;
+
 			if( libpff_item_get_sub_item(
 			     root_folder,
-			     0,
+			     sub_item_index,
 			     &sub_item,
 			     NULL ) != 1 )
 			{
 				goto on_error_libpff_root_folder;
+			}
+			{
+				uint32_t number_of_entries = 0;
+
+				libpff_item_get_number_of_entries(
+				 sub_item,
+				 &number_of_entries,
+				 NULL );
+
+				libpff_folder_get_number_of_sub_folders(
+				 sub_item,
+				 &number_of_sub_folders,
+				 NULL );
+
+				libpff_folder_get_number_of_sub_messages(
+				 sub_item,
+				 &number_of_sub_messages,
+				 NULL );
+
+				libpff_folder_get_number_of_sub_associated_contents(
+				 sub_item,
+				 &number_of_sub_contents,
+				 NULL );
+
+				libpff_message_get_number_of_attachments(
+				 sub_item,
+				 &number_of_attachments,
+				 NULL );
+			}
+			recipients = NULL;
+
+			if( libpff_message_get_recipients(
+			     sub_item,
+			     &recipients,
+			     NULL ) == 1
+			 && recipients != NULL )
+			{
+				libpff_item_free(
+				 &recipients,
+				 NULL );
+			}
+			message_body_size = 0;
+
+			if( libpff_message_get_plain_text_body_size(
+			     sub_item,
+			     &message_body_size,
+			     NULL ) == 1
+			 && message_body_size > 0 )
+			{
+				if( message_body_size > (size_t) 0x4000 )
+				{
+					message_body_size = (size_t) 0x4000;
+				}
+				message_body = (uint8_t *) malloc( message_body_size );
+
+				if( message_body != NULL
+				 && libpff_message_get_plain_text_body(
+					      sub_item,
+					      message_body,
+					      message_body_size,
+					      NULL ) == 1 )
+				{
+					/* Use the body as a sink to keep it live
+					 */
+					message_body[ message_body_size - 1 ] = 0;
+				}
+				free( message_body );
+
+				message_body = NULL;
 			}
 			libpff_item_free(
 			 &sub_item,

@@ -38,8 +38,9 @@ int libpff_block_tree_node_initialize(
      size64_t leaf_value_size,
      libcerror_error_t **error )
 {
-	static char *function  = "libpff_block_tree_node_initialize";
-	size64_t sub_node_size = 0;
+	static char *function       = "libpff_block_tree_node_initialize";
+	size64_t next_sub_node_size = 0;
+	size64_t sub_node_size      = 0;
 
 	if( block_tree_node == NULL )
 	{
@@ -86,7 +87,8 @@ int libpff_block_tree_node_initialize(
 
 		return( -1 );
 	}
-	if( leaf_value_size == 0 )
+	if( ( leaf_value_size == 0 )
+	 || ( leaf_value_size > ( SIZE_MAX / LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES ) ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -130,6 +132,25 @@ int libpff_block_tree_node_initialize(
 
 		return( -1 );
 	}
+	sub_node_size      = leaf_value_size;
+	next_sub_node_size = leaf_value_size * LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES;
+
+	while( size > next_sub_node_size )
+	{
+		if( next_sub_node_size > ( SIZE_MAX / LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid leaf value size value out of bounds.",
+			 function );
+
+			goto on_error;
+		}
+		sub_node_size       = next_sub_node_size;
+		next_sub_node_size *= LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES;
+	}
 	if( libcdata_array_initialize(
 	     &( ( *block_tree_node )->sub_nodes_array ),
 	     LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES,
@@ -143,12 +164,6 @@ int libpff_block_tree_node_initialize(
 		 function );
 
 		goto on_error;
-	}
-	sub_node_size = leaf_value_size;
-
-	while( ( size / sub_node_size ) > LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES )
-	{
-		sub_node_size *= LIBPFF_BLOCK_TREE_NUMBER_OF_SUB_NODES;
 	}
 	( *block_tree_node )->start_offset  = offset;
 	( *block_tree_node )->end_offset    = offset + size;

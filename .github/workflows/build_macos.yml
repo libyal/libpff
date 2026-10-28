@@ -67,8 +67,8 @@ jobs:
       run: |
         ./synclibs.sh --use-head
         ./autogen.sh
-        ./configure ${{ matrix.configure_options }}
+        ./configure ${{ matrix.configure_options }} PYTHON="$(brew --prefix python3)/bin/python3"
         make -j4 > /dev/null
     - name: Run tests
       run: |
-        tests/runtests.sh -j4 VERBOSE=1
+        tests/runtests.sh -j4 PYTHON="$(brew --prefix python3)/bin/python3" VERBOSE=1

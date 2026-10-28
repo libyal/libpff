@@ -51,7 +51,9 @@ int LLVMFuzzerTestOneInput(
 	libpff_file_t *file              = NULL;
 	libpff_item_t *root_folder       = NULL;
 	libpff_record_set_t *record_set  = NULL;
+	libpff_record_entry_t *record_entry = NULL;
 	int number_of_record_sets        = 0;
+	int number_of_entries            = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -102,6 +104,24 @@ int LLVMFuzzerTestOneInput(
 			     NULL ) != 1 )
 			{
 				goto on_error_libpff_root_folder;
+			}
+			if( libpff_record_set_get_number_of_entries(
+			     record_set,
+			     &number_of_entries,
+			     NULL ) == 1
+			 && number_of_entries > 0 )
+			{
+				if( libpff_record_set_get_entry_by_index(
+				     record_set,
+				     0,
+				     &record_entry,
+				     NULL ) == 1
+				 && record_entry != NULL )
+				{
+					libpff_record_entry_free(
+					 &record_entry,
+					 NULL );
+				}
 			}
 			libpff_record_set_free(
 			 &record_set,

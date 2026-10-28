@@ -78,6 +78,16 @@ int LLVMFuzzerTestOneInput(
 	{
 		goto on_error_libpff;
 	}
+	if( ( size > 0 ) && ( data[ 0 ] == 0x0b ) )
+	{
+		/* Use an alternative ASCII codepage
+		 * to exercise the corresponding conversion code
+		 */
+		libpff_file_set_ascii_codepage(
+		 file,
+		 874,
+		 NULL );
+	}
 	libpff_file_close(
 	 file,
 	 NULL );
