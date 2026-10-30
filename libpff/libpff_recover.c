@@ -924,6 +924,7 @@ int libpff_recover_analyze_descriptor_local_descriptors_identifier(
 		          file_io_handle,
 		          offsets_index,
 		          descriptors_index_value->local_descriptors_identifier,
+		          0,
 		          error );
 
 		if( result == -1 )
@@ -3916,6 +3917,7 @@ int libpff_recover_analyze_local_descriptors(
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
      uint64_t local_descriptors_identifier,
+     int recursion_depth,
      libcerror_error_t **error )
 {
 	libpff_index_value_t *offsets_index_value                    = NULL;
@@ -3939,6 +3941,18 @@ int libpff_recover_analyze_local_descriptors(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_LOCAL_DESCRIPTORS_RECURSION_DEPTH ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -4001,6 +4015,10 @@ int libpff_recover_analyze_local_descriptors(
 		 "%s: unable to create local descriptors node.",
 		 function );
 
+		libpff_index_value_free(
+		 &offsets_index_value,
+		 NULL );
+
 		return( -1 );
 	}
 	if( libpff_local_descriptors_node_read_file_io_handle(
@@ -4024,6 +4042,10 @@ int libpff_recover_analyze_local_descriptors(
 #endif
 		libcerror_error_free(
 		 error );
+
+		libpff_index_value_free(
+		 &offsets_index_value,
+		 NULL );
 
 		libpff_local_descriptors_node_free(
 		 &local_descriptors_node,
@@ -4049,6 +4071,14 @@ int libpff_recover_analyze_local_descriptors(
 			 function,
 			 entry_index );
 
+			libpff_local_descriptors_node_free(
+			 &local_descriptors_node,
+			 NULL );
+
+			libpff_index_value_free(
+			 &offsets_index_value,
+			 NULL );
+
 			return( -1 );
 		}
 		if( node_entry_data == NULL )
@@ -4060,6 +4090,14 @@ int libpff_recover_analyze_local_descriptors(
 			 "%s: missing node entry: %" PRIu16 " data.",
 			 function,
 			 entry_index );
+
+			libpff_local_descriptors_node_free(
+			 &local_descriptors_node,
+			 NULL );
+
+			libpff_index_value_free(
+			 &offsets_index_value,
+			 NULL );
 
 			return( -1 );
 		}
@@ -4194,6 +4232,7 @@ int libpff_recover_analyze_local_descriptors(
 				  file_io_handle,
 				  offsets_index,
 				  local_descriptor_value_sub_node_identifier,
+				  recursion_depth + 1,
 				  error );
 
 			if( result == -1 )
@@ -4205,6 +4244,10 @@ int libpff_recover_analyze_local_descriptors(
 				 "%s: unable to recover local descriptors: %" PRIu64 ".",
 				 function,
 				 local_descriptor_value_sub_node_identifier );
+
+				libpff_index_value_free(
+				 &offsets_index_value,
+				 NULL );
 
 				libpff_local_descriptors_node_free(
 				 &local_descriptors_node,
@@ -4229,6 +4272,10 @@ int libpff_recover_analyze_local_descriptors(
 		 "%s: unable to free local descriptors node.",
 		 function );
 
+		libpff_index_value_free(
+		 &offsets_index_value,
+		 NULL );
+
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -4238,6 +4285,9 @@ int libpff_recover_analyze_local_descriptors(
 		 "\n" );
 	}
 #endif
+	libpff_index_value_free(
+	 &offsets_index_value,
+	 NULL );
 	return( result );
 }
 

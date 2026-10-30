@@ -82,6 +82,7 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
      uint64_t identifier,
      libpff_index_node_t **leaf_node,
      uint16_t *leaf_node_entry_index,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_index_get_value_by_identifier(

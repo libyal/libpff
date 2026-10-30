@@ -85,8 +85,6 @@ int libpff_local_descriptors_clone(
      libpff_local_descriptors_t *source_local_descriptors,
      libcerror_error_t **error );
 
-/* TODO add recursion depth or block tree */
-
 int libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
      libpff_local_descriptors_t *local_descriptors,
      libpff_io_handle_t *io_handle,
@@ -95,6 +93,7 @@ int libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
      uint64_t data_identifier,
      libpff_local_descriptors_node_t **leaf_node,
      uint16_t *leaf_node_entry_index,
+     int recursion_depth,
      libcerror_error_t **error );
 
 int libpff_local_descriptors_get_value_by_identifier(

@@ -3449,6 +3449,17 @@ int libpff_table_read_record_entries(
 
 		return( -1 );
 	}
+	if( record_entries_level > LIBPFF_MAXIMUM_TABLE_RECORD_ENTRIES_LEVEL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid record entries level value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{

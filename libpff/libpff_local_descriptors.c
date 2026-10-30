@@ -278,6 +278,7 @@ int libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
      uint64_t data_identifier,
      libpff_local_descriptors_node_t **leaf_node,
      uint16_t *leaf_node_entry_index,
+     int recursion_depth,
      libcerror_error_t **error )
 {
 	libpff_index_value_t *offsets_index_value               = NULL;
@@ -329,6 +330,18 @@ int libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid leaf node entry index.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( recursion_depth < 0 )
+	 || ( recursion_depth > LIBPFF_MAXIMUM_LOCAL_DESCRIPTORS_RECURSION_DEPTH ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid recursion depth value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -525,6 +538,7 @@ int libpff_local_descriptors_get_leaf_node_from_node_by_identifier(
 			  sub_node_identifier,
 			  leaf_node,
 			  leaf_node_entry_index,
+			  recursion_depth + 1,
 			  error );
 
 		if( result == -1 )
@@ -649,6 +663,7 @@ int libpff_local_descriptors_get_value_by_identifier(
 		  local_descriptors->root_node_data_identifier,
 		  &leaf_node,
 		  &leaf_node_entry_index,
+		  0,
 		  error );
 
 	if( result == -1 )

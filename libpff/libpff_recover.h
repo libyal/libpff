@@ -153,6 +153,7 @@ int libpff_recover_analyze_local_descriptors(
      libbfio_handle_t *file_io_handle,
      libpff_offsets_index_t *offsets_index,
      uint64_t local_descriptors_identifier,
+     int recursion_depth,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
