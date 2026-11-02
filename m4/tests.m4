@@ -56,16 +56,16 @@ AC_DEFUN([AX_TESTS_CHECK_FILE_SYSTEM_IS_CASE_INSENSITIVE],
 
   AS_IF(
     [test -f CONFTEST.CASE.TST],
-    [ac_cv_file_system_case_insentive=yes],
-    [ac_cv_file_system_case_insentive=no])
+    [ac_cv_file_system_case_insensitive=yes],
+    [ac_cv_file_system_case_insensitive=no])
 
   rm -f "$as_tmp_case_file" CONFTEST.CASE.TST 2>/dev/null
 
   AC_MSG_RESULT(
-    [$ac_cv_file_system_case_insentive])
+    [$ac_cv_file_system_case_insensitive])
 
   AS_IF(
-    [test "x$ac_cv_file_system_case_insentive" = xyes],
+    [test "x$ac_cv_file_system_case_insensitive" = xyes],
     [AC_DEFINE(
       [HAVE_CASE_INSENSITIVE_FILE_SYSTEM],
       [1],

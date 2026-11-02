@@ -93,7 +93,7 @@ libpff
   - handle corrupt file header and scan file?
 * debug print
   - free map
-  - densitiy list
+  - density list
 * 64-bit 4k pages support
   - libpff_free_map.c
   - did the table value reference change?
@@ -129,7 +129,7 @@ libpff
   - dump attachment item values
   - add support for LIBPFF_ITEM_TYPE_COMMON (IPM)
   - separate item file into separate structure
-  - move message specific funtionality into message file ?
+  - move message specific functionality into message file ?
   - allow to set output formatting utf8 or utf16
 * item file:
   - create function to write enum values to the item file
@@ -194,7 +194,7 @@ libpff - API
 * item
   - add read in buffers functions for entry values like message body?
 
-libpff - error tollerance and recovery
+libpff - error tolerance and recovery
 * handle multiple descriptors in libpff_io_handle_get_descriptor_index_value_by_identifier
   and libpff_io_handle_get_offset_index_value_by_identifier
 * analyze remaining/deleted content
@@ -259,8 +259,8 @@ pfftools
   - check if 0x0e1f (PidTagRtfInSync) is set and export alternating RTF body
   - move target path to common functions as much as possible
   - handle multi message body formats for non email items
-    add function to handle prefered and available message body
-    change text message body export of item types into prefered/available message body
+    add function to handle preferred and available message body
+    change text message body export of item types into preferred/available message body
   - item support
     - IPM.FAX
     - IPM.Post
@@ -615,9 +615,9 @@ Notes:
 * disabled codegear files
 * API
   - removed deprecated functions
-  - added support for contact email adress 1, 2 and 3
+  - added support for contact email address 1, 2 and 3
 * pffexport:
-  - added support for contact email adress 1, 2 and 3
+  - added support for contact email address 1, 2 and 3
   - removed export_handle_make_directory
 * updated msvscpp files
 
@@ -727,8 +727,8 @@ offset
   libfvalue, libfwnt, 
 * 2011 update
 * code clean up
-* fixed typo changed unsuported => unsupported
-* API: add conveniance macros for:
+* fixed typos
+* API: add convenience macros for:
   - sent representing name
   - sent representing email address
   - postal address
@@ -1064,7 +1064,7 @@ offset
 * updated msvscpp and codegear files
 * fix in debug output of local descriptors
 * export handle added notification of unable to export sub folders and messages
-* added error tollerance for table entry value reference outside of range of table index
+* added error tolerance for table entry value reference outside of range of table index
 
 20100503
 * worked on improving libfmapi debug string codepage support
@@ -1105,7 +1105,7 @@ offset
 * worked on support for 'unencrypted' encrypted pst files
   added support for unencrypted values array entry
 * worked on refactoring export handle to support writing
-  prefered message body to stream
+  preferred message body to stream
 
 20100414
 * worked on Windows extended filename support
@@ -1372,7 +1372,7 @@ offset
 * worked on ftk 'compatible' output of pffexport
 
 20091008
-* added failsave in libfmapi debug
+* added failsafe in libfmapi debug
 
 20091003
 * corrected license in list and array type and several of the pfftool handles
@@ -1397,7 +1397,7 @@ offset
   - disabled creation of precompiled headers
 * Worked on MSVSCPP solution files
   - enabled DEP
-  - enbled random base
+  - enabled random base
 * worked on UTF-7 support (libuna)
 * worked on b5 header indirection level support for bc table
 * worked on generic b5 header indirection level support
@@ -1440,11 +1440,11 @@ offset
 20090916
 * worked on variating named properties
   - implemented support for IPM.Schedule.Meeting.Request
-* pffexport now exports meetings, tasks and contacts to seperate directories
+* pffexport now exports meetings, tasks and contacts to separate directories
 
 20090914
 * added seek offset 0 when reading file header
-* worked on functions to retreieve
+* worked on functions to retrieve
   - the number of sub folders in a folder
   - a sub folder in a folder
   - the number of messages in a folder
@@ -1476,7 +1476,7 @@ offset
 20090907
 * made corrections to configure.ac
 * worked on libfdatetime integration
-* changed libfmapi integration preperation for stand-alone version
+* changed libfmapi integration preparation for stand-alone version
 * updated behavior of pffexport export mode to handle recover, debug and all
   export
 
@@ -1567,7 +1567,7 @@ offset
 * updated liberror
 * updated libpff_error
 * updated libbfio
-* updated serveral of the code files in pfftools for Borland C++ compiler support
+* updated several of the code files in pfftools for Borland C++ compiler support
 * added m4 directory support to autoconf/make files for libtool
 * refactored plain text body macros to function to support message codepage
 * fixed error in data array initialize, not resetting pointer to NULL on error
@@ -1628,7 +1628,7 @@ offset
 * fixed missing mapping of named attributes in debug output
 
 20090708
-* applied table array aligment fix from earlier fixes on other platform
+* applied table array alignment fix from earlier fixes on other platform
 
 20090629
 * small fixes to libpff_multi_value.h
@@ -1636,7 +1636,7 @@ offset
 20090628
 * worked on sub folders support
 * clone allows empty table
-* implement fail safe for usupported table entries level
+* implement fail safe for unsupported table entries level
 * export handle now handles duplicate folder names
 * refactored attachments and recipients to libpff_message and unknowns to
   libpff_folder
@@ -2123,14 +2123,14 @@ offset
 
 20081020
 * Worked on initial version
-* made pffexport more tollerant for missing transport headers and plain text body
+* made pffexport more tolerant for missing transport headers and plain text body
 
 20081019
 * Worked on initial version
 * Worked on embedded object in attachments
 * Fixed missing list type in libpff_file_io_handle.h
 * Multiple fixes regarding user output in pffcommon
-* Made export tollerant of attachment without name
+* Made export tolerant of attachment without name
 * Removed newline in error strings
 * Fixed offset read list for debug
 

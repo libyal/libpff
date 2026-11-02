@@ -760,7 +760,7 @@ int libpff_data_block_read_file_io_handle(
 			{
 				if( (size32_t) data_block->data_size != data_size )
 				{
-/* TODO flag size mismatch and error tollerance */
+/* TODO flag size mismatch and error tolerance */
 					data_block->flags |= LIBPFF_DATA_BLOCK_FLAG_SIZE_MISMATCH;
 
 					libcerror_error_set(

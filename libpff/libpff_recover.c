@@ -253,7 +253,7 @@ int libpff_recover_items(
 	}
 /* TODO combine the offsets index value check part with libpff_recover_descriptors_index_values so that the size of descriptors_index->recovered_index_values_tree remains small */
 
-	/* For each recovered descriptors index value check if the corresonding local descriptor and data offsets index values exist
+	/* For each recovered descriptors index value check if the corresponding local descriptor and data offsets index values exist
 	 */
 	if( libcdata_btree_get_number_of_values(
 	     descriptors_index->recovered_index_values_tree,

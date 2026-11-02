@@ -863,7 +863,7 @@ See section: <<internal_nodes,Internal nodes>>
 | 0x0d | NID_TYPE_HIERARCHY_TABLE | Sub folders item (or hierarchy table) +
 See section: <<related_sub_folders_item,The related sub folders item>>
 | 0x0e | NID_TYPE_CONTENTS_TABLE | Sub messages item (or contents table) +
-See section: <<related_sub_messsages_item,The related sub messsages item>>
+See section: <<related_sub_messages_item,The related sub messages item>>
 | 0x0f | NID_TYPE_ASSOC_CONTENTS_TABLE | Sub associated contents item (or associated contents table) +
 See section: <<related_sub_associated_contents_item,The related sub associated contents item>>
 | 0x10 | NID_TYPE_SEARCH_CONTENTS_TABLE | Search contents table +
@@ -2373,7 +2373,7 @@ The sub folders item can be used to determine which items in the folder are sub
 folders. The row identifier (PidTagLtpRowNid) value of each set contains the
 identifier of the sub folder item.
 
-==== [[related_sub_messsages_item]]The related sub messages item
+==== [[related_sub_messages_item]]The related sub messages item
 
 A folder descriptor index identifier + 12 (0x000c) refers to the related sub
 messages item, e.g. for the root folder this is 290 + 12 = 302. The related sub
@@ -3044,7 +3044,7 @@ template tables or used to store empty tables for the specific purpose only once
 
 2049 6c table (contains GUID that map to other GUIDs?)
 2081 8c table (folder identifier related table? 0x67f4 value related)
-2113 7c table (folder identifier releated table? 0x36de value related)
+2113 7c table (folder identifier related table? 0x36de value related)
 3073 empty 9c table
 
 > 8194 related folder items
@@ -3369,7 +3369,7 @@ record entry value guid : 5003c7c4-af96-4aa3-9d5b-e0c1e039d0ef
 [cols="1,5",options="header"]
 |===
 | Title: | Message API (MAPI) definitions
-| Auhtor: | Joachim Metz
+| Author: | Joachim Metz
 | URL: | https://github.com/libyal/libfmapi/blob/master/documentation/MAPI%20definitions.pdf
 |===
 

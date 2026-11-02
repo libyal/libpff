@@ -522,7 +522,7 @@ int libpff_item_get_number_of_entries(
      libpff_error_t **error );
 
 /* Retrieves the type value
- * Determines the item type if neccessary
+ * Determines the item type if necessary
  * Returns 1 if successful or -1 on error
  */
 LIBPFF_EXTERN \
@@ -2783,27 +2783,27 @@ int libpff_message_get_html_body(
 #define libpff_message_get_utf16_sender_email_address( message, utf16_string, utf16_string_size, error ) \
 	libpff_message_get_entry_value_utf16_string( message, LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS, utf16_string, utf16_string_size, error )
 
-/* Retrieves the size of the UTF-8 encoded message sent reprenting name
+/* Retrieves the size of the UTF-8 encoded message sent representing name
  * Size includes the end of string character
  * Returns 1 if successful, 0 if not available or -1 on error
  */
 #define libpff_message_get_utf8_sent_representing_name_size( message, utf8_string_size, error ) \
 	libpff_message_get_entry_value_utf8_string_size( message, LIBPFF_ENTRY_TYPE_MESSAGE_SENT_REPRESENTING_NAME, utf8_string_size, error )
 
-/* Retrieves the UTF-8 encoded message sent reprenting name
+/* Retrieves the UTF-8 encoded message sent representing name
  * Returns 1 if successful, 0 if not available or -1 on error
  */
 #define libpff_message_get_utf8_sent_representing_name( message, utf8_string, utf8_string_size, error ) \
 	libpff_message_get_entry_value_utf8_string( message, LIBPFF_ENTRY_TYPE_MESSAGE_SENT_REPRESENTING_NAME, utf8_string, utf8_string_size, error )
 
-/* Retrieves the size of the UTF-16 encoded message sent reprenting name
+/* Retrieves the size of the UTF-16 encoded message sent representing name
  * Size includes the end of string character
  * Returns 1 if successful, 0 if not available or -1 on error
  */
 #define libpff_message_get_utf16_sent_representing_name_size( message, utf16_string_size, error ) \
 	libpff_message_get_entry_value_utf16_string_size( message, LIBPFF_ENTRY_TYPE_MESSAGE_SENT_REPRESENTING_NAME, utf16_string_size, error )
 
-/* Retrieves the UTF-16 encoded message sent reprenting name
+/* Retrieves the UTF-16 encoded message sent representing name
  * Returns 1 if successful, 0 if not available or -1 on error
  */
 #define libpff_message_get_utf16_sent_representing_name( message, utf16_string, utf16_string_size, error ) \

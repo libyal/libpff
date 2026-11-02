@@ -2014,7 +2014,7 @@ on_error:
 }
 
 /* Retrieves the type
- * Determines the item type if neccessary
+ * Determines the item type if necessary
  * Returns 1 if successful or -1 on error
  */
 int libpff_item_get_type(

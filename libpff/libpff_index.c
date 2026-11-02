@@ -393,7 +393,7 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 		 index->type,
 		 index_node->type );
 
-		/* TODO error tollerance */
+		/* TODO error tolerance */
 
 		goto on_error;
 	}
@@ -410,7 +410,7 @@ int libpff_index_get_leaf_node_from_node_by_identifier(
 			 node_back_pointer,
 			 index_node->back_pointer );
 
-			/* TODO error tollerance */
+			/* TODO error tolerance */
 
 			goto on_error;
 		}

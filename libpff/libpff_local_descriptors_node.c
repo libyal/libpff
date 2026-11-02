@@ -614,7 +614,7 @@ int libpff_local_descriptors_node_read_data(
 		 "%s: invalid number of entries.",
 		 function );
 
-/* TODO implement error tollerance */
+/* TODO implement error tolerance */
 		goto on_error;
 	}
 	local_descriptors_node->entries_data_size = local_descriptors_node->number_of_entries * local_descriptors_node->entry_size;
@@ -628,7 +628,7 @@ int libpff_local_descriptors_node_read_data(
 		 "%s: mismatch in total size of the entries data and the size of the entries.",
 		 function );
 
-/* TODO implement error tollerance */
+/* TODO implement error tolerance */
 		goto on_error;
 	}
 	if( local_descriptors_node->entries_data_size > (size32_t) MEMORY_MAXIMUM_ALLOCATION_SIZE )

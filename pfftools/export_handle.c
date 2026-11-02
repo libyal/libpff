@@ -15100,7 +15100,7 @@ int export_handle_export_recovered_items(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve recoverd item: %d identifier.",
+					 "%s: unable to retrieve recovered item: %d identifier.",
 					 function,
 					 recovered_item_iterator + 1 );
 

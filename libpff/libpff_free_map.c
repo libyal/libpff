@@ -117,7 +117,7 @@ int libpff_free_map_read_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create alloction table data.",
+		 "%s: unable to create allocation table data.",
 		 function );
 
 		goto on_error;
@@ -264,7 +264,7 @@ int libpff_free_map_read_file_io_handle(
 		 stored_checksum,
 		 calculated_checksum );
 
-		/* TODO implement error tollerance
+		/* TODO implement error tolerance
 		 */
 		goto on_error;
 	}
@@ -279,7 +279,7 @@ int libpff_free_map_read_file_io_handle(
 		 free_map_type,
 		 free_map_type_copy );
 
-		/* TODO implement error tollerance
+		/* TODO implement error tolerance
 		 */
 		goto on_error;
 	}
@@ -294,7 +294,7 @@ int libpff_free_map_read_file_io_handle(
 		 function,
 		 free_map_type );
 
-		/* TODO implement error tollerance
+		/* TODO implement error tolerance
 		 */
 		goto on_error;
 	}

@@ -44,7 +44,7 @@ struct pff_folder_information_reference
 	uint8_t guid[ 16 ];
 
 	/* The folder information data identifier
-	 * Refers to a descriptor index identifier refering to a folder information table
+	 * Refers to a descriptor index identifier referring to a folder information table
 	 * Consists of 4 bytes
 	 */
 	uint8_t data_identifier[ 4 ];

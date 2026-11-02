@@ -62,8 +62,8 @@ extern "C" {
 #define jpff_jni_environment_exception_occurred( environment ) \
 	( *environment )->ExceptionOccurred( environment )
 
-#define jpff_jni_environment_throw_new( environment, execption, error_string ) \
-	( *environment )->ThrowNew( environment, execption, error_string )
+#define jpff_jni_environment_throw_new( environment, exception, error_string ) \
+	( *environment )->ThrowNew( environment, exception, error_string )
 
 /* JNI array functions
  */

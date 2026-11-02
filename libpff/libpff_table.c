@@ -8721,7 +8721,7 @@ int libpff_table_read_values_array(
 				/* For some unknown reason when the values array is read
 				 * the data array is padded with zero or remnant values
 				 * therefore the values array entries do not align
-				 * this check is makes sure the aligment is correct
+				 * this check is makes sure the alignment is correct
 				 */
 				if( column_definition_index == 0 )
 				{

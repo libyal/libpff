@@ -1131,7 +1131,7 @@ int libpff_item_get_entry_value_boolean_by_utf8_name(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve boolean value of recored entry.",
+			 "%s: unable to retrieve boolean value of recorded entry.",
 			 function );
 
 			return( -1 );

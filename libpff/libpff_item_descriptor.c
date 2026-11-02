@@ -28,7 +28,7 @@
 #include "libpff_libcerror.h"
 
 /* Creates an item descriptor
- * Make sure the value item_descriptot is referencing, is set to NULL
+ * Make sure the value item_descriptor is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libpff_item_descriptor_initialize(

@@ -117,7 +117,7 @@ AC_DEFUN([AX_ZLIB_CHECK_ADLER32],
         [AC_DEFINE(
           [HAVE_ZLIB_ADLER32],
           [1],
-          [Define to 1 if adler32 funtion is available in zlib.])
+          [Define to 1 if adler32 function is available in zlib.])
         ac_cv_adler32=zlib])],
       [AS_IF(
         [test "x$ac_cv_with_adler32" = xzlib],
@@ -143,7 +143,7 @@ AC_DEFUN([AX_ZLIB_CHECK_COMPRESS2],
       [AC_DEFINE(
         [HAVE_ZLIB_COMPRESS2],
         [1],
-        [Define to 1 if compress2 funtion is available in zlib.])
+        [Define to 1 if compress2 function is available in zlib.])
       ])
     ])
   ])
@@ -162,7 +162,7 @@ AC_DEFUN([AX_ZLIB_CHECK_COMPRESSBOUND],
       [AC_DEFINE(
         [HAVE_ZLIB_COMPRESSBOUND],
         [1],
-        [Define to 1 if compressBound funtion is available in zlib.])
+        [Define to 1 if compressBound function is available in zlib.])
       ])
     ])
   ])

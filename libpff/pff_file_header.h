@@ -63,7 +63,7 @@ struct pff_file_header
 	 */
 	uint8_t data_version[ 2 ];
 
-	/* Content verion
+	/* Content version
 	 * Consists of 2 bytes
 	 */
 	uint8_t content_version[ 2 ];

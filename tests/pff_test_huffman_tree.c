@@ -644,7 +644,7 @@ int pff_test_huffman_tree_build(
 #endif /* defined( OPTIMIZATION_DISABLED ) */
 #endif /* defined( HAVE_PFF_TEST_MEMORY ) */
 
-	/* TODO test errornous data */
+	/* TODO test erroneous data */
 
 	/* Clean up
 	 */
