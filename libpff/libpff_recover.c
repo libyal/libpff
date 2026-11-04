@@ -1416,6 +1416,7 @@ int libpff_recover_check_descriptors_index_for_recovered_value(
 	return( result );
 }
 
+
 /* Recovers descriptors index values
  * Returns 1 if successful or -1 on error
  */
@@ -3043,18 +3044,15 @@ int libpff_recover_index_values(
      uint8_t recovery_flags,
      libcerror_error_t **error )
 {
-	libpff_index_node_t *index_node       = NULL;
-	libpff_index_value_t *index_value     = NULL;
-	uint8_t *node_entry_data              = NULL;
-	static char *function                 = "libpff_recover_index_values";
-	const char *index_string              = NULL;
-	off64_t index_value_file_offset       = 0;
-	uint64_t index_value_identifier       = 0;
-        uint32_t maximum_data_block_data_size = 0;
-	uint16_t index_value_data_size        = 0;
-	uint8_t entry_index                   = 0;
-	int recoverable                       = 0;
-	int result                            = 0;
+	libpff_index_node_t *index_node            = NULL;
+	libpff_index_value_t *index_value          = NULL;
+	uint8_t *node_entry_data                   = NULL;
+	static char *function                      = "libpff_recover_index_values";
+	const char *index_string                   = NULL;
+	uint32_t maximum_data_block_data_size      = 0;
+	uint8_t entry_index                        = 0;
+	int recoverable                            = 0;
+	int result                                 = 0;
 
 	if( io_handle == NULL )
 	{
@@ -3315,10 +3313,9 @@ int libpff_recover_index_values(
 				if( ( index_node->type == LIBPFF_INDEX_TYPE_OFFSET )
 				 && ( ( recovery_flags & LIBPFF_RECOVERY_FLAG_IGNORE_ALLOCATION_DATA ) == 0 ) )
 				{
-					result = libcdata_range_list_range_is_present(
+					result = libpff_recover_index_value_range_is_unallocated(
 						  unallocated_data_block_list,
-						  (uint64_t) index_value_file_offset,
-						  (uint64_t) index_value_data_size,
+						  index_value,
 						  error );
 
 					if( result == -1 )
@@ -3342,10 +3339,10 @@ int libpff_recover_index_values(
 							 function,
 							 index_string,
 							 entry_index,
-							 index_value_identifier,
-							 index_value_file_offset,
-							 index_value_file_offset + index_value_data_size,
-							 index_value_data_size );
+							 index_value->identifier,
+							 index_value->file_offset,
+							 index_value->file_offset + index_value->data_size,
+							 index_value->data_size );
 						}
 #endif
 						recoverable = 0;
@@ -3358,10 +3355,10 @@ int libpff_recover_index_values(
 						 function,
 						 index_string,
 						 entry_index,
-						 index_value_identifier,
-						 index_value_file_offset,
-						 index_value_file_offset + index_value_data_size,
-						 index_value_data_size );
+						 index_value->identifier,
+						 index_value->file_offset,
+						 index_value->file_offset + index_value->data_size,
+						 index_value->data_size );
 					}
 #endif
 				}
@@ -3378,7 +3375,7 @@ int libpff_recover_index_values(
 					 function,
 					 index_string,
 					 entry_index,
-					 index_value_identifier );
+					 index_value->identifier );
 				}
 #endif
 				if( index_node->type == LIBPFF_INDEX_TYPE_DESCRIPTOR )
@@ -3404,7 +3401,7 @@ int libpff_recover_index_values(
 					 "%s: unable to insert recovered %s index value: %" PRIu64 " list.",
 					 function,
 					 index_string,
-					 index_value_identifier );
+					 index_value->identifier );
 
 					goto on_error;
 				}
@@ -3465,6 +3462,50 @@ on_error:
 		 NULL );
 	}
 	return( -1 );
+}
+
+/* Determines if the data range referenced by an offsets index value is
+ * unallocated.
+ * Returns 1 if unallocated, 0 if allocated or -1 on error.
+ */
+int libpff_recover_index_value_range_is_unallocated(
+     libcdata_range_list_t *unallocated_data_block_list,
+     libpff_index_value_t *index_value,
+     libcerror_error_t **error )
+{
+	static char *function = "libpff_recover_index_value_range_is_unallocated";
+
+	if( unallocated_data_block_list == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid unallocated data block list.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index value.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_value->file_offset < 0 )
+	{
+		return( 0 );
+	}
+	return( libcdata_range_list_range_is_present(
+	         unallocated_data_block_list,
+	         (uint64_t) index_value->file_offset,
+	         (uint64_t) index_value->data_size,
+	         error ) );
 }
 
 /* Reads the index value data
@@ -4290,4 +4331,3 @@ int libpff_recover_analyze_local_descriptors(
 	 NULL );
 	return( result );
 }
-
