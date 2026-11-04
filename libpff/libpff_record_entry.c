@@ -2855,6 +2855,19 @@ int libpff_record_entry_get_multi_value(
 					}
 					if( value_index > 0 )
 					{
+						if( internal_multi_value->value_offset[ value_index ] < internal_multi_value->value_offset[ value_index - 1 ] )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: value offset: %" PRIu32 " smaller than previous value offset: %" PRIu32 " - offsets must be non-decreasing.",
+							 function,
+							 internal_multi_value->value_offset[ value_index ],
+							 internal_multi_value->value_offset[ value_index - 1 ] );
+
+							goto on_error;
+						}
 						internal_multi_value->value_size[ value_index - 1 ] = internal_multi_value->value_offset[ value_index ]
 						                                                    - internal_multi_value->value_offset[ value_index - 1 ];
 					}

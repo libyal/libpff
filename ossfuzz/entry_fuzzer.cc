@@ -206,7 +206,10 @@ static int entry_decode_fuzzer(
 			{
 				utf16_string_size = (size_t) 0x00100000;
 			}
-			utf16_string = (uint16_t *) malloc( utf16_string_size );
+			/* The size is the number of UTF-16 characters,
+			 * including the end of string character
+			 */
+			utf16_string = (uint16_t *) malloc( utf16_string_size * sizeof( uint16_t ) );
 
 			if( utf16_string != NULL )
 			{
@@ -216,7 +219,7 @@ static int entry_decode_fuzzer(
 				     utf16_string_size,
 				     NULL ) == 1 )
 				{
-					utf16_string[ utf16_string_size / 2 - 1 ] = 0;
+					utf16_string[ utf16_string_size - 1 ] = 0;
 				}
 				free( utf16_string );
 			}

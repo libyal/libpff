@@ -47,7 +47,7 @@ int libpff_free_map_read_file_io_handle(
 	uint8_t *free_map_data       = NULL;
 	uint8_t *table_data          = NULL;
 	static char *function        = "libpff_free_map_read_file_io_handle";
-	off64_t back_pointer_offset  = 0;
+	uint64_t back_pointer_offset = 0;
 	off64_t unallocated_offset   = 0;
 	size_t read_size             = 0;
 	size_t unallocated_size      = 0;
@@ -322,7 +322,7 @@ int libpff_free_map_read_file_io_handle(
 			{
 				if( unallocated_size == 0 )
 				{
-					unallocated_offset = back_pointer_offset;
+					unallocated_offset = (off64_t) back_pointer_offset;
 				}
 				unallocated_size += allocation_block_size;
 			}

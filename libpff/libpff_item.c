@@ -1992,17 +1992,26 @@ int libpff_internal_item_get_embedded_object_data(
 	return( 1 );
 
 on_error:
-	if( embedded_object_data_cache != NULL )
+	/* Only when the embedded object data stream was not created the
+	 * descriptor data list and cache are still owned by this function
+	 * and must be freed here. When the stream was created it took
+	 * ownership of the descriptor data list and cache (MANAGED) and
+	 * frees them when the item is freed.
+	 */
+	if( internal_item->embedded_object_data_stream == NULL )
 	{
-		libfcache_cache_free(
-		 &embedded_object_data_cache,
-		 NULL );
-	}
-	if( embedded_object_data_list != NULL )
-	{
-		libfdata_list_free(
-		 &embedded_object_data_list,
-		 NULL );
+		if( embedded_object_data_cache != NULL )
+		{
+			libfcache_cache_free(
+			 &embedded_object_data_cache,
+			 NULL );
+		}
+		if( embedded_object_data_list != NULL )
+		{
+			libfdata_list_free(
+			 &embedded_object_data_list,
+			 NULL );
+		}
 	}
 	if( local_descriptor_value != NULL )
 	{

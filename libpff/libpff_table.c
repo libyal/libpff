@@ -8264,6 +8264,20 @@ int libpff_table_read_values_array(
 
 		return( -1 );
 	}
+	/* Make sure the values array entries are large enough to contain the
+	 * 4-byte values array entry identifier
+	 */
+	if( values_array_entry_size < 4 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid values array entry size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
 	if( column_definitions_array == NULL )
 	{
 		libcerror_error_set(

@@ -262,11 +262,37 @@ int libpff_multi_value_get_value(
 	if( internal_multi_value->value_size[ value_index ] == 0 )
 	{
 		*value_data = NULL;
+
+		return( 1 );
 	}
-	else
+	if( internal_multi_value->value_data == NULL )
 	{
-		*value_data = &( internal_multi_value->value_data[ value_offset ] );
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing value data.",
+		 function );
+
+		return( -1 );
 	}
+	if( ( ( size_t ) value_offset > internal_multi_value->value_data_size )
+	 || ( ( size_t ) internal_multi_value->value_size[ value_index ] > ( internal_multi_value->value_data_size - ( size_t ) value_offset ) ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid value: offset: %" PRIu32 " and size: %" PRIzd " out of bounds of value data size: %" PRIzd ".",
+		 function,
+		 value_offset,
+		 internal_multi_value->value_size[ value_index ],
+		 internal_multi_value->value_data_size );
+
+		return( -1 );
+	}
+	*value_data = &( internal_multi_value->value_data[ value_offset ] );
+
 	return( 1 );
 }
 

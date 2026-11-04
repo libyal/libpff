@@ -49,7 +49,7 @@ int libpff_allocation_table_read_data(
 	size_t allocation_block_size       = 0;
 	size_t allocation_table_data_size  = 0;
 	size_t unallocated_size            = 0;
-	off64_t back_pointer_offset        = 0;
+	uint64_t back_pointer_offset       = 0;
 	off64_t unallocated_offset         = 0;
 	uint32_t calculated_checksum       = 0;
 	uint32_t stored_checksum           = 0;
@@ -360,7 +360,7 @@ int libpff_allocation_table_read_data(
 			{
 				if( unallocated_size == 0 )
 				{
-					unallocated_offset = back_pointer_offset;
+					unallocated_offset = (off64_t) back_pointer_offset;
 				}
 				unallocated_size += allocation_block_size;
 			}
