@@ -34,6 +34,8 @@
 #include "pff_test_unused.h"
 
 #include "../libpff/libpff_descriptors_index.h"
+#include "../libpff/libpff_index_value.h"
+#include "../libpff/libpff_io_handle.h"
 
 #if defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT )
 
@@ -75,6 +77,168 @@ on_error:
 	return( 0 );
 }
 
+/* Tests recovered descriptor lookup field preservation.
+ * Returns 1 if successful or 0 if not.
+ */
+int pff_test_descriptors_index_get_index_value_by_identifier(
+     void )
+{
+	libcerror_error_t *error                      = NULL;
+	libpff_descriptors_index_t *descriptors_index = NULL;
+	libpff_index_value_t *index_value             = NULL;
+	libpff_index_value_t *recovered_value         = NULL;
+	libpff_io_handle_t *io_handle                 = NULL;
+	int result                                    = 0;
+
+	result = libpff_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	result = libpff_descriptors_index_initialize(
+	          &descriptors_index,
+	          0,
+	          0,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	result = libpff_index_value_initialize(
+	          &recovered_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	recovered_value->identifier                   = 0x1234;
+	recovered_value->data_identifier              = 0x5678;
+	recovered_value->local_descriptors_identifier = 0x9abc;
+	recovered_value->parent_identifier            = 0xdef0;
+
+	result = libpff_descriptors_index_insert_recovered_index_value(
+	          descriptors_index,
+	          recovered_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	recovered_value = NULL;
+
+	result = libpff_descriptors_index_get_index_value_by_identifier(
+	          descriptors_index,
+	          io_handle,
+	          NULL,
+	          0x1234,
+	          1,
+	          &index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NOT_NULL(
+	 "index_value",
+	 index_value );
+
+	PFF_TEST_ASSERT_EQUAL_UINT64(
+	 "index_value->data_identifier",
+	 index_value->data_identifier,
+	 (uint64_t) 0x5678 );
+
+	PFF_TEST_ASSERT_EQUAL_UINT64(
+	 "index_value->local_descriptors_identifier",
+	 index_value->local_descriptors_identifier,
+	 (uint64_t) 0x9abc );
+
+	PFF_TEST_ASSERT_EQUAL_UINT32(
+	 "index_value->parent_identifier",
+	 index_value->parent_identifier,
+	 (uint32_t) 0xdef0 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libpff_index_value_free(
+	          &index_value,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	result = libpff_descriptors_index_free(
+	          &descriptors_index,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	result = libpff_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	PFF_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	PFF_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( index_value != NULL )
+	{
+		libpff_index_value_free(
+		 &index_value,
+		 NULL );
+	}
+	if( recovered_value != NULL )
+	{
+		libpff_index_value_free(
+		 &recovered_value,
+		 NULL );
+	}
+	if( descriptors_index != NULL )
+	{
+		libpff_descriptors_index_free(
+		 &descriptors_index,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libpff_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
 /* The main program
@@ -102,7 +266,9 @@ int main(
 
 	/* TODO: add tests for libpff_descriptors_index_set_root_node */
 
-	/* TODO: add tests for libpff_descriptors_index_get_index_value_by_identifier */
+	PFF_TEST_RUN(
+	 "libpff_descriptors_index_get_index_value_by_identifier",
+	 pff_test_descriptors_index_get_index_value_by_identifier );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBPFF_DLL_IMPORT ) */
 
@@ -111,4 +277,3 @@ int main(
 on_error:
 	return( EXIT_FAILURE );
 }
-
