@@ -22,8 +22,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <stdlib.h>
-
 /* Note that some of the OSS-Fuzz engines use C++
  */
 extern "C" {
@@ -45,33 +43,19 @@ int libpff_file_open_file_io_handle(
 
 #endif /* !defined( LIBPFF_HAVE_BFIO ) */
 
-/* Limits the number of sub items to walk
- * to bound the time a single input takes
- */
-#define FUZZER_SUB_ITEM_LIMIT	8
-
-/* Limits the size of the message body buffer
- */
-#define FUZZER_MESSAGE_BODY_SIZE_LIMIT	( (size_t) 0x4000 )
-
 int LLVMFuzzerTestOneInput(
       const uint8_t *data,
       size_t size )
 {
-	uint8_t *message_body       = NULL;
-
 	libbfio_handle_t *file_io_handle = NULL;
 	libpff_file_t *file              = NULL;
-	libpff_item_t *recipients        = NULL;
 	libpff_item_t *root_folder       = NULL;
 	libpff_item_t *sub_item          = NULL;
-	size_t message_body_size         = 0;
-	uint32_t number_of_entries       = 0;
-	int number_of_sub_items          = 0;
-	int number_of_sub_folders        = 0;
-	int number_of_sub_messages       = 0;
-	int number_of_sub_contents       = 0;
-	int number_of_attachments        = 0;
+	uint8_t item_type               = 0;
+	uint32_t identifier             = 0;
+	uint32_t number_of_entries      = 0;
+	int number_of_record_sets       = 0;
+	int number_of_sub_items         = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -106,103 +90,71 @@ int LLVMFuzzerTestOneInput(
 	     &root_folder,
 	     NULL ) == 1 )
 	{
-		/* Walk the sub items of the root folder
-		 */
+		if( libpff_item_get_identifier(
+		     root_folder,
+		     &identifier,
+		     NULL ) != 1 )
+		{
+			goto on_error_libpff_root_folder;
+		}
+		if( libpff_item_get_type(
+		     root_folder,
+		     &item_type,
+		     NULL ) != 1 )
+		{
+			goto on_error_libpff_root_folder;
+		}
 		if( libpff_item_get_number_of_sub_items(
 		     root_folder,
 		     &number_of_sub_items,
-		     NULL ) == 1 )
+		     NULL ) != 1 )
 		{
-			for( int sub_item_index = 0;
-			     sub_item_index < number_of_sub_items;
-			     sub_item_index++ )
-			{
-				sub_item = NULL;
-
-				if( sub_item_index >= FUZZER_SUB_ITEM_LIMIT )
-				{
-					break;
-				}
-				if( libpff_item_get_sub_item(
-				     root_folder,
-				     sub_item_index,
-				     &sub_item,
-				     NULL ) != 1 )
-				{
-					continue;
-				}
-				number_of_entries = 0;
-
-				libpff_item_get_number_of_entries(
-				 sub_item,
-				 &number_of_entries,
-				 NULL );
-
-				libpff_folder_get_number_of_sub_folders(
-				 sub_item,
-				 &number_of_sub_folders,
-				 NULL );
-
-				libpff_folder_get_number_of_sub_messages(
-				 sub_item,
-				 &number_of_sub_messages,
-				 NULL );
-
-				libpff_folder_get_number_of_sub_associated_contents(
-				 sub_item,
-				 &number_of_sub_contents,
-				 NULL );
-
-				libpff_message_get_number_of_attachments(
-				 sub_item,
-				 &number_of_attachments,
-				 NULL );
-
-				recipients = NULL;
-
-				if( libpff_message_get_recipients(
-				     sub_item,
-				     &recipients,
-				     NULL ) == 1
-				 && recipients != NULL )
-				{
-					libpff_item_free(
-					 &recipients,
-					 NULL );
-				}
-				message_body_size = 0;
-
-				if( libpff_message_get_plain_text_body_size(
-				     sub_item,
-				     &message_body_size,
-				     NULL ) == 1
-				 && message_body_size > 0 )
-				{
-					if( message_body_size > FUZZER_MESSAGE_BODY_SIZE_LIMIT )
-					{
-						message_body_size = FUZZER_MESSAGE_BODY_SIZE_LIMIT;
-					}
-					message_body = (uint8_t *) malloc( message_body_size );
-
-					if( message_body != NULL
-					 && libpff_message_get_plain_text_body(
-						          sub_item,
-						          message_body,
-						          message_body_size,
-						          NULL ) == 1 )
-					{
-						/* Use the body as a sink to keep it live
-						 */
-						message_body[ message_body_size - 1 ] = 0;
-					}
-					free( message_body );
-					message_body = NULL;
-				}
-				libpff_item_free(
-				 &sub_item,
-				 NULL );
-			}
+			goto on_error_libpff_root_folder;
 		}
+		if( number_of_sub_items > 0 )
+		{
+			if( libpff_item_get_sub_item(
+			     root_folder,
+			     0,
+			     &sub_item,
+			     NULL ) != 1 )
+			{
+				goto on_error_libpff_root_folder;
+			}
+			if( libpff_item_get_identifier(
+			     sub_item,
+			     &identifier,
+			     NULL ) != 1 )
+			{
+				goto on_error_libpff_sub_item;
+			}
+			if( libpff_item_get_type(
+			     sub_item,
+			     &item_type,
+			     NULL ) != 1 )
+			{
+				goto on_error_libpff_sub_item;
+			}
+			if( libpff_item_get_number_of_entries(
+			     sub_item,
+			     &number_of_entries,
+			     NULL ) != 1 )
+			{
+				goto on_error_libpff_sub_item;
+			}
+			if( libpff_item_get_number_of_record_sets(
+			     sub_item,
+			     &number_of_record_sets,
+			     NULL ) != 1 )
+			{
+				goto on_error_libpff_sub_item;
+			}
+ on_error_libpff_sub_item:
+			libpff_item_free(
+			 &sub_item,
+			 NULL );
+		}
+ on_error_libpff_root_folder:
 		libpff_item_free(
 		 &root_folder,
 		 NULL );

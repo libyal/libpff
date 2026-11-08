@@ -64,6 +64,8 @@ int LLVMFuzzerTestOneInput(
 	uint8_t recovery_flags           = 0;
 	int number_of_orphan_items       = 0;
 	int number_of_recovered_items    = 0;
+	int orphan_item_index            = 0;
+	int recovered_item_index         = 0;
 
 	if( libbfio_memory_range_initialize(
 	     &file_io_handle,
@@ -120,7 +122,7 @@ int LLVMFuzzerTestOneInput(
 		     &number_of_recovered_items,
 		     NULL ) == 1 )
 		{
-			for( int recovered_item_index = 0;
+			for( recovered_item_index = 0;
 			     recovered_item_index < number_of_recovered_items;
 			     recovered_item_index++ )
 			{
@@ -148,7 +150,7 @@ int LLVMFuzzerTestOneInput(
 		     &number_of_orphan_items,
 		     NULL ) == 1 )
 		{
-			for( int orphan_item_index = 0;
+			for( orphan_item_index = 0;
 			     orphan_item_index < number_of_orphan_items;
 			     orphan_item_index++ )
 			{
