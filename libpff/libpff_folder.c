@@ -119,7 +119,7 @@ int libpff_folder_get_type(
 		return( 1 );
 	}
 	if( libpff_record_entry_get_data_as_utf8_string_size(
-	     folder,
+	     record_entry,
 	     &container_class_string_size,
 	     error ) != 1 )
 	{
@@ -149,7 +149,7 @@ int libpff_folder_get_type(
 			goto on_error;
 		}
 		if( libpff_record_entry_get_data_as_utf8_string(
-		     folder,
+		     record_entry,
 		     (uint8_t *) container_class_string,
 		     container_class_string_size,
 		     error ) != 1 )
