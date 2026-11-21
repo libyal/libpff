@@ -3314,7 +3314,7 @@ int export_handle_item_get_value_string_by_type(
 		}
 	}
 	if( libpff_record_set_free(
-	     &record_entry,
+	     &record_set,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
